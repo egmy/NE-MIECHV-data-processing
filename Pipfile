@@ -8,6 +8,8 @@ pandas = "*"
 faker = "*"
 ipython = "*"
 ipykernel = "*"
+xlsxwriter = "*"
+openpyxl = "*"
 
 [dev-packages]
 

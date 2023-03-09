@@ -1,7 +1,7 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-#####################################################
+# %% ################################################
 ### PACKAGES ###
 #####################################################
 
@@ -17,14 +17,14 @@ print(pd.__version__)
 
 
 
-#####################################################
+# %% ################################################
 ### Section to Adjust ###
 #####################################################
 
 ### Instructions for how to get into environment & how to edit/run code files.
 
 
-#####################################################
+# %% ################################################
 ### READ ###
 #####################################################
 
@@ -40,7 +40,7 @@ df3_2 = pd.read_excel(path_3_data_source, sheet_name='Caregiver Insurance')
 df3_3 = pd.read_excel(path_3_data_source, sheet_name='Family Wise')
 df3_4 = pd.read_excel(path_3_data_source, sheet_name='LLCHD')
 
-#####################################################
+# %% ################################################
 ### JOIN ###
 #####################################################
 
@@ -50,7 +50,7 @@ df3_4 = pd.read_excel(path_3_data_source, sheet_name='LLCHD')
 ### DS: "Adult Activity Master File from Excel on NE Server".
 df3 = pd.merge(df3_1, df3_2, how='left', left_on=['Project Id','Year','Quarter'], right_on=['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)'], indicator='LJ_df3_2').merge(df3_3, how='left', left_on=['Project Id','Year','Quarter'], right_on=['Project ID 1','year (Family Wise)','quarter (Family Wise)'], indicator='LJ_df3_3').merge(df3_4, how='left', left_on=['Project Id','Year','Quarter'], right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], indicator='LJ_df3_4') 
 
-#####################################################
+# %% ################################################
 ### RECODE ###
 #####################################################
 
@@ -1356,20 +1356,20 @@ df3['_T16 Number of Home Visits'] = IFNULL([HomeVisitsTotal],[Home Visits Num])
 df3['_UNCOPE Score'] = IFNULL([Uncope Score],[_UNCOPE Score FW])
 
 
-#####################################################
+# %% ################################################
 ### Identify/FLAG "Unrecognized Value" ###
 #####################################################
 
 ### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
 ### Across many variables.
 
-#####################################################
+# %% ################################################
 ### Data Types ###
 #####################################################
 
 ### REMEMBER to check/set the data type of each column like it should be in output.
 
-#####################################################
+# %% ################################################
 ### WRITE ###
 #####################################################
 

@@ -1,7 +1,7 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-#####################################################
+# %% ################################################
 ### PACKAGES ###
 #####################################################
 
@@ -15,7 +15,7 @@ import pandas as pd
 ### Test that pandas imported:
 print(pd.__version__)
 
-#####################################################
+# %% ################################################
 ### READ ###
 #####################################################
 
@@ -29,7 +29,7 @@ df1_1 = pd.read_excel(path_1_data_source, sheet_name='Project ID')
 df1_2 = pd.read_excel(path_1_data_source, sheet_name='FamilyWise')
 df1_3 = pd.read_excel(path_1_data_source, sheet_name='LLCHD')
 
-#####################################################
+# %% ################################################
 ### JOIN ###
 #####################################################
 
@@ -41,7 +41,7 @@ df1_12 = pd.merge(df1_1, df1_2, how='left', left_on='Project Id', right_on='Proj
 df1 = pd.merge(df1_12, df1_3, how='left', left_on='Project Id', right_on='project id (LLCHD)', indicator=True)
 
 
-#####################################################
+# %% ################################################
 ### RECREATE every Tableau Calculation ###
 #####################################################
 
@@ -243,7 +243,7 @@ df1['_25 City'] = IFNULL([City],[Mob City])
 df1['_26 Zip'] = IFNULL(([Zip]),[Mob Zip])
 
 
-#####################################################
+# %% ################################################
 ### Identify/FLAG "Unrecognized Value" ###
 #####################################################
 
@@ -251,14 +251,14 @@ df1['_26 Zip'] = IFNULL(([Zip]),[Mob Zip])
 ### Across many variables.
 
 
-#####################################################
+# %% ################################################
 ### Data Types ###
 #####################################################
 
 ### REMEMBER to check/set the data type of each column like it should be in output.
 
 
-#####################################################
+# %% ################################################
 ### WRITE ###
 #####################################################
 

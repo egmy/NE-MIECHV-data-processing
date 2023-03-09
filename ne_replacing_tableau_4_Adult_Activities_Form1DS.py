@@ -1,7 +1,7 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-#####################################################
+# %% ################################################
 ### PACKAGES ###
 #####################################################
 
@@ -15,7 +15,7 @@ import pandas as pd
 ### Test that pandas imported:
 print(pd.__version__)
 
-#####################################################
+# %% ################################################
 ### READ ###
 #####################################################
 
@@ -32,7 +32,7 @@ df4_3 = pd.read_excel(path_4_data_source, sheet_name='Family Wise')
 df4_4 = pd.read_excel(path_4_data_source, sheet_name='LLCHD')
 df4_5 = pd.read_excel(path_4_data_source, sheet_name='MOB or FOB')
 
-#####################################################
+# %% ################################################
 ### JOIN ###
 #####################################################
 
@@ -42,14 +42,14 @@ df4_5 = pd.read_excel(path_4_data_source, sheet_name='MOB or FOB')
 ### DS: "Adult Activity Master File for Form 1 from Excel on NE Server".
 df4 = pd.merge(df4_1, df4_2, how='left', left_on=['Project Id','Year','Quarter'], right_on=['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)'], indicator='LJ_df4_2').merge(df4_3, how='left', left_on=['Project Id','Year','Quarter'], right_on=['Project ID 1','year (Family Wise)','quarter (Family Wise)'], indicator='LJ_df4_3').merge(df4_4, how='left', left_on=['Project Id','Year','Quarter'], right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], indicator='LJ_df4_4').merge(df4_5, how='left', left_on=['Join Id'], right_on=['join id (MOB or FOB)'], indicator='LJ_df4_5') 
 
-#####################################################
+# %% ################################################
 ### RECODE ###
 #####################################################
 
 ### numpy.where() --- Sami: use to treat NULL values weird at times; may be quicker than apply.
 ### pandas
 
-#####################################################
+# %% ################################################
 ### Identify/FLAG "Unrecognized Value" ###
 #####################################################
 
@@ -57,14 +57,14 @@ df4 = pd.merge(df4_1, df4_2, how='left', left_on=['Project Id','Year','Quarter']
 ### Across many variables.
 
 
-#####################################################
+# %% ################################################
 ### Data Types ###
 #####################################################
 
 ### REMEMBER to check/set the data type of each column like it should be in output.
 
 
-#####################################################
+# %% ################################################
 ### WRITE ###
 #####################################################
 

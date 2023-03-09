@@ -1,7 +1,29 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
+# %% ################################################
+### INSTRUCTIONS ###
 #####################################################
+
+### Instructions for how to get into environment & how to edit/run code files.
+
+# %% ################################################
+### Section to Adjust ###
+#####################################################
+
+### Data Source for 2nd Tableau file:
+path_2_data_source_file = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Child Activity Master File.xlsx' 
+
+path_2_data_source_sheets = [
+    'Project ID',  # 1
+    'Birth File',  # 2
+    'ER Injury',  # 3
+    'Family Wise',  # 4
+    'LLCHD',  # 5
+    'Well Child'  # 6
+]
+
+# %% ################################################
 ### PACKAGES ###
 #####################################################
 
@@ -15,42 +37,74 @@ import pandas as pd
 ### Test that pandas imported:
 print('pandas verion: ' + pd.__version__)
 
-#####################################################
-### INSTRUCTIONS ###
-#####################################################
-
-### Instructions for how to get into environment & how to edit/run code files.
-
-#####################################################
-### Section to Adjust ###
+# %% ################################################
+### Utility Functions ###
 #####################################################
 
-### Data Source for 2nd Tableau file:
-path_2_data_source_file = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Child Activity Master File Y12.xlsx' 
+def inspect_df(df):
+    print(f'Rows: {len(df)}')
+    print(f'Columns: {len(df.columns)}')
+    print('\n')
+    print(df.describe)
+    print('\n')
+    print(df.info())
+    print('\n')
+    display(df)
 
-path_2_data_source_sheets = [
-    'Project ID',  # 1
-    'Birth File',  # 2
-    'ER Injury',  # 3
-    'Family Wise',  # 4
-    'LLCHD',  # 5
-    'Well Child'  # 6
-]
-
-#####################################################
+# %% ################################################
 ### READ ###
 #####################################################
 
 ### https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
+### https://pandas.pydata.org/docs/user_guide/io.html#reading-excel-files 
 
-df2_1 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[0])
-df2_2 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[1])
-df2_3 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[2])
-df2_4 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[3])
-df2_5 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[4])
-df2_6 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[5])
+# %%
+### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
+xlsx = pd.ExcelFile(path_2_data_source_file)
 
-#####################################################
+# %% 
+### CHECK that all path_2_data_source_sheets same as xlsx.sheet_names (different order ok):
+
+### TODO 
+
+print(sorted(path_2_data_source_sheets))
+print(sorted(xlsx.sheet_names))
+sorted(path_2_data_source_sheets) == sorted(xlsx.sheet_names)
+
+# %%
+df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0])
+df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1])
+df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2])
+df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3])
+df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])
+df2_6 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[5])
+
+# df2_1 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[0])
+# df2_2 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[1])
+# df2_3 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[2])
+# df2_4 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[3])
+# df2_5 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[4])
+# df2_6 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[5])
+
+#%%
+### Function to add row to DF if no rows. Than map over list/dictionary of df's.
+
+### TODO
+
+# %% 
+### CHECK that there's data in each df (that are not empty):
+
+### TODO
+
+#%%
+inspect_df(df2_2)
+
+#%%
+inspect_df(df2_3)
+
+
+
+# %% ################################################
 ### JOIN ###
 #####################################################
 
@@ -86,13 +140,13 @@ df2 = (
     ) 
 )
 
-#####################################################
+# %% ################################################
 ### Set Data Types ###
 #####################################################
 
 ### Tableau does this automatically; will need to here too.
 
-#####################################################
+# %% ################################################
 ### RECODE / Creating Columns ###
 #####################################################
 
@@ -101,7 +155,7 @@ df2_edits1 = df2.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT cop
 ### Not needed?
     ### [Number of Records]
 
-#####################################################
+# %% ################################################
 ### DUPLICATING
 
 df2_edits1['_C18 ASQ 18 Mo Ref Location'] = df2_edits1['ASQ18MoRefLocation']
@@ -123,7 +177,7 @@ df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['SafeSleepPartialDate']
     ### ### ,[Safe Sleep Yes Dt]) ### LLCHD needs to provide a safe sleep partial date
     ### ### END
 
-#####################################################
+# %% ################################################
 ### COALESCING
 
 df2_edits1['_Agency'] = df2_edits1['Agency'].combine_first(df2_edits1['Site Id'])
@@ -257,7 +311,7 @@ df2_edits1['_TGT Number'] = df2_edits1['Tgt Id'].combine_first(df2_edits1['Child
 df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].combine_first(df2_edits1['Hlth Insure Tgt Dt'])
     ### DATE(IFNULL([TGT Insure Change Date],[Hlth Insure Tgt Dt]))
 
-#####################################################
+# %% ################################################
 ### DATE CALCULATIONS
 
 ### These calculations assume all date variables are dtype "datetime64".
@@ -348,7 +402,7 @@ df2_edits1['_TGT 8 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=8
 df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=9) 
     ### DATE(DATEADD('month',9,[_TGT DOB])) 
 
-#####################################################
+# %% ################################################
 ### IF/ELSE, CASE/WHEN
 
 ### fdf == "function DataFrame "
@@ -692,7 +746,7 @@ END
 
 
 
-#####################################################
+# %% ################################################
 ### Identify/FLAG "Unrecognized Value" ###
 #####################################################
 
@@ -710,7 +764,7 @@ df.loc[df['column']]
 
 
 
-#####################################################
+# %% ################################################
 ### Data Types ###
 #####################################################
 
@@ -720,7 +774,7 @@ df.loc[df['column']]
 
 
 
-#####################################################
+# %% ################################################
 ### WRITE ###
 #####################################################
 
