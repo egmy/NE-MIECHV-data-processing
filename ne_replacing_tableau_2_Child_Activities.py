@@ -8,11 +8,28 @@
 ### Instructions for how to get into environment & how to edit/run code files.
 
 # %% ################################################
+### PACKAGES ###
+#####################################################
+
+### pip list ### See packages installed in this virtual environment that can be imported.
+
+import pandas as pd
+from pathlib import Path
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+
+### Test that pandas imported:
+print('pandas verion: ' + pd.__version__)
+
+# %% ################################################
 ### Section to Adjust ###
 #####################################################
 
 ### Data Source for 2nd Tableau file:
-path_2_data_source_file = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Child Activity Master File.xlsx' 
+### path_2_data_source_file = 'U:\\Working\\Tableau\\Y12 (Oct 2022 - Sept 2023)\\Child Activity Master File.xlsx' ### old.
+### local:
+path_2_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01 original\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File.xlsx')
 
 path_2_data_source_sheets = [
     'Project ID',  # 1
@@ -22,20 +39,6 @@ path_2_data_source_sheets = [
     'LLCHD',  # 5
     'Well Child'  # 6
 ]
-
-# %% ################################################
-### PACKAGES ###
-#####################################################
-
-### pip list ### See packages installed in this virtual environment that can be imported.
-
-import pandas as pd
-
-# import matplotlib.pyplot as plt
-# import numpy as np
-
-### Test that pandas imported:
-print('pandas verion: ' + pd.__version__)
 
 # %% ################################################
 ### Utility Functions ###
@@ -64,14 +67,12 @@ xlsx = pd.ExcelFile(path_2_data_source_file)
 
 # %% 
 ### CHECK that all path_2_data_source_sheets same as xlsx.sheet_names (different order ok):
-
-### TODO 
-
 print(sorted(path_2_data_source_sheets))
 print(sorted(xlsx.sheet_names))
 sorted(path_2_data_source_sheets) == sorted(xlsx.sheet_names)
 
 # %%
+### READ all sheets:
 df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0])
 df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1])
 df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2])
@@ -97,10 +98,15 @@ df2_6 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[5])
 ### TODO
 
 #%%
+inspect_df(df2_1)
+#%%
 inspect_df(df2_2)
-
 #%%
 inspect_df(df2_3)
+#%%
+inspect_df(df2_4)
+#%%
+inspect_df(df2_5)
 
 
 
