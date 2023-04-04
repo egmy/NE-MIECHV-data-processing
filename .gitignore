@@ -1,0 +1,15 @@
+### Files/data
+data/
+previous_tableau/
+
+### Project
+*.html
+config.yml
+renv/library/
+renv/python/
+renv/staging/
+
+### Ignore everything in this folder…
+local_gitignore/*
+### …except this file:
+!local_gitignore/.gitkeep 
