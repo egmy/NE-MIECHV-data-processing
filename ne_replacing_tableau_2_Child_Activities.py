@@ -1,13 +1,13 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-# %% ################################################
+#%%##################################################
 ### INSTRUCTIONS ###
 #####################################################
 
 ### Instructions for how to get into environment & how to edit/run code files.
 
-# %% ################################################
+#%%##################################################
 ### PACKAGES ###
 #####################################################
 
@@ -22,7 +22,7 @@ from pathlib import Path
 ### Test that pandas imported:
 print('pandas verion: ' + pd.__version__)
 
-# %% ################################################
+#%%##################################################
 ### Section to Adjust ###
 #####################################################
 
@@ -40,7 +40,7 @@ path_2_data_source_sheets = [
     'Well Child'  # 6
 ]
 
-# %% ################################################
+#%%##################################################
 ### Utility Functions ###
 #####################################################
 
@@ -54,24 +54,24 @@ def inspect_df(df):
     print('\n')
     display(df)
 
-# %% ################################################
+#%%##################################################
 ### READ ###
 #####################################################
 
 ### https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
 ### https://pandas.pydata.org/docs/user_guide/io.html#reading-excel-files 
 
-# %%
+#%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
 xlsx = pd.ExcelFile(path_2_data_source_file)
 
-# %% 
+#%% 
 ### CHECK that all path_2_data_source_sheets same as xlsx.sheet_names (different order ok):
 print(sorted(path_2_data_source_sheets))
 print(sorted(xlsx.sheet_names))
 sorted(path_2_data_source_sheets) == sorted(xlsx.sheet_names)
 
-# %%
+#%%
 ### READ all sheets:
 df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0])
 df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1])
@@ -92,7 +92,7 @@ df2_6 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[5])
 
 ### TODO
 
-# %% 
+#%% 
 ### CHECK that there's data in each df (that are not empty):
 
 ### TODO
@@ -107,10 +107,21 @@ inspect_df(df2_3)
 inspect_df(df2_4)
 #%%
 inspect_df(df2_5)
+#%%
+inspect_df(df2_6)
 
+#%%##################################################
+### Rename Columns ###
+#####################################################
 
+df2_1 = df2_1.add_suffix(' (Project ID)')
+df2_2 = df2_2.add_suffix(' (Birth File)')
+df2_3 = df2_3.add_suffix(' (ER Injury)')
+df2_4 = df2_4.add_suffix(' (Family Wise)')
+df2_5 = df2_5.add_suffix(' (LLCHD)')
+df2_6 = df2_6.add_suffix(' (Well Child)')
 
-# %% ################################################
+#%%##################################################
 ### JOIN ###
 #####################################################
 
@@ -120,39 +131,51 @@ inspect_df(df2_5)
 
 df2 = (
     pd.merge(
-        df2_1, df2_2, how='left', 
-        left_on=['project_id','year (Project ID)','quarter (Project ID)'], 
-        right_on=['project id (Birth File)','year (Birth File)','quarter (Birth File)'], 
-        indicator='LJ_df2_2'
+        df2_1, ### 'Project ID'.
+        df2_2, ### 'Birth File'.
+        how='left', 
+        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        right_on=['project_id (Birth File)','year (Birth File)','quarter (Birth File)'], 
+        # suffixes=(' (Project ID)', ' (Birth File)'),
+        indicator='LJ_df2_2BF'
     ).merge(
-        df2_3, how='left', 
-        left_on=['project_id','year (Project ID)','quarter (Project ID)'], 
+        df2_3, ### 'ER Injury'.
+        how='left', 
+        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
         right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'], 
-        indicator='LJ_df2_3'
+        # suffixes=(' (Project ID)', ' (ER Injury)'),
+        indicator='LJ_df2_3ER'
     ).merge(
-        df2_4, how='left', 
-        left_on=['project_id','year (Project ID)','quarter (Project ID)'], 
-        right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'], 
-        indicator='LJ_df2_4'
+        df2_4, ### 'Family Wise'.
+        how='left', 
+        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        right_on=['Project ID (Family Wise)','year (Family Wise)','quarter (Family Wise)'], 
+        # suffixes=(' (Project ID)', ' (Family Wise)'),
+        indicator='LJ_df2_4FW'
     ).merge(
-        df2_5, how='left', 
-        left_on=['project_id','year (Project ID)','quarter (Project ID)'], 
-        right_on=['project_id (LLCHD)','Year 1','Quarter 1'], indicator='LJ_df2_5'
+        df2_5, ### 'LLCHD'.
+        how='left', 
+        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        right_on=['project_id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], 
+        # suffixes=(' (Project ID)', ' (LLCHD)'),
+        indicator='LJ_df2_5LL'
     ).merge(
-        df2_6, how='left', 
-        left_on=['project_id','year (Project ID)','quarter (Project ID)'], 
+        df2_6, ### 'Well Child'.
+        how='left', 
+        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
         right_on=['ProjectID (Well Child)','year (Well Child)','quarter (Well Child)'], 
-        indicator='LJ_df2_6'
+        # suffixes=(' (Project ID)', ' (Well Child)'),
+        indicator='LJ_df2_6WC'
     ) 
 )
 
-# %% ################################################
+#%%##################################################
 ### Set Data Types ###
 #####################################################
 
 ### Tableau does this automatically; will need to here too.
 
-# %% ################################################
+#%%##################################################
 ### RECODE / Creating Columns ###
 #####################################################
 
@@ -161,7 +184,7 @@ df2_edits1 = df2.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT cop
 ### Not needed?
     ### [Number of Records]
 
-# %% ################################################
+#%%##################################################
 ### DUPLICATING
 
 df2_edits1['_C18 ASQ 18 Mo Ref Location'] = df2_edits1['ASQ18MoRefLocation']
@@ -183,7 +206,7 @@ df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['SafeSleepPartialDate']
     ### ### ,[Safe Sleep Yes Dt]) ### LLCHD needs to provide a safe sleep partial date
     ### ### END
 
-# %% ################################################
+#%%##################################################
 ### COALESCING
 
 df2_edits1['_Agency'] = df2_edits1['Agency'].combine_first(df2_edits1['Site Id'])
@@ -317,7 +340,7 @@ df2_edits1['_TGT Number'] = df2_edits1['Tgt Id'].combine_first(df2_edits1['Child
 df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].combine_first(df2_edits1['Hlth Insure Tgt Dt'])
     ### DATE(IFNULL([TGT Insure Change Date],[Hlth Insure Tgt Dt]))
 
-# %% ################################################
+#%%##################################################
 ### DATE CALCULATIONS
 
 ### These calculations assume all date variables are dtype "datetime64".
@@ -408,7 +431,7 @@ df2_edits1['_TGT 8 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=8
 df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=9) 
     ### DATE(DATEADD('month',9,[_TGT DOB])) 
 
-# %% ################################################
+#%%##################################################
 ### IF/ELSE, CASE/WHEN
 
 ### fdf == "function DataFrame "
@@ -752,7 +775,7 @@ END
 
 
 
-# %% ################################################
+#%%##################################################
 ### Identify/FLAG "Unrecognized Value" ###
 #####################################################
 
@@ -770,7 +793,7 @@ df.loc[df['column']]
 
 
 
-# %% ################################################
+#%%##################################################
 ### Data Types ###
 #####################################################
 
@@ -780,7 +803,7 @@ df.loc[df['column']]
 
 
 
-# %% ################################################
+#%%##################################################
 ### WRITE ###
 #####################################################
 
