@@ -15,9 +15,9 @@
 
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
 # import matplotlib.pyplot as plt
-# import numpy as np
 
 ### Test that pandas imported:
 print('pandas verion: ' + pd.__version__)
@@ -127,9 +127,9 @@ df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])
 #%%
 # df2_1 = df2_1.add_suffix(' (Project ID)')
 # df2_2 = df2_2.add_suffix(' (ER Injury)')
-df2_3 = df2_3.add_suffix(' (Family Wise)')
-df2_4 = df2_4.add_suffix(' (LLCHD)')
-df2_5 = df2_5.add_suffix(' (Well Child)')
+# df2_3 = df2_3.add_suffix(' (Family Wise)')
+# df2_4 = df2_4.add_suffix(' (LLCHD)')
+# df2_5 = df2_5.add_suffix(' (Well Child)')
 
 #%%### df2_1: 'Project ID'.
 #%%### df2_2: 'ER Injury'.
@@ -169,25 +169,286 @@ df2_2_colnames = {
 df2_2 = df2_2.rename(columns=df2_2_colnames)
 [*df2_2]
 
-# #######################
-# #%%### df2_3: 'Family Wise'.
-# [*df2_3]
-# #%%### df2_3: 'Family Wise'.
-# df2_3_colnames = {
-# }
-# #%%### df2_3: 'Family Wise'.
-# df2_3 = df2_3.rename(columns=df2_3_colnames)
-# [*df2_3]
+#######################
+#%%### df2_3: 'Family Wise'.
+[*df2_3]
+#%%### df2_3: 'Family Wise'.
+df2_3_colnames = {
+    ### 'Project ID': 'Project ID',
+    'year': 'year (Family Wise)',
+    'quarter': 'quarter (Family Wise)',
+    'agency': 'Agency',
+    'FAMILY NUMBER': 'Family Number',
+    'ChildNumber': 'Child Number',
+    'MinOfHVDate': 'Min Of HV Date',
+    'TERMINATION DATE': 'Termination Date',
+    'TERMINATION STATUS': 'Termination Status',
+    'MaxofHVDate': 'Maxof HV Date',
+    'TGT DOB-CR': 'Tgt Dob-Cr',
+    ### 'EDC Date': 'EDC Date',
+    'MinHVDateBFYes': 'Min HV Date BF Yes',
+    'BreastFeeding': 'Breast Feeding', ### 'Breast Feeding (Count)'
+    'MinOfDateDiscontinueBF': 'Min Of Date Discontinue BF',
+    'SleepOnBack': 'Sleep On Back',
+    'CoSleeping': 'Co Sleeping',
+    'SoftBedding': 'Soft Bedding',
+    'SafeSleepDate': 'Safe Sleep Date',
+    'SafeSleepPartialDate': 'Safe Sleep Partial Date',
+    ### 'ASQ9MoDate': 'ASQ9MoDate',
+    ### 'ASQ9MoTiming': 'ASQ9MoTiming',
+    ### 'ASQ9MoCom': 'ASQ9MoCom',
+    ### 'ASQ9MoGross': 'ASQ9MoGross',
+    ### 'ASQ9MoFine': 'ASQ9MoFine',
+    ### 'ASQ9MoProblem': 'ASQ9MoProblem',
+    ### 'ASQ9MoPersonal': 'ASQ9MoPersonal',
+    ### 'ASQ18MoDate': 'ASQ18MoDate',
+    ### 'ASQ18MoTiming': 'ASQ18MoTiming',
+    ### 'ASQ18MoCom': 'ASQ18MoCom',
+    ### 'ASQ18MoGross': 'ASQ18MoGross',
+    ### 'ASQ18MoFine': 'ASQ18MoFine',
+    ### 'ASQ18MoProblem': 'ASQ18MoProblem',
+    ### 'ASQ18MoPersonal': 'ASQ18MoPersonal',
+    ### 'ASQ24MoDate': 'ASQ24MoDate',
+    ### 'ASQ24MoTiming': 'ASQ24MoTiming',
+    ### 'ASQ24MoCom': 'ASQ24MoCom',
+    ### 'ASQ24MoGross': 'ASQ24MoGross',
+    ### 'ASQ24MoFine': 'ASQ24MoFine',
+    ### 'ASQ24MoProblem': 'ASQ24MoProblem',
+    ### 'ASQ24MoPersonal': 'ASQ24MoPersonal',
+    ### 'ASQ30MoDate': 'ASQ30MoDate',
+    ### 'ASQ30MoTiming': 'ASQ30MoTiming',
+    ### 'ASQ30MoCom': 'ASQ30MoCom',
+    ### 'ASQ30MoGross': 'ASQ30MoGross',
+    ### 'ASQ30MoFine': 'ASQ30MoFine',
+    ### 'ASQ30MoProblem': 'ASQ30MoProblem',
+    ### 'ASQ30MoPersonal': 'ASQ30MoPersonal',
+    'MaxEarlyLiteracyDate': 'Max Early Literacy Date',
+    'ReadTellStorySing': 'Read Tell Story Sing',
+    'BehaviorDenom': 'Behavior Denom',
+    'BehaviorNumer': 'Behavior Numer',
+    'HomeVisitsPrental': 'Home Visits Prental',
+    'HomeVisitsTotal': 'Home Visits Total',
+    'TGTInsureChangeDate': 'TGT Insure Change Date',
+    'CHINSPrimaryIns': 'CHINS Primary Ins',
+    'MOB LANGUAGE': 'Mob Language',
+    'ChildMedCareSource': 'Child Med Care Source',
+    'ChildDentalCareSource': 'Child Dental Care Source',
+    'NTChildDevDelay': 'NT Child Dev Delay',
+    'NTChildLowAchievement': 'NT Child Low Achievement',
+    'HistoryInterWelfareChild': 'History Inter Welfare Child',
+    ### 'ASQ9MoRefDate': 'ASQ9MoRefDate',
+    ### 'ASQ9MoRefLocation': 'ASQ9MoRefLocation',
+    ### 'ASQ9MoRefEIDate': 'ASQ9MoRefEIDate',
+    ### 'ASQ9MoRefCSDate': 'ASQ9MoRefCSDate',
+    ### 'ASQ18MoRefDate': 'ASQ18MoRefDate',
+    ### 'ASQ18MoRefLocation': 'ASQ18MoRefLocation',
+    ### 'ASQ18MoEIDate': 'ASQ18MoEIDate',
+    ### 'ASQ18MoCSDate': 'ASQ18MoCSDate',
+    ### 'ASQ24MoRefDate': 'ASQ24MoRefDate',
+    ### 'ASQ24MoRefLocation': 'ASQ24MoRefLocation',
+    ### 'ASQ24MoEIDate': 'ASQ24MoEIDate',
+    ### 'ASQ24MoCSDate': 'ASQ24MoCSDate',
+    ### 'ASQ30MoRefDate': 'ASQ30MoRefDate',
+    ### 'ASQ30MoRefLocation': 'ASQ30MoRefLocation',
+    ### 'ASQ30MoEIDate': 'ASQ30MoEIDate',
+    ### 'ASQ30MoCSDate': 'ASQ30MoCSDate',
+    ### 'TGT Gender': 'TGT Gender',
+    'TGT ETHNICITY': 'Tgt Ethnicity',
+    'TGTRaceWhite': 'TGT Race White',
+    'TGTRaceBlack': 'TGT Race Black',
+    'TGTRaceIndianAlaskan': 'TGT Race Indian Alaskan',
+    'TGTRaceAsian': 'TGT Race Asian',
+    'TGTRaceHawaiianPacific': 'TGT Race Hawaiian Pacific',
+    'TGTRaceOther': 'TGT Race Other',
+    ### 'Adaptation': 'Adaptation',
+    '12 - 09 ASQ3_WhyNotDone': '12 - 09 ASQ3 WhyNotDone',
+    '12 - 18 ASQ3_WhyNotDone': '12 - 18 ASQ3 WhyNotDone',
+    '12 - 24 ASQ3_WhyNotDone': '12 - 24 ASQ3 WhyNotDone',
+    '12 - 30 ASQ3_WhyNotDone': '12 - 30 ASQ3 WhyNotDone',
+    'GESTATIONAL AGE': 'Gestational Age',
+    'need_exclusion4': 'Need Exclusion4'
+    ### 'ZIP Code': 'ZIP Code'
+}
+#%%### df2_3: 'Family Wise'.
+df2_3 = df2_3.rename(columns=df2_3_colnames)
+[*df2_3]
 
-# #######################
-# #%%### df2_4: 'LLCHD'.
-# [*df2_4]
-# #%%### df2_4: 'LLCHD'.
-# df2_4_colnames = {
-# }
-# #%%### df2_4: 'LLCHD'.
-# df2_4 = df2_4.rename(columns=df2_4_colnames)
-# [*df2_4]
+#######################
+#%%### df2_4: 'LLCHD'.
+[*df2_4]
+#%%### df2_4: 'LLCHD'.
+df2_4_colnames = {
+    'project_id': 'project id (LLCHD)',
+    'year': 'year (LLCHD)',
+    'quarter': 'quarter (LLCHD)',
+    'site_id': 'Site Id',
+    'family_id': 'Family Id',
+    'tgt_id': 'Tgt Id',
+    'tgt_dob': 'Tgt Dob',
+    'tgt_gender': 'Tgt Gender',
+    'tgt_ethnicity': 'Tgt Ethnicity1',
+    'tgt_race_indian': 'Tgt Race Indian',
+    'tgt_race_asian': 'Tgt Race Asian',
+    'tgt_race_black': 'Tgt Race Black',
+    'tgt_race_hawaiian': 'Tgt Race Hawaiian',
+    'tgt_race_white': 'Tgt Race White',
+    'tgt_race_other': 'Tgt Race Other',
+    'tgt_GestationalAge': 'tgt GestationalAge',
+    'tgt_medical_home': 'Tgt Medical Home',
+    'tgt_medical_home_dt': 'Tgt Medical Home Dt',
+    'tgt_dental_home': 'Tgt Dental Home',
+    'tgt_dental_home_dt': 'Tgt Dental Home Dt',
+    'dt_edc': 'Dt Edc',
+    'enroll_dt': 'Enroll Dt',
+    'enroll_preg_status': 'Enroll Preg Status',
+    'current_pregnancy': 'Current Pregnancy',
+    'discharge_reason': 'Discharge Reason',
+    'discharge_dt': 'Discharge Dt',
+    'last_home_visit': '',
+    'home_visits_num': '',
+    'home_visits_pre': '',
+    'home_visits_post': '',
+    'home_visits_person': '',
+    'home_visits_virtual': '',
+    'funding': '',
+    'c_fundingdate': '',
+    'p_funding': '',
+    'p_fundingdate': '',
+    'primary_id': '',
+    'primary_relation': '',
+    'mob_id': '',
+    'mob_dob': '',
+    'mob_gender': '',
+    'mob_ethnicity': '',
+    'mob_race': '',
+    'mob_race_indian': '',
+    'mob_race_asian': '',
+    'mob_race_black': '',
+    'mob_race_hawaiian': '',
+    'mob_race_white': '',
+    'mob_race_other': '',
+    'mob_marital_status': '',
+    'mob_living_arrangement': '',
+    'mob_living_arrangement_dt': '',
+    'fob_id': '',
+    'fob_dob': '',
+    'fob_gender': '',
+    'fob_ethnicity': '',
+    'fob_race': '',
+    'fob_race_indian': '',
+    'fob_race_asian': '',
+    'fob_race_black': '',
+    'fob_race_hawaiian': '',
+    'fob_race_white': '',
+    'fob_race_other': '',
+    'fob_marital_status': '',
+    'fob_living_arrangement': '',
+    'fob_living_arrangement_dt': '',
+    'fob_edu_dt': '',
+    'fob_edu': '',
+    'fob_employ_dt': '',
+    'fob_employ': '',
+    'fob_involved': '',
+    'zip': '',
+    'fob_visits': '',
+    'household_income': '',
+    'household_size': '',
+    'mcafss_income_dt': '',
+    'mcafss_income': '',
+    'mcafss_edu_dt1': '',
+    'mcafss_edu1': '',
+    'mcafss_edu1_enroll': '',
+    'mcafss_edu1_enroll_dt': '',
+    'mcafss_edu1_prog': '',
+    'mcafss_edu_dt2': '',
+    'mcafss_edu2': '',
+    'mcafss_edu2_enroll': '',
+    'mcafss_edu2_enroll_dt': '',
+    'mcafss_edu2_prog': '',
+    'mcafss_employ_dt': '',
+    'mcafss_employ': '',
+    'language_primary': '',
+    'priority_child_welfare': '',
+    'priority_substance_abuse': '',
+    'priority_tobacco_use': '',
+    'priority_low_student': '',
+    'priority_develop_delays': '',
+    'priority_military': '',
+    'uncope_dt': '',
+    'uncope_score': '',
+    'substance_abuse_ref_dt': '',
+    'tobacco_use': '',
+    'tobacco_use_dt': '',
+    'tobacco_ref_dt': '',
+    'safe_sleep_yes': '',
+    'safe_sleep_yes_dt': '',
+    'cheeers_date': '',
+    'early_language': '',
+    'early_language_dt': '',
+    'asq3_dt_9mm': '',
+    'asq3_timing_9mm': '',
+    'asq3_comm_9mm': '',
+    'asq3_gross_9mm': '',
+    'asq3_fine_9mm': '',
+    'asq3_problem_9mm': '',
+    'asq3_social_9mm': '',
+    'asq3_feedback_9mm': '',
+    'asq3_referral_9mm': '',
+    'asq3_dt_18mm': '',
+    'asq3_timing_18mm': '',
+    'asq3_comm_18mm': '',
+    'asq3_gross_18mm': '',
+    'asq3_fine_18mm': '',
+    'asq3_problem_18mm': '',
+    'asq3_social_18mm': '',
+    'asq3_feedback_18mm': '',
+    'asq3_referral_18mm': '',
+    'asq3_dt_24mm': '',
+    'asq3_timing_24mm': '',
+    'asq3_comm_24mm': '',
+    'asq3_gross_24mm': '',
+    'asq3_fine_24mm': '',
+    'asq3_problem_24mm': '',
+    'asq3_social_24mm': '',
+    'asq3_feedback_24mm': '',
+    'asq3_referral_24mm': '',
+    'asq3_dt_30mm': '',
+    'asq3_timing_30mm': '',
+    'asq3_comm_30mm': '',
+    'asq3_gross_30mm': '',
+    'asq3_fine_30mm': '',
+    'asq3_problem_30mm': '',
+    'asq3_social_30mm': '',
+    'asq3_feedback_30mm': '',
+    'asq3_referral_30mm': '',
+    'behavioral_concerns': '',
+    'ipv_screen': '',
+    'ipv_screen_dt': '',
+    'ipv_referral_dt': '',
+    'prim_care_dt': '',
+    'cesd_dt': '',
+    'cesd_score': '',
+    'ment_hlth_ref_dt': '',
+    'lsp_bf_initiation_dt': '',
+    'lsp_bf_discon_dt': '',
+    'hlth_insure_mob': '',
+    'hlth_insure_mob_dt': '',
+    'hlth_insure_tgt': '',
+    'hlth_insure_tgt_dt': '',
+    'last_well_child_visit': '',
+    'hlth_insure_fob': '',
+    'hlth_insure_fob_dt': '',
+    'need_exclusion1': '',
+    'need_exclusion2': '',
+    'need_exclusion3': '',
+    'need_exclusion4': '',
+    'need_exclusion5': '',
+    'need_exclusion6': '',
+    'Has_ChildWelfareAdaptation': ''
+}
+#%%### df2_4: 'LLCHD'.
+df2_4 = df2_4.rename(columns=df2_4_colnames)
+[*df2_4]
 
 # #######################
 # #%%### df2_5: 'Well Child'.
