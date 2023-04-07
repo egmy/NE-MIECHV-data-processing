@@ -16,11 +16,14 @@
 import pandas as pd
 from pathlib import Path
 import numpy as np
+import sys
 
 # import matplotlib.pyplot as plt
 
 ### Test that pandas imported:
-print('pandas verion: ' + pd.__version__)
+print('Version Of Python: ' + sys.version)
+print('Version Of Pandas: ' + pd.__version__)
+print('Version Of Numpy: ' + np.version.version)
 
 #%%##################################################
 ### Section to Adjust ###
@@ -141,11 +144,14 @@ df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])
 #%%### df2_1: 'Project ID'.
 [*df2_1]
 #%%### df2_1: 'Project ID'.
-df2_1_colnames = {
-    'project_id': 'Project Id', 
-    'year': 'Year', 
-    'quarter': 'Quarter'
-}
+df2_1_col_detail = [
+    ['project_id', 'Project Id', '', 'string'], 
+    ['year', 'Year', '', 'Int64'], 
+    ['quarter', 'Quarter', '', 'Int64']
+]
+#%%### df2_1: 'Project ID'.
+df2_1_colnames = {x[0]:x[1] for x in df2_1_col_detail if x[2] != 'same' and x[0] != x[1]}
+df2_1_colnames
 #%%### df2_1: 'Project ID'.
 df2_1 = df2_1.rename(columns=df2_1_colnames)
 [*df2_1]
@@ -154,17 +160,20 @@ df2_1 = df2_1.rename(columns=df2_1_colnames)
 #%%### df2_2: 'ER Injury'.
 [*df2_2]
 #%%### df2_2: 'ER Injury'.
-df2_2_colnames = {
-    'Project ID': 'Project ID (ER Injury)',
-    'year': 'year (ER Injury)',
-    'quarter': 'quarter (ER Injury)',
-    'agency': 'agency (ER Injury)',
-    'FAMILY NUMBER': 'FAMILY NUMBER (ER Injury)',
-    'ChildNumber': 'ChildNumber (ER Injury)',
-    'funding': 'funding (ER Injury)',
-    'IncidentDate': 'Incident Date'
-    ###'IncidentDate2': 'IncidentDate2'
-}
+df2_2_col_detail = [
+    ['Project ID', 'Project ID (ER Injury)', '', 'string'],
+    ['year', 'year (ER Injury)', '', 'Int64'],
+    ['quarter', 'quarter (ER Injury)', '', 'Int64'],
+    ['agency', 'agency (ER Injury)', '', 'string'],
+    ['FAMILY NUMBER', 'FAMILY NUMBER (ER Injury)', '', 'string'],
+    ['ChildNumber', 'ChildNumber (ER Injury)', '', 'string'],
+    ['funding', 'funding (ER Injury)', '', 'string'],
+    ['IncidentDate', 'Incident Date', '', 'datetime64[ns]'],
+    ['IncidentDate2', 'IncidentDate2', 'same', 'datetime64[ns]']
+]
+#%%### df2_2: 'ER Injury'.
+df2_2_colnames = {x[0]:x[1] for x in df2_2_col_detail if x[2] != 'same' and x[0] != x[1]}
+df2_2_colnames
 #%%### df2_2: 'ER Injury'.
 df2_2 = df2_2.rename(columns=df2_2_colnames)
 [*df2_2]
@@ -173,102 +182,105 @@ df2_2 = df2_2.rename(columns=df2_2_colnames)
 #%%### df2_3: 'Family Wise'.
 [*df2_3]
 #%%### df2_3: 'Family Wise'.
-df2_3_colnames = {
-    ### 'Project ID': 'Project ID',
-    'year': 'year (Family Wise)',
-    'quarter': 'quarter (Family Wise)',
-    'agency': 'Agency',
-    'FAMILY NUMBER': 'Family Number',
-    'ChildNumber': 'Child Number',
-    'MinOfHVDate': 'Min Of HV Date',
-    'TERMINATION DATE': 'Termination Date',
-    'TERMINATION STATUS': 'Termination Status',
-    'MaxofHVDate': 'Maxof HV Date',
-    'TGT DOB-CR': 'Tgt Dob-Cr',
-    ### 'EDC Date': 'EDC Date',
-    'MinHVDateBFYes': 'Min HV Date BF Yes',
-    'BreastFeeding': 'Breast Feeding', ### 'Breast Feeding (Count)'
-    'MinOfDateDiscontinueBF': 'Min Of Date Discontinue BF',
-    'SleepOnBack': 'Sleep On Back',
-    'CoSleeping': 'Co Sleeping',
-    'SoftBedding': 'Soft Bedding',
-    'SafeSleepDate': 'Safe Sleep Date',
-    'SafeSleepPartialDate': 'Safe Sleep Partial Date',
-    ### 'ASQ9MoDate': 'ASQ9MoDate',
-    ### 'ASQ9MoTiming': 'ASQ9MoTiming',
-    ### 'ASQ9MoCom': 'ASQ9MoCom',
-    ### 'ASQ9MoGross': 'ASQ9MoGross',
-    ### 'ASQ9MoFine': 'ASQ9MoFine',
-    ### 'ASQ9MoProblem': 'ASQ9MoProblem',
-    ### 'ASQ9MoPersonal': 'ASQ9MoPersonal',
-    ### 'ASQ18MoDate': 'ASQ18MoDate',
-    ### 'ASQ18MoTiming': 'ASQ18MoTiming',
-    ### 'ASQ18MoCom': 'ASQ18MoCom',
-    ### 'ASQ18MoGross': 'ASQ18MoGross',
-    ### 'ASQ18MoFine': 'ASQ18MoFine',
-    ### 'ASQ18MoProblem': 'ASQ18MoProblem',
-    ### 'ASQ18MoPersonal': 'ASQ18MoPersonal',
-    ### 'ASQ24MoDate': 'ASQ24MoDate',
-    ### 'ASQ24MoTiming': 'ASQ24MoTiming',
-    ### 'ASQ24MoCom': 'ASQ24MoCom',
-    ### 'ASQ24MoGross': 'ASQ24MoGross',
-    ### 'ASQ24MoFine': 'ASQ24MoFine',
-    ### 'ASQ24MoProblem': 'ASQ24MoProblem',
-    ### 'ASQ24MoPersonal': 'ASQ24MoPersonal',
-    ### 'ASQ30MoDate': 'ASQ30MoDate',
-    ### 'ASQ30MoTiming': 'ASQ30MoTiming',
-    ### 'ASQ30MoCom': 'ASQ30MoCom',
-    ### 'ASQ30MoGross': 'ASQ30MoGross',
-    ### 'ASQ30MoFine': 'ASQ30MoFine',
-    ### 'ASQ30MoProblem': 'ASQ30MoProblem',
-    ### 'ASQ30MoPersonal': 'ASQ30MoPersonal',
-    'MaxEarlyLiteracyDate': 'Max Early Literacy Date',
-    'ReadTellStorySing': 'Read Tell Story Sing',
-    'BehaviorDenom': 'Behavior Denom',
-    'BehaviorNumer': 'Behavior Numer',
-    'HomeVisitsPrental': 'Home Visits Prental',
-    'HomeVisitsTotal': 'Home Visits Total',
-    'TGTInsureChangeDate': 'TGT Insure Change Date',
-    'CHINSPrimaryIns': 'CHINS Primary Ins',
-    'MOB LANGUAGE': 'Mob Language',
-    'ChildMedCareSource': 'Child Med Care Source',
-    'ChildDentalCareSource': 'Child Dental Care Source',
-    'NTChildDevDelay': 'NT Child Dev Delay',
-    'NTChildLowAchievement': 'NT Child Low Achievement',
-    'HistoryInterWelfareChild': 'History Inter Welfare Child',
-    ### 'ASQ9MoRefDate': 'ASQ9MoRefDate',
-    ### 'ASQ9MoRefLocation': 'ASQ9MoRefLocation',
-    ### 'ASQ9MoRefEIDate': 'ASQ9MoRefEIDate',
-    ### 'ASQ9MoRefCSDate': 'ASQ9MoRefCSDate',
-    ### 'ASQ18MoRefDate': 'ASQ18MoRefDate',
-    ### 'ASQ18MoRefLocation': 'ASQ18MoRefLocation',
-    ### 'ASQ18MoEIDate': 'ASQ18MoEIDate',
-    ### 'ASQ18MoCSDate': 'ASQ18MoCSDate',
-    ### 'ASQ24MoRefDate': 'ASQ24MoRefDate',
-    ### 'ASQ24MoRefLocation': 'ASQ24MoRefLocation',
-    ### 'ASQ24MoEIDate': 'ASQ24MoEIDate',
-    ### 'ASQ24MoCSDate': 'ASQ24MoCSDate',
-    ### 'ASQ30MoRefDate': 'ASQ30MoRefDate',
-    ### 'ASQ30MoRefLocation': 'ASQ30MoRefLocation',
-    ### 'ASQ30MoEIDate': 'ASQ30MoEIDate',
-    ### 'ASQ30MoCSDate': 'ASQ30MoCSDate',
-    ### 'TGT Gender': 'TGT Gender',
-    'TGT ETHNICITY': 'Tgt Ethnicity',
-    'TGTRaceWhite': 'TGT Race White',
-    'TGTRaceBlack': 'TGT Race Black',
-    'TGTRaceIndianAlaskan': 'TGT Race Indian Alaskan',
-    'TGTRaceAsian': 'TGT Race Asian',
-    'TGTRaceHawaiianPacific': 'TGT Race Hawaiian Pacific',
-    'TGTRaceOther': 'TGT Race Other',
-    ### 'Adaptation': 'Adaptation',
-    '12 - 09 ASQ3_WhyNotDone': '12 - 09 ASQ3 WhyNotDone',
-    '12 - 18 ASQ3_WhyNotDone': '12 - 18 ASQ3 WhyNotDone',
-    '12 - 24 ASQ3_WhyNotDone': '12 - 24 ASQ3 WhyNotDone',
-    '12 - 30 ASQ3_WhyNotDone': '12 - 30 ASQ3 WhyNotDone',
-    'GESTATIONAL AGE': 'Gestational Age',
-    'need_exclusion4': 'Need Exclusion4'
-    ### 'ZIP Code': 'ZIP Code'
-}
+df2_3_col_detail = [
+    ['Project ID', 'Project ID', 'same', 'string']
+    ,['year', 'year (Family Wise)', '', 'Int64']
+    ,['quarter', 'quarter (Family Wise)', '', 'Int64']
+    ,['agency', 'Agency', '', 'string']
+    ,['FAMILY NUMBER', 'Family Number', '', 'string']
+    ,['ChildNumber', 'Child Number', '', 'string']
+    ,['MinOfHVDate', 'Min Of HV Date', '', 'datetime64[ns]']
+    ,['TERMINATION DATE', 'Termination Date', '', 'datetime64[ns]']
+    ,['TERMINATION STATUS', 'Termination Status', '', 'string']
+    ,['MaxofHVDate', 'Maxof HV Date', '', 'datetime64[ns]']
+    ,['TGT DOB-CR', 'Tgt Dob-Cr', '', 'datetime64[ns]']
+    ,['EDC Date', 'EDC Date', 'same', 'datetime64[ns]']
+    ,['MinHVDateBFYes', 'Min HV Date BF Yes', '', 'datetime64[ns]']
+    ,['BreastFeeding', 'Breast Feeding', '', 'string'] ### 'Breast Feeding (Count)'.
+    ,['MinOfDateDiscontinueBF', 'Min Of Date Discontinue BF', '', 'datetime64[ns]']
+    ,['SleepOnBack', 'Sleep On Back', '', 'string']
+    ,['CoSleeping', 'Co Sleeping', '', 'string']
+    ,['SoftBedding', 'Soft Bedding', '', 'string']
+    ,['SafeSleepDate', 'Safe Sleep Date', '', 'datetime64[ns]']
+    ,['SafeSleepPartialDate', 'Safe Sleep Partial Date', '', 'datetime64[ns]']
+    ,['ASQ9MoDate', 'ASQ9MoDate', 'same', 'datetime64[ns]']
+    ,['ASQ9MoTiming', 'ASQ9MoTiming', 'same', 'Int64']
+    ,['ASQ9MoCom', 'ASQ9MoCom', 'same', 'Int64']
+    ,['ASQ9MoGross', 'ASQ9MoGross', 'same', 'Int64']
+    ,['ASQ9MoFine', 'ASQ9MoFine', 'same', 'Int64']
+    ,['ASQ9MoProblem', 'ASQ9MoProblem', 'same', 'Int64']
+    ,['ASQ9MoPersonal', 'ASQ9MoPersonal', 'same', 'Int64']
+    ,['ASQ18MoDate', 'ASQ18MoDate', 'same', 'datetime64[ns]']
+    ,['ASQ18MoTiming', 'ASQ18MoTiming', 'same', 'Int64']
+    ,['ASQ18MoCom', 'ASQ18MoCom', 'same', 'Int64']
+    ,['ASQ18MoGross', 'ASQ18MoGross', 'same', 'Int64']
+    ,['ASQ18MoFine', 'ASQ18MoFine', 'same', 'Int64']
+    ,['ASQ18MoProblem', 'ASQ18MoProblem', 'same', 'Int64']
+    ,['ASQ18MoPersonal', 'ASQ18MoPersonal', 'same', 'Int64']
+    ,['ASQ24MoDate', 'ASQ24MoDate', 'same', 'datetime64[ns]']
+    ,['ASQ24MoTiming', 'ASQ24MoTiming', 'same', 'Int64']
+    ,['ASQ24MoCom', 'ASQ24MoCom', 'same', 'Int64']
+    ,['ASQ24MoGross', 'ASQ24MoGross', 'same', 'Int64']
+    ,['ASQ24MoFine', 'ASQ24MoFine', 'same', 'Int64']
+    ,['ASQ24MoProblem', 'ASQ24MoProblem', 'same', 'Int64']
+    ,['ASQ24MoPersonal', 'ASQ24MoPersonal', 'same', 'Int64']
+    ,['ASQ30MoDate', 'ASQ30MoDate', 'same', 'datetime64[ns]']
+    ,['ASQ30MoTiming', 'ASQ30MoTiming', 'same', 'Int64']
+    ,['ASQ30MoCom', 'ASQ30MoCom', 'same', 'Int64']
+    ,['ASQ30MoGross', 'ASQ30MoGross', 'same', 'Int64']
+    ,['ASQ30MoFine', 'ASQ30MoFine', 'same', 'Int64']
+    ,['ASQ30MoProblem', 'ASQ30MoProblem', 'same', 'Int64']
+    ,['ASQ30MoPersonal', 'ASQ30MoPersonal', 'same', 'Int64']
+    ,['MaxEarlyLiteracyDate', 'Max Early Literacy Date', '', 'datetime64[ns]']
+    ,['ReadTellStorySing', 'Read Tell Story Sing', '', 'string']
+    ,['BehaviorDenom', 'Behavior Denom', '', 'Int64']
+    ,['BehaviorNumer', 'Behavior Numer', '', 'Int64']
+    ,['HomeVisitsPrental', 'Home Visits Prental', '', 'Int64']
+    ,['HomeVisitsTotal', 'Home Visits Total', '', 'Int64']
+    ,['TGTInsureChangeDate', 'TGT Insure Change Date', '', 'datetime64[ns]']
+    ,['CHINSPrimaryIns', 'CHINS Primary Ins', '', 'string']
+    ,['MOB LANGUAGE', 'Mob Language', '', 'string']
+    ,['ChildMedCareSource', 'Child Med Care Source', '', 'string']
+    ,['ChildDentalCareSource', 'Child Dental Care Source', '', 'string']
+    ,['NTChildDevDelay', 'NT Child Dev Delay', '', 'string']
+    ,['NTChildLowAchievement', 'NT Child Low Achievement', '', 'string']
+    ,['HistoryInterWelfareChild', 'History Inter Welfare Child', '', 'boolean']
+    ,['ASQ9MoRefDate', 'ASQ9MoRefDate', 'same', 'datetime64[ns]']
+    ,['ASQ9MoRefLocation', 'ASQ9MoRefLocation', 'same', 'string']
+    ,['ASQ9MoRefEIDate', 'ASQ9MoRefEIDate', 'same', 'datetime64[ns]']
+    ,['ASQ9MoRefCSDate', 'ASQ9MoRefCSDate', 'same', 'datetime64[ns]']
+    ,['ASQ18MoRefDate', 'ASQ18MoRefDate', 'same', 'datetime64[ns]']
+    ,['ASQ18MoRefLocation', 'ASQ18MoRefLocation', 'same', 'string']
+    ,['ASQ18MoEIDate', 'ASQ18MoEIDate', 'same', 'datetime64[ns]']
+    ,['ASQ18MoCSDate', 'ASQ18MoCSDate', 'same', 'datetime64[ns]']
+    ,['ASQ24MoRefDate', 'ASQ24MoRefDate', 'same', 'datetime64[ns]']
+    ,['ASQ24MoRefLocation', 'ASQ24MoRefLocation', 'same', 'string']
+    ,['ASQ24MoEIDate', 'ASQ24MoEIDate', 'same', 'datetime64[ns]']
+    ,['ASQ24MoCSDate', 'ASQ24MoCSDate', 'same', 'datetime64[ns]']
+    ,['ASQ30MoRefDate', 'ASQ30MoRefDate', 'same', 'datetime64[ns]']
+    ,['ASQ30MoRefLocation', 'ASQ30MoRefLocation', 'same', 'string']
+    ,['ASQ30MoEIDate', 'ASQ30MoEIDate', 'same', 'datetime64[ns]']
+    ,['ASQ30MoCSDate', 'ASQ30MoCSDate', 'same', 'datetime64[ns]']
+    ,['TGT Gender', 'TGT Gender', 'same', 'string']
+    ,['TGT ETHNICITY', 'Tgt Ethnicity', '', 'string']
+    ,['TGTRaceWhite', 'TGT Race White', '', 'boolean']
+    ,['TGTRaceBlack', 'TGT Race Black', '', 'boolean']
+    ,['TGTRaceIndianAlaskan', 'TGT Race Indian Alaskan', '', 'boolean']
+    ,['TGTRaceAsian', 'TGT Race Asian', '', 'boolean']
+    ,['TGTRaceHawaiianPacific', 'TGT Race Hawaiian Pacific', '', 'boolean']
+    ,['TGTRaceOther', 'TGT Race Other', '', 'boolean']
+    ,['Adaptation', 'Adaptation', 'same', 'string']
+    ,['12 - 09 ASQ3_WhyNotDone', '12 - 09 ASQ3 WhyNotDone', '', 'string']
+    ,['12 - 18 ASQ3_WhyNotDone', '12 - 18 ASQ3 WhyNotDone', '', 'string']
+    ,['12 - 24 ASQ3_WhyNotDone', '12 - 24 ASQ3 WhyNotDone', '', 'string']
+    ,['12 - 30 ASQ3_WhyNotDone', '12 - 30 ASQ3 WhyNotDone', '', 'string']
+    ,['GESTATIONAL AGE', 'Gestational Age', '', 'string']
+    ,['need_exclusion4', 'Need Exclusion4', '', 'string']
+    ,['ZIP Code', 'ZIP Code', 'same', 'Int64']
+]
+#%%### df2_3: 'Family Wise'.
+df2_3_colnames = {x[0]:x[1] for x in df2_3_col_detail if x[2] != 'same' and x[0] != x[1]}
+df2_3_colnames
 #%%### df2_3: 'Family Wise'.
 df2_3 = df2_3.rename(columns=df2_3_colnames)
 [*df2_3]
@@ -277,188 +289,227 @@ df2_3 = df2_3.rename(columns=df2_3_colnames)
 #%%### df2_4: 'LLCHD'.
 [*df2_4]
 #%%### df2_4: 'LLCHD'.
-df2_4_colnames = {
-    'project_id': 'project id (LLCHD)',
-    'year': 'year (LLCHD)',
-    'quarter': 'quarter (LLCHD)',
-    'site_id': 'Site Id',
-    'family_id': 'Family Id',
-    'tgt_id': 'Tgt Id',
-    'tgt_dob': 'Tgt Dob',
-    'tgt_gender': 'Tgt Gender',
-    'tgt_ethnicity': 'Tgt Ethnicity1',
-    'tgt_race_indian': 'Tgt Race Indian',
-    'tgt_race_asian': 'Tgt Race Asian',
-    'tgt_race_black': 'Tgt Race Black',
-    'tgt_race_hawaiian': 'Tgt Race Hawaiian',
-    'tgt_race_white': 'Tgt Race White',
-    'tgt_race_other': 'Tgt Race Other',
-    'tgt_GestationalAge': 'tgt GestationalAge',
-    'tgt_medical_home': 'Tgt Medical Home',
-    'tgt_medical_home_dt': 'Tgt Medical Home Dt',
-    'tgt_dental_home': 'Tgt Dental Home',
-    'tgt_dental_home_dt': 'Tgt Dental Home Dt',
-    'dt_edc': 'Dt Edc',
-    'enroll_dt': 'Enroll Dt',
-    'enroll_preg_status': 'Enroll Preg Status',
-    'current_pregnancy': 'Current Pregnancy',
-    'discharge_reason': 'Discharge Reason',
-    'discharge_dt': 'Discharge Dt',
-    'last_home_visit': '',
-    'home_visits_num': '',
-    'home_visits_pre': '',
-    'home_visits_post': '',
-    'home_visits_person': '',
-    'home_visits_virtual': '',
-    'funding': '',
-    'c_fundingdate': '',
-    'p_funding': '',
-    'p_fundingdate': '',
-    'primary_id': '',
-    'primary_relation': '',
-    'mob_id': '',
-    'mob_dob': '',
-    'mob_gender': '',
-    'mob_ethnicity': '',
-    'mob_race': '',
-    'mob_race_indian': '',
-    'mob_race_asian': '',
-    'mob_race_black': '',
-    'mob_race_hawaiian': '',
-    'mob_race_white': '',
-    'mob_race_other': '',
-    'mob_marital_status': '',
-    'mob_living_arrangement': '',
-    'mob_living_arrangement_dt': '',
-    'fob_id': '',
-    'fob_dob': '',
-    'fob_gender': '',
-    'fob_ethnicity': '',
-    'fob_race': '',
-    'fob_race_indian': '',
-    'fob_race_asian': '',
-    'fob_race_black': '',
-    'fob_race_hawaiian': '',
-    'fob_race_white': '',
-    'fob_race_other': '',
-    'fob_marital_status': '',
-    'fob_living_arrangement': '',
-    'fob_living_arrangement_dt': '',
-    'fob_edu_dt': '',
-    'fob_edu': '',
-    'fob_employ_dt': '',
-    'fob_employ': '',
-    'fob_involved': '',
-    'zip': '',
-    'fob_visits': '',
-    'household_income': '',
-    'household_size': '',
-    'mcafss_income_dt': '',
-    'mcafss_income': '',
-    'mcafss_edu_dt1': '',
-    'mcafss_edu1': '',
-    'mcafss_edu1_enroll': '',
-    'mcafss_edu1_enroll_dt': '',
-    'mcafss_edu1_prog': '',
-    'mcafss_edu_dt2': '',
-    'mcafss_edu2': '',
-    'mcafss_edu2_enroll': '',
-    'mcafss_edu2_enroll_dt': '',
-    'mcafss_edu2_prog': '',
-    'mcafss_employ_dt': '',
-    'mcafss_employ': '',
-    'language_primary': '',
-    'priority_child_welfare': '',
-    'priority_substance_abuse': '',
-    'priority_tobacco_use': '',
-    'priority_low_student': '',
-    'priority_develop_delays': '',
-    'priority_military': '',
-    'uncope_dt': '',
-    'uncope_score': '',
-    'substance_abuse_ref_dt': '',
-    'tobacco_use': '',
-    'tobacco_use_dt': '',
-    'tobacco_ref_dt': '',
-    'safe_sleep_yes': '',
-    'safe_sleep_yes_dt': '',
-    'cheeers_date': '',
-    'early_language': '',
-    'early_language_dt': '',
-    'asq3_dt_9mm': '',
-    'asq3_timing_9mm': '',
-    'asq3_comm_9mm': '',
-    'asq3_gross_9mm': '',
-    'asq3_fine_9mm': '',
-    'asq3_problem_9mm': '',
-    'asq3_social_9mm': '',
-    'asq3_feedback_9mm': '',
-    'asq3_referral_9mm': '',
-    'asq3_dt_18mm': '',
-    'asq3_timing_18mm': '',
-    'asq3_comm_18mm': '',
-    'asq3_gross_18mm': '',
-    'asq3_fine_18mm': '',
-    'asq3_problem_18mm': '',
-    'asq3_social_18mm': '',
-    'asq3_feedback_18mm': '',
-    'asq3_referral_18mm': '',
-    'asq3_dt_24mm': '',
-    'asq3_timing_24mm': '',
-    'asq3_comm_24mm': '',
-    'asq3_gross_24mm': '',
-    'asq3_fine_24mm': '',
-    'asq3_problem_24mm': '',
-    'asq3_social_24mm': '',
-    'asq3_feedback_24mm': '',
-    'asq3_referral_24mm': '',
-    'asq3_dt_30mm': '',
-    'asq3_timing_30mm': '',
-    'asq3_comm_30mm': '',
-    'asq3_gross_30mm': '',
-    'asq3_fine_30mm': '',
-    'asq3_problem_30mm': '',
-    'asq3_social_30mm': '',
-    'asq3_feedback_30mm': '',
-    'asq3_referral_30mm': '',
-    'behavioral_concerns': '',
-    'ipv_screen': '',
-    'ipv_screen_dt': '',
-    'ipv_referral_dt': '',
-    'prim_care_dt': '',
-    'cesd_dt': '',
-    'cesd_score': '',
-    'ment_hlth_ref_dt': '',
-    'lsp_bf_initiation_dt': '',
-    'lsp_bf_discon_dt': '',
-    'hlth_insure_mob': '',
-    'hlth_insure_mob_dt': '',
-    'hlth_insure_tgt': '',
-    'hlth_insure_tgt_dt': '',
-    'last_well_child_visit': '',
-    'hlth_insure_fob': '',
-    'hlth_insure_fob_dt': '',
-    'need_exclusion1': '',
-    'need_exclusion2': '',
-    'need_exclusion3': '',
-    'need_exclusion4': '',
-    'need_exclusion5': '',
-    'need_exclusion6': '',
-    'Has_ChildWelfareAdaptation': ''
-}
+df2_4_col_detail = [
+    ['project_id', 'project id (LLCHD)', '', 'string']
+    ,['year', 'year (LLCHD)', '', 'Int64']
+    ,['quarter', 'quarter (LLCHD)', '', 'Int64']
+    ,['site_id', 'Site Id', '', 'string']
+    ,['family_id', 'Family Id', '', 'string']
+    ,['tgt_id', 'Tgt Id', '', 'string']
+    ,['tgt_dob', 'Tgt Dob', '', 'datetime64[ns]']
+    ,['tgt_gender', 'Tgt Gender', '', 'string']
+    ,['tgt_ethnicity', 'Tgt Ethnicity1', '', 'string']
+    ,['tgt_race_indian', 'Tgt Race Indian', '', 'string']
+    ,['tgt_race_asian', 'Tgt Race Asian', '', 'string']
+    ,['tgt_race_black', 'Tgt Race Black', '', 'string']
+    ,['tgt_race_hawaiian', 'Tgt Race Hawaiian', '', 'string']
+    ,['tgt_race_white', 'Tgt Race White', '', 'string']
+    ,['tgt_race_other', 'Tgt Race Other', '', 'string']
+    ,['tgt_GestationalAge', 'tgt GestationalAge', '', 'Int64']
+    ,['tgt_medical_home', 'Tgt Medical Home', '', 'Int64']
+    ,['tgt_medical_home_dt', 'Tgt Medical Home Dt', '', 'datetime64[ns]']
+    ,['tgt_dental_home', 'Tgt Dental Home', '', 'Int64']
+    ,['tgt_dental_home_dt', 'Tgt Dental Home Dt', '', 'datetime64[ns]']
+    ,['dt_edc', 'Dt Edc', '', 'datetime64[ns]']
+    ,['enroll_dt', 'Enroll Dt', '', 'datetime64[ns]']
+    ,['enroll_preg_status', 'Enroll Preg Status', '', 'string']
+    ,['current_pregnancy', 'Current Pregnancy', '', 'string']
+    ,['discharge_reason', 'Discharge Reason', '', 'Int64']
+    ,['discharge_dt', 'Discharge Dt', '', 'datetime64[ns]']
+    ,['last_home_visit', 'Last Home Visit', '', 'datetime64[ns]']
+    ,['home_visits_num', 'Home Visits Num', '', 'Int64']
+    ,['home_visits_pre', 'Home Visits Pre', '', 'Int64']
+    ,['home_visits_post', 'Home Visits Post', '', 'Int64']
+    ,['home_visits_person', 'Home Visits Person', '', 'Int64']
+    ,['home_visits_virtual', 'Home Visits Virtual', '', 'Int64']
+    ,['funding', 'Funding', '', 'string']
+    ,['c_fundingdate', 'C Fundingdate', '', 'datetime64[ns]']
+    ,['p_funding', 'P Funding', '', 'string']
+    ,['p_fundingdate', 'P Fundingdate', '', 'datetime64[ns]']
+    ,['primary_id', 'Primary Id', '', 'string']
+    ,['primary_relation', 'Primary Relation', '', 'string']
+    ,['mob_id', 'Mob Id', '', 'string']
+    ,['mob_dob', 'Mob Dob', '', 'datetime64[ns]']
+    ,['mob_gender', 'Mob Gender', '', 'string']
+    ,['mob_ethnicity', 'Mob Ethnicity', '', 'string']
+    ,['mob_race', 'Mob Race', '', 'string']
+    ,['mob_race_indian', 'Mob Race Indian', '', 'string']
+    ,['mob_race_asian', 'Mob Race Asian', '', 'string']
+    ,['mob_race_black', 'Mob Race Black', '', 'string']
+    ,['mob_race_hawaiian', 'Mob Race Hawaiian', '', 'string']
+    ,['mob_race_white', 'Mob Race White', '', 'string']
+    ,['mob_race_other', 'Mob Race Other', '', 'string']
+    ,['mob_marital_status', 'Mob Marital Status', '', 'string']
+    ,['mob_living_arrangement', 'Mob Living Arrangement', '', 'string']
+    ,['mob_living_arrangement_dt', 'Mob Living Arrangement Dt', '', 'datetime64[ns]']
+    ,['fob_id', 'Fob Id', '', 'string']
+    ,['fob_dob', 'Fob Dob', '', 'datetime64[ns]']
+    ,['fob_gender', 'Fob Gender', '', 'string']
+    ,['fob_ethnicity', 'Fob Ethnicity', '', 'string']
+    ,['fob_race', 'Fob Race', '', 'string']
+    ,['fob_race_indian', 'Fob Race Indian', '', 'string']
+    ,['fob_race_asian', 'Fob Race Asian', '', 'string']
+    ,['fob_race_black', 'Fob Race Black', '', 'string']
+    ,['fob_race_hawaiian', 'Fob Race Hawaiian', '', 'string']
+    ,['fob_race_white', 'Fob Race White', '', 'string']
+    ,['fob_race_other', 'Fob Race Other', '', 'string']
+    ,['fob_marital_status', 'Fob Marital Status', '', 'string']
+    ,['fob_living_arrangement', 'Fob Living Arrangement', '', 'string']
+    ,['fob_living_arrangement_dt', 'Fob Living Arrangement Dt', '', 'datetime64[ns]']
+    ,['fob_edu_dt', 'Fob Edu Dt', '', 'datetime64[ns]']
+    ,['fob_edu', 'Fob Edu', '', 'string']
+    ,['fob_employ_dt', 'Fob Employ Dt', '', 'datetime64[ns]']
+    ,['fob_employ', 'Fob Employ', '', 'string']
+    ,['fob_involved', 'Fob Involved', '', 'string']
+    ,['zip', 'zip', 'same', 'Int64']
+    ,['fob_visits', 'Fob Visits', '', 'string']
+    ,['household_income', 'Household Income', '', 'string']
+    ,['household_size', 'Household Size', '', 'string']
+    ,['mcafss_income_dt', 'Mcafss Income Dt', '', 'datetime64[ns]']
+    ,['mcafss_income', 'Mcafss Income', '', 'string']
+    ,['mcafss_edu_dt1', 'Mcafss Edu Dt1', '', 'datetime64[ns]']
+    ,['mcafss_edu1', 'Mcafss Edu1', '', 'string']
+    ,['mcafss_edu1_enroll', 'Mcafss Edu1 Enroll', '', 'string']
+    ,['mcafss_edu1_enroll_dt', 'Mcafss Edu1 Enroll Dt', '', 'datetime64[ns]']
+    ,['mcafss_edu1_prog', 'Mcafss Edu1 Prog', '', 'string']
+    ,['mcafss_edu_dt2', 'Mcafss Edu Dt2', '', 'datetime64[ns]']
+    ,['mcafss_edu2', 'Mcafss Edu2', '', 'string']
+    ,['mcafss_edu2_enroll', 'Mcafss Edu2 Enroll', '', 'string']
+    ,['mcafss_edu2_enroll_dt', 'Mcafss Edu2 Enroll Dt', '', 'datetime64[ns]']
+    ,['mcafss_edu2_prog', 'Mcafss Edu2 Prog', '', 'string']
+    ,['mcafss_employ_dt', 'Mcafss Employ Dt', '', 'datetime64[ns]']
+    ,['mcafss_employ', 'Mcafss Employ', '', 'string']
+    ,['language_primary', 'Language Primary', '', 'string']
+    ,['priority_child_welfare', 'Priority Child Welfare', '', 'string']
+    ,['priority_substance_abuse', 'Priority Substance Abuse', '', 'string']
+    ,['priority_tobacco_use', 'Priority Tobacco Use', '', 'string']
+    ,['priority_low_student', 'Priority Low Student', '', 'string']
+    ,['priority_develop_delays', 'Priority Develop Delays', '', 'string']
+    ,['priority_military', 'Priority Military', '', 'string']
+    ,['uncope_dt', 'Uncope Dt', '', 'datetime64[ns]']
+    ,['uncope_score', 'Uncope Score', '', 'string']
+    ,['substance_abuse_ref_dt', 'Substance Abuse Ref Dt', '', 'datetime64[ns]']
+    ,['tobacco_use', 'Tobacco Use', '', 'string']
+    ,['tobacco_use_dt', 'Tobacco Use Dt', '', 'datetime64[ns]']
+    ,['tobacco_ref_dt', 'Tobacco Ref Dt', '', 'datetime64[ns]']
+    ,['safe_sleep_yes', 'Safe Sleep Yes', '', 'string']
+    ,['safe_sleep_yes_dt', 'Safe Sleep Yes Dt', '', 'datetime64[ns]']
+    ,['cheeers_date', 'Cheeers Date', '', 'datetime64[ns]']
+    ,['early_language', 'Early Language', '', 'string']
+    ,['early_language_dt', 'Early Language Dt', '', 'datetime64[ns]']
+    ,['asq3_dt_9mm', 'Asq3 Dt 9Mm', '', 'datetime64[ns]']
+    ,['asq3_timing_9mm', 'Asq3 Timing 9Mm', '', 'Int64']
+    ,['asq3_comm_9mm', 'Asq3 Comm 9Mm', '', 'Int64']
+    ,['asq3_gross_9mm', 'Asq3 Gross 9Mm', '', 'Int64']
+    ,['asq3_fine_9mm', 'Asq3 Fine 9Mm', '', 'Int64']
+    ,['asq3_problem_9mm', 'Asq3 Problem 9Mm', '', 'Int64']
+    ,['asq3_social_9mm', 'Asq3 Social 9Mm', '', 'Int64']
+    ,['asq3_feedback_9mm', 'Asq3 Feedback 9Mm', '', 'string']
+    ,['asq3_referral_9mm', 'Asq3 Referral 9Mm', '', 'datetime64[ns]']
+    ,['asq3_dt_18mm', 'Asq3 Dt 18Mm', '', 'datetime64[ns]']
+    ,['asq3_timing_18mm', 'Asq3 Timing 18Mm', '', 'Int64']
+    ,['asq3_comm_18mm', 'Asq3 Comm 18Mm', '', 'Int64']
+    ,['asq3_gross_18mm', 'Asq3 Gross 18Mm', '', 'Int64']
+    ,['asq3_fine_18mm', 'Asq3 Fine 18Mm', '', 'Int64']
+    ,['asq3_problem_18mm', 'Asq3 Problem 18Mm', '', 'Int64']
+    ,['asq3_social_18mm', 'Asq3 Social 18Mm', '', 'Int64']
+    ,['asq3_feedback_18mm', 'Asq3 Feedback 18Mm', '', 'string']
+    ,['asq3_referral_18mm', 'Asq3 Referral 18Mm', '', 'datetime64[ns]']
+    ,['asq3_dt_24mm', 'Asq3 Dt 24Mm', '', 'datetime64[ns]']
+    ,['asq3_timing_24mm', 'Asq3 Timing 24Mm', '', 'Int64']
+    ,['asq3_comm_24mm', 'Asq3 Comm 24Mm', '', 'Int64']
+    ,['asq3_gross_24mm', 'Asq3 Gross 24Mm', '', 'Int64']
+    ,['asq3_fine_24mm', 'Asq3 Fine 24Mm', '', 'Int64']
+    ,['asq3_problem_24mm', 'Asq3 Problem 24Mm', '', 'Int64']
+    ,['asq3_social_24mm', 'Asq3 Social 24Mm', '', 'Int64']
+    ,['asq3_feedback_24mm', 'Asq3 Feedback 24Mm', '', 'string']
+    ,['asq3_referral_24mm', 'Asq3 Referral 24Mm', '', 'datetime64[ns]']
+    ,['asq3_dt_30mm', 'Asq3 Dt 30Mm', '', 'datetime64[ns]']
+    ,['asq3_timing_30mm', 'Asq3 Timing 30Mm', '', 'Int64']
+    ,['asq3_comm_30mm', 'Asq3 Comm 30Mm', '', 'Int64']
+    ,['asq3_gross_30mm', 'Asq3 Gross 30Mm', '', 'Int64']
+    ,['asq3_fine_30mm', 'Asq3 Fine 30Mm', '', 'Int64']
+    ,['asq3_problem_30mm', 'Asq3 Problem 30Mm', '', 'Int64']
+    ,['asq3_social_30mm', 'Asq3 Social 30Mm', '', 'Int64']
+    ,['asq3_feedback_30mm', 'Asq3 Feedback 30Mm', '', 'string']
+    ,['asq3_referral_30mm', 'Asq3 Referral 30Mm', '', 'datetime64[ns]']
+    ,['behavioral_concerns', 'Behavioral Concerns', '', 'Int64']
+    ,['ipv_screen', 'Ipv Screen', '', 'string']
+    ,['ipv_screen_dt', 'Ipv Screen Dt', '', 'datetime64[ns]']
+    ,['ipv_referral_dt', 'Ipv Referral Dt', '', 'datetime64[ns]']
+    ,['prim_care_dt', 'Prim Care Dt', '', 'datetime64[ns]']
+    ,['cesd_dt', 'Cesd Dt', '', 'datetime64[ns]']
+    ,['cesd_score', 'Cesd Score', '', 'string']
+    ,['ment_hlth_ref_dt', 'Ment Hlth Ref Dt', '', 'datetime64[ns]']
+    ,['lsp_bf_initiation_dt', 'Lsp Bf Initiation Dt', '', 'datetime64[ns]']
+    ,['lsp_bf_discon_dt', 'Lsp Bf Discon Dt', '', 'datetime64[ns]']
+    ,['hlth_insure_mob', 'Hlth Insure Mob', '', 'Int64']
+    ,['hlth_insure_mob_dt', 'Hlth Insure Mob Dt', '', 'datetime64[ns]']
+    ,['hlth_insure_tgt', 'Hlth Insure Tgt', '', 'Int64']
+    ,['hlth_insure_tgt_dt', 'Hlth Insure Tgt Dt', '', 'datetime64[ns]']
+    ,['last_well_child_visit', 'Last Well Child Visit', '', 'datetime64[ns]']
+    ,['hlth_insure_fob', 'Hlth Insure Fob', '', 'Int64']
+    ,['hlth_insure_fob_dt', 'Hlth Insure Fob Dt', '', 'Int64'] ### should be 'datetime64[ns]'.
+    ,['need_exclusion1', 'Need Exclusion1', '', 'string']
+    ,['need_exclusion2', 'Need Exclusion2', '', 'string']
+    ,['need_exclusion3', 'Need Exclusion3', '', 'string']
+    ,['need_exclusion4', 'need exclusion4 (LLCHD)', '', 'string']
+    ,['need_exclusion5', 'Need Exclusion5', '', 'string']
+    ,['need_exclusion6', 'Need Exclusion6', '', 'string']
+    ,['Has_ChildWelfareAdaptation', 'Has ChildWelfareAdaptation', '', 'string']
+]
+#%%### df2_4: 'LLCHD'.
+df2_4_colnames = {x[0]:x[1] for x in df2_4_col_detail if x[2] != 'same' and x[0] != x[1]}
+df2_4_colnames
 #%%### df2_4: 'LLCHD'.
 df2_4 = df2_4.rename(columns=df2_4_colnames)
 [*df2_4]
 
-# #######################
-# #%%### df2_5: 'Well Child'.
-# [*df2_5]
-# #%%### df2_5: 'Well Child'.
-# df2_5_colnames = {
-# }
-# #%%### df2_5: 'Well Child'.
-# df2_5 = df2_5.rename(columns=df2_5_colnames)
-# [*df2_5]
+#######################
+#%%### df2_5: 'Well Child'.
+[*df2_5]
+#%%### df2_5: 'Well Child'.
+df2_5_col_detail = [
+    ['ProjectID', 'Project ID1', '', 'string']
+    ,['year', 'year (Well Child)', '', 'Int64']
+    ,['quarter', 'quarter (Well Child)', '', 'Int64']
+    ,['agency', 'agency (Well Child)', '', 'string']
+    ,['FAMILYNUMBER', 'Familynumber', '', 'string']
+    ,['ChildNumber', 'ChildNumber (Well Child)', '', 'string']
+    ,['funding', 'funding (Well Child)', '', 'string']
+    ,['WellVisitDate.1', 'WellVisitDate.1', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.2', 'WellVisitDate.2', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.3', 'WellVisitDate.3', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.4', 'WellVisitDate.4', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.5', 'WellVisitDate.5', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.6', 'WellVisitDate.6', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.7', 'WellVisitDate.7', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.8', 'WellVisitDate.8', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.9', 'WellVisitDate.9', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.10', 'WellVisitDate.10', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.11', 'WellVisitDate.11', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.12', 'WellVisitDate.12', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.13', 'WellVisitDate.13', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.14', 'WellVisitDate.14', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.15', 'WellVisitDate.15', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.16', 'WellVisitDate.16', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.17', 'WellVisitDate.17', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.18', 'WellVisitDate.18', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.19', 'WellVisitDate.19', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.20', 'WellVisitDate.20', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.21', 'WellVisitDate.21', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.22', 'WellVisitDate.22', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.23', 'WellVisitDate.23', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.24', 'WellVisitDate.24', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.25', 'WellVisitDate.25', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.26', 'WellVisitDate.26', 'same', 'datetime64[ns]']
+]
+#%%### df2_5: 'Well Child'.
+df2_5_colnames = {x[0]:x[1] for x in df2_5_col_detail if x[2] != 'same' and x[0] != x[1]}
+df2_5_colnames
+#%%### df2_5: 'Well Child'.
+df2_5 = df2_5.rename(columns=df2_5_colnames)
+[*df2_5]
 
 
 
@@ -487,21 +538,21 @@ df2 = (
         df2_3, ### 'Family Wise'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
-        right_on=['Project ID (Family Wise)','year (Family Wise)','quarter (Family Wise)'], 
+        right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'], 
         # suffixes=(' (Project ID)', ' (Family Wise)'),
         indicator='LJ_df2_3FW'
     ).merge(
         df2_4, ### 'LLCHD'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
-        right_on=['project_id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], 
+        right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], 
         # suffixes=(' (Project ID)', ' (LLCHD)'),
         indicator='LJ_df2_4LL'
     ).merge(
         df2_5, ### 'Well Child'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
-        right_on=['ProjectID (Well Child)','year (Well Child)','quarter (Well Child)'], 
+        right_on=['Project ID1','year (Well Child)','quarter (Well Child)'], 
         # suffixes=(' (Project ID)', ' (Well Child)'),
         indicator='LJ_df2_5WC'
     ) 
