@@ -40,6 +40,22 @@ path_2_data_source_sheets = [
     'Well Child'  # 6
 ]
 
+### Output for 2nd Tableau file:
+path_2_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\04 output')
+path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel on NE Server.csv')
+
+#%% test write
+# with open(Path(path_2_output_dir, 'test.txt'), 'w') as f:
+#     f.write('testtest test  test')
+
+
+#%%### df2_1: 'Project ID'.
+#%%### df2_2: 'Birth File'.
+#%%### df2_3: 'ER Injury'.
+#%%### df2_4: 'Family Wise'.
+#%%### df2_5: 'LLCHD'.
+#%%### df2_6: 'Well Child'. 
+
 #%%##################################################
 ### Utility Functions ###
 #####################################################
@@ -98,28 +114,124 @@ df2_6 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[5])
 ### TODO
 
 #%%
-inspect_df(df2_1)
+# inspect_df(df2_1)
 #%%
-inspect_df(df2_2)
+# inspect_df(df2_2)
 #%%
-inspect_df(df2_3)
+# inspect_df(df2_3)
 #%%
-inspect_df(df2_4)
+# inspect_df(df2_4)
 #%%
-inspect_df(df2_5)
+# inspect_df(df2_5)
 #%%
-inspect_df(df2_6)
+# inspect_df(df2_6)
 
 #%%##################################################
 ### Rename Columns ###
 #####################################################
 
-df2_1 = df2_1.add_suffix(' (Project ID)')
-df2_2 = df2_2.add_suffix(' (Birth File)')
-df2_3 = df2_3.add_suffix(' (ER Injury)')
-df2_4 = df2_4.add_suffix(' (Family Wise)')
-df2_5 = df2_5.add_suffix(' (LLCHD)')
-df2_6 = df2_6.add_suffix(' (Well Child)')
+#%%
+# df2_1 = df2_1.add_suffix(' (Project ID)')
+# df2_2 = df2_2.add_suffix(' (Birth File)')
+# df2_3 = df2_3.add_suffix(' (ER Injury)')
+# df2_4 = df2_4.add_suffix(' (Family Wise)')
+# df2_5 = df2_5.add_suffix(' (LLCHD)')
+# df2_6 = df2_6.add_suffix(' (Well Child)')
+
+#%%### df2_1: 'Project ID'.
+#%%### df2_2: 'Birth File'.
+#%%### df2_3: 'ER Injury'.
+#%%### df2_4: 'Family Wise'.
+#%%### df2_5: 'LLCHD'.
+#%%### df2_6: 'Well Child'.
+
+#######################
+#%%### df2_1: 'Project ID'.
+[*df2_1]
+#%%### df2_1: 'Project ID'.
+df2_1_colnames = {
+    'project_id': 'Project Id', 
+    'year': 'Year', 
+    'quarter': 'Quarter'
+}
+#%%### df2_1: 'Project ID'.
+df2_1 = df2_1.rename(columns=df2_1_colnames)
+[*df2_1]
+
+#######################
+#%%### df2_2: 'Birth File'.
+[*df2_2]
+#%%### df2_2: 'Birth File'.
+# df2_2_colnames = {
+#     ### none of these columns are in the Tableau file.
+#     'project_id': '',
+#     'year': '',
+#     'quarter': '',
+#     'agency_code': '',
+#     'family_id': '',
+#     'tgt_id': '',
+#     'pncvis': '',
+#     'datelmp': '',
+#     'datepnc1': '',
+#     'cgest': ''
+# }
+#%%### df2_2: 'Birth File'.
+# df2_2 = df2_2.rename(columns=df2_2_colnames)
+[*df2_2]
+
+#######################
+#%%### df2_3: 'ER Injury'.
+[*df2_3]
+#%%### df2_3: 'ER Injury'.
+df2_3_colnames = {
+    'Project ID': 'Project ID (ER Injury)',
+    'year': 'year (ER Injury)',
+    'quarter': 'quarter (ER Injury)',
+    'agency': 'agency (ER Injury)',
+    'FAMILY NUMBER': 'FAMILY NUMBER (ER Injury)',
+    'ChildNumber': 'ChildNumber (ER Injury)',
+    'funding': 'funding (ER Injury)',
+    'IncidentDate': 'Incident Date'
+    ###'IncidentDate2': 'IncidentDate2'
+}
+#%%### df2_3: 'ER Injury'.
+df2_3 = df2_3.rename(columns=df2_3_colnames)
+[*df2_3]
+
+# #######################
+# #%%### df2_4: 'Family Wise'.
+# [*df2_4]
+# #%%### df2_4: 'Family Wise'.
+# df2_4_colnames = {
+# }
+# #%%### df2_4: 'Family Wise'.
+# df2_4 = df2_4.rename(columns=df2_4_colnames)
+# [*df2_4]
+
+# #######################
+# #%%### df2_5: 'LLCHD'.
+# [*df2_5]
+# #%%### df2_5: 'LLCHD'.
+# df2_5_colnames = {
+# }
+# #%%### df2_5: 'LLCHD'.
+# df2_5 = df2_5.rename(columns=df2_5_colnames)
+# [*df2_5]
+
+# #######################
+# #%%### df2_6: 'Well Child'.
+# [*df2_6]
+# #%%### df2_6: 'Well Child'.
+# df2_6_colnames = {
+# }
+# #%%### df2_6: 'Well Child'.
+# df2_6 = df2_6.rename(columns=df2_6_colnames)
+# [*df2_6]
+
+
+
+
+
 
 #%%##################################################
 ### JOIN ###
@@ -129,40 +241,41 @@ df2_6 = df2_6.add_suffix(' (Well Child)')
 
 ### TO DO: add validation.
 
+#%%
 df2 = (
     pd.merge(
         df2_1, ### 'Project ID'.
         df2_2, ### 'Birth File'.
         how='left', 
-        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        left_on=['Project Id','Year','Quarter'], 
         right_on=['project_id (Birth File)','year (Birth File)','quarter (Birth File)'], 
         # suffixes=(' (Project ID)', ' (Birth File)'),
         indicator='LJ_df2_2BF'
     ).merge(
         df2_3, ### 'ER Injury'.
         how='left', 
-        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'], 
         # suffixes=(' (Project ID)', ' (ER Injury)'),
         indicator='LJ_df2_3ER'
     ).merge(
         df2_4, ### 'Family Wise'.
         how='left', 
-        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID (Family Wise)','year (Family Wise)','quarter (Family Wise)'], 
         # suffixes=(' (Project ID)', ' (Family Wise)'),
         indicator='LJ_df2_4FW'
     ).merge(
         df2_5, ### 'LLCHD'.
         how='left', 
-        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        left_on=['Project Id','Year','Quarter'], 
         right_on=['project_id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], 
         # suffixes=(' (Project ID)', ' (LLCHD)'),
         indicator='LJ_df2_5LL'
     ).merge(
         df2_6, ### 'Well Child'.
         how='left', 
-        left_on=['project_id (Project ID)','year (Project ID)','quarter (Project ID)'], 
+        left_on=['Project Id','Year','Quarter'], 
         right_on=['ProjectID (Well Child)','year (Well Child)','quarter (Well Child)'], 
         # suffixes=(' (Project ID)', ' (Well Child)'),
         indicator='LJ_df2_6WC'
@@ -804,16 +917,61 @@ df.loc[df['column']]
 
 
 #%%##################################################
+### Prepare CSV ###
+#####################################################
+
+# delete df2_2 columns (never existed in Tableau wb)
+
+
+
+#%%##################################################
 ### WRITE ###
 #####################################################
 
-### Output for 2nd Tableau file:
-path_2_output = 
-
-pd.to_csv('path_2_output', index=False)
+#%%
+df2.to_csv(path_2_output, index=False)
 
 
 
+
+
+#%%##################################################
+### COMPARE CSVs ###
+#####################################################
+
+#%%
+path_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+
+#%%
+comparison_csv = pd.read_csv(path_comparison_csv)
+
+#%%
+[*df2] == [*comparison_csv]
+
+#%%
+[*df2]
+#%%
+[*comparison_csv]
+
+#%%### Overlap / Similarities
+set([*comparison_csv]).intersection([*df2])
+
+#%%### Differences
+set([*comparison_csv]).symmetric_difference([*df2])
+
+
+####### Compare values
+
+
+
+
+
+#%%##################################################
+### Questions ###
+#####################################################
+
+# Why no df2_2 columns? (never existed in Tableau wb)
+# Why Office not working?
 
 
 
