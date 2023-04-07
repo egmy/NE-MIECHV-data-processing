@@ -128,11 +128,11 @@ df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])
 #####################################################
 
 #%%
-# df2_1 = df2_1.add_suffix(' (Project ID)')
-# df2_2 = df2_2.add_suffix(' (ER Injury)')
-# df2_3 = df2_3.add_suffix(' (Family Wise)')
-# df2_4 = df2_4.add_suffix(' (LLCHD)')
-# df2_5 = df2_5.add_suffix(' (Well Child)')
+### df2_1 = df2_1.add_suffix(' (Project ID)')
+### df2_2 = df2_2.add_suffix(' (ER Injury)')
+### df2_3 = df2_3.add_suffix(' (Family Wise)')
+### df2_4 = df2_4.add_suffix(' (LLCHD)')
+### df2_5 = df2_5.add_suffix(' (Well Child)')
 
 #%%### df2_1: 'Project ID'.
 #%%### df2_2: 'ER Injury'.
@@ -768,9 +768,10 @@ df2_edits1['_Enroll 6 Month Date'] = df2_edits1['_Enroll'] + pd.DateOffset(month
 #%%##################################################
 ### IF/ELSE, CASE/WHEN
 
-### fdf == "function DataFrame "
+### fdf == "function DataFrame"
+### Note: Leave "" like in Tableau.
 
-def function1(fdf):
+def fn_C2_BF_Status(fdf):
     if (fdf['_Agency'] != "ll"):
         match fdf['Breast Feeding']:  ### FW
             case "YES":
@@ -785,8 +786,7 @@ def function1(fdf):
                 return None 
     elif (fdf['_Agency'] == "ll"):
         return None  ### add CASE for LLCHD values when they add them to their dataset
-df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=function1, axis=1, result_type='broadcast')
-
+df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=fn_C2_BF_Status, axis=1)
     ### IF [_Agency] <> "ll" THEN CASE [Breast Feeding]  // FW
     ###     WHEN "YES" THEN 1
     ###     WHEN "1" THEN 1
@@ -797,21 +797,29 @@ df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=function1, axis=1, result_ty
     ### ELSEIF [_Agency] = "ll" THEN NULL  // add CASE for LLCHD values when they add them to their dataset
     ### END
 
-
 #%%###################################
-df2_edits1['_TGT DOB'] = 
-IF [Tgt Dob] = DATE(1/1/1900) THEN NULL ###LLCHD
-ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL ###FW
-ELSE df2_edits1['Tgt Dob'].combine_first(df2_edits1['Tgt Dob-Cr'])
-END
+
+def fn_TGT_DOB(fdf):
+    if (fdf['Tgt Dob'].date() == pd.Timestamp("1900-01-01").date()):
+        return None ###LLCHD.
+    elif (fdf['Tgt Dob-Cr'].date() == pd.Timestamp("1900-01-01").date()):
+        return None ###FW.
+    else:
+        if (fdf['Tgt Dob'] is not None):
+            return fdf['Tgt Dob']
+        else:
+            return fdf['Tgt Dob-Cr']
+        ### df2_edits1['Tgt Dob'].combine_first(df2_edits1['Tgt Dob-Cr'])
+df2_edits1['_TGT DOB'] = df2_edits1.apply(func=fn_TGT_DOB, axis=1)
     ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
     ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
     ### END
 
-
-
 #%%###################################
+
+
+
 df2_edits1['_C7 Safe Sleep Yes Date'] = 
 IF [Sleep On Back] = "Yes" ###FW
 AND [Co Sleeping] = "No"
@@ -1191,14 +1199,14 @@ df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
 ### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
 ### Across many variables.
 
-def nameoffunction (df.columns):
-    if pd.dtypes == string:
-        look for U.R.
-    if not sting
+# def nameoffunction (df.columns):
+#     if pd.dtypes == string:
+#         look for U.R.
+#     if not sting
         
 
 
-df.loc[df['column']]
+# df.loc[df['column']]
 
 
 
