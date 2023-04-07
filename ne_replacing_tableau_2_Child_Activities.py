@@ -568,6 +568,7 @@ df2 = (
 ### RECODE / Creating Columns ###
 #####################################################
 
+#%%
 df2_edits1 = df2.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT copy embedded mutable objects.
 
 ### Not needed?
@@ -589,11 +590,11 @@ df2_edits1['_C18 ASQ 9 Mo Ref Location'] = df2_edits1['ASQ9MoRefLocation']
     ### [ASQ9MoRefLocation]
 
 ### TO DO: LLCHD needs to provide a safe sleep partial date.
-df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['SafeSleepPartialDate']
-    ### ### IFNULL(
-    ### [SafeSleepPartialDate]  ### FW
-    ### ### ,[Safe Sleep Yes Dt]) ### LLCHD needs to provide a safe sleep partial date
-    ### ### END
+df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['Safe Sleep Partial Date']
+    ### // IFNULL(
+    ### [Safe Sleep Partial Date]  // FW
+    ### // ,[Safe Sleep Yes Dt]) // LLCHD needs to provide a safe sleep partial date
+    ### // END
 
 #%%##################################################
 ### COALESCING
@@ -616,17 +617,17 @@ df2_edits1['_C12 ASQ 30 Mo Date'] = df2_edits1['ASQ30MoDate'].combine_first(df2_
 df2_edits1['_C12 ASQ 9 Mo Date'] = df2_edits1['Asq3 Dt 9Mm'].combine_first(df2_edits1['ASQ9MoDate'])
     ### IFNULL([Asq3 Dt 9Mm],[ASQ9MoDate])
 
-df2_edits1['_C18 ASQ 18 Mo Referral Date'] = df2_edits1['asq3_referral_18mm'].combine_first(df2_edits1['ASQ18MoRefDate'])
-    ### IFNULL([asq3_referral_18mm],[ASQ18MoRefDate])
+df2_edits1['_C18 ASQ 18 Mo Referral Date'] = df2_edits1['Asq3 Referral 18Mm'].combine_first(df2_edits1['ASQ18MoRefDate'])
+    ### IFNULL([Asq3 Referral 18Mm],[ASQ18MoRefDate])
 
-df2_edits1['_C18 ASQ 24 Mo Referral Date'] = df2_edits1['ASQ24MoRefDate'].combine_first(df2_edits1['asq3_referral_24mm'])
-    ### IFNULL([ASQ24MoRefDate],[asq3_referral_24mm])
+df2_edits1['_C18 ASQ 24 Mo Referral Date'] = df2_edits1['ASQ24MoRefDate'].combine_first(df2_edits1['Asq3 Referral 24Mm'])
+    ### IFNULL([ASQ24MoRefDate],[Asq3 Referral 24Mm])
 
-df2_edits1['_C18 ASQ 30 Mo Referral Date'] = df2_edits1['ASQ30MoRefDate'].combine_first(df2_edits1['asq3_referral_30mm'])
-    ### IFNULL([ASQ30MoRefDate],[asq3_referral_30mm])
+df2_edits1['_C18 ASQ 30 Mo Referral Date'] = df2_edits1['ASQ30MoRefDate'].combine_first(df2_edits1['Asq3 Referral 30Mm'])
+    ### IFNULL([ASQ30MoRefDate],[Asq3 Referral 30Mm])
 
-df2_edits1['_C18 ASQ 9 Mo Referral Date'] = df2_edits1['asq3_referral_9mm'].combine_first(df2_edits1['ASQ9MoRefDate'])
-    ### IFNULL([asq3_referral_9mm],[ASQ9MoRefDate])
+df2_edits1['_C18 ASQ 9 Mo Referral Date'] = df2_edits1['Asq3 Referral 9Mm'].combine_first(df2_edits1['ASQ9MoRefDate'])
+    ### IFNULL([Asq3 Referral 9Mm],[ASQ9MoRefDate])
 
 df2_edits1['_C2 BF Discontinuation Date'] = df2_edits1['Min Of Date Discontinue BF'].combine_first(df2_edits1['Lsp Bf Discon Dt'])
     ### IFNULL([Min Of Date Discontinue BF],[Lsp Bf Discon Dt])
@@ -643,14 +644,12 @@ df2_edits1['_Discharge Date'] = df2_edits1['Discharge Dt'].combine_first(df2_edi
 df2_edits1['_Enroll'] = df2_edits1['Enroll Dt'].combine_first(df2_edits1['Min Of HV Date'])
     ### IFNULL([Enroll Dt],[Min Of HV Date])
 
+#%%###################################
 df2_edits1['_Family Number'] = df2_edits1['Family Id'].combine_first(df2_edits1['Family Number'])
     ### IFNULL([Family Id],[Family Number])
 
-df2_edits1['_Max HV Date'] = df2_edits1['MaxofHVDate'].combine_first(df2_edits1['last_home_visit'])
-    ### IFNULL([MaxofHVDate],[last_home_visit])
-
-df2_edits1['_TGT Gestational Age'] = df2_edits1['tgt_GestationalAge'].combine_first(df2_edits1['_FW Gestation Age Recode'])
-    ### IFNULL([tgt_GestationalAge],[_FW Gestation Age Recode])
+df2_edits1['_Max HV Date'] = df2_edits1['Maxof HV Date'].combine_first(df2_edits1['Last Home Visit'])
+    ### IFNULL([Maxof HV Date],[Last Home Visit])
 
 df2_edits1['_C12 ASQ 18 Mo Communication'] = df2_edits1['Asq3 Comm 18Mm'].combine_first(df2_edits1['ASQ18MoCom'])
     ### IFNULL([Asq3 Comm 18Mm],[ASQ18MoCom])
@@ -691,6 +690,7 @@ df2_edits1['_C12 ASQ 30 Mo Fine Motor'] = df2_edits1['ASQ30MoFine'].combine_firs
 df2_edits1['_C12 ASQ 30 Mo Gross Motor'] = df2_edits1['ASQ30MoGross'].combine_first(df2_edits1['Asq3 Gross 30Mm'])
     ### IFNULL([ASQ30MoGross],[Asq3 Gross 30Mm])
 
+#%%###################################
 df2_edits1['_C12 ASQ 30 Mo Personal Social'] = df2_edits1['ASQ30MoPersonal'].combine_first(df2_edits1['Asq3 Social 30Mm'])
     ### IFNULL([ASQ30MoPersonal],[Asq3 Social 30Mm])
 
@@ -715,16 +715,16 @@ df2_edits1['_C12 ASQ 9 Mo Problem Solving'] = df2_edits1['ASQ9MoProblem'].combin
 df2_edits1['_C13 Behavioral Concerns Asked'] = df2_edits1['Behavior Numer'].combine_first(df2_edits1['Behavioral Concerns'])
     ### IFNULL([Behavior Numer],[Behavioral Concerns])
 
-df2_edits1['_C13 Behavioral Concerns Visits'] = df2_edits1['Behavior Denom'].combine_first(df2_edits1['home_visits_post'])
-    ### IFNULL([Behavior Denom],[home_visits_post])
+df2_edits1['_C13 Behavioral Concerns Visits'] = df2_edits1['Behavior Denom'].combine_first(df2_edits1['Home Visits Post'])
+    ### IFNULL([Behavior Denom],[Home Visits Post])
 
-df2_edits1['_T16 Total Home Visits'] = df2_edits1['HomeVisitsTotal'].combine_first(df2_edits1['Home Visits Num'])
-    ### IFNULL([HomeVisitsTotal],[Home Visits Num])
+df2_edits1['_T16 Total Home Visits'] = df2_edits1['Home Visits Total'].combine_first(df2_edits1['Home Visits Num'])
+    ### IFNULL([Home Visits Total],[Home Visits Num])
 
 df2_edits1['_TGT Number'] = df2_edits1['Tgt Id'].combine_first(df2_edits1['Child Number'])
     ### IFNULL([Tgt Id],[Child Number])
-    ### In tableau on left name shows as "_TGT Number (Count)" -- but not when you try to edit. Not sure how exports.
 
+#%%###################################
 ### If variables are already dtypes "datetime64", then this should be a date too:
 df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].combine_first(df2_edits1['Hlth Insure Tgt Dt'])
     ### DATE(IFNULL([TGT Insure Change Date],[Hlth Insure Tgt Dt]))
@@ -758,67 +758,12 @@ df2_edits1['_C18 ASQ 9 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.
 df2_edits1['_C18 ASQ 9 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.Timedelta(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 9 Mo Date])) 
 
-df2_edits1['_Enroll 3 Month Date'] = df2_edits1['_Enroll'] + pd.Timedelta(months=3) 
+#%%###################################
+df2_edits1['_Enroll 3 Month Date'] = df2_edits1['_Enroll'] + pd.DateOffset(months=3) 
     ### DATE(DATEADD('month',3,[_Enroll])) 
 
-df2_edits1['_Enroll 6 Month Date'] = df2_edits1['_Enroll'] + pd.Timedelta(months=6) 
+df2_edits1['_Enroll 6 Month Date'] = df2_edits1['_Enroll'] + pd.DateOffset(months=6) 
     ### DATE(DATEADD('month',6,[_Enroll])) 
-
-### TO DO: Fix Space in variable name! (but not yet.)
-df2_edits1['_TGT 10 Month Date '] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=10) 
-    ### DATE(DATEADD('month',10,[_TGT DOB])) 
-
-df2_edits1['_TGT 11 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=11) 
-    ### DATE(DATEADD('month',11,[_TGT DOB])) 
-
-df2_edits1['_TGT 2 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=2) 
-    ### DATE(DATEADD('month',2,[_TGT DOB])) 
-
-df2_edits1['_TGT 2 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=2) 
-    ### DATE(DATEADD('week',2,[_TGT DOB])) 
-
-df2_edits1['_TGT 3 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=3) 
-    ### DATE(DATEADD('day',3,[_TGT DOB])) 
-
-df2_edits1['_TGT 3 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=3) 
-    ### DATE(DATEADD('month',3,[_TGT DOB])) 
-
-df2_edits1['_TGT 30 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=30) 
-    ### DATE(DATEADD('day',30,[_TGT DOB])) 
-
-df2_edits1['_TGT 4 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=4) 
-    ### DATE(DATEADD('month',4,[_TGT DOB])) 
-
-df2_edits1['_TGT 4 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=4) 
-    ### DATE(DATEADD('week',4,[_TGT DOB])) 
-
-df2_edits1['_TGT 5 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=5) 
-    ### DATE(DATEADD('month',5,[_TGT DOB])) 
-
-df2_edits1['_TGT 5 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=5) 
-    ### DATE(DATEADD('week',5,[_TGT DOB])) 
-
-df2_edits1['_TGT 56 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=56) 
-    ### DATE(DATEADD('day',56,[_TGT DOB])) 
-
-### TO DO: Fix Space in variable name! (but not yet.)
-df2_edits1['_TGT 6 Month Date '] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=6) 
-    ### DATE(DATEADD('month',6,[_TGT DOB])) 
-
-df2_edits1['_TGT 7 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=7) 
-    ### DATE(DATEADD('day',7,[_TGT DOB])) 
-
-df2_edits1['_TGT 7 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=7) 
-    ### DATE(DATEADD('month',7,[_TGT DOB])) 
-
-df2_edits1['_TGT 8 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=8) 
-    ### DATE(DATEADD('day',8,[_TGT DOB])) 
-
-df2_edits1['_TGT 8 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=8) 
-    ### DATE(DATEADD('month',8,[_TGT DOB])) 
-
-df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(months=9) 
-    ### DATE(DATEADD('month',9,[_TGT DOB])) 
 
 #%%##################################################
 ### IF/ELSE, CASE/WHEN
@@ -852,6 +797,21 @@ df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=function1, axis=1, result_ty
     ### ELSEIF [_Agency] = "ll" THEN NULL  // add CASE for LLCHD values when they add them to their dataset
     ### END
 
+
+#%%###################################
+df2_edits1['_TGT DOB'] = 
+IF [Tgt Dob] = DATE(1/1/1900) THEN NULL ###LLCHD
+ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL ###FW
+ELSE df2_edits1['Tgt Dob'].combine_first(df2_edits1['Tgt Dob-Cr'])
+END
+    ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
+    ### END
+
+
+
+#%%###################################
 df2_edits1['_C7 Safe Sleep Yes Date'] = 
 IF [Sleep On Back] = "Yes" ###FW
 AND [Co Sleeping] = "No"
@@ -1069,15 +1029,7 @@ ELSEIF NOT ISNULL([Tgt Dental Home]) THEN CASE [Tgt Dental Home] ###LLCHD, coded
 ELSE "Unknown/Did Not Report"
 END
 
-df2_edits1['_TGT DOB'] = 
-IF [Tgt Dob] = DATE(1/1/1900) THEN NULL ###LLCHD
-ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL ###FW
-ELSE df2_edits1['Tgt Dob'].combine_first(df2_edits1['Tgt Dob-Cr'])
-END
-    ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL ###LLCHD
-    ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL ###FW
-    ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
-    ### END
+
 
 df2_edits1['_TGT EDC Date'] = 
 IF [Dt Edc] = DATE(1/1/1900) THEN NULL ###LLCHD
@@ -1161,7 +1113,75 @@ ELSEIF [Priority Low Student] = "Y" THEN 1
 END
 
 
+#%%##################################################
+### COALESCING
 
+### Dependent on '_FW Gestation Age Recode'.
+df2_edits1['_TGT Gestational Age'] = df2_edits1['tgt GestationalAge'].combine_first(df2_edits1['_FW Gestation Age Recode'])
+    ### IFNULL([tgt GestationalAge], [_FW Gestation Age Recode])
+
+#%%##################################################
+### DATE CALCULATIONS
+
+### These calculations assume all date variables are dtype "datetime64".
+### All in section Dependent on '_TGT DOB'.
+
+df2_edits1['_TGT 2 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=2) 
+    ### DATE(DATEADD('week',2,[_TGT DOB])) 
+
+df2_edits1['_TGT 3 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=3) 
+    ### DATE(DATEADD('day',3,[_TGT DOB])) 
+
+df2_edits1['_TGT 30 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=30) 
+    ### DATE(DATEADD('day',30,[_TGT DOB])) 
+
+df2_edits1['_TGT 5 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=5) 
+    ### DATE(DATEADD('week',5,[_TGT DOB])) 
+
+df2_edits1['_TGT 56 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=56) 
+    ### DATE(DATEADD('day',56,[_TGT DOB])) 
+
+df2_edits1['_TGT 7 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=7) 
+    ### DATE(DATEADD('day',7,[_TGT DOB])) 
+
+df2_edits1['_TGT 8 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=8) 
+    ### DATE(DATEADD('day',8,[_TGT DOB])) 
+
+df2_edits1['_TGT 4 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=4) 
+    ### DATE(DATEADD('week',4,[_TGT DOB])) 
+
+#%%###################################
+### TO DO: Fix Space in variable name! (but not yet.)
+df2_edits1['_TGT 10 Month Date '] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=10) 
+    ### DATE(DATEADD('month',10,[_TGT DOB])) 
+
+df2_edits1['_TGT 11 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=11) 
+    ### DATE(DATEADD('month',11,[_TGT DOB])) 
+
+df2_edits1['_TGT 2 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=2) 
+    ### DATE(DATEADD('month',2,[_TGT DOB])) 
+
+df2_edits1['_TGT 3 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=3) 
+    ### DATE(DATEADD('month',3,[_TGT DOB])) 
+
+df2_edits1['_TGT 4 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=4) 
+    ### DATE(DATEADD('month',4,[_TGT DOB])) 
+
+df2_edits1['_TGT 5 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=5) 
+    ### DATE(DATEADD('month',5,[_TGT DOB])) 
+
+### TO DO: Fix Space in variable name! (but not yet.)
+df2_edits1['_TGT 6 Month Date '] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=6) 
+    ### DATE(DATEADD('month',6,[_TGT DOB])) 
+
+df2_edits1['_TGT 7 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=7) 
+    ### DATE(DATEADD('month',7,[_TGT DOB])) 
+
+df2_edits1['_TGT 8 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=8) 
+    ### DATE(DATEADD('month',8,[_TGT DOB])) 
+
+df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=9) 
+    ### DATE(DATEADD('month',9,[_TGT DOB])) 
 
 
 #%%##################################################
@@ -1221,18 +1241,18 @@ path_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\prev
 comparison_csv = pd.read_csv(path_comparison_csv)
 
 #%%
-[*df2] == [*comparison_csv]
+[*df2_edits1] == [*comparison_csv]
 
 #%%
-[*df2]
+[*df2_edits1]
 #%%
 [*comparison_csv]
 
 #%%### Overlap / Similarities
-set([*comparison_csv]).intersection([*df2])
+set([*comparison_csv]).intersection([*df2_edits1])
 
 #%%### Differences
-set([*comparison_csv]).symmetric_difference([*df2])
+set([*comparison_csv]).symmetric_difference([*df2_edits1])
 
 
 ####### Compare values
