@@ -818,87 +818,203 @@ df2_edits1['_TGT DOB'] = df2_edits1.apply(func=fn_TGT_DOB, axis=1)
 
 #%%###################################
 
+def fn_FW_Gestation_Age_Recode(fdf):
+    match fdf['Gestational Age']: 
+        case '29 weeks':
+            return 29
+        case '31 weeks':
+            return 31
+        case '33 weeks':
+            return 33
+        case '34 weeks':
+            return 34
+        case '35 weeks':
+            return 35
+        case '36 weeks':
+            return 36
+        case '37 weeks':
+            return 37
+        case '38 weeks':
+            return 38
+        case '39 weeks':
+            return 39
+        case '40 weeks':
+            return 40
+        case '41 weeks':
+            return 41
+        case '42 weeks':
+            return 42
+        case 'Unknown':
+            return None
+        case _:
+            return None
+df2_edits1['_FW Gestation Age Recode'] = df2_edits1.apply(func=fn_FW_Gestation_Age_Recode, axis=1)
+    ### CASE [Gestational Age]
+    ###     WHEN '29 weeks' THEN 29
+    ###     WHEN '31 weeks' THEN 31
+    ###     WHEN '33 weeks' THEN 33
+    ###     WHEN '34 weeks' THEN 34
+    ###     WHEN '35 weeks' THEN 35
+    ###     WHEN '36 weeks' THEN 36
+    ###     WHEN '37 weeks' THEN 37
+    ###     WHEN '38 weeks' THEN 38
+    ###     WHEN '39 weeks' THEN 39
+    ###     WHEN '40 weeks' THEN 40
+    ###     WHEN '41 weeks' THEN 41
+    ###     WHEN '42 weeks' THEN 42
+    ###     WHEN 'Unknown' THEN NULL
+    ### ELSE NULL
+    ### END
 
+#%%###################################
 
-df2_edits1['_C7 Safe Sleep Yes Date'] = 
-IF [Sleep On Back] = "Yes" ###FW
-AND [Co Sleeping] = "No"
-AND [Soft Bedding] = "No"
-THEN [Safe Sleep Date]
-ELSE [Safe Sleep Yes Dt] ###LLCHD
-END
+def fn_C7_Safe_Sleep_Yes_Date(fdf):
+    if ( 
+        fdf['Sleep On Back'] == "Yes" ### FW.
+        and fdf['Co Sleeping'] == "No"
+        and fdf['Soft Bedding'] == "No"
+    ):
+        return fdf['Safe Sleep Date']
+    else:
+        return fdf['Safe Sleep Yes Dt'] ### LLCHD.
+df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
+    ### IF [Sleep On Back] = "Yes" //FW
+    ### AND [Co Sleeping] = "No"
+    ### AND [Soft Bedding] = "No"
+    ### THEN [Safe Sleep Date]
+    ### ELSE [Safe Sleep Yes Dt] //LLCHD
+    ### END
 
-df2_edits1['_Discharge Reason'] = 
-IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] ###LLCHD, see full reasons below
-    WHEN 1 THEN "Completed Services" 
-    ELSE "Stopped Services Before Completion"
-    END
-ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] ###FW
-    WHEN "Family graduated/met all program goals" THEN "Completed Services"
-    ELSE "Stopped Services Before Completion"
-    ###need to check values for FW reasons
-    END
-ELSE "Currently Receiving Services"
-END
-###LLCHD discharge reasons
-###1Family graduated/met all program goals
-###2Family moved out of service area
-###3Parent/guardian returned to school
-###4Parent/guardian returned to work
-###5Parent/guardian refused service
-###6Death of participant
-###7Unable to locate family
-###8Target child adopted
-###9Target child entered foster care
-###10Target child living with another care giverx
-###11Target child entered school/child care
-###12Family never engaged
-###13Unknown & a text box
+#%%###################################
 
-df2_edits1['_Funding'] = 
-IF [_Agency] <> "ll" THEN CASE [Agency]
-    WHEN "hs" THEN "F"
-    WHEN "ph" THEN "F"
-    WHEN "nc" THEN "S"
-    WHEN "ps" THEN "S"
-    WHEN "vn" THEN "S"
-    WHEN "se" THEN "TANF"
-    ELSE "Unrecognized Value"
-    END
-ELSEIF [_Agency] = "ll" THEN [Funding]
-END
+def fn_Discharge_Reason(fdf):
+    if (fdf['Discharge Dt'] is not None):
+        match fdf['Discharge Reason']: ### LLCHD, see full reasons below.
+            case 1:
+                return "Completed Services" 
+            case _:
+                return "Stopped Services Before Completion"
+    elif (fdf['Termination Date'] is not None):
+        match fdf['Termination Status']: ### FW.
+            case "Family graduated/met all program goals":
+                return "Completed Services"
+            case _:
+                return "Stopped Services Before Completion"
+            ### need to check values for FW reasons
+    else:
+        return "Currently Receiving Services"
+df2_edits1['_Discharge Reason'] = df2_edits1.apply(func=fn_Discharge_Reason, axis=1)
+    ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
+    ###     WHEN 1 THEN "Completed Services" 
+    ###     ELSE "Stopped Services Before Completion"
+    ###     END
+    ### ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] //FW
+    ###     WHEN "Family graduated/met all program goals" THEN "Completed Services"
+    ###     ELSE "Stopped Services Before Completion"
+    ###     //need to check values for FW reasons
+    ###     END
+    ### ELSE "Currently Receiving Services"
+    ### END
+    ### //LLCHD discharge reasons
+    ### //1Family graduated/met all program goals
+    ### //2Family moved out of service area
+    ### //3Parent/guardian returned to school
+    ### //4Parent/guardian returned to work
+    ### //5Parent/guardian refused service
+    ### //6Death of participant
+    ### //7Unable to locate family
+    ### //8Target child adopted
+    ### //9Target child entered foster care
+    ### //10Target child living with another care giverx
+    ### //11Target child entered school/child care
+    ### //12Family never engaged
+    ### //13Unknown & a text box
 
-df2_edits1['_FW Gestation Age Recode'] = 
-CASE [GESTATIONAL AGE]
-    WHEN '29 weeks' THEN 29
-    WHEN '31 weeks' THEN 31
-    WHEN '33 weeks' THEN 33
-    WHEN '34 weeks' THEN 34
-    WHEN '35 weeks' THEN 35
-    WHEN '36 weeks' THEN 36
-    WHEN '37 weeks' THEN 37
-    WHEN '38 weeks' THEN 38
-    WHEN '39 weeks' THEN 39
-    WHEN '40 weeks' THEN 40
-    WHEN '41 weeks' THEN 41
-    WHEN '42 weeks' THEN 42
-    WHEN 'Unknown' THEN NULL
-ELSE NULL
-END
+#%%###################################
 
-df2_edits1['_Need Exclusion 4 - Dev Delay'] = 
-IF [need_exclusion4 (Family Wise)] = "Developmental Delay" THEN "Developmental Delay" ###FW
-ELSEIF [Need Exclusion4] = "Y" THEN "Developmental Delay" ###LLCHD
-END
+def fn_Funding(fdf):
+    if (fdf['_Agency'] != "ll"):
+        match fdf['Agency']:
+            case "hs":
+                return "F"
+            case "ph":
+                return "F"
+            case "nc":
+                return "S"
+            case "ps":
+                return "S"
+            case "vn":
+                return "S"
+            case "se":
+                return "TANF"
+            case _:
+                return "Unrecognized Value"
+    elif (fdf['_Agency'] == "ll"):
+        return fdf['Funding']
+df2_edits1['_Funding'] = df2_edits1.apply(func=fn_Funding, axis=1)
+    ### IF [_Agency] <> "ll" THEN CASE [Agency]
+    ###     WHEN "hs" THEN "F"
+    ###     WHEN "ph" THEN "F"
+    ###     WHEN "nc" THEN "S"
+    ###     WHEN "ps" THEN "S"
+    ###     WHEN "vn" THEN "S"
+    ###     WHEN "se" THEN "TANF"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN [Funding]
+    ### END
 
-df2_edits1['_T05 Age Categories'] = 
-IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
-ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" ###there is no group for 2-3 years old on F1 so they are lumped in here
-ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
-ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
-ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
-ELSE "Unknown/Did Not Report"
-END
+#%%###################################
+
+def fn_Need_Exclusion_4_Dev_Delay(fdf):
+    if (fdf['Need Exclusion4'] == "Developmental Delay"):
+        return "Developmental Delay" ### FW.
+    elif (fdf['need exclusion4 (LLCHD)'] == "Y"):
+        return "Developmental Delay" ### LLCHD.
+df2_edits1['_Need Exclusion 4 - Dev Delay'] = df2_edits1.apply(func=fn_Need_Exclusion_4_Dev_Delay, axis=1)
+    ### IF [Need Exclusion4] = "Developmental Delay" THEN "Developmental Delay" //FW
+    ### ELSEIF [need exclusion4 (LLCHD)] = "Y" THEN "Developmental Delay" //LLCHD
+    ### END
+
+#%%###################################
+
+!!!
+def fn_T05_TGT_Age_in_Months(fdf):
+    if (fdf['_TGT DOB'] > DATEADD('month',-DATEDIFF('month',fdf['_TGT DOB'],TODAY()),TODAY())):
+        return DATEDIFF('month',fdf['_TGT DOB'],TODAY()-1)
+    else:
+        return DATEDIFF('month',fdf['_TGT DOB'],TODAY())
+df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1)
+    ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
+    ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
+    ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
+    ### END
+
+#%%###################################
+
+def fn_T05_Age_Categories(fdf):
+    if (fdf['_T05 TGT Age in Months'] < 12):
+        return "< 1 year"
+    elif (fdf['_T05 TGT Age in Months'] < 36):
+        return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
+    elif (fdf['_T05 TGT Age in Months'] < 48):
+        return "3-4 years"
+    elif (fdf['_T05 TGT Age in Months'] <= 60):
+        return "5-6 years"
+    elif (fdf['_T05 TGT Age in Months'] > 60):
+        return "6+ years"
+    else:
+        return "Unknown/Did Not Report"
+df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories, axis=1)
+    ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
+    ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
+    ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
+    ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
+    ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+
+#%%###################################
 
 df2_edits1['_T06 TGT Ethnicity'] = 
 ###FW
@@ -919,6 +1035,8 @@ ELSEIF NOT ISNULL([tgt_ethnicity]) THEN CASE [tgt_ethnicity]
     END
 ELSE "Unknown/Did Not Report"
 END
+
+#%%###################################
 
 df2_edits1['_T1 Tgt Gender'] = 
 ###FW
@@ -942,6 +1060,8 @@ ELSEIF NOT ISNULL([Tgt Gender]) THEN CASE [Tgt Gender]
 ELSE "Unknown/Did Not Report"
 END
 
+#%%###################################
+
 df2_edits1['_T13 TGT Language'] = 
 IF NOT ISNULL([Mob Language]) THEN CASE [Mob Language]
     WHEN "English" THEN "English"
@@ -956,6 +1076,8 @@ ELSEIF NOT ISNULL([Language Primary]) THEN CASE [Language Primary]
 ELSE "Unknown/Did Not Report"
 END
 
+#%%###################################
+
 df2_edits1['_T15-7 Household Developmental Delay'] = 
 IF [NT Child Dev Delay] = "Yes" THEN 1 ###FW
 ELSEIF [NT Child Dev Delay] = "No" THEN 0
@@ -963,6 +1085,8 @@ ELSEIF [Priority Develop Delays] = "Y" THEN 1 ###LLCHD
 ELSEIF [Priority Develop Delays] = "N" THEN 0
 END
 ###To determine priority population, positive ASQ results also need to be considered
+
+#%%###################################
 
 df2_edits1['_T20 TGT Insurance Status'] = 
 IF NOT ISNULL([CHINS Primary Ins]) THEN CASE [CHINS Primary Ins] ###FW
@@ -989,6 +1113,8 @@ ELSEIF NOT ISNULL([Hlth Insure Tgt]) THEN CASE [Hlth Insure Tgt] ###LLCHD
     END
 ELSE "Unknown/Did Not Report"
 END
+
+#%%###################################
 
 df2_edits1['_T21 TGT Usual Source of Medical Care'] = 
 IF NOT ISNULL([Child Med Care Source]) THEN CASE [Child Med Care Source] ###FW
@@ -1017,6 +1143,8 @@ ELSEIF NOT ISNULL([Tgt Medical Home]) THEN CASE [Tgt Medical Home] ###LLCHD, cod
 ELSE "Unknown/Did Not Report"
 END
 
+#%%###################################
+
 df2_edits1['_T22 TGT Usual Souce of Dental Care'] = 
 IF NOT ISNULL([Child Dental Care Source]) THEN CASE [Child Dental Care Source] ###FW
     WHEN "Do not have a usual source of dental care" THEN "Do not have a usual source of dental care"
@@ -1037,7 +1165,7 @@ ELSEIF NOT ISNULL([Tgt Dental Home]) THEN CASE [Tgt Dental Home] ###LLCHD, coded
 ELSE "Unknown/Did Not Report"
 END
 
-
+#%%###################################
 
 df2_edits1['_TGT EDC Date'] = 
 IF [Dt Edc] = DATE(1/1/1900) THEN NULL ###LLCHD
@@ -1048,6 +1176,8 @@ END
     ### ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL ###FW
     ### ELSE IFNULL([Dt Edc],[EDC Date])
     ### END
+
+#%%###################################
 
 df2_edits1['_TGT Race'] = 
 ###LLCHD
@@ -1076,6 +1206,8 @@ ELSEIF [TGTRaceOther] = True THEN "Other"
 ELSE "Unknown/Did Not Report"
 END
 
+#%%###################################
+
 df2_edits1['_C11 Literacy Read Sing'] = 
 IF [_Agency] <> "ll" THEN CASE [Read Tell Story Sing]  ### FW
     WHEN "0" THEN 0
@@ -1099,6 +1231,8 @@ ELSEIF [_Agency] = "ll" THEN CASE [Early Language]  ### LLCHD
     END
 END
 
+#%%###################################
+
 df2_edits1['_Child Welfare Interaction'] = 
 IF [History Inter Welfare Child] = True THEN 1 ###FW
 ELSEIF [History Inter Welfare Child] = False THEN 0
@@ -1107,11 +1241,7 @@ ELSEIF [Priority Child Welfare] = "N" THEN 0
 END
 ###For priority population, current maltreatment reports also need to be considered
 
-df2_edits1['_T05 TGT Age in Months'] = 
-IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
-THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
-ELSE DATEDIFF('month',[_TGT DOB],TODAY())
-END
+#%%###################################
 
 df2_edits1['_T15-6 Low Student Achievement'] = 
 IF [NT Child Low Achievement] = "No" THEN 0 ###FW
@@ -1119,7 +1249,6 @@ ELSEIF [NT Child Low Achievement] = "Yes" THEN 1
 ELSEIF [Priority Low Student] = "N" THEN 0 ###LLCHD
 ELSEIF [Priority Low Student] = "Y" THEN 1
 END
-
 
 #%%##################################################
 ### COALESCING
@@ -1158,7 +1287,6 @@ df2_edits1['_TGT 8 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=8)
 df2_edits1['_TGT 4 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=4) 
     ### DATE(DATEADD('week',4,[_TGT DOB])) 
 
-#%%###################################
 ### TO DO: Fix Space in variable name! (but not yet.)
 df2_edits1['_TGT 10 Month Date '] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=10) 
     ### DATE(DATEADD('month',10,[_TGT DOB])) 
@@ -1250,6 +1378,8 @@ comparison_csv = pd.read_csv(path_comparison_csv)
 
 #%%
 [*df2_edits1] == [*comparison_csv]
+
+#%%###################################
 
 #%%
 [*df2_edits1]
