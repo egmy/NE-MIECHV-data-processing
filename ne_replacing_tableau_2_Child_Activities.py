@@ -26,6 +26,12 @@ print('Version Of Pandas: ' + pd.__version__)
 print('Version Of Numpy: ' + np.version.version)
 
 #%%##################################################
+### SETTINGS ###
+#####################################################
+
+now = pd.Timestamp('now')
+
+#%%##################################################
 ### Section to Adjust ###
 #####################################################
 
@@ -71,6 +77,15 @@ def inspect_df(df):
     print('\n')
     display(df)
 
+### fSeries = df column or Series: e.g., df['colname'] 
+def inspect_col(fSeries):
+    print(fSeries.info())
+    print('\n')
+    print('value_counts:')
+    print(fSeries.value_counts(dropna=False))
+    print('\n')
+    print(fSeries)
+
 #%%##################################################
 ### READ ###
 #####################################################
@@ -105,12 +120,12 @@ df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])
 #%%
 ### Function to add row to DF if no rows. Than map over list/dictionary of df's.
 
-### TODO
+### TO DO
 
 #%% 
 ### CHECK that there's data in each df (that are not empty):
 
-### TODO
+### TO DO
 
 #%%
 # inspect_df(df2_1)
@@ -734,28 +749,28 @@ df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].com
 
 ### These calculations assume all date variables are dtype "datetime64".
 
-df2_edits1['_C18 ASQ 18 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.Timedelta(days=30) 
+df2_edits1['_C18 ASQ 18 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 18 Mo Date])) 
 
-df2_edits1['_C18 ASQ 18 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.Timedelta(days=45) 
+df2_edits1['_C18 ASQ 18 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 18 Mo Date])) 
 
-df2_edits1['_C18 ASQ 24 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 24 Mo Date'] + pd.Timedelta(days=30) 
+df2_edits1['_C18 ASQ 24 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 24 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 24 Mo Date])) 
 
-df2_edits1['_C18 ASQ 24 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 24 Mo Date'] + pd.Timedelta(days=45) 
+df2_edits1['_C18 ASQ 24 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 24 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 24 Mo Date])) 
 
-df2_edits1['_C18 ASQ 30 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 30 Mo Date'] + pd.Timedelta(days=30) 
+df2_edits1['_C18 ASQ 30 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 30 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 30 Mo Date])) 
 
-df2_edits1['_C18 ASQ 30 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 30 Mo Date'] + pd.Timedelta(days=45) 
+df2_edits1['_C18 ASQ 30 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 30 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 30 Mo Date])) 
 
-df2_edits1['_C18 ASQ 9 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.Timedelta(days=30) 
+df2_edits1['_C18 ASQ 9 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 9 Mo Date])) 
 
-df2_edits1['_C18 ASQ 9 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.Timedelta(days=45) 
+df2_edits1['_C18 ASQ 9 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 9 Mo Date])) 
 
 #%%###################################
@@ -796,6 +811,14 @@ df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=fn_C2_BF_Status, axis=1)
     ###     END
     ### ELSEIF [_Agency] = "ll" THEN NULL  // add CASE for LLCHD values when they add them to their dataset
     ### END
+inspect_col(df2_edits1['_C2 BF Status'])
+
+#%%
+inspect_col(df2_edits1['_Agency'])
+#%%
+inspect_col(df2_edits1['Breast Feeding']) ### Is a float when should be a string.
+#%%
+pd.crosstab(df2_edits1['_C2 BF Status'], df2_edits1['_Agency'], dropna=False)
 
 #%%###################################
 
@@ -815,6 +838,7 @@ df2_edits1['_TGT DOB'] = df2_edits1.apply(func=fn_TGT_DOB, axis=1)
     ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
     ### END
+inspect_col(df2_edits1['_Funding'])
 
 #%%###################################
 
@@ -865,6 +889,7 @@ df2_edits1['_FW Gestation Age Recode'] = df2_edits1.apply(func=fn_FW_Gestation_A
     ###     WHEN 'Unknown' THEN NULL
     ### ELSE NULL
     ### END
+inspect_col(df2_edits1['_Funding'])
 
 #%%###################################
 
@@ -884,6 +909,7 @@ df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Y
     ### THEN [Safe Sleep Date]
     ### ELSE [Safe Sleep Yes Dt] //LLCHD
     ### END
+inspect_col(df2_edits1['_Funding'])
 
 #%%###################################
 
@@ -929,6 +955,7 @@ df2_edits1['_Discharge Reason'] = df2_edits1.apply(func=fn_Discharge_Reason, axi
     ### //11Target child entered school/child care
     ### //12Family never engaged
     ### //13Unknown & a text box
+inspect_col(df2_edits1['_Funding'])
 
 #%%###################################
 
@@ -963,6 +990,7 @@ df2_edits1['_Funding'] = df2_edits1.apply(func=fn_Funding, axis=1)
     ###     END
     ### ELSEIF [_Agency] = "ll" THEN [Funding]
     ### END
+inspect_col(df2_edits1['_Funding'])
 
 #%%###################################
 
@@ -975,34 +1003,50 @@ df2_edits1['_Need Exclusion 4 - Dev Delay'] = df2_edits1.apply(func=fn_Need_Excl
     ### IF [Need Exclusion4] = "Developmental Delay" THEN "Developmental Delay" //FW
     ### ELSEIF [need exclusion4 (LLCHD)] = "Y" THEN "Developmental Delay" //LLCHD
     ### END
+inspect_col(df2_edits1['_Need Exclusion 4 - Dev Delay'])
 
 #%%###################################
 
-!!!
+### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
+### TO DO: FIX: first if clause.
+### TO DO: Ask Joe purpose of IF clause.
+### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
 def fn_T05_TGT_Age_in_Months(fdf):
-    if (fdf['_TGT DOB'] > DATEADD('month',-DATEDIFF('month',fdf['_TGT DOB'],TODAY()),TODAY())):
-        return DATEDIFF('month',fdf['_TGT DOB'],TODAY()-1)
+    if (fdf['_TGT DOB'] is pd.NaT):
+        return np.nan
+    elif ((fdf['_TGT DOB'] is not pd.NaT) and 
+        (fdf['_TGT DOB'] > (now - pd.DateOffset(months=np.where(
+            (fdf['_TGT DOB'] is not pd.NaT)
+            ,(pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
+            ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
+        ))))):
+        return pd.Series(((now - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+        # return 0
     else:
-        return DATEDIFF('month',fdf['_TGT DOB'],TODAY())
-df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1)
+        # return 1
+        ### return (((now - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
+        return pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1)#.astype('Float64').astype('Int64')
     ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
     ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
     ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
     ### END
+inspect_col(df2_edits1['_T05 TGT Age in Months'])
 
 #%%###################################
 
+### !!!!!!!
 def fn_T05_Age_Categories(fdf):
     if (fdf['_T05 TGT Age in Months'] < 12):
         return "< 1 year"
-    elif (fdf['_T05 TGT Age in Months'] < 36):
-        return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
-    elif (fdf['_T05 TGT Age in Months'] < 48):
-        return "3-4 years"
-    elif (fdf['_T05 TGT Age in Months'] <= 60):
-        return "5-6 years"
-    elif (fdf['_T05 TGT Age in Months'] > 60):
-        return "6+ years"
+    # elif (fdf['_T05 TGT Age in Months'] < 36):
+    #     return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
+    # elif (fdf['_T05 TGT Age in Months'] < 48):
+    #     return "3-4 years"
+    # elif (fdf['_T05 TGT Age in Months'] <= 60):
+    #     return "5-6 years"
+    # elif (fdf['_T05 TGT Age in Months'] > 60):
+    #     return "6+ years"
     else:
         return "Unknown/Did Not Report"
 df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories, axis=1)
@@ -1016,25 +1060,54 @@ df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories,
 
 #%%###################################
 
-df2_edits1['_T06 TGT Ethnicity'] = 
-###FW
-IF NOT ISNULL([TGT ETHNICITY]) THEN CASE [TGT ETHNICITY]
-    WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
-    WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
-    WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-###LLCDH
-ELSEIF NOT ISNULL([tgt_ethnicity]) THEN CASE [tgt_ethnicity] 
-    WHEN "HISPANIC/LATINO" THEN "Hispanic or Latino" 
-    WHEN "HISPANIC" THEN "Hispanic or Latino"
-    WHEN "NOT HISPANIC/LATINO" THEN "Not Hispanic or Latino"
-    WHEN "NON-Hispanic" THEN "Not Hispanic or Latino"
-    WHEN "UNREPORTED/REFUSED TO REPORT" THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-ELSE "Unknown/Did Not Report"
-END
+def fn_T06_TGT_Ethnicity(fdf):
+    ### FW.
+    if (fdf['Tgt Ethnicity'] is not None):
+        match fdf['Tgt Ethnicity']:
+            case "Non Hispanic/Latino":
+                return "Not Hispanic or Latino"
+            case "Hispanic/Latino":
+                return "Hispanic or Latino"
+            case "Unknown":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ### LLCDH.
+    elif (fdf['Tgt Ethnicity1'] is not None):
+        match fdf['Tgt Ethnicity1']:
+            case "HISPANIC/LATINO":
+                return "Hispanic or Latino" 
+            case "HISPANIC":
+                return "Hispanic or Latino"
+            case "NOT HISPANIC/LATINO":
+                return "Not Hispanic or Latino"
+            case "NON-Hispanic":
+                return "Not Hispanic or Latino"
+            case "UNREPORTED/REFUSED TO REPORT":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    else:
+        return "Unknown/Did Not Report"
+df2_edits1['_T06 TGT Ethnicity'] = df2_edits1.apply(func=fn_T06_TGT_Ethnicity, axis=1)
+    # //FW
+    # IF NOT ISNULL([Tgt Ethnicity]) THEN CASE [Tgt Ethnicity]
+    #     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
+    #     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
+    #     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    #     ELSE "Unrecognized Value"
+    #     END
+    # //LLCDH
+    # ELSEIF NOT ISNULL([Tgt Ethnicity1]) THEN CASE [Tgt Ethnicity1] 
+    #     WHEN "HISPANIC/LATINO" THEN "Hispanic or Latino" 
+    #     WHEN "HISPANIC" THEN "Hispanic or Latino"
+    #     WHEN "NOT HISPANIC/LATINO" THEN "Not Hispanic or Latino"
+    #     WHEN "NON-Hispanic" THEN "Not Hispanic or Latino"
+    #     WHEN "UNREPORTED/REFUSED TO REPORT" THEN "Unknown/Did Not Report"
+    #     ELSE "Unrecognized Value"
+    #     END
+    # ELSE "Unknown/Did Not Report"
+    # END
 
 #%%###################################
 
@@ -1263,28 +1336,28 @@ df2_edits1['_TGT Gestational Age'] = df2_edits1['tgt GestationalAge'].combine_fi
 ### These calculations assume all date variables are dtype "datetime64".
 ### All in section Dependent on '_TGT DOB'.
 
-df2_edits1['_TGT 2 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=2) 
+df2_edits1['_TGT 2 Week Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(weeks=2) 
     ### DATE(DATEADD('week',2,[_TGT DOB])) 
 
-df2_edits1['_TGT 3 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=3) 
+df2_edits1['_TGT 3 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=3) 
     ### DATE(DATEADD('day',3,[_TGT DOB])) 
 
-df2_edits1['_TGT 30 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=30) 
+df2_edits1['_TGT 30 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_TGT DOB])) 
 
-df2_edits1['_TGT 5 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=5) 
+df2_edits1['_TGT 5 Week Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(weeks=5) 
     ### DATE(DATEADD('week',5,[_TGT DOB])) 
 
-df2_edits1['_TGT 56 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=56) 
+df2_edits1['_TGT 56 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=56) 
     ### DATE(DATEADD('day',56,[_TGT DOB])) 
 
-df2_edits1['_TGT 7 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=7) 
+df2_edits1['_TGT 7 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=7) 
     ### DATE(DATEADD('day',7,[_TGT DOB])) 
 
-df2_edits1['_TGT 8 Day Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(days=8) 
+df2_edits1['_TGT 8 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=8) 
     ### DATE(DATEADD('day',8,[_TGT DOB])) 
 
-df2_edits1['_TGT 4 Week Date'] = df2_edits1['_TGT DOB'] + pd.Timedelta(weeks=4) 
+df2_edits1['_TGT 4 Week Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(weeks=4) 
     ### DATE(DATEADD('week',4,[_TGT DOB])) 
 
 ### TO DO: Fix Space in variable name! (but not yet.)
@@ -1352,7 +1425,11 @@ df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
 ### Prepare CSV ###
 #####################################################
 
-
+### REMOVE
+# indicator='LJ_df2_2ER'
+# indicator='LJ_df2_3FW'
+# indicator='LJ_df2_4LL'
+# indicator='LJ_df2_5WC'
 
 
 #%%##################################################
@@ -1394,7 +1471,7 @@ set([*comparison_csv]).symmetric_difference([*df2_edits1])
 
 
 ####### Compare values
-
+### including row count, distinct ids, 
 
 
 
