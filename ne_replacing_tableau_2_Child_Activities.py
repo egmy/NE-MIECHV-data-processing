@@ -67,8 +67,10 @@ path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel o
 ### Comparison File ###
 #####################################################
 
-path_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
-comparison_csv = pd.read_csv(path_comparison_csv)
+path_df_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+df_comparison_csv = pd.read_csv(path_df_comparison_csv)
+df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+
 
 #%%##################################################
 ### Utility Functions ###
@@ -1853,11 +1855,15 @@ df2_edits2 = df2_edits1.drop(columns=['LJ_df2_2ER', 'LJ_df2_3FW', 'LJ_df2_4LL', 
 
 #%%
 ### Final order for columns:
-[*comparison_csv]
+[*df_comparison_csv]
 
 #%%
 ### Reorder Columns.
-df2_edits2 = df2_edits2[[*comparison_csv]]
+df2_edits2 = df2_edits2[[*df_comparison_csv]]
+
+#%%
+### Sort Rows.
+df2_edits2 = df2_edits2.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 
 #%%##################################################
@@ -1881,32 +1887,61 @@ df2_final.to_csv(path_2_output, index=False)
 [*df2_final]
 #%%
 ### Column names:
-[*comparison_csv]
+[*df_comparison_csv]
 
 #%%
 ### Overlap / Similarities: Columns in both.
-set([*comparison_csv]).intersection([*df2_final])
+set([*df_comparison_csv]).intersection([*df2_final])
 
 #%%###################################
 
 #%%
 ### Check if all Column names identical & in same order.
-[*df2_final] == [*comparison_csv]
+[*df2_final] == [*df_comparison_csv]
 
 #%%
 ### Differences: Columns only in one.
-set([*comparison_csv]).symmetric_difference([*df2_final])
+set([*df_comparison_csv]).symmetric_difference([*df2_final])
 
 #%%###################################
 
 ####### Compare values
 ### including row count, distinct ids, 
 
+#%%
 # Check rows & cols:
+print(f'df2_final Rows: {len(df2_final)}')
+print(f'df_comparison_csv Rows: {len(df_comparison_csv)}')
 
+print(f'df2_final Columns: {len(df2_final.columns)}')
+print(f'df_comparison_csv Columns: {len(df_comparison_csv.columns)}')
 
 #%%
-df2_final == comparison_csv
+df2_final == df_comparison_csv
+
+#%%
+df_comp_compare = df_comparison_csv[['Project Id','Year','Quarter']].compare(df2_final[['Project Id','Year','Quarter']])
+df_comp_compare
+
+#%%
+df_comp_compare = df_comparison_csv.compare(df2_final)
+df_comp_compare
+#%%
+len([*df_comp_compare]) / 2 ### = 13 columns with different values/types.
+#%%
+[*df_comp_compare]
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
