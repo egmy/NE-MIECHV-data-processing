@@ -32,7 +32,7 @@ print('Version Of Numpy: ' + np.version.version)
 now = pd.Timestamp('now')
 
 #%%##################################################
-### Section to Adjust ###
+### PATHS ###
 #####################################################
 
 ### Data Source for 2nd Tableau file:
@@ -56,12 +56,19 @@ path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel o
 # with open(Path(path_2_output_dir, 'test.txt'), 'w') as f:
 #     f.write('testtest test  test')
 
-
 #%%### df2_1: 'Project ID'.
 #%%### df2_2: 'ER Injury'.
 #%%### df2_3: 'Family Wise'.
 #%%### df2_4: 'LLCHD'.
 #%%### df2_5: 'Well Child'. 
+
+
+#%%##################################################
+### Comparison File ###
+#####################################################
+
+path_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+comparison_csv = pd.read_csv(path_comparison_csv)
 
 #%%##################################################
 ### Utility Functions ###
@@ -87,77 +94,10 @@ def inspect_col(fSeries):
     print(fSeries)
 
 #%%##################################################
-### READ ###
+### COLUMN DEFINITIONS ###
 #####################################################
-
-### https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
-### https://pandas.pydata.org/docs/user_guide/io.html#reading-excel-files 
-
-#%%
-### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx = pd.ExcelFile(path_2_data_source_file)
-
-#%% 
-### CHECK that all path_2_data_source_sheets same as xlsx.sheet_names (different order ok):
-print(sorted(path_2_data_source_sheets))
-print(sorted(xlsx.sheet_names))
-sorted(path_2_data_source_sheets) == sorted(xlsx.sheet_names)
-
-#%%
-### READ all sheets:
-df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0])
-df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1])
-df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2])
-df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3])
-df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])
-
-# df2_1 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[0])
-# df2_2 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[1])
-# df2_3 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[2])
-# df2_4 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[3])
-# df2_5 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[4])
-
-#%%
-### Function to add row to DF if no rows. Than map over list/dictionary of df's.
-
-### TO DO
-
-#%% 
-### CHECK that there's data in each df (that are not empty):
-
-### TO DO
-
-#%%
-# inspect_df(df2_1)
-#%%
-# inspect_df(df2_2)
-#%%
-# inspect_df(df2_3)
-#%%
-# inspect_df(df2_4)
-#%%
-# inspect_df(df2_5)
-
-#%%##################################################
-### Rename Columns ###
-#####################################################
-
-#%%
-### df2_1 = df2_1.add_suffix(' (Project ID)')
-### df2_2 = df2_2.add_suffix(' (ER Injury)')
-### df2_3 = df2_3.add_suffix(' (Family Wise)')
-### df2_4 = df2_4.add_suffix(' (LLCHD)')
-### df2_5 = df2_5.add_suffix(' (Well Child)')
-
-#%%### df2_1: 'Project ID'.
-#%%### df2_2: 'ER Injury'.
-#%%### df2_3: 'Family Wise'.
-#%%### df2_4: 'LLCHD'.
-#%%### df2_5: 'Well Child'.
 
 #######################
-#%%### df2_1: 'Project ID'.
-[*df2_1]
 #%%### df2_1: 'Project ID'.
 df2_1_col_detail = [
     ['project_id', 'Project Id', '', 'string'], 
@@ -168,12 +108,10 @@ df2_1_col_detail = [
 df2_1_colnames = {x[0]:x[1] for x in df2_1_col_detail if x[2] != 'same' and x[0] != x[1]}
 df2_1_colnames
 #%%### df2_1: 'Project ID'.
-df2_1 = df2_1.rename(columns=df2_1_colnames)
-[*df2_1]
+df2_1_col_dtypes = {x[0]:x[3] for x in df2_1_col_detail}
+df2_1_col_dtypes
 
 #######################
-#%%### df2_2: 'ER Injury'.
-[*df2_2]
 #%%### df2_2: 'ER Injury'.
 df2_2_col_detail = [
     ['Project ID', 'Project ID (ER Injury)', '', 'string'],
@@ -190,12 +128,10 @@ df2_2_col_detail = [
 df2_2_colnames = {x[0]:x[1] for x in df2_2_col_detail if x[2] != 'same' and x[0] != x[1]}
 df2_2_colnames
 #%%### df2_2: 'ER Injury'.
-df2_2 = df2_2.rename(columns=df2_2_colnames)
-[*df2_2]
+df2_2_col_dtypes = {x[0]:x[3] for x in df2_2_col_detail}
+df2_2_col_dtypes
 
 #######################
-#%%### df2_3: 'Family Wise'.
-[*df2_3]
 #%%### df2_3: 'Family Wise'.
 df2_3_col_detail = [
     ['Project ID', 'Project ID', 'same', 'string']
@@ -297,12 +233,10 @@ df2_3_col_detail = [
 df2_3_colnames = {x[0]:x[1] for x in df2_3_col_detail if x[2] != 'same' and x[0] != x[1]}
 df2_3_colnames
 #%%### df2_3: 'Family Wise'.
-df2_3 = df2_3.rename(columns=df2_3_colnames)
-[*df2_3]
+df2_3_col_dtypes = {x[0]:x[3] for x in df2_3_col_detail}
+df2_3_col_dtypes
 
 #######################
-#%%### df2_4: 'LLCHD'.
-[*df2_4]
 #%%### df2_4: 'LLCHD'.
 df2_4_col_detail = [
     ['project_id', 'project id (LLCHD)', '', 'string']
@@ -477,12 +411,10 @@ df2_4_col_detail = [
 df2_4_colnames = {x[0]:x[1] for x in df2_4_col_detail if x[2] != 'same' and x[0] != x[1]}
 df2_4_colnames
 #%%### df2_4: 'LLCHD'.
-df2_4 = df2_4.rename(columns=df2_4_colnames)
-[*df2_4]
+df2_4_col_dtypes = {x[0]:x[3] for x in df2_4_col_detail}
+df2_4_col_dtypes
 
 #######################
-#%%### df2_5: 'Well Child'.
-[*df2_5]
 #%%### df2_5: 'Well Child'.
 df2_5_col_detail = [
     ['ProjectID', 'Project ID1', '', 'string']
@@ -521,6 +453,117 @@ df2_5_col_detail = [
 ]
 #%%### df2_5: 'Well Child'.
 df2_5_colnames = {x[0]:x[1] for x in df2_5_col_detail if x[2] != 'same' and x[0] != x[1]}
+df2_5_colnames
+#%%### df2_5: 'Well Child'.
+df2_5_col_dtypes = {x[0]:x[3] for x in df2_5_col_detail}
+df2_5_col_dtypes
+
+#%%##################################################
+### READ ###
+#####################################################
+
+#%%
+### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
+xlsx = pd.ExcelFile(path_2_data_source_file)
+
+#%% 
+### CHECK that all path_2_data_source_sheets same as xlsx.sheet_names (different order ok):
+print(sorted(path_2_data_source_sheets))
+print([x for x in sorted(xlsx.sheet_names) if x != 'Birth File'])
+sorted(path_2_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x != 'Birth File']
+
+#%%
+### READ all sheets:
+df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0])#, dtype=df2_1_col_dtypes)
+df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1])#, dtype=df2_2_col_dtypes)
+df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'object'})#, dtype=df2_3_col_dtypes)
+df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3])#, dtype=df2_4_col_dtypes)
+df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])#, dtype=df2_5_col_dtypes)
+
+# df2_1 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[0])
+# df2_2 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[1])
+# df2_3 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[2])
+# df2_4 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[3])
+# df2_5 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[4])
+
+#%%
+### Function to add row to DF if no rows. Than map over list/dictionary of df's.
+
+### TO DO
+
+#%% 
+### CHECK that there's data in each df (that are not empty):
+
+### TO DO
+
+#%%
+# inspect_df(df2_1)
+#%%
+# inspect_df(df2_2)
+#%%
+# inspect_df(df2_3)
+#%%
+# inspect_df(df2_4)
+#%%
+# inspect_df(df2_5)
+
+#%%##################################################
+### Rename Columns ###
+#####################################################
+
+#%%
+### df2_1 = df2_1.add_suffix(' (Project ID)')
+### df2_2 = df2_2.add_suffix(' (ER Injury)')
+### df2_3 = df2_3.add_suffix(' (Family Wise)')
+### df2_4 = df2_4.add_suffix(' (LLCHD)')
+### df2_5 = df2_5.add_suffix(' (Well Child)')
+
+#%%### df2_1: 'Project ID'.
+#%%### df2_2: 'ER Injury'.
+#%%### df2_3: 'Family Wise'.
+#%%### df2_4: 'LLCHD'.
+#%%### df2_5: 'Well Child'.
+
+#######################
+#%%### df2_1: 'Project ID'.
+[*df2_1]
+#%%### df2_1: 'Project ID'.
+df2_1_colnames
+#%%### df2_1: 'Project ID'.
+df2_1 = df2_1.rename(columns=df2_1_colnames)
+[*df2_1]
+
+#######################
+#%%### df2_2: 'ER Injury'.
+[*df2_2]
+#%%### df2_2: 'ER Injury'.
+df2_2_colnames
+#%%### df2_2: 'ER Injury'.
+df2_2 = df2_2.rename(columns=df2_2_colnames)
+[*df2_2]
+
+#######################
+#%%### df2_3: 'Family Wise'.
+[*df2_3]
+#%%### df2_3: 'Family Wise'.
+df2_3_colnames
+#%%### df2_3: 'Family Wise'.
+df2_3 = df2_3.rename(columns=df2_3_colnames)
+[*df2_3]
+
+#######################
+#%%### df2_4: 'LLCHD'.
+[*df2_4]
+#%%### df2_4: 'LLCHD'.
+df2_4_colnames
+#%%### df2_4: 'LLCHD'.
+df2_4 = df2_4.rename(columns=df2_4_colnames)
+[*df2_4]
+
+#######################
+#%%### df2_5: 'Well Child'.
+[*df2_5]
+#%%### df2_5: 'Well Child'.
 df2_5_colnames
 #%%### df2_5: 'Well Child'.
 df2_5 = df2_5.rename(columns=df2_5_colnames)
@@ -739,6 +782,9 @@ df2_edits1['_T16 Total Home Visits'] = df2_edits1['Home Visits Total'].combine_f
 df2_edits1['_TGT Number'] = df2_edits1['Tgt Id'].combine_first(df2_edits1['Child Number'])
     ### IFNULL([Tgt Id],[Child Number])
 
+df2_edits1['_Zip'] = df2_edits1['zip'].combine_first(df2_edits1['ZIP Code'])
+    ### IFNULL([zip],[ZIP Code])
+
 #%%###################################
 ### If variables are already dtypes "datetime64", then this should be a date too:
 df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].combine_first(df2_edits1['Hlth Insure Tgt Dt'])
@@ -784,11 +830,187 @@ df2_edits1['_Enroll 6 Month Date'] = df2_edits1['_Enroll'] + pd.DateOffset(month
 ### IF/ELSE, CASE/WHEN
 
 ### fdf == "function DataFrame"
-### Note: Leave "" like in Tableau.
+
+#%%###################################
+
+def fn_TGT_EDC_Date(fdf):
+    ### LLCHD.
+    if (fdf['Dt Edc'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['EDC Date'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Dt Edc'] is not pd.NaT):
+            return fdf['Dt Edc']
+        else:
+            return fdf['EDC Date']
+    ### IF [Dt Edc] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Dt Edc],[EDC Date])
+    ### END
+df2_edits1['_TGT EDC Date'] = df2_edits1.apply(func=fn_TGT_EDC_Date, axis=1)
+### dtype should be: 'date'.
+inspect_col(df2_edits1['_TGT EDC Date'])
+
+#%%###################################
+
+def fn_TGT_DOB(fdf):
+    ### LLCHD.
+    if (fdf['Tgt Dob'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['Tgt Dob-Cr'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Tgt Dob'] is not pd.NaT):
+            return fdf['Tgt Dob']
+        else:
+            return fdf['Tgt Dob-Cr']
+    ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
+    ### END
+df2_edits1['_TGT DOB'] = df2_edits1.apply(func=fn_TGT_DOB, axis=1)
+### dtype should be: 'date'.
+inspect_col(df2_edits1['_TGT DOB'])
+# #%%
+# inspect_col(df2_edits1['Tgt Dob'])
+# #%%
+# inspect_col(df2_edits1['Tgt Dob-Cr'])
+
+#%%###################################
+
+def fn_C7_Safe_Sleep_Yes_Date(fdf):
+    if ( 
+        fdf['Sleep On Back'] == "Yes" ### FW.
+        and fdf['Co Sleeping'] == "No"
+        and fdf['Soft Bedding'] == "No"
+    ):
+        return fdf['Safe Sleep Date']
+    else:
+        return fdf['Safe Sleep Yes Dt'] ### LLCHD.
+    ### IF [Sleep On Back] = "Yes" //FW
+    ### AND [Co Sleeping] = "No"
+    ### AND [Soft Bedding] = "No"
+    ### THEN [Safe Sleep Date]
+    ### ELSE [Safe Sleep Yes Dt] //LLCHD
+    ### END
+df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
+### dtype should be: 'date'.
+inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
+
+#%%###################################
+
+### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
+### TO DO: FIX: first if clause.
+### TO DO: Ask Joe purpose of IF clause.
+### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
+def fn_T05_TGT_Age_in_Months(fdf):
+    if (fdf['_TGT DOB'] is pd.NaT):
+        return np.nan
+    elif ((fdf['_TGT DOB'] is not pd.NaT) and 
+        (fdf['_TGT DOB'] > (now - pd.DateOffset(months=np.where(
+            (fdf['_TGT DOB'] is not pd.NaT)
+            ,(pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
+            ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
+        ))))):
+        return pd.Series(((now - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+    else:
+        ### return (((now - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
+        return pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+    ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
+    ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
+    ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
+    ### END
+df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1)#.astype('Float64').astype('Int64')
+### dtype should be: 'int'.
+inspect_col(df2_edits1['_T05 TGT Age in Months'])
+
+#%%###################################
+
+def fn_T05_Age_Categories(fdf):
+    if (fdf['_T05 TGT Age in Months'] < 12):
+        return "< 1 year"
+    elif (fdf['_T05 TGT Age in Months'] < 36):
+        return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
+    elif (fdf['_T05 TGT Age in Months'] < 48):
+        return "3-4 years"
+    elif (fdf['_T05 TGT Age in Months'] <= 60):
+        return "5-6 years"
+    elif (fdf['_T05 TGT Age in Months'] > 60):
+        return "6+ years"
+    else:
+        return "Unknown/Did Not Report"
+    ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
+    ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
+    ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
+    ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
+    ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T05 Age Categories'])
+
+#%%###################################
+
+### TO DO: Ask Joe why ALL values are the same.
+def fn_Discharge_Reason(fdf):
+    if (fdf['Discharge Dt'] is not None):
+        match fdf['Discharge Reason']: ### LLCHD, see full reasons below.
+            case 1: ### Ask Joe! No examples of this.
+                return "Completed Services" 
+            case _:
+                return "Stopped Services Before Completion"
+    elif (fdf['Termination Date'] is not None):
+        match fdf['Termination Status']: ### FW.
+            case "Family graduated/met all program goals":
+                return "Completed Services"
+            case _:
+                return "Stopped Services Before Completion"
+            ### need to check values for FW reasons
+    else:
+        return "Currently Receiving Services"
+    ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
+    ###     WHEN 1 THEN "Completed Services" 
+    ###     ELSE "Stopped Services Before Completion"
+    ###     END
+    ### ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] //FW
+    ###     WHEN "Family graduated/met all program goals" THEN "Completed Services"
+    ###     ELSE "Stopped Services Before Completion"
+    ###     //need to check values for FW reasons
+    ###     END
+    ### ELSE "Currently Receiving Services"
+    ### END
+    ### //LLCHD discharge reasons
+    ### //1Family graduated/met all program goals
+    ### //2Family moved out of service area
+    ### //3Parent/guardian returned to school
+    ### //4Parent/guardian returned to work
+    ### //5Parent/guardian refused service
+    ### //6Death of participant
+    ### //7Unable to locate family
+    ### //8Target child adopted
+    ### //9Target child entered foster care
+    ### //10Target child living with another care giverx
+    ### //11Target child entered school/child care
+    ### //12Family never engaged
+    ### //13Unknown & a text box
+df2_edits1['_Discharge Reason'] = df2_edits1.apply(func=fn_Discharge_Reason, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_Discharge Reason'])
+# #%%
+# inspect_col(df2_edits1['Discharge Reason']) ### Is a string, but no examples of "1" or 1.
+# #%%
+# inspect_col(df2_edits1['Termination Status'])
+
+#%%###################################
 
 def fn_C2_BF_Status(fdf):
+    ### FW.
     if (fdf['_Agency'] != "ll"):
-        match fdf['Breast Feeding']:  ### FW
+        match fdf['Breast Feeding']:  
             case "YES":
                 return 1
             case "1":
@@ -799,9 +1021,9 @@ def fn_C2_BF_Status(fdf):
                 return -1
             case _:
                 return None 
+    ### add CASE for LLCHD values when they add them to their dataset.
     elif (fdf['_Agency'] == "ll"):
-        return None  ### add CASE for LLCHD values when they add them to their dataset
-df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=fn_C2_BF_Status, axis=1)
+        return None  
     ### IF [_Agency] <> "ll" THEN CASE [Breast Feeding]  // FW
     ###     WHEN "YES" THEN 1
     ###     WHEN "1" THEN 1
@@ -811,34 +1033,15 @@ df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=fn_C2_BF_Status, axis=1)
     ###     END
     ### ELSEIF [_Agency] = "ll" THEN NULL  // add CASE for LLCHD values when they add them to their dataset
     ### END
+df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=fn_C2_BF_Status, axis=1)
+### dtype should be: 'int'.
 inspect_col(df2_edits1['_C2 BF Status'])
-
-#%%
-inspect_col(df2_edits1['_Agency'])
-#%%
-inspect_col(df2_edits1['Breast Feeding']) ### Is a float when should be a string.
-#%%
-pd.crosstab(df2_edits1['_C2 BF Status'], df2_edits1['_Agency'], dropna=False)
-
-#%%###################################
-
-def fn_TGT_DOB(fdf):
-    if (fdf['Tgt Dob'].date() == pd.Timestamp("1900-01-01").date()):
-        return None ###LLCHD.
-    elif (fdf['Tgt Dob-Cr'].date() == pd.Timestamp("1900-01-01").date()):
-        return None ###FW.
-    else:
-        if (fdf['Tgt Dob'] is not None):
-            return fdf['Tgt Dob']
-        else:
-            return fdf['Tgt Dob-Cr']
-        ### df2_edits1['Tgt Dob'].combine_first(df2_edits1['Tgt Dob-Cr'])
-df2_edits1['_TGT DOB'] = df2_edits1.apply(func=fn_TGT_DOB, axis=1)
-    ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
-    ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
-    ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
-    ### END
-inspect_col(df2_edits1['_Funding'])
+# #%%
+# inspect_col(df2_edits1['_Agency'])
+# #%%
+# inspect_col(df2_edits1['Breast Feeding']) ### Originally, csv read in as int, then NA's converted to a float. Should be a string. Fixed in Read above.
+# #%%
+# pd.crosstab(df2_edits1['_C2 BF Status'], df2_edits1['_Agency'], dropna=False)
 
 #%%###################################
 
@@ -872,7 +1075,6 @@ def fn_FW_Gestation_Age_Recode(fdf):
             return None
         case _:
             return None
-df2_edits1['_FW Gestation Age Recode'] = df2_edits1.apply(func=fn_FW_Gestation_Age_Recode, axis=1)
     ### CASE [Gestational Age]
     ###     WHEN '29 weeks' THEN 29
     ###     WHEN '31 weeks' THEN 31
@@ -889,73 +1091,9 @@ df2_edits1['_FW Gestation Age Recode'] = df2_edits1.apply(func=fn_FW_Gestation_A
     ###     WHEN 'Unknown' THEN NULL
     ### ELSE NULL
     ### END
-inspect_col(df2_edits1['_Funding'])
-
-#%%###################################
-
-def fn_C7_Safe_Sleep_Yes_Date(fdf):
-    if ( 
-        fdf['Sleep On Back'] == "Yes" ### FW.
-        and fdf['Co Sleeping'] == "No"
-        and fdf['Soft Bedding'] == "No"
-    ):
-        return fdf['Safe Sleep Date']
-    else:
-        return fdf['Safe Sleep Yes Dt'] ### LLCHD.
-df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
-    ### IF [Sleep On Back] = "Yes" //FW
-    ### AND [Co Sleeping] = "No"
-    ### AND [Soft Bedding] = "No"
-    ### THEN [Safe Sleep Date]
-    ### ELSE [Safe Sleep Yes Dt] //LLCHD
-    ### END
-inspect_col(df2_edits1['_Funding'])
-
-#%%###################################
-
-def fn_Discharge_Reason(fdf):
-    if (fdf['Discharge Dt'] is not None):
-        match fdf['Discharge Reason']: ### LLCHD, see full reasons below.
-            case 1:
-                return "Completed Services" 
-            case _:
-                return "Stopped Services Before Completion"
-    elif (fdf['Termination Date'] is not None):
-        match fdf['Termination Status']: ### FW.
-            case "Family graduated/met all program goals":
-                return "Completed Services"
-            case _:
-                return "Stopped Services Before Completion"
-            ### need to check values for FW reasons
-    else:
-        return "Currently Receiving Services"
-df2_edits1['_Discharge Reason'] = df2_edits1.apply(func=fn_Discharge_Reason, axis=1)
-    ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
-    ###     WHEN 1 THEN "Completed Services" 
-    ###     ELSE "Stopped Services Before Completion"
-    ###     END
-    ### ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] //FW
-    ###     WHEN "Family graduated/met all program goals" THEN "Completed Services"
-    ###     ELSE "Stopped Services Before Completion"
-    ###     //need to check values for FW reasons
-    ###     END
-    ### ELSE "Currently Receiving Services"
-    ### END
-    ### //LLCHD discharge reasons
-    ### //1Family graduated/met all program goals
-    ### //2Family moved out of service area
-    ### //3Parent/guardian returned to school
-    ### //4Parent/guardian returned to work
-    ### //5Parent/guardian refused service
-    ### //6Death of participant
-    ### //7Unable to locate family
-    ### //8Target child adopted
-    ### //9Target child entered foster care
-    ### //10Target child living with another care giverx
-    ### //11Target child entered school/child care
-    ### //12Family never engaged
-    ### //13Unknown & a text box
-inspect_col(df2_edits1['_Funding'])
+df2_edits1['_FW Gestation Age Recode'] = df2_edits1.apply(func=fn_FW_Gestation_Age_Recode, axis=1)
+### dtype should be: 'int'.
+inspect_col(df2_edits1['_FW Gestation Age Recode'])
 
 #%%###################################
 
@@ -978,7 +1116,6 @@ def fn_Funding(fdf):
                 return "Unrecognized Value"
     elif (fdf['_Agency'] == "ll"):
         return fdf['Funding']
-df2_edits1['_Funding'] = df2_edits1.apply(func=fn_Funding, axis=1)
     ### IF [_Agency] <> "ll" THEN CASE [Agency]
     ###     WHEN "hs" THEN "F"
     ###     WHEN "ph" THEN "F"
@@ -990,73 +1127,25 @@ df2_edits1['_Funding'] = df2_edits1.apply(func=fn_Funding, axis=1)
     ###     END
     ### ELSEIF [_Agency] = "ll" THEN [Funding]
     ### END
+df2_edits1['_Funding'] = df2_edits1.apply(func=fn_Funding, axis=1)
+### dtype should be: 'string'.
 inspect_col(df2_edits1['_Funding'])
 
 #%%###################################
 
 def fn_Need_Exclusion_4_Dev_Delay(fdf):
+    ### FW.
     if (fdf['Need Exclusion4'] == "Developmental Delay"):
-        return "Developmental Delay" ### FW.
+        return "Developmental Delay" 
+    ### LLCHD.
     elif (fdf['need exclusion4 (LLCHD)'] == "Y"):
-        return "Developmental Delay" ### LLCHD.
-df2_edits1['_Need Exclusion 4 - Dev Delay'] = df2_edits1.apply(func=fn_Need_Exclusion_4_Dev_Delay, axis=1)
+        return "Developmental Delay" 
     ### IF [Need Exclusion4] = "Developmental Delay" THEN "Developmental Delay" //FW
     ### ELSEIF [need exclusion4 (LLCHD)] = "Y" THEN "Developmental Delay" //LLCHD
     ### END
+df2_edits1['_Need Exclusion 4 - Dev Delay'] = df2_edits1.apply(func=fn_Need_Exclusion_4_Dev_Delay, axis=1)
+### dtype should be: 'string'.
 inspect_col(df2_edits1['_Need Exclusion 4 - Dev Delay'])
-
-#%%###################################
-
-### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
-### TO DO: FIX: first if clause.
-### TO DO: Ask Joe purpose of IF clause.
-### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
-def fn_T05_TGT_Age_in_Months(fdf):
-    if (fdf['_TGT DOB'] is pd.NaT):
-        return np.nan
-    elif ((fdf['_TGT DOB'] is not pd.NaT) and 
-        (fdf['_TGT DOB'] > (now - pd.DateOffset(months=np.where(
-            (fdf['_TGT DOB'] is not pd.NaT)
-            ,(pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
-            ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
-        ))))):
-        return pd.Series(((now - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
-        # return 0
-    else:
-        # return 1
-        ### return (((now - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
-        return pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
-df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1)#.astype('Float64').astype('Int64')
-    ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
-    ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
-    ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
-    ### END
-inspect_col(df2_edits1['_T05 TGT Age in Months'])
-
-#%%###################################
-
-### !!!!!!!
-def fn_T05_Age_Categories(fdf):
-    if (fdf['_T05 TGT Age in Months'] < 12):
-        return "< 1 year"
-    # elif (fdf['_T05 TGT Age in Months'] < 36):
-    #     return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
-    # elif (fdf['_T05 TGT Age in Months'] < 48):
-    #     return "3-4 years"
-    # elif (fdf['_T05 TGT Age in Months'] <= 60):
-    #     return "5-6 years"
-    # elif (fdf['_T05 TGT Age in Months'] > 60):
-    #     return "6+ years"
-    else:
-        return "Unknown/Did Not Report"
-df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories, axis=1)
-    ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
-    ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
-    ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
-    ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
-    ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
-    ### ELSE "Unknown/Did Not Report"
-    ### END
 
 #%%###################################
 
@@ -1089,239 +1178,563 @@ def fn_T06_TGT_Ethnicity(fdf):
                 return "Unrecognized Value"
     else:
         return "Unknown/Did Not Report"
-df2_edits1['_T06 TGT Ethnicity'] = df2_edits1.apply(func=fn_T06_TGT_Ethnicity, axis=1)
-    # //FW
-    # IF NOT ISNULL([Tgt Ethnicity]) THEN CASE [Tgt Ethnicity]
-    #     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
-    #     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
-    #     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    #     ELSE "Unrecognized Value"
-    #     END
-    # //LLCDH
-    # ELSEIF NOT ISNULL([Tgt Ethnicity1]) THEN CASE [Tgt Ethnicity1] 
-    #     WHEN "HISPANIC/LATINO" THEN "Hispanic or Latino" 
-    #     WHEN "HISPANIC" THEN "Hispanic or Latino"
-    #     WHEN "NOT HISPANIC/LATINO" THEN "Not Hispanic or Latino"
-    #     WHEN "NON-Hispanic" THEN "Not Hispanic or Latino"
-    #     WHEN "UNREPORTED/REFUSED TO REPORT" THEN "Unknown/Did Not Report"
-    #     ELSE "Unrecognized Value"
-    #     END
-    # ELSE "Unknown/Did Not Report"
-    # END
-
-#%%###################################
-
-df2_edits1['_T1 Tgt Gender'] = 
-###FW
-IF NOT ISNULL([TGT Gender]) THEN CASE [TGT Gender]
-    WHEN "Female" THEN "Female"
-    WHEN "Male" THEN "Male"
-    WHEN "Non-Binary" THEN "Non-Binary"
-    WHEN "Unknown" THEN "Unknown/Did Not Report"
-    WHEN "Null" THEN "Unknown/Did Not Report"
-    WHEN "null" THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-###LLCHD
-ELSEIF NOT ISNULL([Tgt Gender]) THEN CASE [Tgt Gender]
-    WHEN "F" THEN "Female"
-    WHEN "M" THEN "Male"
-    ### WHEN "N" THEN "Non-Binary" ### Don't have this value yet - confirm
-    WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-ELSE "Unknown/Did Not Report"
-END
-
-#%%###################################
-
-df2_edits1['_T13 TGT Language'] = 
-IF NOT ISNULL([Mob Language]) THEN CASE [Mob Language]
-    WHEN "English" THEN "English"
-    WHEN "Spanish" THEN "Spanish"
-    ELSE "Other"
-    END
-ELSEIF NOT ISNULL([Language Primary]) THEN CASE [Language Primary]
-    WHEN "ENGLISH" THEN "English"
-    WHEN "SPANISH" THEN "Spanish"
-    ELSE "Other"
-    END
-ELSE "Unknown/Did Not Report"
-END
-
-#%%###################################
-
-df2_edits1['_T15-7 Household Developmental Delay'] = 
-IF [NT Child Dev Delay] = "Yes" THEN 1 ###FW
-ELSEIF [NT Child Dev Delay] = "No" THEN 0
-ELSEIF [Priority Develop Delays] = "Y" THEN 1 ###LLCHD
-ELSEIF [Priority Develop Delays] = "N" THEN 0
-END
-###To determine priority population, positive ASQ results also need to be considered
-
-#%%###################################
-
-df2_edits1['_T20 TGT Insurance Status'] = 
-IF NOT ISNULL([CHINS Primary Ins]) THEN CASE [CHINS Primary Ins] ###FW
-    WHEN "Medicaid" THEN "Medicaid or CHIP"
-    WHEN "Medicare" THEN "Private or Other"
-    WHEN "None" THEN "No Insurance Coverage"
-    WHEN "Other" THEN "Private or Other"
-    WHEN "Private" THEN "Private or Other"
-    WHEN "Tri-Care" THEN "Tri-Care"
-    WHEN "Unknown" THEN "Unknown/Did Not Report"
-    WHEN "null" THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-ELSEIF NOT ISNULL([Hlth Insure Tgt]) THEN CASE [Hlth Insure Tgt] ###LLCHD
-    WHEN 0 THEN "No Insurance Coverage"
-    WHEN 1 THEN "Medicaid or CHIP" ###1=Medicaid
-    WHEN 2 THEN "Tri-Care" ###2=Tricare
-    WHEN 3 THEN "Private or Other" ###3=Private/Other
-    WHEN 4 THEN "FamilyChildHealthPlus" ###4=Unknown/Did Not Report
-    WHEN 5 THEN "No Insurance Coverage" ###5=None
-    WHEN 6 THEN "Unknown/Did Not Report"
-    WHEN 99 THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-ELSE "Unknown/Did Not Report"
-END
-
-#%%###################################
-
-df2_edits1['_T21 TGT Usual Source of Medical Care'] = 
-IF NOT ISNULL([Child Med Care Source]) THEN CASE [Child Med Care Source] ###FW
-    WHEN "Doctor/Nurse Practitioner" THEN "Doctor's/Nurse Practitioner's Office"
-    WHEN "Federally Qualified Health Center" THEN "Federally Qualified Health Center"
-    WHEN "Hospital ER" THEN "Hospital Emergency Room"
-    WHEN "Hospital Outpatient" THEN "Hospital Outpatient"
-    WHEN "None" THEN "None"
-    WHEN "Other" THEN "Other"
-    WHEN "Retail or Minute Clinic" THEN "Retail Store or Minute Clinic"
-    WHEN "Prenatal Client" THEN "Prenatal Client"
-    ELSE "Unrecognized Value"
-    END
-ELSEIF NOT ISNULL([Tgt Medical Home]) THEN CASE [Tgt Medical Home] ###LLCHD, coded values are = to form 1 categories
-    WHEN 0 THEN "None"
-    WHEN 1 THEN "Doctor's/Nurse Practitioner's Office"
-    WHEN 2 THEN "Hospital Emergency Room"
-    WHEN 3 THEN "Hospital Outpatient"
-    WHEN 4 THEN "Federally Qualified Health Center"
-    WHEN 5 THEN "Retail Store or Minute Clinic"
-    WHEN 6 THEN "Other"
-    WHEN 7 THEN "None"
-    WHEN 8 THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-ELSE "Unknown/Did Not Report"
-END
-
-#%%###################################
-
-df2_edits1['_T22 TGT Usual Souce of Dental Care'] = 
-IF NOT ISNULL([Child Dental Care Source]) THEN CASE [Child Dental Care Source] ###FW
-    WHEN "Do not have a usual source of dental care" THEN "Do not have a usual source of dental care"
-    WHEN "Does not have a usual source of dental care" THEN "Do not have a usual source of dental care"
-    WHEN "Has a usual source of dental care" THEN "Have a usual source of dental care"
-    WHEN "Have a usual source of dental care" THEN "Have a usual source of dental care"
-    WHEN "Prenatal Client" THEN "Prenatal Client"
-    WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-ELSEIF NOT ISNULL([Tgt Dental Home]) THEN CASE [Tgt Dental Home] ###LLCHD, coded values are = to form 1 categories
-    WHEN 1 THEN "Have a usual source of dental care" 
-    WHEN 2 THEN "Do not have a usual source of dental care"
-    WHEN 3 THEN "Unknown/Did Not Report"
-    WHEN 6 THEN "Unknown/Did Not Report"
-    ELSE "Unrecognized Value"
-    END
-ELSE "Unknown/Did Not Report"
-END
-
-#%%###################################
-
-df2_edits1['_TGT EDC Date'] = 
-IF [Dt Edc] = DATE(1/1/1900) THEN NULL ###LLCHD
-ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL ###FW
-ELSE df2_edits1['Dt Edc'].combine_first(df2_edits1['EDC Date'])
-END
-    ### IF [Dt Edc] = DATE(1/1/1900) THEN NULL ###LLCHD
-    ### ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL ###FW
-    ### ELSE IFNULL([Dt Edc],[EDC Date])
+    ### //FW
+    ### IF NOT ISNULL([Tgt Ethnicity]) THEN CASE [Tgt Ethnicity]
+    ###     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
+    ###     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### //LLCDH
+    ### ELSEIF NOT ISNULL([Tgt Ethnicity1]) THEN CASE [Tgt Ethnicity1] 
+    ###     WHEN "HISPANIC/LATINO" THEN "Hispanic or Latino" 
+    ###     WHEN "HISPANIC" THEN "Hispanic or Latino"
+    ###     WHEN "NOT HISPANIC/LATINO" THEN "Not Hispanic or Latino"
+    ###     WHEN "NON-Hispanic" THEN "Not Hispanic or Latino"
+    ###     WHEN "UNREPORTED/REFUSED TO REPORT" THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE "Unknown/Did Not Report"
     ### END
+df2_edits1['_T06 TGT Ethnicity'] = df2_edits1.apply(func=fn_T06_TGT_Ethnicity, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T06 TGT Ethnicity'])
 
 #%%###################################
 
-df2_edits1['_TGT Race'] = 
-###LLCHD
-###multiracial
-IF IIF([Tgt Race Asian]="Y",1,0,0)+IIF([Tgt Race Black]="Y",1,0,0)+IIF([Tgt Race Hawaiian]="Y",1,0,0)+IIF([Tgt Race Indian]="Y",1,0,0)
-+IIF([Tgt Race Other]="Y",1,0,0)+IIF([Tgt Race White]="Y",1,0,0) > 1 THEN "More than one race"
-###single race
-ELSEIF [Tgt Race Asian] = "Y" THEN "Asian"
-ELSEIF [Tgt Race Black] = "Y" THEN "Black or African American"
-ELSEIF [Tgt Race Hawaiian] = "Y" THEN "Native Hawaiian or Other Pacific Islander"
-ELSEIF [Tgt Race Indian] = "Y" THEN "American Indian or Alaska Native"
-ELSEIF [Tgt Race White] = "Y" THEN "White"
-ELSEIF [Tgt Race Other] = "Y" THEN "Other"
-###FW
-###multiracial, = "True" is not required in IIF statement because race is boolean
-ELSEIF IIF([TGTRaceAsian],1,0,0)+IIF([TGTRaceBlack],1,0,0)+IIF([TGTRaceHawaiianPacific],1,0,0)
-+IIF([TGTRaceIndianAlaskan],1,0,0)+IIF([TGTRaceWhite],1,0,0)+IIF([TGTRaceOther],1,0,0) > 1 
-THEN "More than one race"
-###single race
-ELSEIF [TGTRaceAsian] = True THEN "Asian"
-ELSEIF [TGTRaceBlack] = True THEN "Black or African American"
-ELSEIF [TGTRaceHawaiianPacific] = True THEN "Native Hawaiian or Other Pacific Islander"
-ELSEIF [TGTRaceIndianAlaskan] = True THEN "American Indian or Alaska Native"
-ELSEIF [TGTRaceWhite] = True THEN "White"
-ELSEIF [TGTRaceOther] = True THEN "Other"
-ELSE "Unknown/Did Not Report"
-END
+### TO DO: Confirm value.
+def fn_T1_Tgt_Gender(fdf):
+    ### FW.
+    if (pd.notna(fdf['TGT Gender'])):
+        match fdf['TGT Gender']:
+            case "Female":
+                return "Female"
+            case "Male":
+                return "Male"
+            case "Non-Binary":
+                return "Non-Binary"
+            case "Unknown":
+                return "Unknown/Did Not Report"
+            case "Null":
+                return "Unknown/Did Not Report"
+            case "null":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ### LLCHD.
+    elif (pd.notna(fdf['Tgt Gender'])):
+        match fdf['Tgt Gender']:
+            case "F":
+                return "Female"
+            case "M":
+                return "Male"
+            ### case "N": return "Non-Binary" ### Don't have this value yet - confirm.
+            case "Unknown":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    else:
+        return "Unknown/Did Not Report"
+    ### //FW
+    ### IF NOT ISNULL([TGT Gender]) THEN CASE [TGT Gender]
+    ###     WHEN "Female" THEN "Female"
+    ###     WHEN "Male" THEN "Male"
+    ###     WHEN "Non-Binary" THEN "Non-Binary"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "Null" THEN "Unknown/Did Not Report"
+    ###     WHEN "null" THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### //LLCHD
+    ### ELSEIF NOT ISNULL([Tgt Gender]) THEN CASE [Tgt Gender]
+    ###     WHEN "F" THEN "Female"
+    ###     WHEN "M" THEN "Male"
+    ###     // WHEN "N" THEN "Non-Binary" // Don't have this value yet - confirm
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_T1 Tgt Gender'] = df2_edits1.apply(func=fn_T1_Tgt_Gender, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T1 Tgt Gender'])
+# #%%
+# inspect_col(df2_edits1['TGT Gender'])
+# #%%
+# inspect_col(df2_edits1['Tgt Gender'])
+# #%%
+# ### Crosstabs not giving expected results.
+# # pd.crosstab(df2_edits1['TGT Gender'], df2_edits1['Tgt Gender'], dropna=False)
+# # pd.crosstab(df2_edits1['_T1 Tgt Gender'], df2_edits1['Tgt Gender'], dropna=False, margins=True)
 
 #%%###################################
 
-df2_edits1['_C11 Literacy Read Sing'] = 
-IF [_Agency] <> "ll" THEN CASE [Read Tell Story Sing]  ### FW
-    WHEN "0" THEN 0
-    WHEN "1" THEN 1
-    WHEN "2" THEN 2
-    WHEN "3" THEN 3
-    WHEN "4" THEN 4
-    WHEN "5" THEN 5
-    WHEN "6" THEN 6
-    WHEN "7" THEN 7
-    WHEN "YES" THEN 7
-    ELSE NULL   
-    END
-ELSEIF [_Agency] = "ll" THEN CASE [Early Language]  ### LLCHD
-    WHEN "N" THEN 0
-    WHEN "Y" THEN 7
-### Y = “Every day of the week / 
-    ### Most days of the week / 
-    ### Several days of the week”
-    ELSE NULL
-    END
-END
+def fn_T13_TGT_Language(fdf):
+    if (pd.notna(fdf['Mob Language'])):
+        match fdf['Mob Language']:
+            case "English":
+                return "English"
+            case "Spanish":
+                return "Spanish"
+            case _:
+                return "Other"
+    elif (pd.notna(fdf['Language Primary'])):
+        match fdf['Language Primary']:
+            case "ENGLISH":
+                return "English"
+            case "SPANISH":
+                return "Spanish"
+            case _:
+                return "Other"
+    else:
+        return "Unknown/Did Not Report"
+    ### IF NOT ISNULL([Mob Language]) THEN CASE [Mob Language]
+    ###     WHEN "English" THEN "English"
+    ###     WHEN "Spanish" THEN "Spanish"
+    ###     ELSE "Other"
+    ###     END
+    ### ELSEIF NOT ISNULL([Language Primary]) THEN CASE [Language Primary]
+    ###     WHEN "ENGLISH" THEN "English"
+    ###     WHEN "SPANISH" THEN "Spanish"
+    ###     ELSE "Other"
+    ###     END
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_T13 TGT Language'] = df2_edits1.apply(func=fn_T13_TGT_Language, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T13 TGT Language'])
 
 #%%###################################
 
-df2_edits1['_Child Welfare Interaction'] = 
-IF [History Inter Welfare Child] = True THEN 1 ###FW
-ELSEIF [History Inter Welfare Child] = False THEN 0
-ELSEIF [Priority Child Welfare] = "Y" THEN 1 ###LLCHD
-ELSEIF [Priority Child Welfare] = "N" THEN 0
-END
-###For priority population, current maltreatment reports also need to be considered
+def fn_T15_7_Household_Developmental_Delay(fdf):
+    ### To determine priority population, positive ASQ results also need to be considered.
+    ### FW.
+    if (fdf['NT Child Dev Delay'] == "Yes"):
+        return 1 
+    elif (fdf['NT Child Dev Delay'] == "No"):
+        return 0
+    ### LLCHD.
+    elif (fdf['Priority Develop Delays'] == "Y"):
+        return 1 
+    elif (fdf['Priority Develop Delays'] == "N"):
+        return 0
+    ### IF [NT Child Dev Delay] = "Yes" THEN 1 //FW
+    ### ELSEIF [NT Child Dev Delay] = "No" THEN 0
+    ### ELSEIF [Priority Develop Delays] = "Y" THEN 1 //LLCHD
+    ### ELSEIF [Priority Develop Delays] = "N" THEN 0
+    ### END
+    ### //To determine priority population, positive ASQ results also need to be considered
+df2_edits1['_T15-7 Household Developmental Delay'] = df2_edits1.apply(func=fn_T15_7_Household_Developmental_Delay, axis=1)
+### dtype should be: 'int'.
+inspect_col(df2_edits1['_T15-7 Household Developmental Delay'])
 
 #%%###################################
 
-df2_edits1['_T15-6 Low Student Achievement'] = 
-IF [NT Child Low Achievement] = "No" THEN 0 ###FW
-ELSEIF [NT Child Low Achievement] = "Yes" THEN 1
-ELSEIF [Priority Low Student] = "N" THEN 0 ###LLCHD
-ELSEIF [Priority Low Student] = "Y" THEN 1
-END
+def fn_T20_TGT_Insurance_Status(fdf):
+    ### FW.
+    if (pd.notna(fdf['CHINS Primary Ins'])):
+        match fdf['CHINS Primary Ins']:
+            case "Medicaid":
+                return "Medicaid or CHIP"
+            case "Medicare":
+                return "Private or Other"
+            case "None":
+                return "No Insurance Coverage"
+            case "Other":
+                return "Private or Other"
+            case "Private":
+                return "Private or Other"
+            case "Tri-Care":
+                return "Tri-Care"
+            case "Unknown":
+                return "Unknown/Did Not Report"
+            case "null":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ### LLCHD.
+    elif (pd.notna(fdf['Hlth Insure Tgt'])):
+        match fdf['Hlth Insure Tgt']:
+            case 0:
+                return "No Insurance Coverage"
+            case 1:
+                return "Medicaid or CHIP" ### 1=Medicaid.
+            case 2:
+                return "Tri-Care" ### 2=Tricare.
+            case 3:
+                return "Private or Other" ### 3=Private/Other.
+            case 4:
+                return "FamilyChildHealthPlus" ### 4=Unknown/Did Not Report.
+            case 5:
+                return "No Insurance Coverage" ### 5=None.
+            case 6:
+                return "Unknown/Did Not Report"
+            case 99:
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    else:
+        return "Unknown/Did Not Report"
+    ### IF NOT ISNULL([CHINS Primary Ins]) THEN CASE [CHINS Primary Ins] //FW
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "Medicare" THEN "Private or Other"
+    ###     WHEN "None" THEN "No Insurance Coverage"
+    ###     WHEN "Other" THEN "Private or Other"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Tri-Care" THEN "Tri-Care"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "null" THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF NOT ISNULL([Hlth Insure Tgt]) THEN CASE [Hlth Insure Tgt] //LLCHD
+    ###     WHEN 0 THEN "No Insurance Coverage"
+    ###     WHEN 1 THEN "Medicaid or CHIP" //1=Medicaid
+    ###     WHEN 2 THEN "Tri-Care" //2=Tricare
+    ###     WHEN 3 THEN "Private or Other" //3=Private/Other
+    ###     WHEN 4 THEN "FamilyChildHealthPlus" //4=Unknown/Did Not Report
+    ###     WHEN 5 THEN "No Insurance Coverage" //5=None
+    ###     WHEN 6 THEN "Unknown/Did Not Report"
+    ###     WHEN 99 THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_T20 TGT Insurance Status'] = df2_edits1.apply(func=fn_T20_TGT_Insurance_Status, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T20 TGT Insurance Status'])
+
+#%%###################################
+
+def fn_T21_TGT_Usual_Source_of_Medical_Care(fdf):
+    ### FW.
+    if (pd.notna(fdf['Child Med Care Source'])):
+        match fdf['Child Med Care Source']:
+            case "Doctor/Nurse Practitioner":
+                return "Doctor's/Nurse Practitioner's Office"
+            case "Federally Qualified Health Center":
+                return "Federally Qualified Health Center"
+            case "Hospital ER":
+                return "Hospital Emergency Room"
+            case "Hospital Outpatient":
+                return "Hospital Outpatient"
+            case "None":
+                return "None"
+            case "Other":
+                return "Other"
+            case "Retail or Minute Clinic":
+                return "Retail Store or Minute Clinic"
+            case "Prenatal Client":
+                return "Prenatal Client"
+            case _:
+                return "Unrecognized Value"
+    ### LLCHD, coded values are = to form 1 categories.
+    elif (pd.notna(fdf['Tgt Medical Home'])):
+        match fdf['Tgt Medical Home']:
+            case 0:
+                return "None"
+            case 1:
+                return "Doctor's/Nurse Practitioner's Office"
+            case 2:
+                return "Hospital Emergency Room"
+            case 3:
+                return "Hospital Outpatient"
+            case 4:
+                return "Federally Qualified Health Center"
+            case 5:
+                return "Retail Store or Minute Clinic"
+            case 6:
+                return "Other"
+            case 7:
+                return "None"
+            case 8:
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    else:
+        return "Unknown/Did Not Report"
+    ### IF NOT ISNULL([Child Med Care Source]) THEN CASE [Child Med Care Source] //FW
+    ###     WHEN "Doctor/Nurse Practitioner" THEN "Doctor's/Nurse Practitioner's Office"
+    ###     WHEN "Federally Qualified Health Center" THEN "Federally Qualified Health Center"
+    ###     WHEN "Hospital ER" THEN "Hospital Emergency Room"
+    ###     WHEN "Hospital Outpatient" THEN "Hospital Outpatient"
+    ###     WHEN "None" THEN "None"
+    ###     WHEN "Other" THEN "Other"
+    ###     WHEN "Retail or Minute Clinic" THEN "Retail Store or Minute Clinic"
+    ###     WHEN "Prenatal Client" THEN "Prenatal Client"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF NOT ISNULL([Tgt Medical Home]) THEN CASE [Tgt Medical Home] //LLCHD, coded values are = to form 1 categories
+    ###     WHEN 0 THEN "None"
+    ###     WHEN 1 THEN "Doctor's/Nurse Practitioner's Office"
+    ###     WHEN 2 THEN "Hospital Emergency Room"
+    ###     WHEN 3 THEN "Hospital Outpatient"
+    ###     WHEN 4 THEN "Federally Qualified Health Center"
+    ###     WHEN 5 THEN "Retail Store or Minute Clinic"
+    ###     WHEN 6 THEN "Other"
+    ###     WHEN 7 THEN "None"
+    ###     WHEN 8 THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_T21 TGT Usual Source of Medical Care'] = df2_edits1.apply(func=fn_T21_TGT_Usual_Source_of_Medical_Care, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T21 TGT Usual Source of Medical Care'])
+
+#%%###################################
+
+def fn_T22_TGT_Usual_Souce_of_Dental_Care(fdf):
+    ### FW.
+    if (pd.notna(fdf['Child Dental Care Source'])):
+        match fdf['Child Dental Care Source']:
+            case "Do not have a usual source of dental care":
+                return "Do not have a usual source of dental care"
+            case "Does not have a usual source of dental care":
+                return "Do not have a usual source of dental care"
+            case "Has a usual source of dental care":
+                return "Have a usual source of dental care"
+            case "Have a usual source of dental care":
+                return "Have a usual source of dental care"
+            case "Prenatal Client":
+                return "Prenatal Client"
+            case "Unknown":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ### LLCHD, coded values are = to form 1 categories.
+    elif (pd.notna(fdf['Tgt Dental Home'])):
+        match fdf['Tgt Dental Home']:
+            case 1:
+                return "Have a usual source of dental care" 
+            case 2:
+                return "Do not have a usual source of dental care"
+            case 3:
+                return "Unknown/Did Not Report"
+            case 6:
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    else:
+        return "Unknown/Did Not Report"
+    ### IF NOT ISNULL([Child Dental Care Source]) THEN CASE [Child Dental Care Source] //FW
+    ###     WHEN "Do not have a usual source of dental care" THEN "Do not have a usual source of dental care"
+    ###     WHEN "Does not have a usual source of dental care" THEN "Do not have a usual source of dental care"
+    ###     WHEN "Has a usual source of dental care" THEN "Have a usual source of dental care"
+    ###     WHEN "Have a usual source of dental care" THEN "Have a usual source of dental care"
+    ###     WHEN "Prenatal Client" THEN "Prenatal Client"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF NOT ISNULL([Tgt Dental Home]) THEN CASE [Tgt Dental Home] //LLCHD, coded values are = to form 1 categories
+    ###     WHEN 1 THEN "Have a usual source of dental care" 
+    ###     WHEN 2 THEN "Do not have a usual source of dental care"
+    ###     WHEN 3 THEN "Unknown/Did Not Report"
+    ###     WHEN 6 THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_T22 TGT Usual Souce of Dental Care'] = df2_edits1.apply(func=fn_T22_TGT_Usual_Souce_of_Dental_Care, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T22 TGT Usual Souce of Dental Care'])
+
+#%%###################################
+
+def fn_TGT_Race(fdf):
+    ### LLCHD.
+    ### multiracial:
+    if (
+        (
+            (1 if fdf['Tgt Race Asian']=="Y" else 0) + 
+            (1 if fdf['Tgt Race Black']=="Y" else 0) + 
+            (1 if fdf['Tgt Race Hawaiian']=="Y" else 0) + 
+            (1 if fdf['Tgt Race Indian']=="Y" else 0) + 
+            (1 if fdf['Tgt Race Other']=="Y" else 0) + 
+            (1 if fdf['Tgt Race White']=="Y" else 0) 
+        ) > 1 
+    ):
+        return "More than one race"
+    ### single race:
+    elif (fdf['Tgt Race Asian'] == "Y"):
+        return "Asian"
+    elif (fdf['Tgt Race Black'] == "Y"):
+        return "Black or African American"
+    elif (fdf['Tgt Race Hawaiian'] == "Y"):
+        return "Native Hawaiian or Other Pacific Islander"
+    elif (fdf['Tgt Race Indian'] == "Y"):
+        return "American Indian or Alaska Native"
+    elif (fdf['Tgt Race White'] == "Y"):
+        return "White"
+    elif (fdf['Tgt Race Other'] == "Y"):
+        return "Other"
+    ### FW.
+    ### multiracial, == "True" is not required in IIF statement because race is boolean.
+    elif (
+        (
+            (1 if fdf['TGT Race Asian'] else 0) + 
+            (1 if fdf['TGT Race Black'] else 0) + 
+            (1 if fdf['TGT Race Hawaiian Pacific'] else 0) + 
+            (1 if fdf['TGT Race Indian Alaskan'] else 0) + 
+            (1 if fdf['TGT Race White'] else 0) + 
+            (1 if fdf['TGT Race Other'] else 0) 
+        ) > 1 
+    ):
+        return "More than one race"
+    ### single race:
+    elif (fdf['TGT Race Asian'] == True):
+        return "Asian"
+    elif (fdf['TGT Race Black'] == True):
+        return "Black or African American"
+    elif (fdf['TGT Race Hawaiian Pacific'] == True):
+        return "Native Hawaiian or Other Pacific Islander"
+    elif (fdf['TGT Race Indian Alaskan'] == True):
+        return "American Indian or Alaska Native"
+    elif (fdf['TGT Race White'] == True):
+        return "White"
+    elif (fdf['TGT Race Other'] == True):
+        return "Other"
+    #######
+    else: 
+        return "Unknown/Did Not Report"
+    ### //LLCHD
+    ### //multiracial
+    ### IF IIF([Tgt Race Asian]="Y",1,0,0)+IIF([Tgt Race Black]="Y",1,0,0)+IIF([Tgt Race Hawaiian]="Y",1,0,0)+IIF([Tgt Race Indian]="Y",1,0,0)
+    ### +IIF([Tgt Race Other]="Y",1,0,0)+IIF([Tgt Race White]="Y",1,0,0) > 1 THEN "More than one race"
+    ### //single race
+    ### ELSEIF [Tgt Race Asian] = "Y" THEN "Asian"
+    ### ELSEIF [Tgt Race Black] = "Y" THEN "Black or African American"
+    ### ELSEIF [Tgt Race Hawaiian] = "Y" THEN "Native Hawaiian or Other Pacific Islander"
+    ### ELSEIF [Tgt Race Indian] = "Y" THEN "American Indian or Alaska Native"
+    ### ELSEIF [Tgt Race White] = "Y" THEN "White"
+    ### ELSEIF [Tgt Race Other] = "Y" THEN "Other"
+    ### //FW
+    ### //multiracial, = "True" is not required in IIF statement because race is boolean
+    ### ELSEIF IIF([TGT Race Asian],1,0,0)+IIF([TGT Race Black],1,0,0)+IIF([TGT Race Hawaiian Pacific],1,0,0)
+    ### +IIF([TGT Race Indian Alaskan],1,0,0)+IIF([TGT Race White],1,0,0)+IIF([TGT Race Other],1,0,0) > 1 
+    ### THEN "More than one race"
+    ### //single race
+    ### ELSEIF [TGT Race Asian] = True THEN "Asian"
+    ### ELSEIF [TGT Race Black] = True THEN "Black or African American"
+    ### ELSEIF [TGT Race Hawaiian Pacific] = True THEN "Native Hawaiian or Other Pacific Islander"
+    ### ELSEIF [TGT Race Indian Alaskan] = True THEN "American Indian or Alaska Native"
+    ### ELSEIF [TGT Race White] = True THEN "White"
+    ### ELSEIF [TGT Race Other] = True THEN "Other"
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_TGT Race'] = df2_edits1.apply(func=fn_TGT_Race, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_TGT Race'])
+
+#%%###################################
+
+def fn_C11_Literacy_Read_Sing(fdf):
+    ### FW.
+    if (fdf['_Agency'] != "ll"):
+        match fdf['Read Tell Story Sing']:
+            case "0":
+                return 0
+            case "1":
+                return 1
+            case "2":
+                return 2
+            case "3":
+                return 3
+            case "4":
+                return 4
+            case "5":
+                return 5
+            case "6":
+                return 6
+            case "7":
+                return 7
+            case "YES":
+                return 7
+            case _:
+                return None
+    ### LLCHD.
+    elif (fdf['_Agency'] == "ll"):
+        match fdf['Early Language']:
+            case "N":
+                return 0
+            case "Y":
+                return 7
+                ### Y = “Every day of the week / Most days of the week / Several days of the week”
+            case _:
+                return None
+    ### IF [_Agency] <> "ll" THEN CASE [Read Tell Story Sing]  // FW
+    ###     WHEN "0" THEN 0
+    ###     WHEN "1" THEN 1
+    ###     WHEN "2" THEN 2
+    ###     WHEN "3" THEN 3
+    ###     WHEN "4" THEN 4
+    ###     WHEN "5" THEN 5
+    ###     WHEN "6" THEN 6
+    ###     WHEN "7" THEN 7
+    ###     WHEN "YES" THEN 7
+    ###     ELSE NULL   
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN CASE [Early Language]  // LLCHD
+    ###     WHEN "N" THEN 0
+    ###     WHEN "Y" THEN 7
+    ### // Y = “Every day of the week / 
+    ###     // Most days of the week / 
+    ###     // Several days of the week”
+    ###     ELSE NULL
+    ###     END
+    ### END
+df2_edits1['_C11 Literacy Read Sing'] = df2_edits1.apply(func=fn_C11_Literacy_Read_Sing, axis=1)
+### dtype should be: 'int'.
+inspect_col(df2_edits1['_C11 Literacy Read Sing'])
+# #%%
+# inspect_col(df2_edits1['Read Tell Story Sing']) ### Originally, csv read in as float64. Should be a string. But that breaks this is/else logic. Fixed in Read above by reading in as object.
+# #%%
+# inspect_col(df2_edits1['Early Language'])
+
+#%%###################################
+
+def fn_Child_Welfare_Interaction(fdf):
+    ### For priority population, current maltreatment reports also need to be considered.
+    ### FW.
+    if (fdf['History Inter Welfare Child'] == True):
+        return 1 
+    elif (fdf['History Inter Welfare Child'] == False):
+        return 0
+    ### LLCHD.
+    elif (fdf['Priority Child Welfare'] == "Y"):
+        return 1 
+    elif (fdf['Priority Child Welfare'] == "N"):
+        return 0
+    ### IF [History Inter Welfare Child] = True THEN 1 //FW
+    ### ELSEIF [History Inter Welfare Child] = False THEN 0
+    ### ELSEIF [Priority Child Welfare] = "Y" THEN 1 //LLCHD
+    ### ELSEIF [Priority Child Welfare] = "N" THEN 0
+    ### END
+    ### //For priority population, current maltreatment reports also need to be considered
+df2_edits1['_Child Welfare Interaction'] = df2_edits1.apply(func=fn_Child_Welfare_Interaction, axis=1)
+### dtype should be: 'int'.
+inspect_col(df2_edits1['_Child Welfare Interaction'])
+
+#%%###################################
+
+def fn_T15_6_Low_Student_Achievement(fdf):
+    ### FW.
+    if (fdf['NT Child Low Achievement'] == "No"):
+        return 0 
+    elif (fdf['NT Child Low Achievement'] == "Yes"):
+        return 1
+    ### LLCHD.
+    elif (fdf['Priority Low Student'] == "N"):
+        return 0 
+    elif (fdf['Priority Low Student'] == "Y"):
+        return 1
+    ### IF [NT Child Low Achievement] = "No" THEN 0 //FW
+    ### ELSEIF [NT Child Low Achievement] = "Yes" THEN 1
+    ### ELSEIF [Priority Low Student] = "N" THEN 0 //LLCHD
+    ### ELSEIF [Priority Low Student] = "Y" THEN 1
+    ### END
+df2_edits1['_T15-6 Low Student Achievement'] = df2_edits1.apply(func=fn_T15_6_Low_Student_Achievement, axis=1)
+### dtype should be: 'int'.
+inspect_col(df2_edits1['_T15-6 Low Student Achievement'])
 
 #%%##################################################
 ### COALESCING
@@ -1392,6 +1805,10 @@ df2_edits1['_TGT 8 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
 df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=9) 
     ### DATE(DATEADD('month',9,[_TGT DOB])) 
 
+#%%##################################################
+df2_edits1['Number of Records'] = 1
+
+
 
 #%%##################################################
 ### Identify/FLAG "Unrecognized Value" ###
@@ -1431,48 +1848,65 @@ df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
 # indicator='LJ_df2_4LL'
 # indicator='LJ_df2_5WC'
 
+df2_edits2 = df2_edits1.drop(columns=['LJ_df2_2ER', 'LJ_df2_3FW', 'LJ_df2_4LL', 'LJ_df2_5WC'])
+
+
+#%%
+### Final order for columns:
+[*comparison_csv]
+
+#%%
+### Reorder Columns.
+df2_edits2 = df2_edits2[[*comparison_csv]]
+
 
 #%%##################################################
 ### WRITE ###
 #####################################################
 
+df2_final = df2_edits2.copy()
+
 #%%
-df2.to_csv(path_2_output, index=False)
-
-
-
+df2_final.to_csv(path_2_output, index=False)
 
 
 #%%##################################################
 ### COMPARE CSVs ###
 #####################################################
 
-#%%
-path_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+#%%###################################
 
 #%%
-comparison_csv = pd.read_csv(path_comparison_csv)
+### Column names:
+[*df2_final]
+#%%
+### Column names:
+[*comparison_csv]
 
 #%%
-[*df2_edits1] == [*comparison_csv]
+### Overlap / Similarities: Columns in both.
+set([*comparison_csv]).intersection([*df2_final])
 
 #%%###################################
 
 #%%
-[*df2_edits1]
+### Check if all Column names identical & in same order.
+[*df2_final] == [*comparison_csv]
+
 #%%
-[*comparison_csv]
+### Differences: Columns only in one.
+set([*comparison_csv]).symmetric_difference([*df2_final])
 
-#%%### Overlap / Similarities
-set([*comparison_csv]).intersection([*df2_edits1])
-
-#%%### Differences
-set([*comparison_csv]).symmetric_difference([*df2_edits1])
-
+#%%###################################
 
 ####### Compare values
 ### including row count, distinct ids, 
 
+# Check rows & cols:
+
+
+#%%
+df2_final == comparison_csv
 
 
 
