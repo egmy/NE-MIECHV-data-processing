@@ -29,7 +29,8 @@ print('Version Of Numpy: ' + np.version.version)
 ### SETTINGS ###
 #####################################################
 
-now = pd.Timestamp('now')
+### Only place used should be using a different date.
+### now = pd.Timestamp('now')
 
 #%%##################################################
 ### PATHS ###
@@ -68,7 +69,8 @@ path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel o
 #####################################################
 
 path_df_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
-df_comparison_csv = pd.read_csv(path_df_comparison_csv)
+### df_comparison_csv = pd.read_csv(path_df_comparison_csv)
+df_comparison_csv = pd.read_csv(path_df_comparison_csv, dtype=object)
 df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 
@@ -76,13 +78,16 @@ df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quart
 ### Utility Functions ###
 #####################################################
 
-def inspect_df(df):
-    print(f'Rows: {len(df)}')
-    print(f'Columns: {len(df.columns)}')
+def inspect_df (df):
+    ###print(df.describe)
+    print(df.describe(include='all'))
     print('\n')
-    print(df.describe)
+    print(df.dtypes.to_string())
     print('\n')
     print(df.info())
+    print('\n')
+    print(f'Rows: {len(df)}')
+    print(f'Columns: {len(df.columns)}')
     print('\n')
     display(df)
 
@@ -94,6 +99,20 @@ def inspect_col(fSeries):
     print(fSeries.value_counts(dropna=False))
     print('\n')
     print(fSeries)
+
+def compare_col(fdf2, fcol, info_or_value_counts='info', fdf1=df_comparison_csv): ### or 'value_counts'.
+    if info_or_value_counts=='info':
+        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(fdf1[fcol].info())
+        print('\n')
+        print(f'DataFrame 2:\n')
+        print(fdf2[fcol].info())
+    elif info_or_value_counts=='value_counts':
+        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(fdf1[fcol].value_counts(dropna=False))
+        print('\n')
+        print(f'DataFrame 2:\n')
+        print(fdf2[fcol].value_counts(dropna=False))
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -479,7 +498,7 @@ sorted(path_2_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x !
 df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0])#, dtype=df2_1_col_dtypes)
 df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1])#, dtype=df2_2_col_dtypes)
 df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'object'})#, dtype=df2_3_col_dtypes)
-df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3])#, dtype=df2_4_col_dtypes)
+df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
 df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])#, dtype=df2_5_col_dtypes)
 
 # df2_1 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[0])
@@ -686,9 +705,6 @@ df2_edits1['_C18 ASQ 24 Mo Referral Date'] = df2_edits1['ASQ24MoRefDate'].combin
 df2_edits1['_C18 ASQ 30 Mo Referral Date'] = df2_edits1['ASQ30MoRefDate'].combine_first(df2_edits1['Asq3 Referral 30Mm'])
     ### IFNULL([ASQ30MoRefDate],[Asq3 Referral 30Mm])
 
-df2_edits1['_C18 ASQ 9 Mo Referral Date'] = df2_edits1['Asq3 Referral 9Mm'].combine_first(df2_edits1['ASQ9MoRefDate'])
-    ### IFNULL([Asq3 Referral 9Mm],[ASQ9MoRefDate])
-
 df2_edits1['_C2 BF Discontinuation Date'] = df2_edits1['Min Of Date Discontinue BF'].combine_first(df2_edits1['Lsp Bf Discon Dt'])
     ### IFNULL([Min Of Date Discontinue BF],[Lsp Bf Discon Dt])
 
@@ -705,8 +721,6 @@ df2_edits1['_Enroll'] = df2_edits1['Enroll Dt'].combine_first(df2_edits1['Min Of
     ### IFNULL([Enroll Dt],[Min Of HV Date])
 
 #%%###################################
-df2_edits1['_Family Number'] = df2_edits1['Family Id'].combine_first(df2_edits1['Family Number'])
-    ### IFNULL([Family Id],[Family Number])
 
 df2_edits1['_Max HV Date'] = df2_edits1['Maxof HV Date'].combine_first(df2_edits1['Last Home Visit'])
     ### IFNULL([Maxof HV Date],[Last Home Visit])
@@ -905,29 +919,51 @@ inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
 #%%###################################
 
 ### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
+### Testing in Tableau on DATEDIFF shows that it rounds to an integer, so implemented here.
 ### TO DO: FIX: first if clause.
-### TO DO: Ask Joe purpose of IF clause.
+### TO DO: Ask Joe purpose of IF clause. WHY!?!?!?!?
 ### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
+### TO DO: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
+# now = pd.Timestamp('now')
+# date_for_age_calcs = now
+date_for_age_calcs = pd.Timestamp("2023-02-08T14:12")
 def fn_T05_TGT_Age_in_Months(fdf):
     if (fdf['_TGT DOB'] is pd.NaT):
         return np.nan
     elif ((fdf['_TGT DOB'] is not pd.NaT) and 
-        (fdf['_TGT DOB'] > (now - pd.DateOffset(months=np.where(
+        (fdf['_TGT DOB'] > (date_for_age_calcs - pd.DateOffset(months=np.where(
             (fdf['_TGT DOB'] is not pd.NaT)
-            ,(pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
+            ,(pd.Series((date_for_age_calcs - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
             ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
         ))))):
-        return pd.Series(((now - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+        return pd.Series(((date_for_age_calcs - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
     else:
-        ### return (((now - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
-        return pd.Series((now - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+        ### return (((date_for_age_calcs - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
+        return pd.Series((date_for_age_calcs - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
     ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
     ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
     ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
     ### END
-df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1)#.astype('Float64').astype('Int64')
+df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1).round()#.astype('Float64').astype('Int64')
 ### dtype should be: 'int'.
 inspect_col(df2_edits1['_T05 TGT Age in Months'])
+# #%%
+# inspect_col(df2_edits1['_TGT DOB'])
+# #%%
+# print(df_comp_compare[['_T05 TGT Age in Months']].to_string())
+# #%%
+# df_T05_TGT_Age_in_Months = (
+#     pd.merge(
+#         df_comparison_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months']],
+#         df2_final_from_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months', '_TGT DOB']],
+#         how='outer', 
+#         on=['Project Id','Year','Quarter'], 
+#         suffixes=(' {comp}', ''),
+#         indicator=True
+#     )
+# )
+# #%%
+# print(df_T05_TGT_Age_in_Months.to_string())
 
 #%%###################################
 
@@ -958,20 +994,23 @@ inspect_col(df2_edits1['_T05 Age Categories'])
 #%%###################################
 
 ### TO DO: Ask Joe why ALL values are the same.
+### TO DO: need to check values for FW reasons.
 def fn_Discharge_Reason(fdf):
-    if (fdf['Discharge Dt'] is not None):
-        match fdf['Discharge Reason']: ### LLCHD, see full reasons below.
-            case 1: ### Ask Joe! No examples of this.
+    ### LLCHD, see full reasons below.
+    if (fdf['Discharge Dt'] is not pd.NaT):
+        match fdf['Discharge Reason']: 
+            case 1: ### Ask Joe! No examples of this. Is a string, but no examples of "1" or 1.
                 return "Completed Services" 
             case _:
                 return "Stopped Services Before Completion"
-    elif (fdf['Termination Date'] is not None):
-        match fdf['Termination Status']: ### FW.
+    ### FW.
+    ### need to check values for FW reasons
+    elif (fdf['Termination Date'] is not pd.NaT):
+        match fdf['Termination Status']: 
             case "Family graduated/met all program goals":
                 return "Completed Services"
             case _:
                 return "Stopped Services Before Completion"
-            ### need to check values for FW reasons
     else:
         return "Currently Receiving Services"
     ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
@@ -1810,6 +1849,61 @@ df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
 #%%##################################################
 df2_edits1['Number of Records'] = 1
 
+#%%##################################################
+### COLUMNS with DIFFERENT VALUES from the Comparison:
+
+#%%
+df2_edits1['_C18 ASQ 9 Mo Referral Date'] = df2_edits1['Asq3 Referral 9Mm'].combine_first(df2_edits1['ASQ9MoRefDate'])
+    ### IFNULL([Asq3 Referral 9Mm],[ASQ9MoRefDate])
+inspect_col(df2_edits1['_C18 ASQ 9 Mo Referral Date'])
+# #%%
+# inspect_col(df2_edits1['Asq3 Referral 9Mm']) ### Empty & so did not read in as a Date. Fixed above in Read.
+# #%%
+# inspect_col(df2_edits1['ASQ9MoRefDate'])
+# #%%
+# compare_col(df2_edits1, '_C18 ASQ 9 Mo Referral Date')
+# #%%
+# compare_col(df2_edits1, '_C18 ASQ 9 Mo Referral Date', 'value_counts')
+# #%%
+# df_comparison_csv[['_C18 ASQ 9 Mo Referral Date']].compare(df2_edits1[['_C18 ASQ 9 Mo Referral Date']])
+# #%%
+# # df2_edits1['_C18 ASQ 9 Mo Referral Date'].dtypes
+# df2_edits1.dtypes
+
+###################################
+
+#%%
+df2_edits1['_Family Number'] = df2_edits1['Family Id'].combine_first(df2_edits1['Family Number'].astype('Int64'))
+    ### IFNULL([Family Id],[Family Number])
+inspect_col(df2_edits1['_Family Number'])
+### Most are integers, some are long string ID's of letters & numbers.
+# #%%
+# inspect_col(df2_edits1['Family Id']) ### Long IDs.
+# #%%
+# inspect_col(df2_edits1['Family Number']) ### Just Integers.
+# #%%
+# ### This var should be an integer. Adjusting above.
+# df2_edits1['Family Number'].fillna(-9999).apply(float.is_integer).all()
+
+
+
+
+
+
+
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
+
+
+
+
 
 
 #%%##################################################
@@ -1850,8 +1944,9 @@ df2_edits1['Number of Records'] = 1
 # indicator='LJ_df2_4LL'
 # indicator='LJ_df2_5WC'
 
+#%% 
+### Remove created columns.
 df2_edits2 = df2_edits1.drop(columns=['LJ_df2_2ER', 'LJ_df2_3FW', 'LJ_df2_4LL', 'LJ_df2_5WC'])
-
 
 #%%
 ### Final order for columns:
@@ -1865,15 +1960,39 @@ df2_edits2 = df2_edits2[[*df_comparison_csv]]
 ### Sort Rows.
 df2_edits2 = df2_edits2.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
+###################################
+
+#%%
+### Identify columns that should be Integers:
+int_cols = df2_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
+print(int_cols.to_string())
+#%%
+print(df2_edits2.dtypes.to_string())
+
+#%%
+### Turn all columns that should be into Integers:
+df2_edits2[int_cols] = df2_edits2[int_cols].astype('Int64')
+#%%
+print(df2_edits2.dtypes.to_string())
+
+
+
 
 #%%##################################################
 ### WRITE ###
 #####################################################
 
-df2_final = df2_edits2.copy()
+#%%
+### Created Final DF.
+df2__final = df2_edits2.copy()
 
 #%%
-df2_final.to_csv(path_2_output, index=False)
+### Write out df.
+df2__final.to_csv(path_2_output, index=False, date_format="%#m/%#d/%Y")
+
+#%%
+### Read back in df for comparison.
+df2_final_from_csv = pd.read_csv(path_2_output, dtype=object)
 
 
 #%%##################################################
@@ -1884,24 +2003,25 @@ df2_final.to_csv(path_2_output, index=False)
 
 #%%
 ### Column names:
-[*df2_final]
+[*df2_final_from_csv]
 #%%
 ### Column names:
 [*df_comparison_csv]
 
 #%%
 ### Overlap / Similarities: Columns in both.
-set([*df_comparison_csv]).intersection([*df2_final])
+set([*df_comparison_csv]).intersection([*df2_final_from_csv])
 
 #%%###################################
+### COLUMNS:
 
 #%%
 ### Check if all Column names identical & in same order.
-[*df2_final] == [*df_comparison_csv]
+[*df2_final_from_csv] == [*df_comparison_csv]
 
 #%%
 ### Differences: Columns only in one.
-set([*df_comparison_csv]).symmetric_difference([*df2_final])
+set([*df_comparison_csv]).symmetric_difference([*df2_final_from_csv])
 
 #%%###################################
 
@@ -1910,32 +2030,80 @@ set([*df_comparison_csv]).symmetric_difference([*df2_final])
 
 #%%
 # Check rows & cols:
-print(f'df2_final Rows: {len(df2_final)}')
+print(f'df2_final_from_csv Rows: {len(df2_final_from_csv)}')
 print(f'df_comparison_csv Rows: {len(df_comparison_csv)}')
 
-print(f'df2_final Columns: {len(df2_final.columns)}')
+print(f'df2_final_from_csv Columns: {len(df2_final_from_csv.columns)}')
 print(f'df_comparison_csv Columns: {len(df_comparison_csv.columns)}')
 
 #%%
-df2_final == df_comparison_csv
+df2_final_from_csv == df_comparison_csv
 
 #%%
-df_comp_compare = df_comparison_csv[['Project Id','Year','Quarter']].compare(df2_final[['Project Id','Year','Quarter']])
+### Checking ID columns used in Join >> DF should be empty (meaning all the same).
+df_comp_compare = df_comparison_csv[['Project Id','Year','Quarter']].compare(df2_final_from_csv[['Project Id','Year','Quarter']])
+df_comp_compare
+
+###################################
+###################################
+###################################
+
+#%%
+### Now comparing ALL columns. DF created shows all differences:
+df_comp_compare = df_comparison_csv.compare(df2_final_from_csv)
 df_comp_compare
 
 #%%
-df_comp_compare = df_comparison_csv.compare(df2_final)
-df_comp_compare
+### Number of columns with different values/types:
+len([*df_comp_compare]) / 2 
+    ### Was 13 before read out & then back in. 
+    ### 120 when read in with no dtypes set (a lot of them are dates).
+    ### 241 columns different when both CSV's are ready in with dtype=object (string) for everything (now lots of Floats that should be Integers).
+    ### 130 after fixing Date output.
+    ### 9 after fixing Integers.
+
 #%%
-len([*df_comp_compare]) / 2 ### = 13 columns with different values/types.
-#%%
+### Columns:
 [*df_comp_compare]
 
+### Columns with different values after fixing dates & integers:
+# ['_C18 ASQ 9 Mo Referral Date', ### Fixed: Made sure both needed variables read in as dates (one wasn't).
+#  '_Discharge Reason', ### Fixed: Changed "if not None" to "if not pd.NaT".
+#  '_Family Number', ### Fixed: Is a string, half of which needed to be first an integer.
+#  '_T05 Age Categories',
+#  '_T05 TGT Age in Months',
+#  '_T06 TGT Ethnicity',
+#  '_T13 TGT Language',
+#  '_TGT Race',
+#  'Discharge Reason']
 
 
+### KEY DIFFERENCES:
+    ### Integers as integers (no decimal).
+    ### Dates as format "5/5/2020" instead of "2019-09-11".
+    ### Then a few columns might actually have calculation issues.
 
+#%%
+# print(df_comp_compare[['_Discharge Reason', 'Discharge Reason']].to_string())
+print(df_comp_compare[['Discharge Reason']].to_string())
+### Where are these extra values coming from??
 
+#%%
+# print(df_comp_compare[['_T05 TGT Age in Months']].to_string())
+print(df_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_string())
+### Age in Month calculation is off by 1 many times. Is it exactly what number is used in the division? Something else?
 
+#%%
+# print(df_comp_compare[['_Family Number']].to_string())
+print(df_comp_compare[['_T06 TGT Ethnicity']].to_string())
+
+#%%
+df_comp_compare_ethnicity = (
+    df_comparison_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
+    .compare(df2_final_from_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']], keep_equal=True, keep_shape=True)
+    .iloc[lambda df: [0], :] ### !!! Want to filter rows by only where columns 0 & 1 are different.
+)
+print(df_comp_compare_ethnicity.to_string())
 
 
 
