@@ -70,7 +70,7 @@ path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel o
 
 path_df_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
 ### df_comparison_csv = pd.read_csv(path_df_comparison_csv)
-df_comparison_csv = pd.read_csv(path_df_comparison_csv, dtype=object)
+df_comparison_csv = pd.read_csv(path_df_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 
@@ -495,11 +495,11 @@ sorted(path_2_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x !
 
 #%%
 ### READ all sheets:
-df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0])#, dtype=df2_1_col_dtypes)
-df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1])#, dtype=df2_2_col_dtypes)
-df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'object'})#, dtype=df2_3_col_dtypes)
-df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
-df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4])#, dtype=df2_5_col_dtypes)
+df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df2_1_col_dtypes)
+df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df2_2_col_dtypes)
+df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'object'})#, dtype=df2_3_col_dtypes)
+df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
+df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4], keep_default_na=False, na_values=[''])#, dtype=df2_5_col_dtypes)
 
 # df2_1 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[0])
 # df2_2 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[1])
@@ -918,88 +918,15 @@ inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
 
 #%%###################################
 
-### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
-### Testing in Tableau on DATEDIFF shows that it rounds to an integer, so implemented here.
-### TO DO: FIX: first if clause.
-### TO DO: Ask Joe purpose of IF clause. WHY!?!?!?!?
-### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
-### TO DO: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
-# now = pd.Timestamp('now')
-# date_for_age_calcs = now
-date_for_age_calcs = pd.Timestamp("2023-02-08T14:12")
-def fn_T05_TGT_Age_in_Months(fdf):
-    if (fdf['_TGT DOB'] is pd.NaT):
-        return np.nan
-    elif ((fdf['_TGT DOB'] is not pd.NaT) and 
-        (fdf['_TGT DOB'] > (date_for_age_calcs - pd.DateOffset(months=np.where(
-            (fdf['_TGT DOB'] is not pd.NaT)
-            ,(pd.Series((date_for_age_calcs - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
-            ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
-        ))))):
-        return pd.Series(((date_for_age_calcs - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
-    else:
-        ### return (((date_for_age_calcs - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
-        return pd.Series((date_for_age_calcs - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
-    ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
-    ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
-    ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
-    ### END
-df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1).round()#.astype('Float64').astype('Int64')
-### dtype should be: 'int'.
-inspect_col(df2_edits1['_T05 TGT Age in Months'])
-# #%%
-# inspect_col(df2_edits1['_TGT DOB'])
-# #%%
-# print(df_comp_compare[['_T05 TGT Age in Months']].to_string())
-# #%%
-# df_T05_TGT_Age_in_Months = (
-#     pd.merge(
-#         df_comparison_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months']],
-#         df2_final_from_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months', '_TGT DOB']],
-#         how='outer', 
-#         on=['Project Id','Year','Quarter'], 
-#         suffixes=(' {comp}', ''),
-#         indicator=True
-#     )
-# )
-# #%%
-# print(df_T05_TGT_Age_in_Months.to_string())
-
-#%%###################################
-
-def fn_T05_Age_Categories(fdf):
-    if (fdf['_T05 TGT Age in Months'] < 12):
-        return "< 1 year"
-    elif (fdf['_T05 TGT Age in Months'] < 36):
-        return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
-    elif (fdf['_T05 TGT Age in Months'] < 48):
-        return "3-4 years"
-    elif (fdf['_T05 TGT Age in Months'] <= 60):
-        return "5-6 years"
-    elif (fdf['_T05 TGT Age in Months'] > 60):
-        return "6+ years"
-    else:
-        return "Unknown/Did Not Report"
-    ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
-    ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
-    ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
-    ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
-    ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
-    ### ELSE "Unknown/Did Not Report"
-    ### END
-df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories, axis=1)
-### dtype should be: 'string'.
-inspect_col(df2_edits1['_T05 Age Categories'])
-
-#%%###################################
-
 ### TO DO: Ask Joe why ALL values are the same.
 ### TO DO: need to check values for FW reasons.
 def fn_Discharge_Reason(fdf):
     ### LLCHD, see full reasons below.
     if (fdf['Discharge Dt'] is not pd.NaT):
         match fdf['Discharge Reason']: 
-            case 1: ### Ask Joe! No examples of this. Is a string, but no examples of "1" or 1.
+            ### case 1: ### OLD. Fixed from expecting a number to expecting a string. Note: No examples of "1" or 1.
+            ### This change will make the output different from Y12Q1 for this var.
+            case '1' | 'Family Has Met Program Goals':
                 return "Completed Services" 
             case _:
                 return "Stopped Services Before Completion"
@@ -1061,10 +988,10 @@ def fn_C2_BF_Status(fdf):
             case "-1":
                 return -1
             case _:
-                return None 
+                return np.nan  
     ### add CASE for LLCHD values when they add them to their dataset.
     elif (fdf['_Agency'] == "ll"):
-        return None  
+        return np.nan  
     ### IF [_Agency] <> "ll" THEN CASE [Breast Feeding]  // FW
     ###     WHEN "YES" THEN 1
     ###     WHEN "1" THEN 1
@@ -1113,9 +1040,9 @@ def fn_FW_Gestation_Age_Recode(fdf):
         case '42 weeks':
             return 42
         case 'Unknown':
-            return None
+            return np.nan
         case _:
-            return None
+            return np.nan
     ### CASE [Gestational Age]
     ###     WHEN '29 weeks' THEN 29
     ###     WHEN '31 weeks' THEN 31
@@ -1190,30 +1117,34 @@ inspect_col(df2_edits1['_Need Exclusion 4 - Dev Delay'])
 
 #%%###################################
 
+### TO DO: Add option for "null" string currently marked as "Unregonized".
+### NOTE: Tableau doesn't seem to care about Case Sensitivity for this logic.
+    ### In Tableau "Hispanic" data for [Tgt Ethnicity1] is caught by "HISPANIC", but Python doesn't because it's case sensitive.
+    ### Adjusting Python to be case insensitive.
 def fn_T06_TGT_Ethnicity(fdf):
     ### FW.
-    if (fdf['Tgt Ethnicity'] is not None):
-        match fdf['Tgt Ethnicity']:
-            case "Non Hispanic/Latino":
+    if (pd.notna(fdf['Tgt Ethnicity'])):
+        match fdf['Tgt Ethnicity'].lower():
+            case "non hispanic/latino":
                 return "Not Hispanic or Latino"
-            case "Hispanic/Latino":
+            case "hispanic/latino":
                 return "Hispanic or Latino"
-            case "Unknown":
+            case "unknown":
                 return "Unknown/Did Not Report"
             case _:
                 return "Unrecognized Value"
     ### LLCDH.
-    elif (fdf['Tgt Ethnicity1'] is not None):
-        match fdf['Tgt Ethnicity1']:
-            case "HISPANIC/LATINO":
+    elif (pd.notna(fdf['Tgt Ethnicity1'])):
+        match fdf['Tgt Ethnicity1'].lower():
+            case "hispanic/latino":
                 return "Hispanic or Latino" 
-            case "HISPANIC":
+            case "hispanic":
                 return "Hispanic or Latino"
-            case "NOT HISPANIC/LATINO":
+            case "not hispanic/latino":
                 return "Not Hispanic or Latino"
-            case "NON-Hispanic":
+            case "non-hispanic":
                 return "Not Hispanic or Latino"
-            case "UNREPORTED/REFUSED TO REPORT":
+            case "unreported/refused to report":
                 return "Unknown/Did Not Report"
             case _:
                 return "Unrecognized Value"
@@ -1240,6 +1171,11 @@ def fn_T06_TGT_Ethnicity(fdf):
 df2_edits1['_T06 TGT Ethnicity'] = df2_edits1.apply(func=fn_T06_TGT_Ethnicity, axis=1)
 ### dtype should be: 'string'.
 inspect_col(df2_edits1['_T06 TGT Ethnicity'])
+#%%
+inspect_col(df2_edits1['Tgt Ethnicity']) ### FW.
+### TO DO: need to bring in 3 rows that have text "null" in them. Python reads those in as NaN. Need to check how written out.
+#%%
+inspect_col(df2_edits1['Tgt Ethnicity1'])
 
 #%%###################################
 
@@ -1310,20 +1246,21 @@ inspect_col(df2_edits1['_T1 Tgt Gender'])
 
 #%%###################################
 
+### Another example of Tableau not being case sensitive. Fixing.
 def fn_T13_TGT_Language(fdf):
     if (pd.notna(fdf['Mob Language'])):
-        match fdf['Mob Language']:
-            case "English":
+        match fdf['Mob Language'].lower():
+            case "english":
                 return "English"
-            case "Spanish":
+            case "spanish":
                 return "Spanish"
             case _:
                 return "Other"
     elif (pd.notna(fdf['Language Primary'])):
-        match fdf['Language Primary']:
-            case "ENGLISH":
+        match fdf['Language Primary'].lower():
+            case "english":
                 return "English"
-            case "SPANISH":
+            case "spanish":
                 return "Spanish"
             case _:
                 return "Other"
@@ -1344,6 +1281,17 @@ def fn_T13_TGT_Language(fdf):
 df2_edits1['_T13 TGT Language'] = df2_edits1.apply(func=fn_T13_TGT_Language, axis=1)
 ### dtype should be: 'string'.
 inspect_col(df2_edits1['_T13 TGT Language'])
+# #%%
+# df_comp_compare_lang = (
+#     df_comparison_csv[['_T13 TGT Language', 'Mob Language', 'Language Primary']]
+#     .compare(df2_final_from_csv[['_T13 TGT Language', 'Mob Language', 'Language Primary']], keep_equal=True, keep_shape=True)
+#     .loc[(lambda df: df[('_T13 TGT Language', 'self')] != df[('_T13 TGT Language', 'other')]), :]
+# )
+# print(df_comp_compare_lang.to_string())
+#%%
+### What is "Other":
+print(df2_edits1[['_T13 TGT Language', 'Mob Language', 'Language Primary']].loc[df2_edits1['_T13 TGT Language'] == 'Other', :].to_string())
+
 
 #%%###################################
 
@@ -1581,20 +1529,29 @@ inspect_col(df2_edits1['_T22 TGT Usual Souce of Dental Care'])
 
 #%%###################################
 
+### Difference from Tableau in that last "if NULL" case not in this Python code.
 def fn_TGT_Race(fdf):
     ### LLCHD.
     ### multiracial:
     if (
         (
-            (1 if fdf['Tgt Race Asian']=="Y" else 0) + 
-            (1 if fdf['Tgt Race Black']=="Y" else 0) + 
-            (1 if fdf['Tgt Race Hawaiian']=="Y" else 0) + 
-            (1 if fdf['Tgt Race Indian']=="Y" else 0) + 
-            (1 if fdf['Tgt Race Other']=="Y" else 0) + 
-            (1 if fdf['Tgt Race White']=="Y" else 0) 
+            (0 if pd.isna(fdf['Tgt Race Asian']) else (1 if fdf['Tgt Race Asian']=="Y" else 0)) + 
+            (0 if pd.isna(fdf['Tgt Race Black']) else (1 if fdf['Tgt Race Black']=="Y" else 0)) + 
+            (0 if pd.isna(fdf['Tgt Race Hawaiian']) else (1 if fdf['Tgt Race Hawaiian']=="Y" else 0)) + 
+            (0 if pd.isna(fdf['Tgt Race Indian']) else (1 if fdf['Tgt Race Indian']=="Y" else 0)) + 
+            (0 if pd.isna(fdf['Tgt Race White']) else (1 if fdf['Tgt Race White']=="Y" else 0)) +
+            (0 if pd.isna(fdf['Tgt Race Other']) else (1 if fdf['Tgt Race Other']=="Y" else 0)) 
         ) > 1 
     ):
         return "More than one race"
+        # return (
+        #     (0 if pd.isna(fdf['Tgt Race Asian']) else (1 if fdf['Tgt Race Asian']=="Y" else 0)) + 
+        #     (0 if pd.isna(fdf['Tgt Race Black']) else (1 if fdf['Tgt Race Black']=="Y" else 0)) + 
+        #     (0 if pd.isna(fdf['Tgt Race Hawaiian']) else (1 if fdf['Tgt Race Hawaiian']=="Y" else 0)) + 
+        #     (0 if pd.isna(fdf['Tgt Race Indian']) else (1 if fdf['Tgt Race Indian']=="Y" else 0)) + 
+        #     (0 if pd.isna(fdf['Tgt Race White']) else (1 if fdf['Tgt Race White']=="Y" else 0)) +
+        #     (0 if pd.isna(fdf['Tgt Race Other']) else (1 if fdf['Tgt Race Other']=="Y" else 0)) 
+        # )
     ### single race:
     elif (fdf['Tgt Race Asian'] == "Y"):
         return "Asian"
@@ -1612,15 +1569,23 @@ def fn_TGT_Race(fdf):
     ### multiracial, == "True" is not required in IIF statement because race is boolean.
     elif (
         (
-            (1 if fdf['TGT Race Asian'] else 0) + 
-            (1 if fdf['TGT Race Black'] else 0) + 
-            (1 if fdf['TGT Race Hawaiian Pacific'] else 0) + 
-            (1 if fdf['TGT Race Indian Alaskan'] else 0) + 
-            (1 if fdf['TGT Race White'] else 0) + 
-            (1 if fdf['TGT Race Other'] else 0) 
+            (0 if pd.isna(fdf['TGT Race Asian']) else (1 if fdf['TGT Race Asian'] else 0)) + 
+            (0 if pd.isna(fdf['TGT Race Black']) else (1 if fdf['TGT Race Black'] else 0)) + 
+            (0 if pd.isna(fdf['TGT Race Hawaiian Pacific']) else (1 if fdf['TGT Race Hawaiian Pacific'] else 0)) + 
+            (0 if pd.isna(fdf['TGT Race Indian Alaskan']) else (1 if fdf['TGT Race Indian Alaskan'] else 0)) + 
+            (0 if pd.isna(fdf['TGT Race White']) else (1 if fdf['TGT Race White'] else 0)) + 
+            (0 if pd.isna(fdf['TGT Race Other']) else (1 if fdf['TGT Race Other'] else 0)) 
         ) > 1 
     ):
         return "More than one race"
+        # return (
+        #     (0 if pd.isna(fdf['TGT Race Asian']) else (1 if fdf['TGT Race Asian'] else 0)) + 
+        #     (0 if pd.isna(fdf['TGT Race Black']) else (1 if fdf['TGT Race Black'] else 0)) + 
+        #     (0 if pd.isna(fdf['TGT Race Hawaiian Pacific']) else (1 if fdf['TGT Race Hawaiian Pacific'] else 0)) + 
+        #     (0 if pd.isna(fdf['TGT Race Indian Alaskan']) else (1 if fdf['TGT Race Indian Alaskan'] else 0)) + 
+        #     (0 if pd.isna(fdf['TGT Race White']) else (1 if fdf['TGT Race White'] else 0)) + 
+        #     (0 if pd.isna(fdf['TGT Race Other']) else (1 if fdf['TGT Race Other'] else 0)) 
+        # ) * 10
     ### single race:
     elif (fdf['TGT Race Asian'] == True):
         return "Asian"
@@ -1666,6 +1631,42 @@ df2_edits1['_TGT Race'] = df2_edits1.apply(func=fn_TGT_Race, axis=1)
 ### dtype should be: 'string'.
 inspect_col(df2_edits1['_TGT Race'])
 
+# #%%
+# df_comp_compare_race = (
+#     df_comparison_csv[['Project Id', '_TGT Race']]
+#     .compare(df2_final_from_csv[['Project Id', '_TGT Race']], keep_equal=True, keep_shape=True)
+#     .loc[(lambda df: df[('_TGT Race', 'self')] != df[('_TGT Race', 'other')]), :]
+# )
+# print(df_comp_compare_race.to_string())
+# # df_comp_compare_race.index
+# # df_comp_compare_race[('Project Id', 'self')].values
+
+# #%%
+# print(
+#     # df2_final_from_csv[[
+#     df2_edits1[[
+#         'Project Id',
+#         '_TGT Race', 
+#         'Tgt Race Asian', 
+#         'Tgt Race Black', 
+#         'Tgt Race Hawaiian', 
+#         'Tgt Race Indian', 
+#         'Tgt Race White', 
+#         'Tgt Race Other', 
+#         'TGT Race Asian', 
+#         'TGT Race Black', 
+#         'TGT Race Hawaiian Pacific', 
+#         'TGT Race Indian Alaskan', 
+#         'TGT Race White', 
+#         'TGT Race Other' 
+#     ]]
+#     ### .loc[df2_edits1['_TGT Race'] == 'More than one race', :]
+#     # .loc[df_comp_compare_race.index, :]
+#     .loc[df2_edits1['Project Id'].isin(df_comp_compare_race[('Project Id', 'self')].values), :]
+#     .to_string()
+# )
+# ### Shows that code is returning "More than one race" for when all 6 columns are "N"/False. Should be "Unknown".
+
 #%%###################################
 
 def fn_C11_Literacy_Read_Sing(fdf):
@@ -1691,7 +1692,7 @@ def fn_C11_Literacy_Read_Sing(fdf):
             case "YES":
                 return 7
             case _:
-                return None
+                return np.nan 
     ### LLCHD.
     elif (fdf['_Agency'] == "ll"):
         match fdf['Early Language']:
@@ -1701,7 +1702,7 @@ def fn_C11_Literacy_Read_Sing(fdf):
                 return 7
                 ### Y = “Every day of the week / Most days of the week / Several days of the week”
             case _:
-                return None
+                return np.nan
     ### IF [_Agency] <> "ll" THEN CASE [Read Tell Story Sing]  // FW
     ###     WHEN "0" THEN 0
     ###     WHEN "1" THEN 1
@@ -1886,6 +1887,100 @@ inspect_col(df2_edits1['_Family Number'])
 # df2_edits1['Family Number'].fillna(-9999).apply(float.is_integer).all()
 
 
+#%%###################################
+
+### RECOMMEND that [_T05 TGT Age in Months] & ['_T05 Age Categories'] be created in the Form 1/2 Tableau Workbooks because the calculations do not match exactly between Tableau & Python. 
+
+### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
+### Testing in Tableau on DATEDIFF shows that it rounds to an integer, so implemented here.
+### TO DO: FIX: first if clause.
+### TO DO: Ask Joe purpose of IF clause. WHY!?!?!?!?
+### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
+### TO DO: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
+# now = pd.Timestamp('now')
+# date_for_age_calcs = now
+
+### Base Age off [Report End Date]. *** Check how these are used in the F1/F2.
+
+date_for_age_calcs = pd.Timestamp("2023-02-08T14:12")
+def fn_T05_TGT_Age_in_Months(fdf):
+    if (fdf['_TGT DOB'] is pd.NaT):
+        return np.nan
+        # return 0 ### Testing.
+    ### Break.
+    # if (fdf['_TGT DOB'] > (date_for_age_calcs - pd.DateOffset(months=
+    #         (pd.Series((date_for_age_calcs - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
+    #     ))):
+    if ((fdf['_TGT DOB'] is not pd.NaT) and 
+        (fdf['_TGT DOB'] > (date_for_age_calcs - pd.DateOffset(months=np.where(
+            (fdf['_TGT DOB'] is not pd.NaT)
+            ,(pd.Series((date_for_age_calcs - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
+            ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
+        ))))):
+        return pd.Series(((date_for_age_calcs - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+        # return 1 ### Testing.
+    else:
+        ### return (((date_for_age_calcs - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
+        return pd.Series((date_for_age_calcs - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+        # return 0 ### Testing.
+    ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
+    ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
+    ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
+    ### END
+df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1).round()#.astype('Float64').astype('Int64')
+### dtype should be: 'int'.
+inspect_col(df2_edits1['_T05 TGT Age in Months'])
+
+# #%%
+# # print(df2_edits1[['_T05 TGT Age in Months', '_TGT DOB']].query('`_T05 TGT Age in Months` == 1').to_string())
+# # print(df2_edits1[['_T05 TGT Age in Months', '_TGT DOB']].value_counts(dropna=False).to_string())
+# # print(df2_edits1[['_T05 TGT Age in Months']].value_counts(dropna=False, sort=False).to_string())
+# print(df2_edits1[['Project Id', '_T05 TGT Age in Months', '_TGT DOB']].query('`_T05 TGT Age in Months` < 1').to_string())
+
+# #%%
+# inspect_col(df2_edits1['_TGT DOB'])
+# #%%
+# print(df_comp_compare[['_T05 TGT Age in Months']].to_string())
+# #%%
+# df_T05_TGT_Age_in_Months = (
+#     pd.merge(
+#         df_comparison_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months']],
+#         df2_final_from_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months', '_TGT DOB']],
+#         how='outer', 
+#         on=['Project Id','Year','Quarter'], 
+#         suffixes=(' {comp}', ''),
+#         indicator=True
+#     )
+# )
+# #%%
+# print(df_T05_TGT_Age_in_Months.to_string())
+
+#%%###################################
+
+### TO DO: Adjust to deal with "-1" months old.
+def fn_T05_Age_Categories(fdf):
+    if (fdf['_T05 TGT Age in Months'] < 12):
+        return "< 1 year"
+    elif (fdf['_T05 TGT Age in Months'] < 36):
+        return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
+    elif (fdf['_T05 TGT Age in Months'] < 48):
+        return "3-4 years"
+    elif (fdf['_T05 TGT Age in Months'] <= 60):
+        return "5-6 years"
+    elif (fdf['_T05 TGT Age in Months'] > 60):
+        return "6+ years"
+    else:
+        return "Unknown/Did Not Report"
+    ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
+    ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
+    ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
+    ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
+    ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
+    ### ELSE "Unknown/Did Not Report"
+    ### END
+df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories, axis=1)
+### dtype should be: 'string'.
+inspect_col(df2_edits1['_T05 Age Categories'])
 
 
 
@@ -1992,7 +2087,7 @@ df2__final.to_csv(path_2_output, index=False, date_format="%#m/%#d/%Y")
 
 #%%
 ### Read back in df for comparison.
-df2_final_from_csv = pd.read_csv(path_2_output, dtype=object)
+df2_final_from_csv = pd.read_csv(path_2_output, dtype=object, keep_default_na=False, na_values=[''])
 
 
 #%%##################################################
@@ -2086,39 +2181,54 @@ len([*df_comp_compare]) / 2
 #%%
 # print(df_comp_compare[['_Discharge Reason', 'Discharge Reason']].to_string())
 print(df_comp_compare[['Discharge Reason']].to_string())
-### Where are these extra values coming from??
+### Where are these extra values coming from?? ### Fixed code in Tableau was wrong (wasn't expecting stings). So now won't match until Tableau CSV created again.
 
 #%%
 # print(df_comp_compare[['_T05 TGT Age in Months']].to_string())
 print(df_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_string())
 ### Age in Month calculation is off by 1 many times. Is it exactly what number is used in the division? Something else?
+### TO DO: Recommend moving both of these variables to the Form 1&2 Tableau Workbooks.
 
 #%%
 # print(df_comp_compare[['_Family Number']].to_string())
-print(df_comp_compare[['_T06 TGT Ethnicity']].to_string())
+# print(df_comp_compare[['_T06 TGT Ethnicity']].to_string()) ### Fixed, so no longer in comparsion.
 
-#%%
-df_comp_compare_ethnicity = (
-    df_comparison_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
-    .compare(df2_final_from_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']], keep_equal=True, keep_shape=True)
-    .iloc[lambda df: [0], :] ### !!! Want to filter rows by only where columns 0 & 1 are different.
-)
-print(df_comp_compare_ethnicity.to_string())
+# #%%
+# ### Fixed, so no longer in comparsion.
+# df_comp_compare_ethnicity = (
+#     df_comparison_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
+#     .compare(df2_final_from_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']], keep_equal=True, keep_shape=True)
+#     # .iloc[lambda df: [0], :] ### !!! Want to filter rows by only where columns 0 & 1 are different.
+#     .loc[(lambda df: df[('_T06 TGT Ethnicity', 'self')] != df[('_T06 TGT Ethnicity', 'other')]), :]
+# )
+# print(df_comp_compare_ethnicity.to_string())
+
+# #%%
+# df2_final_from_csv.loc[[379, 456, 463], ['Project Id', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
+# #%%
+# df_comparison_csv.loc[[379, 456, 463], ['Project Id', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
+# ### Python, even when reading everything in as "object," is still changing the text "null" into NaN.
+# ### FIXED: Edited Read settings so only blank cells read in as NA.
+
+# #%%
+# print(df_comp_compare[['_T13 TGT Language']].to_string()) ### FIXED above by making case-insensitive.
+
+# #%%
+# print(df_comp_compare[['_TGT Race']].to_string()) ### FIXED above by making case-insensitive.
+
+#%%##################################################
+### Columns not reconciled:
+[*df_comp_compare]
 
 
-
-
-
-
-
+#%%##################################################
+### END: ALL GOOD.
 
 
 #%%##################################################
 ### Questions ###
 #####################################################
 
-# Why no "Birth File" tab columns? (never existed in Tableau wb). Answer: Last Quarter was removed from Join.
-# Why Office not working?
 
 
 
