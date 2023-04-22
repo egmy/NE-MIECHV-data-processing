@@ -5,22 +5,18 @@
 ### INSTRUCTIONS ###
 #####################################################
 
-### Instructions for how to get into environment & how to edit/run code files.
+### TO DO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
 ### PACKAGES ###
 #####################################################
 
-### pip list ### See packages installed in this virtual environment that can be imported.
-
 import pandas as pd
 from pathlib import Path
 import numpy as np
 import sys
+import IPython
 
-# import matplotlib.pyplot as plt
-
-### Test that pandas imported:
 print('Version Of Python: ' + sys.version)
 print('Version Of Pandas: ' + pd.__version__)
 print('Version Of Numpy: ' + np.version.version)
@@ -29,8 +25,7 @@ print('Version Of Numpy: ' + np.version.version)
 ### SETTINGS ###
 #####################################################
 
-### Only place used should be using a different date.
-### now = pd.Timestamp('now')
+### None for now.
 
 #%%##################################################
 ### PATHS ###
@@ -53,45 +48,32 @@ path_2_data_source_sheets = [
 path_2_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\04 output')
 path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel on NE Server.csv')
 
-#%% test write
-# with open(Path(path_2_output_dir, 'test.txt'), 'w') as f:
-#     f.write('testtest test  test')
-
-#%%### df2_1: 'Project ID'.
-#%%### df2_2: 'ER Injury'.
-#%%### df2_3: 'Family Wise'.
-#%%### df2_4: 'LLCHD'.
-#%%### df2_5: 'Well Child'. 
-
-
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
+### File created for Y12Q1 by the old data sourcing process with Tableau.
 path_df_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
-### df_comparison_csv = pd.read_csv(path_df_comparison_csv)
 df_comparison_csv = pd.read_csv(path_df_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
-
 
 #%%##################################################
 ### Utility Functions ###
 #####################################################
 
 def inspect_df (df):
-    ###print(df.describe)
     print(df.describe(include='all'))
     print('\n')
     print(df.dtypes.to_string())
     print('\n')
-    print(df.info())
+    print(df.info(verbose=True, show_counts=True))
     print('\n')
     print(f'Rows: {len(df)}')
     print(f'Columns: {len(df.columns)}')
     print('\n')
-    display(df)
+    IPython.display.display(df)
 
-### fSeries = df column or Series: e.g., df['colname'] 
+### fSeries = df column or Series: e.g., df['colname'].
 def inspect_col(fSeries):
     print(fSeries.info())
     print('\n')
@@ -100,19 +82,19 @@ def inspect_col(fSeries):
     print('\n')
     print(fSeries)
 
-def compare_col(fdf2, fcol, info_or_value_counts='info', fdf1=df_comparison_csv): ### or 'value_counts'.
+def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df_comparison_csv): ### or 'value_counts'.
     if info_or_value_counts=='info':
         print(f'DataFrame 1 (df_comparison_csv):\n')
-        print(fdf1[fcol].info())
+        print(fdf_1[fcol].info())
         print('\n')
         print(f'DataFrame 2:\n')
-        print(fdf2[fcol].info())
+        print(fdf_2[fcol].info())
     elif info_or_value_counts=='value_counts':
         print(f'DataFrame 1 (df_comparison_csv):\n')
-        print(fdf1[fcol].value_counts(dropna=False))
+        print(fdf_1[fcol].value_counts(dropna=False))
         print('\n')
         print(f'DataFrame 2:\n')
-        print(fdf2[fcol].value_counts(dropna=False))
+        print(fdf_2[fcol].value_counts(dropna=False))
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -126,6 +108,8 @@ df2_1_col_detail = [
     ['quarter', 'Quarter', '', 'Int64']
 ]
 #%%### df2_1: 'Project ID'.
+### For Renaming, we only need a dictionary of the columns with names changing.
+### If x[2] == 'same' or x[0] == x[1] then that column is not included in df_colnames.
 df2_1_colnames = {x[0]:x[1] for x in df2_1_col_detail if x[2] != 'same' and x[0] != x[1]}
 df2_1_colnames
 #%%### df2_1: 'Project ID'.
@@ -501,49 +485,23 @@ df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], keep_defaul
 df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
 df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4], keep_default_na=False, na_values=[''])#, dtype=df2_5_col_dtypes)
 
-# df2_1 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[0])
-# df2_2 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[1])
-# df2_3 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[2])
-# df2_4 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[3])
-# df2_5 = pd.read_excel(path_2_data_source_file, sheet_name=path_2_data_source_sheets[4])
+### CHECK that there's data in each df (that are not empty)? No need. Even the empty DFs merge fine below.
 
-#%%
-### Function to add row to DF if no rows. Than map over list/dictionary of df's.
-
-### TO DO
-
-#%% 
-### CHECK that there's data in each df (that are not empty):
-
-### TO DO
-
-#%%
+### Review each sheet:
+# #%%
 # inspect_df(df2_1)
-#%%
+# #%%
 # inspect_df(df2_2)
-#%%
+# #%%
 # inspect_df(df2_3)
-#%%
+# #%%
 # inspect_df(df2_4)
-#%%
+# #%%
 # inspect_df(df2_5)
 
 #%%##################################################
 ### Rename Columns ###
 #####################################################
-
-#%%
-### df2_1 = df2_1.add_suffix(' (Project ID)')
-### df2_2 = df2_2.add_suffix(' (ER Injury)')
-### df2_3 = df2_3.add_suffix(' (Family Wise)')
-### df2_4 = df2_4.add_suffix(' (LLCHD)')
-### df2_5 = df2_5.add_suffix(' (Well Child)')
-
-#%%### df2_1: 'Project ID'.
-#%%### df2_2: 'ER Injury'.
-#%%### df2_3: 'Family Wise'.
-#%%### df2_4: 'LLCHD'.
-#%%### df2_5: 'Well Child'.
 
 #######################
 #%%### df2_1: 'Project ID'.
@@ -590,18 +548,126 @@ df2_5_colnames
 df2_5 = df2_5.rename(columns=df2_5_colnames)
 [*df2_5]
 
+#%%##################################################
+### Prep for JOIN ###
+#####################################################
 
+### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
 
+#%%### Restart deduplication
+# df2_1 = df2_1_bf_ddup.copy()
+# df2_2 = df2_2_bf_ddup.copy()
+# df2_3 = df2_3_bf_ddup.copy()
+# df2_4 = df2_4_bf_ddup.copy()
+# df2_5 = df2_5_bf_ddup.copy()
 
+#######################
+### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
+#%%### df2_1: 'Project ID'. 
+### Backup:
+df2_1_bf_ddup = df2_1.copy()
+#%%### df2_1: 'Project ID'. 
+### Duplicate rows:
+df2_1[df2_1.duplicated()]
+#%%### df2_1: 'Project ID'. 
+### Dropping duplicate rows:
+df2_1 = df2_1.drop_duplicates(ignore_index=True)
+df2_1
+#%%### df2_1: 'Project ID'. 
+### Test
+len(df2_1_bf_ddup) - len(df2_1) == len(df2_1_bf_ddup[df2_1_bf_ddup.duplicated()])
+#%%### df2_1: 'Project ID'. 
+if (len(df2_1_bf_ddup) != len(df2_1)):
+    print(f'{len(df2_1_bf_ddup) - len(df2_1)} duplicate rows dropped.')
+elif (len(df2_1_bf_ddup) == len(df2_1)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
 
+#######################
+### NOTE: NO ROWS.
+#%%### df2_2: 'ER Injury'.
+df2_2_bf_ddup = df2_2.copy()
+#%%### df2_2: 'ER Injury'.
+df2_2[df2_2.duplicated()]
+# df2_2[df2_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
+#%%### df2_2: 'ER Injury'.
+df2_2 = df2_2.drop_duplicates(ignore_index=True)
+df2_2
+#%%### df2_2: 'ER Injury'.
+len(df2_2_bf_ddup) - len(df2_2) == len(df2_2_bf_ddup[df2_2_bf_ddup.duplicated()])
+#%%### df2_2: 'ER Injury'.
+if (len(df2_2_bf_ddup) != len(df2_2)):
+    print(f'{len(df2_2_bf_ddup) - len(df2_2)} duplicate rows dropped.')
+elif (len(df2_2_bf_ddup) == len(df2_2)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+
+#######################
+### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
+#%%### df2_3: 'Family Wise'.
+df2_3_bf_ddup = df2_3.copy()
+#%%### df2_3: 'Family Wise'.
+df2_3[df2_3.duplicated()]
+# df2_3[df2_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
+#%%### df2_3: 'Family Wise'.
+df2_3 = df2_3.drop_duplicates(ignore_index=True)
+df2_3
+#%%### df2_3: 'Family Wise'.
+len(df2_3_bf_ddup) - len(df2_3) == len(df2_3_bf_ddup[df2_3_bf_ddup.duplicated()])
+#%%### df2_3: 'Family Wise'.
+if (len(df2_3_bf_ddup) != len(df2_3)):
+    print(f'{len(df2_3_bf_ddup) - len(df2_3)} duplicate rows dropped.')
+elif (len(df2_3_bf_ddup) == len(df2_3)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+
+#######################
+#%%### df2_4: 'LLCHD'.
+df2_4_bf_ddup = df2_4.copy()
+#%%### df2_4: 'LLCHD'.
+df2_4[df2_4.duplicated()]
+# df2_4[df2_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
+#%%### df2_4: 'LLCHD'.
+df2_4 = df2_4.drop_duplicates(ignore_index=True)
+df2_4
+#%%### df2_4: 'LLCHD'.
+len(df2_4_bf_ddup) - len(df2_4) == len(df2_4_bf_ddup[df2_4_bf_ddup.duplicated()])
+#%%### df2_4: 'LLCHD'.
+if (len(df2_4_bf_ddup) != len(df2_4)):
+    print(f'{len(df2_4_bf_ddup) - len(df2_4)} duplicate rows dropped.')
+elif (len(df2_4_bf_ddup) == len(df2_4)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+
+#######################
+#%%### df2_5: 'Well Child'.
+df2_5_bf_ddup = df2_5.copy()
+#%%### df2_5: 'Well Child'.
+df2_5[df2_5.duplicated()]
+# df2_5[df2_5.duplicated(keep=False, subset=['Project ID1','year (Well Child)','quarter (Well Child)'])]
+#%%### df2_5: 'Well Child'.
+df2_5 = df2_5.drop_duplicates(ignore_index=True)
+df2_5
+#%%### df2_5: 'Well Child'.
+len(df2_5_bf_ddup) - len(df2_5) == len(df2_5_bf_ddup[df2_5_bf_ddup.duplicated()])
+#%%### df2_5: 'Well Child'.
+if (len(df2_5_bf_ddup) != len(df2_5)):
+    print(f'{len(df2_5_bf_ddup) - len(df2_5)} duplicate rows dropped.')
+elif (len(df2_5_bf_ddup) == len(df2_5)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
 
 #%%##################################################
 ### JOIN ###
 #####################################################
 
-### https://pandas.pydata.org/docs/reference/api/pandas.merge.html
-
 ### TO DO: add validation.
+### https://pandas.pydata.org/docs/reference/api/pandas.merge.html
 
 #%%
 df2 = (
@@ -611,29 +677,29 @@ df2 = (
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'], 
-        # suffixes=(' (Project ID)', ' (ER Injury)'),
         indicator='LJ_df2_2ER'
+        ,validate='one_to_one'
     ).merge(
         df2_3, ### 'Family Wise'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'], 
-        # suffixes=(' (Project ID)', ' (Family Wise)'),
         indicator='LJ_df2_3FW'
+        ,validate='one_to_one'
     ).merge(
         df2_4, ### 'LLCHD'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
         right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], 
-        # suffixes=(' (Project ID)', ' (LLCHD)'),
         indicator='LJ_df2_4LL'
+        ,validate='one_to_one'
     ).merge(
         df2_5, ### 'Well Child'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID1','year (Well Child)','quarter (Well Child)'], 
-        # suffixes=(' (Project ID)', ' (Well Child)'),
         indicator='LJ_df2_5WC'
+        ,validate='one_to_one'
     ) 
 )
 
@@ -2226,9 +2292,11 @@ print(df_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_stri
 
 
 #%%##################################################
-### Questions ###
+### Things to CHANGE when part of a fully-coded data pipeline ###
 #####################################################
 
+### Set names & dtypes at beginning & be consistent.
+### Consolidate long match-case statements with "|" (or) case statements.
 
 
 
