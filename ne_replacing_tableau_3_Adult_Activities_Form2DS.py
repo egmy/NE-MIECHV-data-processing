@@ -1,46 +1,499 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-# %% ################################################
+#%%##################################################
+### INSTRUCTIONS ###
+#####################################################
+
+### TO DO: Instructions for how to get into environment & how to edit/run code files.
+
+#%%##################################################
 ### PACKAGES ###
 #####################################################
 
-### pip list ### See packages installed in this virtual environment that can be imported.
-
 import pandas as pd
+from pathlib import Path
+import numpy as np
+import sys
+import IPython
 
-# import matplotlib.pyplot as plt
-# import numpy as np
+print('Version Of Python: ' + sys.version)
+print('Version Of Pandas: ' + pd.__version__)
+print('Version Of Numpy: ' + np.version.version)
 
-### Test that pandas imported:
-print(pd.__version__)
-
-
-
-# %% ################################################
-### Section to Adjust ###
+#%%##################################################
+### SETTINGS ###
 #####################################################
 
-### Instructions for how to get into environment & how to edit/run code files.
+### None for now.
 
-
-# %% ################################################
-### READ ###
+#%%##################################################
+### PATHS ###
 #####################################################
-
-### https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html
 
 ### Data Source for 3rd Tableau file, 1st Data Source (for Form 2):
 ### DS: "Adult Activity Master File from Excel on NE Server".
-path_3_data_source = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Adult Activity Master File Y12.xlsx'
+### path_3_data_source = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Adult Activity Master File Y12.xlsx'
+### local:
+path_3_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01 original\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File.xlsx')
 
-### DS: "Adult Activity Master File from Excel on NE Server".
-df3_1 = pd.read_excel(path_3_data_source, sheet_name='Project ID')
-df3_2 = pd.read_excel(path_3_data_source, sheet_name='Caregiver Insurance')
-df3_3 = pd.read_excel(path_3_data_source, sheet_name='Family Wise')
-df3_4 = pd.read_excel(path_3_data_source, sheet_name='LLCHD')
+path_3_data_source_sheets = [
+    'Project ID' # 1
+    ,'Caregiver Insurance' # 2
+    ,'Family Wise' # 3
+    ,'LLCHD' # 4
+]
 
-# %% ################################################
+### Output for 2nd Tableau file:
+path_3_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\04 output')
+path_3_output = Path(path_3_output_dir, 'Adult Activity Master File from Excel on NE Server.csv')
+
+#%%##################################################
+### Comparison File ###
+#####################################################
+
+### File created for Y12Q1 by the old data sourcing process with Tableau.
+path_df_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
+df_comparison_csv = pd.read_csv(path_df_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
+df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+
+#%%##################################################
+### Utility Functions ###
+#####################################################
+
+def inspect_df (df):
+    print(df.describe(include='all'))
+    print('\n')
+    print(df.dtypes.to_string())
+    print('\n')
+    print(df.info(verbose=True, show_counts=True))
+    print('\n')
+    print(f'Rows: {len(df)}')
+    print(f'Columns: {len(df.columns)}')
+    print('\n')
+    IPython.display.display(df)
+
+### fSeries = df column or Series: e.g., df['colname'].
+def inspect_col(fSeries):
+    print(fSeries.info())
+    print('\n')
+    print('value_counts:')
+    print(fSeries.value_counts(dropna=False))
+    print('\n')
+    print(fSeries)
+
+def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df_comparison_csv): ### or 'value_counts'.
+    if info_or_value_counts=='info':
+        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(fdf_1[fcol].info())
+        print('\n')
+        print(f'DataFrame 2:\n')
+        print(fdf_2[fcol].info())
+    elif info_or_value_counts=='value_counts':
+        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(fdf_1[fcol].value_counts(dropna=False))
+        print('\n')
+        print(f'DataFrame 2:\n')
+        print(fdf_2[fcol].value_counts(dropna=False))
+
+#%%##################################################
+### COLUMN DEFINITIONS ###
+#####################################################
+
+#%%### df3_1: 'Project ID'.
+#%%### df3_2: 'Caregiver Insurance'.
+#%%### df3_3: 'Family Wise'.
+#%%### df3_4: 'LLCHD'.
+
+#######################
+#%%### df3_1: 'Project ID'.
+df3_1_col_detail = [
+    ['join_id', 'Join Id', '', 'Int64'],
+    ['project_id', 'Project Id', '', 'string'], 
+    ['year', 'Year', '', 'Int64'], 
+    ['quarter', 'Quarter', '', 'Int64']
+]
+#%%### df3_1: 'Project ID'.
+### For Renaming, we only need a dictionary of the columns with names changing.
+### If x[2] == 'same' or x[0] == x[1] then that column is not included in df_colnames.
+df3_1_colnames = {x[0]:x[1] for x in df3_1_col_detail if x[2] != 'same' and x[0] != x[1]}
+df3_1_colnames
+#%%### df3_1: 'Project ID'.
+df3_1_col_dtypes = {x[0]:x[3] for x in df3_1_col_detail}
+df3_1_col_dtypes
+
+#######################
+#%%### df3_2: 'Caregiver Insurance'.
+df3_2_col_detail = [
+    ['ProjectID', '', '', ''],
+    ['year', '', '', ''],
+    ['quarter', '', '', ''],
+    ['agency', '', '', ''],
+    ['FAMILYNUMBER', '', '', ''],
+    ['ChildNumber', '', '', ''],
+    ['funding', '', '', ''],
+    ['AD1PrimaryIns.1', '', '', ''],
+    ['AD1InsChangeDate.1', '', '', ''],
+    ['AD1PrimaryIns.2', '', '', ''],
+    ['AD1InsChangeDate.2', '', '', ''],
+    ['AD1PrimaryIns.3', '', '', ''],
+    ['AD1InsChangeDate.3', '', '', ''],
+    ['AD1PrimaryIns.4', '', '', ''],
+    ['AD1InsChangeDate.4', '', '', ''],
+    ['AD1PrimaryIns.5', '', '', ''],
+    ['AD1InsChangeDate.5', '', '', ''],
+    ['AD1PrimaryIns.6', '', '', ''],
+    ['AD1InsChangeDate.6', '', '', ''],
+    ['AD1PrimaryIns.7', '', '', ''],
+    ['AD1InsChangeDate.7', '', '', ''],
+    ['AD1PrimaryIns.8', '', '', ''],
+    ['AD1InsChangeDate.8', '', '', ''],
+    ['AD1PrimaryIns.9', '', '', ''],
+    ['AD1InsChangeDate.9', '', '', ''],
+    ['AD1PrimaryIns.10', '', '', ''],
+    ['AD1InsChangeDate.10', '', '', ''],
+    ['AD1PrimaryIns.11', '', '', ''],
+    ['AD1InsChangeDate.11', '', '', ''],
+    ['AD1PrimaryIns.12', '', '', ''],
+    ['AD1InsChangeDate.12', '', '', ''],
+    ['AD1PrimaryIns.13', '', '', ''],
+    ['AD1InsChangeDate.13', '', '', ''],
+    ['AD1PrimaryIns.14', '', '', ''],
+    ['AD1InsChangeDate.14', '', '', ''],
+    ['AD1PrimaryIns.15', '', '', ''],
+    ['AD1InsChangeDate.15', '', '', ''],
+    ['AD1PrimaryIns.16', '', '', ''],
+    ['AD1InsChangeDate.16', '', '', '']
+]
+#%%### df3_2: 'Caregiver Insurance'.
+df3_2_colnames = {x[0]:x[1] for x in df3_2_col_detail if x[2] != 'same' and x[0] != x[1]}
+df3_2_colnames
+#%%### df3_2: 'Caregiver Insurance'.
+df3_2_col_dtypes = {x[0]:x[3] for x in df3_2_col_detail}
+df3_2_col_dtypes
+
+#######################
+#%%### df3_3: 'Family Wise'.
+df3_3_col_detail = [
+    ['Project ID', '', '', ''],
+    ['year', '', '', ''],
+    ['quarter', '', '', ''],
+    ['agency', '', '', ''],
+    ['FamilyNumber', '', '', ''],
+    ['ChildNumber', '', '', ''],
+    ['TGT DOB-CR', '', '', ''],
+    ['EDC Date', '', '', ''],
+    ['MinOfHVDate', '', '', ''],
+    ['TERMINATION STATUS', '', '', ''],
+    ['TERMINATION DATE', '', '', ''],
+    ['Pregnancystatus', '', '', ''],
+    ['MaxOfHVDate', '', '', ''],
+    ['MaxOfVISIT NUMBER', '', '', ''],
+    ['BehaviorNumer', '', '', ''],
+    ['BehaviorDenom', '', '', ''],
+    ['HomeVisitsPrenatal', '', '', ''],
+    ['HomeVisitsTotal', '', '', ''],
+    ['MOBDOB', '', '', ''],
+    ['FOBDOB', '', '', ''],
+    ['MinEducationDate', '', '', ''],
+    ['AD1MinEdu', '', '', ''],
+    ['MinEduEnroll', '', '', ''],
+    ['MaxEduDate', '', '', ''],
+    ['AD1MaxEdu', '', '', ''],
+    ['MaxEduEnroll', '', '', ''],
+    ['DATEUNCOPE', '', '', ''],
+    ['U', '', '', ''],
+    ['N', '', '', ''],
+    ['C', '', '', ''],
+    ['O', '', '', ''],
+    ['P', '', '', ''],
+    ['E', '', '', ''],
+    ['UNCOPERefDate', '', '', ''],
+    ['UNCOPERefCategory', '', '', ''],
+    ['TobaccoUseDate', '', '', ''],
+    ['TobaccoRefDate', '', '', ''],
+    ['AssessAfraid', '', '', ''],
+    ['AssessPolice', '', '', ''],
+    ['AssessIPV', '', '', ''],
+    ['IPV Assess Date', '', '', ''],
+    ['IPVRefDate', '', '', ''],
+    ['PostpartumCheckupDate', '', '', ''],
+    ['MinOfCESDDATE', '', '', ''],
+    ['CESDTotal', '', '', ''],
+    ['MinOfMHRefDate', '', '', ''],
+    ['MaxCHEEERSDate', '', '', ''],
+    ['AD2EduDateMax', '', '', ''],
+    ['AD2EDLevel', '', '', ''],
+    ['AD2InSchool', '', '', ''],
+    ['MaxOfMaxOfAD2InsChangeDate', '', '', ''],
+    ['AD2InsPrimary', '', '', ''],
+    ['MaxOfAD1EmpChangeDate', '', '', ''],
+    ['AD1EmpStatus', '', '', ''],
+    ['MaxOfAD2EmplChangeDate', '', '', ''],
+    ['AD2EmployStatus', '', '', ''],
+    ['MaxOfMaxOfAD1MSChangeDate', '', '', ''],
+    ['Adult1MaritalStatus', '', '', ''],
+    ['MaxOfAD2MSChangeDate', '', '', ''],
+    ['Adult2MaritalStatus', '', '', ''],
+    ['ANNUAL INCOME', '', '', ''],
+    ['POVERTY LEVEL', '', '', ''],
+    ['TYPE HOUSING', '', '', ''],
+    ['HomelessStatus', '', '', ''],
+    ['HousingStatus', '', '', ''],
+    ['HistoryInterWelfareAdult', '', '', ''],
+    ['MOB SUBSTANCE ABUSE', '', '', ''],
+    ['FOB SUBSTANCE ABUSE', '', '', ''],
+    ['TobaccoUseInHome', '', '', ''],
+    ['LowAchievement', '', '', ''],
+    ['NTChildLowAchievement', '', '', ''],
+    ['NTChildDevDelay', '', '', ''],
+    ['Military', '', '', ''],
+    ['Adult1Gender', '', '', ''],
+    ['Adult1TGTRelation', '', '', ''],
+    ['MOB ETHNIC', '', '', ''],
+    ['MOBRaceWhite', '', '', ''],
+    ['MOBRaceBlack', '', '', ''],
+    ['MOBRaceIndianAlaskan', '', '', ''],
+    ['MOBRaceAsian', '', '', ''],
+    ['MOBRaceHawaiianPacific', '', '', ''],
+    ['MOBRaceOther', '', '', ''],
+    ['FOB INVOLVED', '', '', ''],
+    ['Adult2Gender', '', '', ''],
+    ['Adult2TGTRelation', '', '', ''],
+    ['FOB ETHNICITY', '', '', ''],
+    ['FOBRaceWhite', '', '', ''],
+    ['FOBRaceBlack', '', '', ''],
+    ['FOBRaceIndianAlaskan', '', '', ''],
+    ['FOBRaceAsian', '', '', ''],
+    ['FOBRaceHawaiianPacific', '', '', ''],
+    ['FOBRaceOther', '', '', ''],
+    ['MOB ZIP', '', '', ''],
+    ['Adaptation', '', '', ''],
+    ['need_exclusion1', '', '', ''],
+    ['need_exclusion2', '', '', ''],
+    ['need_exclusion3', '', '', ''],
+    ['need_exclusion5', '', '', ''],
+    ['need_exclusion6', '', '', '']
+]
+#%%### df3_3: 'Family Wise'.
+df3_3_colnames = {x[0]:x[1] for x in df3_3_col_detail if x[2] != 'same' and x[0] != x[1]}
+df3_3_colnames
+#%%### df3_3: 'Family Wise'.
+df3_3_col_dtypes = {x[0]:x[3] for x in df3_3_col_detail}
+df3_3_col_dtypes
+
+#######################
+#%%### df3_4: 'LLCHD'.
+df3_4_col_detail = [
+    ['project_id', '', '', ''],
+    ['year', '', '', ''],
+    ['quarter', '', '', ''],
+    ['site_id', '', '', ''],
+    ['family_id', '', '', ''],
+    ['tgt_id', '', '', ''],
+    ['tgt_dob', '', '', ''],
+    ['tgt_gender', '', '', ''],
+    ['tgt_ethnicity', '', '', ''],
+    ['tgt_race_indian', '', '', ''],
+    ['tgt_race_asian', '', '', ''],
+    ['tgt_race_black', '', '', ''],
+    ['tgt_race_hawaiian', '', '', ''],
+    ['tgt_race_white', '', '', ''],
+    ['tgt_race_other', '', '', ''],
+    ['tgt_GestationalAge', '', '', ''],
+    ['tgt_medical_home', '', '', ''],
+    ['tgt_medical_home_dt', '', '', ''],
+    ['tgt_dental_home', '', '', ''],
+    ['tgt_dental_home_dt', '', '', ''],
+    ['dt_edc', '', '', ''],
+    ['enroll_dt', '', '', ''],
+    ['enroll_preg_status', '', '', ''],
+    ['current_pregnancy', '', '', ''],
+    ['discharge_reason', '', '', ''],
+    ['discharge_dt', '', '', ''],
+    ['last_home_visit', '', '', ''],
+    ['home_visits_num', '', '', ''],
+    ['home_visits_pre', '', '', ''],
+    ['home_visits_post', '', '', ''],
+    ['home_visits_person', '', '', ''],
+    ['home_visits_virtual', '', '', ''],
+    ['funding', '', '', ''],
+    ['c_fundingdate', '', '', ''],
+    ['p_funding', '', '', ''],
+    ['p_fundingdate', '', '', ''],
+    ['primary_id', '', '', ''],
+    ['primary_relation', '', '', ''],
+    ['mob_id', '', '', ''],
+    ['mob_dob', '', '', ''],
+    ['mob_gender', '', '', ''],
+    ['mob_ethnicity', '', '', ''],
+    ['mob_race', '', '', ''],
+    ['mob_race_indian', '', '', ''],
+    ['mob_race_asian', '', '', ''],
+    ['mob_race_black', '', '', ''],
+    ['mob_race_hawaiian', '', '', ''],
+    ['mob_race_white', '', '', ''],
+    ['mob_race_other', '', '', ''],
+    ['mob_marital_status', '', '', ''],
+    ['mob_living_arrangement', '', '', ''],
+    ['mob_living_arrangement_dt', '', '', ''],
+    ['fob_id', '', '', ''],
+    ['fob_dob', '', '', ''],
+    ['fob_gender', '', '', ''],
+    ['fob_ethnicity', '', '', ''],
+    ['fob_race', '', '', ''],
+    ['fob_race_indian', '', '', ''],
+    ['fob_race_asian', '', '', ''],
+    ['fob_race_black', '', '', ''],
+    ['fob_race_hawaiian', '', '', ''],
+    ['fob_race_white', '', '', ''],
+    ['fob_race_other', '', '', ''],
+    ['fob_marital_status', '', '', ''],
+    ['fob_living_arrangement', '', '', ''],
+    ['fob_living_arrangement_dt', '', '', ''],
+    ['fob_edu_dt', '', '', ''],
+    ['fob_edu', '', '', ''],
+    ['fob_employ_dt', '', '', ''],
+    ['fob_employ', '', '', ''],
+    ['fob_involved', '', '', ''],
+    ['fob_visits', '', '', ''],
+    ['zip', '', '', ''],
+    ['household_income', '', '', ''],
+    ['household_size', '', '', ''],
+    ['mcafss_income_dt', '', '', ''],
+    ['mcafss_income', '', '', ''],
+    ['mcafss_edu_dt1', '', '', ''],
+    ['mcafss_edu1', '', '', ''],
+    ['mcafss_edu1_enroll', '', '', ''],
+    ['mcafss_edu1_enroll_dt', '', '', ''],
+    ['mcafss_edu1_prog', '', '', ''],
+    ['mcafss_edu_dt2', '', '', ''],
+    ['mcafss_edu2', '', '', ''],
+    ['mcafss_edu2_enroll', '', '', ''],
+    ['mcafss_edu2_enroll_dt', '', '', ''],
+    ['mcafss_edu2_prog', '', '', ''],
+    ['mcafss_employ_dt', '', '', ''],
+    ['mcafss_employ', '', '', ''],
+    ['language_primary', '', '', ''],
+    ['priority_child_welfare', '', '', ''],
+    ['priority_substance_abuse', '', '', ''],
+    ['priority_tobacco_use', '', '', ''],
+    ['priority_low_student', '', '', ''],
+    ['priority_develop_delays', '', '', ''],
+    ['priority_military', '', '', ''],
+    ['uncope_dt', '', '', ''],
+    ['uncope_score', '', '', ''],
+    ['substance_abuse_ref_dt', '', '', ''],
+    ['tobacco_use', '', '', ''],
+    ['tobacco_use_dt', '', '', ''],
+    ['tobacco_ref_dt', '', '', ''],
+    ['safe_sleep_yes', '', '', ''],
+    ['safe_sleep_yes_dt', '', '', ''],
+    ['cheeers_date', '', '', ''],
+    ['early_language', '', '', ''],
+    ['early_language_dt', '', '', ''],
+    ['asq3_dt_9mm', '', '', ''],
+    ['asq3_timing_9mm', '', '', ''],
+    ['asq3_comm_9mm', '', '', ''],
+    ['asq3_gross_9mm', '', '', ''],
+    ['asq3_fine_9mm', '', '', ''],
+    ['asq3_problem_9mm', '', '', ''],
+    ['asq3_social_9mm', '', '', ''],
+    ['asq3_feedback_9mm', '', '', ''],
+    ['asq3_referral_9mm', '', '', ''],
+    ['asq3_dt_18mm', '', '', ''],
+    ['asq3_timing_18mm', '', '', ''],
+    ['asq3_comm_18mm', '', '', ''],
+    ['asq3_gross_18mm', '', '', ''],
+    ['asq3_fine_18mm', '', '', ''],
+    ['asq3_problem_18mm', '', '', ''],
+    ['asq3_social_18mm', '', '', ''],
+    ['asq3_feedback_18mm', '', '', ''],
+    ['asq3_referral_18mm', '', '', ''],
+    ['asq3_dt_24mm', '', '', ''],
+    ['asq3_timing_24mm', '', '', ''],
+    ['asq3_comm_24mm', '', '', ''],
+    ['asq3_gross_24mm', '', '', ''],
+    ['asq3_fine_24mm', '', '', ''],
+    ['asq3_problem_24mm', '', '', ''],
+    ['asq3_social_24mm', '', '', ''],
+    ['asq3_feedback_24mm', '', '', ''],
+    ['asq3_referral_24mm', '', '', ''],
+    ['asq3_dt_30mm', '', '', ''],
+    ['asq3_timing_30mm', '', '', ''],
+    ['asq3_comm_30mm', '', '', ''],
+    ['asq3_gross_30mm', '', '', ''],
+    ['asq3_fine_30mm', '', '', ''],
+    ['asq3_problem_30mm', '', '', ''],
+    ['asq3_social_30mm', '', '', ''],
+    ['asq3_feedback_30mm', '', '', ''],
+    ['asq3_referral_30mm', '', '', ''],
+    ['behavioral_concerns', '', '', ''],
+    ['ipv_screen', '', '', ''],
+    ['ipv_screen_dt', '', '', ''],
+    ['ipv_referral_dt', '', '', ''],
+    ['prim_care_dt', '', '', ''],
+    ['cesd_dt', '', '', ''],
+    ['cesd_score', '', '', ''],
+    ['ment_hlth_ref_dt', '', '', ''],
+    ['lsp_bf_initiation_dt', '', '', ''],
+    ['lsp_bf_discon_dt', '', '', ''],
+    ['hlth_insure_mob', '', '', ''],
+    ['hlth_insure_mob_dt', '', '', ''],
+    ['hlth_insure_tgt', '', '', ''],
+    ['hlth_insure_tgt_dt', '', '', ''],
+    ['last_well_child_visit', '', '', ''],
+    ['hlth_insure_fob', '', '', ''],
+    ['hlth_insure_fob_dt', '', '', ''],
+    ['need_exclusion1', '', '', ''],
+    ['need_exclusion2', '', '', ''],
+    ['need_exclusion3', '', '', ''],
+    ['need_exclusion4', '', '', ''],
+    ['need_exclusion5', '', '', ''],
+    ['need_exclusion6', '', '', ''],
+    ['Has_ChildWelfareAdaptation', '', '', '']
+]
+#%%### df3_4: 'LLCHD'.
+df3_4_colnames = {x[0]:x[1] for x in df3_4_col_detail if x[2] != 'same' and x[0] != x[1]}
+df3_4_colnames
+#%%### df3_4: 'LLCHD'.
+df3_4_col_dtypes = {x[0]:x[3] for x in df3_4_col_detail}
+df3_4_col_dtypes
+
+#%%##################################################
+### READ ###
+#####################################################
+
+#%%
+### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
+xlsx = pd.ExcelFile(path_3_data_source_file)
+
+#%% 
+### CHECK that all path_3_data_source_sheets same as xlsx.sheet_names (different order ok):
+print(sorted(path_3_data_source_sheets))
+print([x for x in sorted(xlsx.sheet_names) if x != 'MOB or FOB'])
+sorted(path_3_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x != 'MOB or FOB']
+
+#%%
+### READ all sheets:
+df3_1 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df3_1_col_dtypes)
+df3_2 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df3_2_col_dtypes)
+df3_3 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[2], keep_default_na=False, na_values=[''])#, dtype=df3_3_col_dtypes)
+df3_4 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[3], keep_default_na=False, na_values=[''])#, dtype=df3_4_col_dtypes)
+
+### Review each sheet:
+### Note: Even empty DFs merge fine below.
+
+#%%
+inspect_df(df3_1)
+#%%
+inspect_df(df3_2)
+#%%
+inspect_df(df3_3)
+#%%
+inspect_df(df3_4)
+
+#%%##################################################
 ### JOIN ###
 #####################################################
 
@@ -50,7 +503,7 @@ df3_4 = pd.read_excel(path_3_data_source, sheet_name='LLCHD')
 ### DS: "Adult Activity Master File from Excel on NE Server".
 df3 = pd.merge(df3_1, df3_2, how='left', left_on=['Project Id','Year','Quarter'], right_on=['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)'], indicator='LJ_df3_2').merge(df3_3, how='left', left_on=['Project Id','Year','Quarter'], right_on=['Project ID 1','year (Family Wise)','quarter (Family Wise)'], indicator='LJ_df3_3').merge(df3_4, how='left', left_on=['Project Id','Year','Quarter'], right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], indicator='LJ_df3_4') 
 
-# %% ################################################
+#%%##################################################
 ### RECODE ###
 #####################################################
 
@@ -1356,20 +1809,20 @@ df3['_T16 Number of Home Visits'] = IFNULL([HomeVisitsTotal],[Home Visits Num])
 df3['_UNCOPE Score'] = IFNULL([Uncope Score],[_UNCOPE Score FW])
 
 
-# %% ################################################
+#%%##################################################
 ### Identify/FLAG "Unrecognized Value" ###
 #####################################################
 
 ### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
 ### Across many variables.
 
-# %% ################################################
+#%%##################################################
 ### Data Types ###
 #####################################################
 
 ### REMEMBER to check/set the data type of each column like it should be in output.
 
-# %% ################################################
+#%%##################################################
 ### WRITE ###
 #####################################################
 
