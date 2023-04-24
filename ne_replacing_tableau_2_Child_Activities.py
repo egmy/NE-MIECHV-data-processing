@@ -552,122 +552,122 @@ df2_5 = df2_5.rename(columns=df2_5_colnames)
 ### Prep for JOIN ###
 #####################################################
 
-### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
+# ### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
+# ### TO DO: Actually run section to deduplicate.
 
-#%%### Restart deduplication
-# df2_1 = df2_1_bf_ddup.copy()
-# df2_2 = df2_2_bf_ddup.copy()
-# df2_3 = df2_3_bf_ddup.copy()
-# df2_4 = df2_4_bf_ddup.copy()
-# df2_5 = df2_5_bf_ddup.copy()
+# #%%### Restart deduplication
+# # df2_1 = df2_1_bf_ddup.copy()
+# # df2_2 = df2_2_bf_ddup.copy()
+# # df2_3 = df2_3_bf_ddup.copy()
+# # df2_4 = df2_4_bf_ddup.copy()
+# # df2_5 = df2_5_bf_ddup.copy()
 
-#######################
-### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
-#%%### df2_1: 'Project ID'. 
-### Backup:
-df2_1_bf_ddup = df2_1.copy()
-#%%### df2_1: 'Project ID'. 
-### Duplicate rows:
-df2_1[df2_1.duplicated()]
-#%%### df2_1: 'Project ID'. 
-### Dropping duplicate rows:
-df2_1 = df2_1.drop_duplicates(ignore_index=True)
-df2_1
-#%%### df2_1: 'Project ID'. 
-### Test
-len(df2_1_bf_ddup) - len(df2_1) == len(df2_1_bf_ddup[df2_1_bf_ddup.duplicated()])
-#%%### df2_1: 'Project ID'. 
-if (len(df2_1_bf_ddup) != len(df2_1)):
-    print(f'{len(df2_1_bf_ddup) - len(df2_1)} duplicate rows dropped.')
-elif (len(df2_1_bf_ddup) == len(df2_1)):
-    print('No duplicate rows.')
-else:
-    print("Don't know what's going on here!")
+# #######################
+# ### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
+# #%%### df2_1: 'Project ID'. 
+# ### Backup:
+# df2_1_bf_ddup = df2_1.copy()
+# #%%### df2_1: 'Project ID'. 
+# ### Duplicate rows:
+# df2_1[df2_1.duplicated()]
+# #%%### df2_1: 'Project ID'. 
+# ### Dropping duplicate rows:
+# df2_1 = df2_1.drop_duplicates(ignore_index=True)
+# df2_1
+# #%%### df2_1: 'Project ID'. 
+# ### Test
+# len(df2_1_bf_ddup) - len(df2_1) == len(df2_1_bf_ddup[df2_1_bf_ddup.duplicated()])
+# #%%### df2_1: 'Project ID'. 
+# if (len(df2_1_bf_ddup) != len(df2_1)):
+#     print(f'{len(df2_1_bf_ddup) - len(df2_1)} duplicate rows dropped.')
+# elif (len(df2_1_bf_ddup) == len(df2_1)):
+#     print('No duplicate rows.')
+# else:
+#     print("Don't know what's going on here!")
 
-#######################
-### NOTE: NO ROWS.
-#%%### df2_2: 'ER Injury'.
-df2_2_bf_ddup = df2_2.copy()
-#%%### df2_2: 'ER Injury'.
-df2_2[df2_2.duplicated()]
-# df2_2[df2_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
-#%%### df2_2: 'ER Injury'.
-df2_2 = df2_2.drop_duplicates(ignore_index=True)
-df2_2
-#%%### df2_2: 'ER Injury'.
-len(df2_2_bf_ddup) - len(df2_2) == len(df2_2_bf_ddup[df2_2_bf_ddup.duplicated()])
-#%%### df2_2: 'ER Injury'.
-if (len(df2_2_bf_ddup) != len(df2_2)):
-    print(f'{len(df2_2_bf_ddup) - len(df2_2)} duplicate rows dropped.')
-elif (len(df2_2_bf_ddup) == len(df2_2)):
-    print('No duplicate rows.')
-else:
-    print("Don't know what's going on here!")
+# #######################
+# ### NOTE: NO ROWS.
+# #%%### df2_2: 'ER Injury'.
+# df2_2_bf_ddup = df2_2.copy()
+# #%%### df2_2: 'ER Injury'.
+# df2_2[df2_2.duplicated()]
+# # df2_2[df2_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
+# #%%### df2_2: 'ER Injury'.
+# df2_2 = df2_2.drop_duplicates(ignore_index=True)
+# df2_2
+# #%%### df2_2: 'ER Injury'.
+# len(df2_2_bf_ddup) - len(df2_2) == len(df2_2_bf_ddup[df2_2_bf_ddup.duplicated()])
+# #%%### df2_2: 'ER Injury'.
+# if (len(df2_2_bf_ddup) != len(df2_2)):
+#     print(f'{len(df2_2_bf_ddup) - len(df2_2)} duplicate rows dropped.')
+# elif (len(df2_2_bf_ddup) == len(df2_2)):
+#     print('No duplicate rows.')
+# else:
+#     print("Don't know what's going on here!")
 
-#######################
-### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
-#%%### df2_3: 'Family Wise'.
-df2_3_bf_ddup = df2_3.copy()
-#%%### df2_3: 'Family Wise'.
-df2_3[df2_3.duplicated()]
-# df2_3[df2_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
-#%%### df2_3: 'Family Wise'.
-df2_3 = df2_3.drop_duplicates(ignore_index=True)
-df2_3
-#%%### df2_3: 'Family Wise'.
-len(df2_3_bf_ddup) - len(df2_3) == len(df2_3_bf_ddup[df2_3_bf_ddup.duplicated()])
-#%%### df2_3: 'Family Wise'.
-if (len(df2_3_bf_ddup) != len(df2_3)):
-    print(f'{len(df2_3_bf_ddup) - len(df2_3)} duplicate rows dropped.')
-elif (len(df2_3_bf_ddup) == len(df2_3)):
-    print('No duplicate rows.')
-else:
-    print("Don't know what's going on here!")
+# #######################
+# ### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
+# #%%### df2_3: 'Family Wise'.
+# df2_3_bf_ddup = df2_3.copy()
+# #%%### df2_3: 'Family Wise'.
+# df2_3[df2_3.duplicated()]
+# # df2_3[df2_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
+# #%%### df2_3: 'Family Wise'.
+# df2_3 = df2_3.drop_duplicates(ignore_index=True)
+# df2_3
+# #%%### df2_3: 'Family Wise'.
+# len(df2_3_bf_ddup) - len(df2_3) == len(df2_3_bf_ddup[df2_3_bf_ddup.duplicated()])
+# #%%### df2_3: 'Family Wise'.
+# if (len(df2_3_bf_ddup) != len(df2_3)):
+#     print(f'{len(df2_3_bf_ddup) - len(df2_3)} duplicate rows dropped.')
+# elif (len(df2_3_bf_ddup) == len(df2_3)):
+#     print('No duplicate rows.')
+# else:
+#     print("Don't know what's going on here!")
 
-#######################
-#%%### df2_4: 'LLCHD'.
-df2_4_bf_ddup = df2_4.copy()
-#%%### df2_4: 'LLCHD'.
-df2_4[df2_4.duplicated()]
-# df2_4[df2_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
-#%%### df2_4: 'LLCHD'.
-df2_4 = df2_4.drop_duplicates(ignore_index=True)
-df2_4
-#%%### df2_4: 'LLCHD'.
-len(df2_4_bf_ddup) - len(df2_4) == len(df2_4_bf_ddup[df2_4_bf_ddup.duplicated()])
-#%%### df2_4: 'LLCHD'.
-if (len(df2_4_bf_ddup) != len(df2_4)):
-    print(f'{len(df2_4_bf_ddup) - len(df2_4)} duplicate rows dropped.')
-elif (len(df2_4_bf_ddup) == len(df2_4)):
-    print('No duplicate rows.')
-else:
-    print("Don't know what's going on here!")
+# #######################
+# #%%### df2_4: 'LLCHD'.
+# df2_4_bf_ddup = df2_4.copy()
+# #%%### df2_4: 'LLCHD'.
+# df2_4[df2_4.duplicated()]
+# # df2_4[df2_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
+# #%%### df2_4: 'LLCHD'.
+# df2_4 = df2_4.drop_duplicates(ignore_index=True)
+# df2_4
+# #%%### df2_4: 'LLCHD'.
+# len(df2_4_bf_ddup) - len(df2_4) == len(df2_4_bf_ddup[df2_4_bf_ddup.duplicated()])
+# #%%### df2_4: 'LLCHD'.
+# if (len(df2_4_bf_ddup) != len(df2_4)):
+#     print(f'{len(df2_4_bf_ddup) - len(df2_4)} duplicate rows dropped.')
+# elif (len(df2_4_bf_ddup) == len(df2_4)):
+#     print('No duplicate rows.')
+# else:
+#     print("Don't know what's going on here!")
 
-#######################
-#%%### df2_5: 'Well Child'.
-df2_5_bf_ddup = df2_5.copy()
-#%%### df2_5: 'Well Child'.
-df2_5[df2_5.duplicated()]
-# df2_5[df2_5.duplicated(keep=False, subset=['Project ID1','year (Well Child)','quarter (Well Child)'])]
-#%%### df2_5: 'Well Child'.
-df2_5 = df2_5.drop_duplicates(ignore_index=True)
-df2_5
-#%%### df2_5: 'Well Child'.
-len(df2_5_bf_ddup) - len(df2_5) == len(df2_5_bf_ddup[df2_5_bf_ddup.duplicated()])
-#%%### df2_5: 'Well Child'.
-if (len(df2_5_bf_ddup) != len(df2_5)):
-    print(f'{len(df2_5_bf_ddup) - len(df2_5)} duplicate rows dropped.')
-elif (len(df2_5_bf_ddup) == len(df2_5)):
-    print('No duplicate rows.')
-else:
-    print("Don't know what's going on here!")
+# #######################
+# #%%### df2_5: 'Well Child'.
+# df2_5_bf_ddup = df2_5.copy()
+# #%%### df2_5: 'Well Child'.
+# df2_5[df2_5.duplicated()]
+# # df2_5[df2_5.duplicated(keep=False, subset=['Project ID1','year (Well Child)','quarter (Well Child)'])]
+# #%%### df2_5: 'Well Child'.
+# df2_5 = df2_5.drop_duplicates(ignore_index=True)
+# df2_5
+# #%%### df2_5: 'Well Child'.
+# len(df2_5_bf_ddup) - len(df2_5) == len(df2_5_bf_ddup[df2_5_bf_ddup.duplicated()])
+# #%%### df2_5: 'Well Child'.
+# if (len(df2_5_bf_ddup) != len(df2_5)):
+#     print(f'{len(df2_5_bf_ddup) - len(df2_5)} duplicate rows dropped.')
+# elif (len(df2_5_bf_ddup) == len(df2_5)):
+#     print('No duplicate rows.')
+# else:
+#     print("Don't know what's going on here!")
 
 #%%##################################################
 ### JOIN ###
 #####################################################
 
-### TO DO: add validation.
-### https://pandas.pydata.org/docs/reference/api/pandas.merge.html
+### TO DO: add validation once deduplication turned on.
 
 #%%
 df2 = (
@@ -678,28 +678,28 @@ df2 = (
         left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'], 
         indicator='LJ_df2_2ER'
-        ,validate='one_to_one'
+        # ,validate='one_to_one'
     ).merge(
         df2_3, ### 'Family Wise'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'], 
         indicator='LJ_df2_3FW'
-        ,validate='one_to_one'
+        # ,validate='one_to_one'
     ).merge(
         df2_4, ### 'LLCHD'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
         right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], 
         indicator='LJ_df2_4LL'
-        ,validate='one_to_one'
+        # ,validate='one_to_one'
     ).merge(
         df2_5, ### 'Well Child'.
         how='left', 
         left_on=['Project Id','Year','Quarter'], 
         right_on=['Project ID1','year (Well Child)','quarter (Well Child)'], 
         indicator='LJ_df2_5WC'
-        ,validate='one_to_one'
+        # ,validate='one_to_one'
     ) 
 )
 
@@ -707,7 +707,7 @@ df2 = (
 ### Set Data Types ###
 #####################################################
 
-### Tableau does this automatically; will need to here too.
+### Tableau does this automatically. So does Python on Read in. Made needed adjustments above.
 
 #%%##################################################
 ### RECODE / Creating Columns ###
@@ -715,9 +715,6 @@ df2 = (
 
 #%%
 df2_edits1 = df2.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT copy embedded mutable objects.
-
-### Not needed?
-    ### [Number of Records]
 
 #%%##################################################
 ### DUPLICATING
@@ -1237,11 +1234,11 @@ def fn_T06_TGT_Ethnicity(fdf):
 df2_edits1['_T06 TGT Ethnicity'] = df2_edits1.apply(func=fn_T06_TGT_Ethnicity, axis=1)
 ### dtype should be: 'string'.
 inspect_col(df2_edits1['_T06 TGT Ethnicity'])
-#%%
-inspect_col(df2_edits1['Tgt Ethnicity']) ### FW.
-### TO DO: need to bring in 3 rows that have text "null" in them. Python reads those in as NaN. Need to check how written out.
-#%%
-inspect_col(df2_edits1['Tgt Ethnicity1'])
+# #%%
+# inspect_col(df2_edits1['Tgt Ethnicity']) ### FW.
+# ### TO DO: need to bring in 3 rows that have text "null" in them. Python reads those in as NaN. Need to check how written out.
+# #%%
+# inspect_col(df2_edits1['Tgt Ethnicity1'])
 
 #%%###################################
 
@@ -2065,8 +2062,6 @@ inspect_col(df2_edits1['_T05 Age Categories'])
 
 
 
-
-
 #%%##################################################
 ### Identify/FLAG "Unrecognized Value" ###
 #####################################################
@@ -2084,32 +2079,27 @@ inspect_col(df2_edits1['_T05 Age Categories'])
 # df.loc[df['column']]
 
 
+# Identify 
 
-#%%##################################################
-### Data Types ###
-#####################################################
+# df2_edits1.applymap((lambda x: x == 'Unrecognized Value'))
+# !!!!!!!!!!!!!!!!!!!!!!!!
 
-### REMEMBER to check/set the data type of each column like it should be in output.
-
-
-
+# TO DO.
 
 
 #%%##################################################
 ### Prepare CSV ###
 #####################################################
 
-### REMOVE
-# indicator='LJ_df2_2ER'
-# indicator='LJ_df2_3FW'
-# indicator='LJ_df2_4LL'
-# indicator='LJ_df2_5WC'
-
-#%% 
-### Remove created columns.
+#%%################################
+### REMOVE extra COLUMNS
+ 
+### Remove columns created in merge.
 df2_edits2 = df2_edits1.drop(columns=['LJ_df2_2ER', 'LJ_df2_3FW', 'LJ_df2_4LL', 'LJ_df2_5WC'])
 
-#%%
+#%%################################
+### ORDER COLUMNS
+
 ### Final order for columns:
 [*df_comparison_csv]
 
@@ -2117,11 +2107,14 @@ df2_edits2 = df2_edits1.drop(columns=['LJ_df2_2ER', 'LJ_df2_3FW', 'LJ_df2_4LL', 
 ### Reorder Columns.
 df2_edits2 = df2_edits2[[*df_comparison_csv]]
 
-#%%
-### Sort Rows.
+#%%################################
+### SORT ROWS
+
 df2_edits2 = df2_edits2.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 ###################################
+### SET DATA TYPES
+### Set the data type of each column like it should be in output.
 
 #%%
 ### Identify columns that should be Integers:
@@ -2135,9 +2128,6 @@ print(df2_edits2.dtypes.to_string())
 df2_edits2[int_cols] = df2_edits2[int_cols].astype('Int64')
 #%%
 print(df2_edits2.dtypes.to_string())
-
-
-
 
 #%%##################################################
 ### WRITE ###
@@ -2154,7 +2144,6 @@ df2__final.to_csv(path_2_output, index=False, date_format="%#m/%#d/%Y")
 #%%
 ### Read back in df for comparison.
 df2_final_from_csv = pd.read_csv(path_2_output, dtype=object, keep_default_na=False, na_values=[''])
-
 
 #%%##################################################
 ### COMPARE CSVs ###
