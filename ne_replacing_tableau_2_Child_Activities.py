@@ -53,9 +53,9 @@ path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel o
 #####################################################
 
 ### File created for Y12Q1 by the old data sourcing process with Tableau.
-path_df_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
-df_comparison_csv = pd.read_csv(path_df_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
-df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+path_2_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+df2_comparison_csv = pd.read_csv(path_2_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
+df2_comparison_csv = df2_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 #%%##################################################
 ### Utility Functions ###
@@ -82,15 +82,15 @@ def inspect_col(fSeries):
     print('\n')
     print(fSeries)
 
-def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df_comparison_csv): ### or 'value_counts'.
+def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df2_comparison_csv): ### or 'value_counts'.
     if info_or_value_counts=='info':
-        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(f'DataFrame 1 (df2_comparison_csv):\n')
         print(fdf_1[fcol].info())
         print('\n')
         print(f'DataFrame 2:\n')
         print(fdf_2[fcol].info())
     elif info_or_value_counts=='value_counts':
-        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(f'DataFrame 1 (df2_comparison_csv):\n')
         print(fdf_1[fcol].value_counts(dropna=False))
         print('\n')
         print(f'DataFrame 2:\n')
@@ -152,7 +152,7 @@ df2_3_col_detail = [
     ,['TGT DOB-CR', 'Tgt Dob-Cr', '', 'datetime64[ns]']
     ,['EDC Date', 'EDC Date', 'same', 'datetime64[ns]']
     ,['MinHVDateBFYes', 'Min HV Date BF Yes', '', 'datetime64[ns]']
-    ,['BreastFeeding', 'Breast Feeding', '', 'string'] ### 'Breast Feeding (Count)'.
+    ,['BreastFeeding', 'Breast Feeding', '', 'string'] ### 'Breast Feeding (Count)'. ### 'string' in Tableau & needs to be read in as such.
     ,['MinOfDateDiscontinueBF', 'Min Of Date Discontinue BF', '', 'datetime64[ns]']
     ,['SleepOnBack', 'Sleep On Back', '', 'string']
     ,['CoSleeping', 'Co Sleeping', '', 'string']
@@ -188,7 +188,7 @@ df2_3_col_detail = [
     ,['ASQ30MoProblem', 'ASQ30MoProblem', 'same', 'Int64']
     ,['ASQ30MoPersonal', 'ASQ30MoPersonal', 'same', 'Int64']
     ,['MaxEarlyLiteracyDate', 'Max Early Literacy Date', '', 'datetime64[ns]']
-    ,['ReadTellStorySing', 'Read Tell Story Sing', '', 'string']
+    ,['ReadTellStorySing', 'Read Tell Story Sing', '', 'string'] ### 'string' in Tableau & needs to be read in as such.
     ,['BehaviorDenom', 'Behavior Denom', '', 'Int64']
     ,['BehaviorNumer', 'Behavior Numer', '', 'Int64']
     ,['HomeVisitsPrental', 'Home Visits Prental', '', 'Int64']
@@ -268,7 +268,7 @@ df2_4_col_detail = [
     ,['enroll_dt', 'Enroll Dt', '', 'datetime64[ns]']
     ,['enroll_preg_status', 'Enroll Preg Status', '', 'string']
     ,['current_pregnancy', 'Current Pregnancy', '', 'string']
-    ,['discharge_reason', 'Discharge Reason', '', 'Int64']
+    ,['discharge_reason', 'Discharge Reason', '', 'string'] ### SHOULD be 'string' even through was 'int' in Tableau.
     ,['discharge_dt', 'Discharge Dt', '', 'datetime64[ns]']
     ,['last_home_visit', 'Last Home Visit', '', 'datetime64[ns]']
     ,['home_visits_num', 'Home Visits Num', '', 'Int64']
@@ -359,7 +359,7 @@ df2_4_col_detail = [
     ,['asq3_problem_9mm', 'Asq3 Problem 9Mm', '', 'Int64']
     ,['asq3_social_9mm', 'Asq3 Social 9Mm', '', 'Int64']
     ,['asq3_feedback_9mm', 'Asq3 Feedback 9Mm', '', 'string']
-    ,['asq3_referral_9mm', 'Asq3 Referral 9Mm', '', 'datetime64[ns]']
+    ,['asq3_referral_9mm', 'Asq3 Referral 9Mm', '', 'datetime64[ns]'] ### 'date' in Tableau & needs to be read in as such.
     ,['asq3_dt_18mm', 'Asq3 Dt 18Mm', '', 'datetime64[ns]']
     ,['asq3_timing_18mm', 'Asq3 Timing 18Mm', '', 'Int64']
     ,['asq3_comm_18mm', 'Asq3 Comm 18Mm', '', 'Int64']
@@ -481,13 +481,13 @@ sorted(path_2_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x !
 ### READ all sheets:
 df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df2_1_col_dtypes)
 df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df2_2_col_dtypes)
-df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'object'})#, dtype=df2_3_col_dtypes)
+df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=df2_3_col_dtypes)
 df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
 df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4], keep_default_na=False, na_values=[''])#, dtype=df2_5_col_dtypes)
 
-### CHECK that there's data in each df (that are not empty)? No need. Even the empty DFs merge fine below.
-
 ### Review each sheet:
+### Note: Even empty DFs merge fine below.
+
 # #%%
 # inspect_df(df2_1)
 # #%%
@@ -556,11 +556,11 @@ df2_5 = df2_5.rename(columns=df2_5_colnames)
 # ### TO DO: Actually run section to deduplicate.
 
 # #%%### Restart deduplication
-# # df2_1 = df2_1_bf_ddup.copy()
-# # df2_2 = df2_2_bf_ddup.copy()
-# # df2_3 = df2_3_bf_ddup.copy()
-# # df2_4 = df2_4_bf_ddup.copy()
-# # df2_5 = df2_5_bf_ddup.copy()
+# ### df2_1 = df2_1_bf_ddup.copy()
+# ### df2_2 = df2_2_bf_ddup.copy()
+# ### df2_3 = df2_3_bf_ddup.copy()
+# ### df2_4 = df2_4_bf_ddup.copy()
+# ### df2_5 = df2_5_bf_ddup.copy()
 
 # #######################
 # ### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
@@ -626,6 +626,7 @@ df2_5 = df2_5.rename(columns=df2_5_colnames)
 #     print("Don't know what's going on here!")
 
 # #######################
+# ### NOTE: NO duplicate rows.
 # #%%### df2_4: 'LLCHD'.
 # df2_4_bf_ddup = df2_4.copy()
 # #%%### df2_4: 'LLCHD'.
@@ -645,6 +646,7 @@ df2_5 = df2_5.rename(columns=df2_5_colnames)
 #     print("Don't know what's going on here!")
 
 # #######################
+# ### NOTE: NO duplicate rows.
 # #%%### df2_5: 'Well Child'.
 # df2_5_bf_ddup = df2_5.copy()
 # #%%### df2_5: 'Well Child'.
@@ -667,38 +669,38 @@ df2_5 = df2_5.rename(columns=df2_5_colnames)
 ### JOIN ###
 #####################################################
 
-### TO DO: add validation once deduplication turned on.
+### TO DO: Turn on validation once deduplication turned on.
 
 #%%
 df2 = (
     pd.merge(
-        df2_1, ### 'Project ID'.
-        df2_2, ### 'ER Injury'.
-        how='left', 
-        left_on=['Project Id','Year','Quarter'], 
-        right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'], 
-        indicator='LJ_df2_2ER'
+        df2_1 ### 'Project ID'.
+        ,df2_2 ### 'ER Injury'.
+        ,how='left' 
+        ,left_on=['Project Id','Year','Quarter'] 
+        ,right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'] 
+        ,indicator='LJ_df2_2ER'
         # ,validate='one_to_one'
     ).merge(
-        df2_3, ### 'Family Wise'.
-        how='left', 
-        left_on=['Project Id','Year','Quarter'], 
-        right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'], 
-        indicator='LJ_df2_3FW'
+        df2_3 ### 'Family Wise'.
+        ,how='left' 
+        ,left_on=['Project Id','Year','Quarter'] 
+        ,right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'] 
+        ,indicator='LJ_df2_3FW'
         # ,validate='one_to_one'
     ).merge(
-        df2_4, ### 'LLCHD'.
-        how='left', 
-        left_on=['Project Id','Year','Quarter'], 
-        right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'], 
-        indicator='LJ_df2_4LL'
+        df2_4 ### 'LLCHD'.
+        ,how='left' 
+        ,left_on=['Project Id','Year','Quarter'] 
+        ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'] 
+        ,indicator='LJ_df2_4LL'
         # ,validate='one_to_one'
     ).merge(
-        df2_5, ### 'Well Child'.
-        how='left', 
-        left_on=['Project Id','Year','Quarter'], 
-        right_on=['Project ID1','year (Well Child)','quarter (Well Child)'], 
-        indicator='LJ_df2_5WC'
+        df2_5 ### 'Well Child'.
+        ,how='left' 
+        ,left_on=['Project Id','Year','Quarter'] 
+        ,right_on=['Project ID1','year (Well Child)','quarter (Well Child)'] 
+        ,indicator='LJ_df2_5WC'
         # ,validate='one_to_one'
     ) 
 )
@@ -929,7 +931,7 @@ def fn_TGT_EDC_Date(fdf):
     ### ELSE IFNULL([Dt Edc],[EDC Date])
     ### END
 df2_edits1['_TGT EDC Date'] = df2_edits1.apply(func=fn_TGT_EDC_Date, axis=1)
-### dtype should be: 'date'.
+    ### Data Type in Tableau: 'date'.
 inspect_col(df2_edits1['_TGT EDC Date'])
 
 #%%###################################
@@ -951,7 +953,7 @@ def fn_TGT_DOB(fdf):
     ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
     ### END
 df2_edits1['_TGT DOB'] = df2_edits1.apply(func=fn_TGT_DOB, axis=1)
-### dtype should be: 'date'.
+    ### Data Type in Tableau: 'date'.
 inspect_col(df2_edits1['_TGT DOB'])
 # #%%
 # inspect_col(df2_edits1['Tgt Dob'])
@@ -976,7 +978,7 @@ def fn_C7_Safe_Sleep_Yes_Date(fdf):
     ### ELSE [Safe Sleep Yes Dt] //LLCHD
     ### END
 df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
-### dtype should be: 'date'.
+    ### Data Type in Tableau: 'date'.
 inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
 
 #%%###################################
@@ -1029,7 +1031,7 @@ def fn_Discharge_Reason(fdf):
     ### //12Family never engaged
     ### //13Unknown & a text box
 df2_edits1['_Discharge Reason'] = df2_edits1.apply(func=fn_Discharge_Reason, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_Discharge Reason'])
 # #%%
 # inspect_col(df2_edits1['Discharge Reason']) ### Is a string, but no examples of "1" or 1.
@@ -1065,7 +1067,7 @@ def fn_C2_BF_Status(fdf):
     ### ELSEIF [_Agency] = "ll" THEN NULL  // add CASE for LLCHD values when they add them to their dataset
     ### END
 df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=fn_C2_BF_Status, axis=1)
-### dtype should be: 'int'.
+    ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_C2 BF Status'])
 # #%%
 # inspect_col(df2_edits1['_Agency'])
@@ -1123,7 +1125,7 @@ def fn_FW_Gestation_Age_Recode(fdf):
     ### ELSE NULL
     ### END
 df2_edits1['_FW Gestation Age Recode'] = df2_edits1.apply(func=fn_FW_Gestation_Age_Recode, axis=1)
-### dtype should be: 'int'.
+    ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_FW Gestation Age Recode'])
 
 #%%###################################
@@ -1159,7 +1161,7 @@ def fn_Funding(fdf):
     ### ELSEIF [_Agency] = "ll" THEN [Funding]
     ### END
 df2_edits1['_Funding'] = df2_edits1.apply(func=fn_Funding, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_Funding'])
 
 #%%###################################
@@ -1175,7 +1177,7 @@ def fn_Need_Exclusion_4_Dev_Delay(fdf):
     ### ELSEIF [need exclusion4 (LLCHD)] = "Y" THEN "Developmental Delay" //LLCHD
     ### END
 df2_edits1['_Need Exclusion 4 - Dev Delay'] = df2_edits1.apply(func=fn_Need_Exclusion_4_Dev_Delay, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_Need Exclusion 4 - Dev Delay'])
 
 #%%###################################
@@ -1232,7 +1234,7 @@ def fn_T06_TGT_Ethnicity(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_T06 TGT Ethnicity'] = df2_edits1.apply(func=fn_T06_TGT_Ethnicity, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T06 TGT Ethnicity'])
 # #%%
 # inspect_col(df2_edits1['Tgt Ethnicity']) ### FW.
@@ -1296,7 +1298,7 @@ def fn_T1_Tgt_Gender(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_T1 Tgt Gender'] = df2_edits1.apply(func=fn_T1_Tgt_Gender, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T1 Tgt Gender'])
 # #%%
 # inspect_col(df2_edits1['TGT Gender'])
@@ -1342,15 +1344,15 @@ def fn_T13_TGT_Language(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_T13 TGT Language'] = df2_edits1.apply(func=fn_T13_TGT_Language, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T13 TGT Language'])
 # #%%
-# df_comp_compare_lang = (
-#     df_comparison_csv[['_T13 TGT Language', 'Mob Language', 'Language Primary']]
-#     .compare(df2_final_from_csv[['_T13 TGT Language', 'Mob Language', 'Language Primary']], keep_equal=True, keep_shape=True)
+# df2_comp_compare_lang = (
+#     df2_comparison_csv[['_T13 TGT Language', 'Mob Language', 'Language Primary']]
+#     .compare(df2__final_from_csv[['_T13 TGT Language', 'Mob Language', 'Language Primary']], keep_equal=True, keep_shape=True)
 #     .loc[(lambda df: df[('_T13 TGT Language', 'self')] != df[('_T13 TGT Language', 'other')]), :]
 # )
-# print(df_comp_compare_lang.to_string())
+# print(df2_comp_compare_lang.to_string())
 #%%
 ### What is "Other":
 print(df2_edits1[['_T13 TGT Language', 'Mob Language', 'Language Primary']].loc[df2_edits1['_T13 TGT Language'] == 'Other', :].to_string())
@@ -1377,7 +1379,7 @@ def fn_T15_7_Household_Developmental_Delay(fdf):
     ### END
     ### //To determine priority population, positive ASQ results also need to be considered
 df2_edits1['_T15-7 Household Developmental Delay'] = df2_edits1.apply(func=fn_T15_7_Household_Developmental_Delay, axis=1)
-### dtype should be: 'int'.
+    ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_T15-7 Household Developmental Delay'])
 
 #%%###################################
@@ -1452,7 +1454,7 @@ def fn_T20_TGT_Insurance_Status(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_T20 TGT Insurance Status'] = df2_edits1.apply(func=fn_T20_TGT_Insurance_Status, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T20 TGT Insurance Status'])
 
 #%%###################################
@@ -1530,7 +1532,7 @@ def fn_T21_TGT_Usual_Source_of_Medical_Care(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_T21 TGT Usual Source of Medical Care'] = df2_edits1.apply(func=fn_T21_TGT_Usual_Source_of_Medical_Care, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T21 TGT Usual Source of Medical Care'])
 
 #%%###################################
@@ -1587,7 +1589,7 @@ def fn_T22_TGT_Usual_Souce_of_Dental_Care(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_T22 TGT Usual Souce of Dental Care'] = df2_edits1.apply(func=fn_T22_TGT_Usual_Souce_of_Dental_Care, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T22 TGT Usual Souce of Dental Care'])
 
 #%%###################################
@@ -1691,22 +1693,22 @@ def fn_TGT_Race(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_TGT Race'] = df2_edits1.apply(func=fn_TGT_Race, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_TGT Race'])
 
 # #%%
-# df_comp_compare_race = (
-#     df_comparison_csv[['Project Id', '_TGT Race']]
-#     .compare(df2_final_from_csv[['Project Id', '_TGT Race']], keep_equal=True, keep_shape=True)
+# df2_comp_compare_race = (
+#     df2_comparison_csv[['Project Id', '_TGT Race']]
+#     .compare(df2__final_from_csv[['Project Id', '_TGT Race']], keep_equal=True, keep_shape=True)
 #     .loc[(lambda df: df[('_TGT Race', 'self')] != df[('_TGT Race', 'other')]), :]
 # )
-# print(df_comp_compare_race.to_string())
-# # df_comp_compare_race.index
-# # df_comp_compare_race[('Project Id', 'self')].values
+# print(df2_comp_compare_race.to_string())
+# # df2_comp_compare_race.index
+# # df2_comp_compare_race[('Project Id', 'self')].values
 
 # #%%
 # print(
-#     # df2_final_from_csv[[
+#     # df2__final_from_csv[[
 #     df2_edits1[[
 #         'Project Id',
 #         '_TGT Race', 
@@ -1724,8 +1726,8 @@ inspect_col(df2_edits1['_TGT Race'])
 #         'TGT Race Other' 
 #     ]]
 #     ### .loc[df2_edits1['_TGT Race'] == 'More than one race', :]
-#     # .loc[df_comp_compare_race.index, :]
-#     .loc[df2_edits1['Project Id'].isin(df_comp_compare_race[('Project Id', 'self')].values), :]
+#     # .loc[df2_comp_compare_race.index, :]
+#     .loc[df2_edits1['Project Id'].isin(df2_comp_compare_race[('Project Id', 'self')].values), :]
 #     .to_string()
 # )
 # ### Shows that code is returning "More than one race" for when all 6 columns are "N"/False. Should be "Unknown".
@@ -1788,7 +1790,7 @@ def fn_C11_Literacy_Read_Sing(fdf):
     ###     END
     ### END
 df2_edits1['_C11 Literacy Read Sing'] = df2_edits1.apply(func=fn_C11_Literacy_Read_Sing, axis=1)
-### dtype should be: 'int'.
+    ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_C11 Literacy Read Sing'])
 # #%%
 # inspect_col(df2_edits1['Read Tell Story Sing']) ### Originally, csv read in as float64. Should be a string. But that breaks this is/else logic. Fixed in Read above by reading in as object.
@@ -1816,7 +1818,7 @@ def fn_Child_Welfare_Interaction(fdf):
     ### END
     ### //For priority population, current maltreatment reports also need to be considered
 df2_edits1['_Child Welfare Interaction'] = df2_edits1.apply(func=fn_Child_Welfare_Interaction, axis=1)
-### dtype should be: 'int'.
+    ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_Child Welfare Interaction'])
 
 #%%###################################
@@ -1838,7 +1840,7 @@ def fn_T15_6_Low_Student_Achievement(fdf):
     ### ELSEIF [Priority Low Student] = "Y" THEN 1
     ### END
 df2_edits1['_T15-6 Low Student Achievement'] = df2_edits1.apply(func=fn_T15_6_Low_Student_Achievement, axis=1)
-### dtype should be: 'int'.
+    ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_T15-6 Low Student Achievement'])
 
 #%%##################################################
@@ -1929,7 +1931,7 @@ inspect_col(df2_edits1['_C18 ASQ 9 Mo Referral Date'])
 # #%%
 # compare_col(df2_edits1, '_C18 ASQ 9 Mo Referral Date', 'value_counts')
 # #%%
-# df_comparison_csv[['_C18 ASQ 9 Mo Referral Date']].compare(df2_edits1[['_C18 ASQ 9 Mo Referral Date']])
+# df2_comparison_csv[['_C18 ASQ 9 Mo Referral Date']].compare(df2_edits1[['_C18 ASQ 9 Mo Referral Date']])
 # #%%
 # # df2_edits1['_C18 ASQ 9 Mo Referral Date'].dtypes
 # df2_edits1.dtypes
@@ -1991,7 +1993,7 @@ def fn_T05_TGT_Age_in_Months(fdf):
     ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
     ### END
 df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1).round()#.astype('Float64').astype('Int64')
-### dtype should be: 'int'.
+    ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_T05 TGT Age in Months'])
 
 # #%%
@@ -2003,12 +2005,12 @@ inspect_col(df2_edits1['_T05 TGT Age in Months'])
 # #%%
 # inspect_col(df2_edits1['_TGT DOB'])
 # #%%
-# print(df_comp_compare[['_T05 TGT Age in Months']].to_string())
+# print(df2_comp_compare[['_T05 TGT Age in Months']].to_string())
 # #%%
 # df_T05_TGT_Age_in_Months = (
 #     pd.merge(
-#         df_comparison_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months']],
-#         df2_final_from_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months', '_TGT DOB']],
+#         df2_comparison_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months']],
+#         df2__final_from_csv[['Project Id','Year','Quarter', '_T05 TGT Age in Months', '_TGT DOB']],
 #         how='outer', 
 #         on=['Project Id','Year','Quarter'], 
 #         suffixes=(' {comp}', ''),
@@ -2042,7 +2044,7 @@ def fn_T05_Age_Categories(fdf):
     ### ELSE "Unknown/Did Not Report"
     ### END
 df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories, axis=1)
-### dtype should be: 'string'.
+    ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T05 Age Categories'])
 
 
@@ -2101,11 +2103,11 @@ df2_edits2 = df2_edits1.drop(columns=['LJ_df2_2ER', 'LJ_df2_3FW', 'LJ_df2_4LL', 
 ### ORDER COLUMNS
 
 ### Final order for columns:
-[*df_comparison_csv]
+[*df2_comparison_csv]
 
 #%%
 ### Reorder Columns.
-df2_edits2 = df2_edits2[[*df_comparison_csv]]
+df2_edits2 = df2_edits2[[*df2_comparison_csv]]
 
 #%%################################
 ### SORT ROWS
@@ -2118,14 +2120,14 @@ df2_edits2 = df2_edits2.sort_values(by=['Project Id','Year','Quarter'], ignore_i
 
 #%%
 ### Identify columns that should be Integers:
-int_cols = df2_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
-print(int_cols.to_string())
+int_cols_df2 = df2_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
+print(int_cols_df2.to_string())
 #%%
 print(df2_edits2.dtypes.to_string())
 
 #%%
 ### Turn all columns that should be into Integers:
-df2_edits2[int_cols] = df2_edits2[int_cols].astype('Int64')
+df2_edits2[int_cols_df2] = df2_edits2[int_cols_df2].astype('Int64')
 #%%
 print(df2_edits2.dtypes.to_string())
 
@@ -2143,7 +2145,7 @@ df2__final.to_csv(path_2_output, index=False, date_format="%#m/%#d/%Y")
 
 #%%
 ### Read back in df for comparison.
-df2_final_from_csv = pd.read_csv(path_2_output, dtype=object, keep_default_na=False, na_values=[''])
+df2__final_from_csv = pd.read_csv(path_2_output, dtype=object, keep_default_na=False, na_values=[''])
 
 #%%##################################################
 ### COMPARE CSVs ###
@@ -2153,25 +2155,25 @@ df2_final_from_csv = pd.read_csv(path_2_output, dtype=object, keep_default_na=Fa
 
 #%%
 ### Column names:
-[*df2_final_from_csv]
+[*df2__final_from_csv]
 #%%
 ### Column names:
-[*df_comparison_csv]
+[*df2_comparison_csv]
 
 #%%
 ### Overlap / Similarities: Columns in both.
-set([*df_comparison_csv]).intersection([*df2_final_from_csv])
+set([*df2_comparison_csv]).intersection([*df2__final_from_csv])
 
 #%%###################################
 ### COLUMNS:
 
 #%%
 ### Check if all Column names identical & in same order.
-[*df2_final_from_csv] == [*df_comparison_csv]
+[*df2__final_from_csv] == [*df2_comparison_csv]
 
 #%%
 ### Differences: Columns only in one.
-set([*df_comparison_csv]).symmetric_difference([*df2_final_from_csv])
+set([*df2_comparison_csv]).symmetric_difference([*df2__final_from_csv])
 
 #%%###################################
 
@@ -2180,19 +2182,19 @@ set([*df_comparison_csv]).symmetric_difference([*df2_final_from_csv])
 
 #%%
 # Check rows & cols:
-print(f'df2_final_from_csv Rows: {len(df2_final_from_csv)}')
-print(f'df_comparison_csv Rows: {len(df_comparison_csv)}')
+print(f'df2__final_from_csv Rows: {len(df2__final_from_csv)}')
+print(f'df2_comparison_csv Rows: {len(df2_comparison_csv)}')
 
-print(f'df2_final_from_csv Columns: {len(df2_final_from_csv.columns)}')
-print(f'df_comparison_csv Columns: {len(df_comparison_csv.columns)}')
+print(f'df2__final_from_csv Columns: {len(df2__final_from_csv.columns)}')
+print(f'df2_comparison_csv Columns: {len(df2_comparison_csv.columns)}')
 
 #%%
-df2_final_from_csv == df_comparison_csv
+df2__final_from_csv == df2_comparison_csv
 
 #%%
 ### Checking ID columns used in Join >> DF should be empty (meaning all the same).
-df_comp_compare = df_comparison_csv[['Project Id','Year','Quarter']].compare(df2_final_from_csv[['Project Id','Year','Quarter']])
-df_comp_compare
+df2_comp_compare = df2_comparison_csv[['Project Id','Year','Quarter']].compare(df2__final_from_csv[['Project Id','Year','Quarter']])
+df2_comp_compare
 
 ###################################
 ###################################
@@ -2200,12 +2202,12 @@ df_comp_compare
 
 #%%
 ### Now comparing ALL columns. DF created shows all differences:
-df_comp_compare = df_comparison_csv.compare(df2_final_from_csv)
-df_comp_compare
+df2_comp_compare = df2_comparison_csv.compare(df2__final_from_csv)
+df2_comp_compare
 
 #%%
 ### Number of columns with different values/types:
-len([*df_comp_compare]) / 2 
+len([*df2_comp_compare]) / 2 
     ### Was 13 before read out & then back in. 
     ### 120 when read in with no dtypes set (a lot of them are dates).
     ### 241 columns different when both CSV's are ready in with dtype=object (string) for everything (now lots of Floats that should be Integers).
@@ -2214,7 +2216,7 @@ len([*df_comp_compare]) / 2
 
 #%%
 ### Columns:
-[*df_comp_compare]
+[*df2_comp_compare]
 
 ### Columns with different values after fixing dates & integers:
 # ['_C18 ASQ 9 Mo Referral Date', ### Fixed: Made sure both needed variables read in as dates (one wasn't).
@@ -2234,46 +2236,46 @@ len([*df_comp_compare]) / 2
     ### Then a few columns might actually have calculation issues.
 
 #%%
-# print(df_comp_compare[['_Discharge Reason', 'Discharge Reason']].to_string())
-print(df_comp_compare[['Discharge Reason']].to_string())
+# print(df2_comp_compare[['_Discharge Reason', 'Discharge Reason']].to_string())
+print(df2_comp_compare[['Discharge Reason']].to_string())
 ### Where are these extra values coming from?? ### Fixed code in Tableau was wrong (wasn't expecting stings). So now won't match until Tableau CSV created again.
 
 #%%
-# print(df_comp_compare[['_T05 TGT Age in Months']].to_string())
-print(df_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_string())
+# print(df2_comp_compare[['_T05 TGT Age in Months']].to_string())
+print(df2_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_string())
 ### Age in Month calculation is off by 1 many times. Is it exactly what number is used in the division? Something else?
 ### TO DO: Recommend moving both of these variables to the Form 1&2 Tableau Workbooks.
 
 #%%
-# print(df_comp_compare[['_Family Number']].to_string())
-# print(df_comp_compare[['_T06 TGT Ethnicity']].to_string()) ### Fixed, so no longer in comparsion.
+# print(df2_comp_compare[['_Family Number']].to_string())
+# print(df2_comp_compare[['_T06 TGT Ethnicity']].to_string()) ### Fixed, so no longer in comparsion.
 
 # #%%
 # ### Fixed, so no longer in comparsion.
-# df_comp_compare_ethnicity = (
-#     df_comparison_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
-#     .compare(df2_final_from_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']], keep_equal=True, keep_shape=True)
+# df2_comp_compare_ethnicity = (
+#     df2_comparison_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
+#     .compare(df2__final_from_csv[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']], keep_equal=True, keep_shape=True)
 #     # .iloc[lambda df: [0], :] ### !!! Want to filter rows by only where columns 0 & 1 are different.
 #     .loc[(lambda df: df[('_T06 TGT Ethnicity', 'self')] != df[('_T06 TGT Ethnicity', 'other')]), :]
 # )
-# print(df_comp_compare_ethnicity.to_string())
+# print(df2_comp_compare_ethnicity.to_string())
 
 # #%%
-# df2_final_from_csv.loc[[379, 456, 463], ['Project Id', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
+# df2__final_from_csv.loc[[379, 456, 463], ['Project Id', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
 # #%%
-# df_comparison_csv.loc[[379, 456, 463], ['Project Id', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
+# df2_comparison_csv.loc[[379, 456, 463], ['Project Id', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
 # ### Python, even when reading everything in as "object," is still changing the text "null" into NaN.
 # ### FIXED: Edited Read settings so only blank cells read in as NA.
 
 # #%%
-# print(df_comp_compare[['_T13 TGT Language']].to_string()) ### FIXED above by making case-insensitive.
+# print(df2_comp_compare[['_T13 TGT Language']].to_string()) ### FIXED above by making case-insensitive.
 
 # #%%
-# print(df_comp_compare[['_TGT Race']].to_string()) ### FIXED above by making case-insensitive.
+# print(df2_comp_compare[['_TGT Race']].to_string()) ### FIXED above by making case-insensitive.
 
 #%%##################################################
 ### Columns not reconciled:
-[*df_comp_compare]
+[*df2_comp_compare]
 
 
 #%%##################################################
