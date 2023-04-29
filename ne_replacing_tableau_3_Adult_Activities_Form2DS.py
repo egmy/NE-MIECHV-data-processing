@@ -53,9 +53,9 @@ path_3_output = Path(path_3_output_dir, 'Adult Activity Master File from Excel o
 #####################################################
 
 ### File created for Y12Q1 by the old data sourcing process with Tableau.
-path_df_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
-df_comparison_csv = pd.read_csv(path_df_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
-df_comparison_csv = df_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
+df3_comparison_csv = pd.read_csv(path_3_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
+df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 #%%##################################################
 ### Utility Functions ###
@@ -82,15 +82,15 @@ def inspect_col(fSeries):
     print('\n')
     print(fSeries)
 
-def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df_comparison_csv): ### or 'value_counts'.
+def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df3_comparison_csv): ### or 'value_counts'.
     if info_or_value_counts=='info':
-        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(f'DataFrame 1 (df3_comparison_csv):\n')
         print(fdf_1[fcol].info())
         print('\n')
         print(f'DataFrame 2:\n')
         print(fdf_2[fcol].info())
     elif info_or_value_counts=='value_counts':
-        print(f'DataFrame 1 (df_comparison_csv):\n')
+        print(f'DataFrame 1 (df3_comparison_csv):\n')
         print(fdf_1[fcol].value_counts(dropna=False))
         print('\n')
         print(f'DataFrame 2:\n')
@@ -670,119 +670,347 @@ df3 = (
 ### Tableau does this automatically. So does Python on Read in. Made needed adjustments above.
 
 #%%##################################################
-### RECODE ###
+### RECODE / Creating Columns ###
 #####################################################
 
-### numpy.where() --- Sami: use to treat NULL values weird at times; may be quicker than apply.
-### pandas
+#%%
+df3_edits1 = df3.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT copy embedded mutable objects.
 
-### Not needed?
-    ### Number of Records
+#%%##################################################
+### DUPLICATING
 
+#%%##################################################
+### COALESCING 1 
 
-df3['_90 Day UNCOPE Date'] = DATE(DATEADD('day',90,[_UNCOPE Date]))
+### In Child2 & Adult3.
+df3_edits1['_Agency'] = df3_edits1['agency (Family Wise)'].combine_first(df3_edits1['Site Id'])
+    ### IFNULL([agency (Family Wise)],[Site Id]) 
+    ### Data Type in Tableau: string.
 
-df3['_Agency'] = IFNULL([agency (Family Wise)],[Site Id])
+df3_edits1['_C03 CES-D Date'] = df3_edits1['Cesd Dt'].combine_first(df3_edits1['Min Of CESDDATE'])
+    ### IFNULL([Cesd Dt],[Min Of CESDDATE]) 
+    ### Data Type in Tableau: date.
 
-df3['_C03 CES-D Date'] = IFNULL([Cesd Dt],[Min Of CESDDATE])
+df3_edits1['_C05 Postpartum Checkup Date'] = df3_edits1['Postpartum Checkup Date'].combine_first(df3_edits1['Prim Care Dt'])
+    ### IFNULL([Postpartum Checkup Date],[Prim Care Dt]) 
+    ### Data Type in Tableau: date.
 
-df3['_C05 Postpartum Checkup Date'] = IFNULL([Postpartum Checkup Date],[Prim Care Dt])
+### Need before: '_C06 Tobacco Referral Date'.
+### A date indicates tobacco use.
+df3_edits1['_C06 Tobacco Use Date'] = df3_edits1['Tobacco Use Date'].combine_first(df3_edits1['Tobacco Use Dt'])
+    ### IFNULL([Tobacco Use Date],[Tobacco Use Dt]) //a date indicates tobacco use 
+    ### Data Type in Tableau: date.
 
-df3['_C05 TGT 30 Day Date'] = DATE(DATEADD('day',30,[_TGT DOB]))
+df3_edits1['_C06 Tobacco Referral Date'] = df3_edits1['Tobacco Ref Date'].combine_first(df3_edits1['_C06 Tobacco Use Date'])
+    ### IFNULL([Tobacco Ref Date],[_C06 Tobacco Use Date])
+    ### Data Type in Tableau: date.
 
-df3['_C05 TGT 56 Day Date'] = DATE(DATEADD('day',56,[_TGT DOB]))
+df3_edits1['_C10 CHEEERS'] = df3_edits1['Cheeers Date'].combine_first(df3_edits1['Max CHEEERS Date'])
+    ### IFNULL([Cheeers Date],[Max CHEEERS Date]) 
+    ### Data Type in Tableau: date.
 
-df3['_C06 Tobacco Referral Date'] = IFNULL([Tobacco Ref Date],[_C06 Tobacco Use Date])
+df3_edits1['_C14 IPV Date'] = df3_edits1['IPV Assess Date'].combine_first(df3_edits1['Ipv Screen Dt'])
+    ### IFNULL([IPV Assess Date],[Ipv Screen Dt]) 
+    ### Data Type in Tableau: date.
 
-df3['_C06 Tobacco Use Date'] = IFNULL([Tobacco Use Date],[Tobacco Use Dt]) ###a date indicates tobacco use
+df3_edits1['_C17 MH Referral Date'] = df3_edits1['Ment Hlth Ref Dt'].combine_first(df3_edits1['Min Of MH Ref Date'])
+    ### IFNULL([Ment Hlth Ref Dt],[Min Of MH Ref Date]) 
+    ### Data Type in Tableau: date.
 
-df3['_C10 CHEEERS'] = IFNULL([Cheeers Date],[Max CHEEERS Date])
+df3_edits1['_C19 IPV Referral Date'] = df3_edits1['Ipv Referral Dt'].combine_first(df3_edits1['IPV Ref Date'])
+    ### IFNULL([Ipv Referral Dt],[IPV Ref Date]) 
+    ### Data Type in Tableau: date.
 
-df3['_C14 IPV Date'] = IFNULL([IPV Assess Date],[Ipv Screen Dt])
+### In Child2 & Adult3.
+df3_edits1['_Discharge Date'] = df3_edits1['Termination Date'].combine_first(df3_edits1['Discharge Dt'])
+    ### IFNULL([Termination Date],[Discharge Dt]) 
+    ### Data Type in Tableau: date.
 
-df3['_C15 Max Education Date'] = DATE(IFNULL([Mcafss Edu Dt2],[Max Edu Date]))
+df3_edits1['_Enrollment Date'] = df3_edits1['Min Of HV Date'].combine_first(df3_edits1['Enroll Dt'])
+    ### IFNULL([Min Of HV Date],[Enroll Dt]) 
+    ### Data Type in Tableau: date.
 
-df3['_C15 Max Educational Enrollment'] = 
-IF [Max Edu Enroll] = "College 2 Year" THEN "Student/trainee" ###FW
-ELSEIF [Max Edu Enroll] = "College 4 Year" THEN "Student/trainee"
-ELSEIF [Max Edu Enroll] = "ESL" THEN "Student/trainee"
-ELSEIF [Max Edu Enroll] = "GED Program" THEN "Student/trainee HS/GED"
-ELSEIF [Max Edu Enroll] = "Graduate School" THEN "Student/trainee"
-ELSEIF [Max Edu Enroll] = "High/Middle School" THEN "Student/trainee HS/GED"
-ELSEIF [Max Edu Enroll] = "Not Enrolled in School" THEN "Not a student/trainee"
-ELSEIF [Max Edu Enroll] = "Unknown" THEN "Unknown/Did not Report"
-ELSEIF [Max Edu Enroll] = "Vocational College" THEN "Student/trainee"
-ELSEIF ([mcafss_edu2_enroll] = "YES" ### Enrolled
-        AND
-        ([mcafss_edu2_prog] = 1 ### Enrolled in Middle School
-        OR
-        [mcafss_edu2_prog] = 2 ### Enrolled in High School
-        OR
-        [mcafss_edu2_prog] = 3 ### Enrolled in GED
-        )) THEN "Student/trainee HS/GED" ###LLCHD
-ELSEIF [mcafss_edu2_enroll] = "NO" THEN "Not a student/trainee"
-ELSE "Unknown/Did not Report"
-END
-###Student/trainee indicates enrollment in a program other than a high school diploma or GED
-###LLCHD - Kodi sent this coding for mcafss_edu2_prog on 12/7/2021
-###01 = Middle School
-###02 = High School
-###03 = GED
-###04 = ESL
-###05 = Adult education in basic reading or math
-###06 = College
-###07 = Vocational training, technical or trade school (excluding training received during HS)
-###08 = Job search or job placement
-###09 = Work experience
-###10 = Other (Specify)
+df3_edits1['_Family ID'] = df3_edits1['Family Id'].combine_first(df3_edits1['Family Number'])
+    ### IFNULL([Family Id], [Family Number]) 
+    ### Data Type in Tableau: string.
 
-df3['_C15 Max Educational Status'] = 
-###LLCHD
-IF [Mcafss Edu2] = 1 THEN "Less than HS diploma" ### Less than 8th Grade
-ELSEIF [Mcafss Edu2] = 2 THEN "Less than HS diploma" ### 8-11th Grade
-ELSEIF [Mcafss Edu2] = 3 THEN "HS diploma/GED" ### High School Grad
-ELSEIF [Mcafss Edu2] = 4 THEN "HS diploma/GED" ###Completed a GED
-ELSEIF [Mcafss Edu2] = 5 THEN "Technical Training or Associates Degree" ### Vocational School after High School
-ELSEIF [Mcafss Edu2] = 6 THEN "Some college/training" ### Some College
-ELSEIF [Mcafss Edu2] = 7 THEN "Technical Training or Associates Degree" ### Associates Degree
-ELSEIF [Mcafss Edu2] = 8 THEN "Bachelor's Degree or Higher"  ### Bachelors Degree or Higher
-### ELSEIF [Mcafss Edu2] = 9 THEN "HS diploma/GED" ###currently enrolled in college - vocational training or trade apprenticeship
-### ELSEIF [Mcafss Edu2] = 10 THEN "HS diploma/GED"  ###currently not enrolled in college - vocational training or trade apprenticeship
-### ELSEIF [Mcafss Edu2] = 11 THEN "Other" ###other education
-### ELSEIF [Mcafss Edu2] = 12 THEN "Unknown/Did Not Report" ###unknown/did not report
-ELSEIF [Mcafss Edu2] = 0 THEN "Unknown/Did Not Report" ###unknown/did not report (missing data)
-ELSEIF [Mcafss Edu2] >= 9 THEN "Unknown/Did Not Report"
-###FW
-ELSEIF [AD1MaxEdu] = "8th Grade or less" THEN "Less than HS diploma"
-ELSEIF [AD1MaxEdu] = "Some High School" THEN "Less than HS diploma"
-ELSEIF [AD1MaxEdu] = "GED" THEN "HS diploma/GED"
-ELSEIF [AD1MaxEdu] = "High School Graduate" THEN "HS diploma/GED"
-ELSEIF [AD1MaxEdu] = "Achievement Certificate" THEN "Technical Training or Certification"
-ELSEIF [AD1MaxEdu] = "Certificate Program" THEN "Technical Training or Certification"
-ELSEIF [AD1MaxEdu] = "Some College" THEN "Some college/training"
-ELSEIF [AD1MaxEdu] = "Associates or Two Year Technical Degree" THEN "Technical Training or Associates Degree" ###these are two serparate categories on F1
-ELSEIF [AD1MaxEdu] = "Two Year Degree" THEN "Associate's Degree"
-ELSEIF [AD1MaxEdu] = "Four Year College Degree" THEN "Bachelor's Degree or Higher"
-ELSEIF [AD1MaxEdu] = "Graduate School" THEN "Bachelor's Degree or Higher"
-ELSEIF [AD1MaxEdu] = "Unknown" THEN "Unknown/Did Not Report"
-ELSEIF [AD1MaxEdu] = "null" THEN "Unknown/Did Not Report"
-ELSEIF ISNULL([Mcafss Edu2]) AND ISNULL([AD1MaxEdu]) THEN "Unknown/Did Not Report"
-ELSE "Unrecognized Value"
-END
-###LLCHD Code from Kodi on 11/30/2021
-###1 – Less than 8th Grade
-###2 – 8-11th Grade
-###3 – High School Grad
-###4 - Completed a GED
-###5 - Vocational School after High School
-###6 – Some College
-###7 – Associates Degree 
-###8 - Bachelors Degree or Higher
-###Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
+### In Child2 & Adult3.
+df3_edits1['_Max HV Date'] = df3_edits1['Max Of HV Date'].combine_first(df3_edits1['Last Home Visit'])
+    ### IFNULL([Max Of HV Date],[Last Home Visit]) 
+    ### Data Type in Tableau: date.
 
-df3['_C15 Min Education Date'] = DATE(IFNULL([Mcafss Edu Dt1],[Min Education Date]))
+df3_edits1['_TGT ID'] = df3_edits1['Tgt Id'].combine_first(df3_edits1['Child Number'])
+    ### IFNULL([Tgt Id],[Child Number]) 
+    ### Data Type in Tableau: string.
 
-df3['_C15 Min Educational Enrollment'] = 
+df3_edits1['_UNCOPE Date'] = df3_edits1['Uncope Dt'].combine_first(df3_edits1['Dateuncope'])
+    ### IFNULL([Uncope Dt],[Dateuncope]) 
+    ### Data Type in Tableau: date.
+
+df3_edits1['_UNCOPE Referral'] = df3_edits1['Substance Abuse Ref Dt'].combine_first(df3_edits1['UNCOPE Ref Date'])
+    ### IFNULL([Substance Abuse Ref Dt], [UNCOPE Ref Date]) 
+    ### Data Type in Tableau: date.
+
+### In Child2 & Adult3.
+df3_edits1['_Zip'] = df3_edits1['Zip'].combine_first(df3_edits1['Mob Zip'])
+    ### IFNULL([Zip],[Mob Zip]) 
+    ### Data Type in Tableau: string.
+
+### In Child2 & Adult3.
+df3_edits1['_C13 Behavioral Concerns Asked'] = df3_edits1['BehaviorNumer'].combine_first(df3_edits1['Behavioral Concerns'])
+    ### IFNULL([BehaviorNumer],[Behavioral Concerns]) 
+    ### Data Type in Tableau: int.
+
+### In Child2 & Adult3.
+df3_edits1['_C13 Behavioral Concerns Visits'] = df3_edits1['BehaviorDenom'].combine_first(df3_edits1['home_visits_post'])
+    ### IFNULL([BehaviorDenom],[home_visits_post]) 
+    ### Data Type in Tableau: int.
+
+df3_edits1['_C17 CESD Score'] = df3_edits1['Cesd Score'].combine_first(df3_edits1['CESD Total'])
+    ### IFNULL([Cesd Score],[CESD Total]) 
+    ### Data Type in Tableau: int.
+
+df3_edits1['_T16 Number of Home Visits'] = df3_edits1['HomeVisitsTotal'].combine_first(df3_edits1['Home Visits Num'])
+    ### IFNULL([HomeVisitsTotal],[Home Visits Num]) 
+    ### Data Type in Tableau: int.
+
+#%%###################################
+
+df3_edits1['_C15 Max Education Date'] = (df3_edits1['Mcafss Edu Dt2'].combine_first(df3_edits1['Max Edu Date']))
+    ### DATE(IFNULL([Mcafss Edu Dt2],[Max Edu Date])) 
+    ### Data Type in Tableau: date.
+inspect_col(df3_edits1['_C15 Max Education Date'])
+    ### Is still a date.
+
+#%%###################################
+
+df3_edits1['_C15 Min Education Date'] = (df3_edits1['Mcafss Edu Dt1'].combine_first(df3_edits1['Min Education Date']))
+    ### DATE(IFNULL([Mcafss Edu Dt1],[Min Education Date])) 
+    ### Data Type in Tableau: date.
+inspect_col(df3_edits1['_C15 Min Education Date'])
+    ### Is still a date.
+
+#%%##################################################
+### IF/ELSE, CASE/WHEN
+
+### fdf == "function DataFrame"
+
+#%%###################################
+
+### Other vars depend on this.
+### In Child2 & Adult3. Copied exactly.
+def fn_TGT_DOB(fdf):
+    ### LLCHD.
+    if (fdf['Tgt Dob'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['Tgt Dob-Cr'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Tgt Dob'] is not pd.NaT):
+            return fdf['Tgt Dob']
+        else:
+            return fdf['Tgt Dob-Cr']
+    ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
+    ### END
+df3_edits1['_TGT DOB'] = df3_edits1.apply(func=fn_TGT_DOB, axis=1)
+    ### Data Type in Tableau: 'date'.
+inspect_col(df3_edits1['_TGT DOB'])
+# #%%
+# inspect_col(df3_edits1['Tgt Dob'])
+# #%%
+# inspect_col(df3_edits1['Tgt Dob-Cr'])
+
+#%%###################################
+
+def fn_C15_Max_Educational_Enrollment(fdf):
+    ### FW.
+    if (fdf['Max Edu Enroll'] == "College 2 Year"):
+        return "Student/trainee" 
+    elif (fdf['Max Edu Enroll'] == "College 4 Year"):
+        return "Student/trainee"
+    elif (fdf['Max Edu Enroll'] == "ESL"):
+        return "Student/trainee"
+    elif (fdf['Max Edu Enroll'] == "GED Program"):
+        return "Student/trainee HS/GED"
+    elif (fdf['Max Edu Enroll'] == "Graduate School"):
+        return "Student/trainee"
+    elif (fdf['Max Edu Enroll'] == "High/Middle School"):
+        return "Student/trainee HS/GED"
+    elif (fdf['Max Edu Enroll'] == "Not Enrolled in School"):
+        return "Not a student/trainee"
+    elif (fdf['Max Edu Enroll'] == "Unknown"):
+        return "Unknown/Did not Report"
+    elif (fdf['Max Edu Enroll'] == "Vocational College"):
+        return "Student/trainee"
+    ### LLCHD.
+    elif (
+        fdf['mcafss_edu2_enroll'] == "YES" ### Enrolled.
+        and
+        (
+            fdf['mcafss_edu2_prog'] == 1 ### Enrolled in Middle School.
+            or
+            fdf['mcafss_edu2_prog'] == 2 ### Enrolled in High School.
+            or
+            fdf['mcafss_edu2_prog'] == 3 ### Enrolled in GED.
+        )
+    ):
+        return "Student/trainee HS/GED" 
+    elif (fdf['mcafss_edu2_enroll'] == "NO"):
+        return "Not a student/trainee"
+    else:
+        return "Unknown/Did not Report"
+    # IF [Max Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
+    # ELSEIF [Max Edu Enroll] = "College 4 Year" THEN "Student/trainee"
+    # ELSEIF [Max Edu Enroll] = "ESL" THEN "Student/trainee"
+    # ELSEIF [Max Edu Enroll] = "GED Program" THEN "Student/trainee HS/GED"
+    # ELSEIF [Max Edu Enroll] = "Graduate School" THEN "Student/trainee"
+    # ELSEIF [Max Edu Enroll] = "High/Middle School" THEN "Student/trainee HS/GED"
+    # ELSEIF [Max Edu Enroll] = "Not Enrolled in School" THEN "Not a student/trainee"
+    # ELSEIF [Max Edu Enroll] = "Unknown" THEN "Unknown/Did not Report"
+    # ELSEIF [Max Edu Enroll] = "Vocational College" THEN "Student/trainee"
+    # ELSEIF ([mcafss_edu2_enroll] = "YES" // Enrolled
+    #         AND
+    #         ([mcafss_edu2_prog] = 1 // Enrolled in Middle School
+    #         OR
+    #         [mcafss_edu2_prog] = 2 // Enrolled in High School
+    #         OR
+    #         [mcafss_edu2_prog] = 3 // Enrolled in GED
+    #         )) THEN "Student/trainee HS/GED" //LLCHD
+    # ELSEIF [mcafss_edu2_enroll] = "NO" THEN "Not a student/trainee"
+    # ELSE "Unknown/Did not Report"
+    # END
+    # //Student/trainee indicates enrollment in a program other than a high school diploma or GED
+    # //LLCHD - Kodi sent this coding for mcafss_edu2_prog on 12/7/2021
+    # //01 = Middle School
+    # //02 = High School
+    # //03 = GED
+    # //04 = ESL
+    # //05 = Adult education in basic reading or math
+    # //06 = College
+    # //07 = Vocational training, technical or trade school (excluding training received during HS)
+    # //08 = Job search or job placement
+    # //09 = Work experience
+    # //10 = Other (Specify)
+df3_edits1['_C15 Max Educational Enrollment'] = df3_edits1.apply(func=fn_C15_Max_Educational_Enrollment, axis=1) 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df3_edits1['_C15 Max Educational Enrollment']) 
+
+#%%###################################
+
+def fn_C15_Max_Educational_Status(fdf):
+    ### LLCHD.
+    if (fdf['Mcafss Edu2'] == 1):
+        return "Less than HS diploma" ### Less than 8th Grade.
+    elif (fdf['Mcafss Edu2'] == 2):
+        return "Less than HS diploma" ### 8-11th Grade.
+    elif (fdf['Mcafss Edu2'] == 3):
+        return "HS diploma/GED" ### High School Grad.
+    elif (fdf['Mcafss Edu2'] == 4):
+        return "HS diploma/GED" ### Completed a GED.
+    elif (fdf['Mcafss Edu2'] == 5):
+        return "Technical Training or Associates Degree" ### Vocational School after High School.
+    elif (fdf['Mcafss Edu2'] == 6):
+        return "Some college/training" ### Some College.
+    elif (fdf['Mcafss Edu2'] == 7):
+        return "Technical Training or Associates Degree" ### Associates Degree.
+    elif (fdf['Mcafss Edu2'] == 8):
+        return "Bachelor's Degree or Higher" ### Bachelors Degree or Higher.
+    ### elif (fdf['Mcafss Edu2'] == 9):
+    ###     return "HS diploma/GED" ### currently enrolled in college - vocational training or trade apprenticeship.
+    ### elif (fdf['Mcafss Edu2'] == 10):
+    ###     return "HS diploma/GED" ### currently not enrolled in college - vocational training or trade apprenticeship.
+    ### elif (fdf['Mcafss Edu2'] == 11):
+    ###     return "Other" ### other education.
+    ### elif (fdf['Mcafss Edu2'] == 12):
+    ###     return "Unknown/Did Not Report" ### unknown/did not report.
+    elif (fdf['Mcafss Edu2'] == 0):
+        return "Unknown/Did Not Report" ### unknown/did not report (missing data).
+    elif (fdf['Mcafss Edu2'] >= 9):
+        return "Unknown/Did Not Report"
+    ####################################
+    ### FW.
+    elif (fdf['AD1MaxEdu'] == "8th Grade or less"):
+        return "Less than HS diploma"
+    elif (fdf['AD1MaxEdu'] == "Some High School"):
+        return "Less than HS diploma"
+    elif (fdf['AD1MaxEdu'] == "GED"):
+        return "HS diploma/GED"
+    elif (fdf['AD1MaxEdu'] == "High School Graduate"):
+        return "HS diploma/GED"
+    elif (fdf['AD1MaxEdu'] == "Achievement Certificate"):
+        return "Technical Training or Certification"
+    elif (fdf['AD1MaxEdu'] == "Certificate Program"):
+        return "Technical Training or Certification"
+    elif (fdf['AD1MaxEdu'] == "Some College"):
+        return "Some college/training"
+    elif (fdf['AD1MaxEdu'] == "Associates or Two Year Technical Degree"):
+        return "Technical Training or Associates Degree" ### these are two serparate categories on F1.
+    elif (fdf['AD1MaxEdu'] == "Two Year Degree"):
+        return "Associate's Degree"
+    elif (fdf['AD1MaxEdu'] == "Four Year College Degree"):
+        return "Bachelor's Degree or Higher"
+    elif (fdf['AD1MaxEdu'] == "Graduate School"):
+        return "Bachelor's Degree or Higher"
+    elif (fdf['AD1MaxEdu'] == "Unknown"):
+        return "Unknown/Did Not Report"
+    elif (fdf['AD1MaxEdu'] == "null"):
+        return "Unknown/Did Not Report"
+    elif (pd.notna(fdf['Mcafss Edu2']) and pd.notna(fdf['AD1MaxEdu'])):
+        return "Unknown/Did Not Report"
+    else:
+        return "Unrecognized Value"
+    # //LLCHD
+    # IF [Mcafss Edu2] = 1 THEN "Less than HS diploma" // Less than 8th Grade
+    # ELSEIF [Mcafss Edu2] = 2 THEN "Less than HS diploma" // 8-11th Grade
+    # ELSEIF [Mcafss Edu2] = 3 THEN "HS diploma/GED" // High School Grad
+    # ELSEIF [Mcafss Edu2] = 4 THEN "HS diploma/GED" //Completed a GED
+    # ELSEIF [Mcafss Edu2] = 5 THEN "Technical Training or Associates Degree" // Vocational School after High School
+    # ELSEIF [Mcafss Edu2] = 6 THEN "Some college/training" // Some College
+    # ELSEIF [Mcafss Edu2] = 7 THEN "Technical Training or Associates Degree" // Associates Degree
+    # ELSEIF [Mcafss Edu2] = 8 THEN "Bachelor's Degree or Higher"  // Bachelors Degree or Higher
+    # // ELSEIF [Mcafss Edu2] = 9 THEN "HS diploma/GED" //currently enrolled in college - vocational training or trade apprenticeship
+    # // ELSEIF [Mcafss Edu2] = 10 THEN "HS diploma/GED"  //currently not enrolled in college - vocational training or trade apprenticeship
+    # // ELSEIF [Mcafss Edu2] = 11 THEN "Other" //other education
+    # // ELSEIF [Mcafss Edu2] = 12 THEN "Unknown/Did Not Report" //unknown/did not report
+    # ELSEIF [Mcafss Edu2] = 0 THEN "Unknown/Did Not Report" //unknown/did not report (missing data)
+    # ELSEIF [Mcafss Edu2] >= 9 THEN "Unknown/Did Not Report"
+    # //FW
+    # ELSEIF [AD1MaxEdu] = "8th Grade or less" THEN "Less than HS diploma"
+    # ELSEIF [AD1MaxEdu] = "Some High School" THEN "Less than HS diploma"
+    # ELSEIF [AD1MaxEdu] = "GED" THEN "HS diploma/GED"
+    # ELSEIF [AD1MaxEdu] = "High School Graduate" THEN "HS diploma/GED"
+    # ELSEIF [AD1MaxEdu] = "Achievement Certificate" THEN "Technical Training or Certification"
+    # ELSEIF [AD1MaxEdu] = "Certificate Program" THEN "Technical Training or Certification"
+    # ELSEIF [AD1MaxEdu] = "Some College" THEN "Some college/training"
+    # ELSEIF [AD1MaxEdu] = "Associates or Two Year Technical Degree" THEN "Technical Training or Associates Degree" //these are two serparate categories on F1
+    # ELSEIF [AD1MaxEdu] = "Two Year Degree" THEN "Associate's Degree"
+    # ELSEIF [AD1MaxEdu] = "Four Year College Degree" THEN "Bachelor's Degree or Higher"
+    # ELSEIF [AD1MaxEdu] = "Graduate School" THEN "Bachelor's Degree or Higher"
+    # ELSEIF [AD1MaxEdu] = "Unknown" THEN "Unknown/Did Not Report"
+    # ELSEIF [AD1MaxEdu] = "null" THEN "Unknown/Did Not Report"
+    # ELSEIF ISNULL([Mcafss Edu2]) AND ISNULL([AD1MaxEdu]) THEN "Unknown/Did Not Report"
+    # ELSE "Unrecognized Value"
+    # END
+    # //LLCHD Code from Kodi on 11/30/2021
+    # //1 – Less than 8th Grade
+    # //2 – 8-11th Grade
+    # //3 – High School Grad
+    # //4 - Completed a GED
+    # //5 - Vocational School after High School
+    # //6 – Some College
+    # //7 – Associates Degree 
+    # //8 - Bachelors Degree or Higher
+    # //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
+df3_edits1['_C15 Max Educational Status'] = df3_edits1.apply(func=fn_C15_Max_Educational_Status, axis=1) 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df3_edits1['_C15 Max Educational Enrollment']) 
+
+#%%###################################
+
+df3_edits1['_C15 Min Educational Enrollment'] = 
 IF [Min Edu Enroll] = "College 2 Year" THEN "Student/trainee" ###FW
 ELSEIF [Min Edu Enroll] = "College 4 Year" THEN "Student/trainee"
 ELSEIF [Min Edu Enroll] = "ESL" THEN "Student/trainee"
@@ -816,7 +1044,9 @@ END
 ###09 = Work experience
 ###10 = Other (Specify)
 
-df3['_C15 Min Educational Status'] = 
+#%%###################################
+
+df3_edits1['_C15 Min Educational Status'] = 
 IF [Mcafss Edu1] = 1 THEN "Less than HS diploma" ###LLCHD ### Less than 8th Grade
 ELSEIF [Mcafss Edu1] = 2 THEN "Less than HS diploma" ### 8-11th Grade
 ELSEIF [Mcafss Edu1] = 3 THEN "HS diploma/GED" ### High School Grad
@@ -858,7 +1088,9 @@ END
 ###8 - Bachelors Degree or Higher
 ###Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
 
-df3['_C16 CG Insurance 1 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 1 Status'] = 
 CASE [AD1PrimaryIns.1] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -887,7 +1119,9 @@ CASE [AD1PrimaryIns.1] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 10 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 10 Status'] = 
 CASE [AD1PrimaryIns.10] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -916,7 +1150,9 @@ CASE [AD1PrimaryIns.10] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 11 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 11 Status'] = 
 CASE [AD1PrimaryIns.11] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -945,7 +1181,9 @@ CASE [AD1PrimaryIns.11] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 12 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 12 Status'] = 
 CASE [AD1PrimaryIns.12] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -974,7 +1212,9 @@ CASE [AD1PrimaryIns.12] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 13 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 13 Status'] = 
 CASE [AD1PrimaryIns.13] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1003,7 +1243,9 @@ CASE [AD1PrimaryIns.13] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 14 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 14 Status'] = 
 CASE [AD1PrimaryIns.14] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1032,7 +1274,9 @@ CASE [AD1PrimaryIns.14] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 15 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 15 Status'] = 
 CASE [AD1PrimaryIns.15] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1061,7 +1305,9 @@ CASE [AD1PrimaryIns.15] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 16 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 16 Status'] = 
 CASE [AD1PrimaryIns.16] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1090,7 +1336,9 @@ CASE [AD1PrimaryIns.16] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 2 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 2 Status'] = 
 CASE [AD1PrimaryIns.2] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1119,7 +1367,9 @@ CASE [AD1PrimaryIns.2] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 3 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 3 Status'] = 
 CASE [AD1PrimaryIns.3] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1148,7 +1398,9 @@ CASE [AD1PrimaryIns.3] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 4 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 4 Status'] = 
 CASE [AD1PrimaryIns.4] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1177,7 +1429,9 @@ CASE [AD1PrimaryIns.4] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 5 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 5 Status'] = 
 CASE [AD1PrimaryIns.5] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1206,7 +1460,9 @@ CASE [AD1PrimaryIns.5] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 6 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 6 Status'] = 
 CASE [AD1PrimaryIns.6] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1235,7 +1491,9 @@ CASE [AD1PrimaryIns.6] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 7 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 7 Status'] = 
 CASE [AD1PrimaryIns.7] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1264,7 +1522,9 @@ CASE [AD1PrimaryIns.7] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 8 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 8 Status'] = 
 CASE [AD1PrimaryIns.8] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1293,7 +1553,9 @@ CASE [AD1PrimaryIns.8] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C16 CG Insurance 9 Status'] = 
+#%%###################################
+
+df3_edits1['_C16 CG Insurance 9 Status'] = 
 CASE [AD1PrimaryIns.9] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -1322,21 +1584,9 @@ CASE [AD1PrimaryIns.9] ###FW
 ELSE "Unrecognized Value"
 END
 
-df3['_C17 90 Day CES-D Date'] = DATE(DATEADD('day',90, [_C03 CES-D Date]))
+#%%###################################
 
-df3['_C17 MH Referral Date'] = IFNULL([Ment Hlth Ref Dt],[Min Of MH Ref Date])
-
-df3['_C19 90 Day IPV Date'] = DATE(DATEADD('day',90, [_C14 IPV Date]))
-
-df3['_C19 IPV Referral Date'] = IFNULL([Ipv Referral Dt],[IPV Ref Date])
-
-df3['_C19 IPV Screen Result'] = IFNULL([_IPV Score FW],[Ipv Screen])
-
-df3['_Discharge Date'] = IFNULL([Termination Date],[Discharge Dt])
-
-df3['_Enroll 3 Month Date'] = DATE(DATEADD('month',3,[_Enrollment Date]))
-
-df3['_Enroll Preg Status'] = 
+df3_edits1['_Enroll Preg Status'] = 
 IF [Pregnancystatus] = 0 THEN "Pregnant" ###FW
 ELSEIF [Pregnancystatus] = 1 THEN "Not pregnant"
 ELSEIF [Enroll Preg Status] = "Postpartum" THEN "Not pregnant" ###LLCHD
@@ -1344,17 +1594,17 @@ ELSEIF [Enroll Preg Status] = "Pregnant" THEN "Pregnant"
 ELSE NULL
 END
 
-df3['_Enrollment Date'] = IFNULL([Min Of HV Date],[Enroll Dt])
+#%%###################################
 
-df3['_Family ID'] = IFNULL([Family Id], [Family Number])
-
-df3['_FOB DOB'] = 
+df3_edits1['_FOB DOB'] = 
 IF [Fob Dob] = DATE(1/1/1900) THEN NULL ###LLCHD
 ELSEIF [Fobdob] = DATE(1/1/1900) THEN NULL ###FW
 ELSE IFNULL([Fob Dob],[Fobdob])
 END
 
-df3['_FOB Gender'] = 
+#%%###################################
+
+df3_edits1['_FOB Gender'] = 
 ###should we incorporate involved status into the fob variables?
 IF [Fob Involved1] = "Y" THEN CASE[Fob Gender]
     WHEN "M" THEN "Male" ###LLCHD
@@ -1365,7 +1615,9 @@ ELSEIF [Fob Involved] = True THEN [Adult2Gender] ###FW
 ELSE NULL
 END
 
-df3['_FOB Relation'] = 
+#%%###################################
+
+df3_edits1['_FOB Relation'] = 
 IF [Fob Involved1] = "Y" THEN "FOB"
 ELSEIF [Fob Involved] = True
 THEN CASE [Adult2TGTRelation]
@@ -1381,7 +1633,9 @@ THEN CASE [Adult2TGTRelation]
 ELSE NULL
 END
 
-df3['_IPV Score FW'] = 
+#%%###################################
+
+df3_edits1['_IPV Score FW'] = 
 IF [Agency] <> "ll" THEN
     (IF [Assess Afraid] = TRUE 
     OR [Assess IPV] = TRUE 
@@ -1389,15 +1643,17 @@ IF [Agency] <> "ll" THEN
     THEN "P" ELSE "N" END)
 END
 
-df3['_Max HV Date'] = IFNULL([Max Of HV Date],[Last Home Visit])
+#%%###################################
 
-df3['_MOB DOB'] = 
+df3_edits1['_MOB DOB'] = 
 IF [Mob Dob] = DATE(1/1/1900) THEN NULL ###LLCHD
 ELSEIF [Mobdob] = DATE(1/1/1900) THEN NULL ###FW
 ELSE IFNULL([Mob Dob],[Mobdob])
 END
 
-df3['_MOB Gender'] = 
+#%%###################################
+
+df3_edits1['_MOB Gender'] = 
 IF [Adult1Gender] = "Female" THEN "Female" ###FW
 ELSEIF [Adult1Gender] = "Male" THEN "Male"
 ELSEIF [Adult1Gender] = "Non-Binary" THEN "Non-Binary"
@@ -1406,7 +1662,9 @@ ELSEIF [Mob Gender] = "M" THEN "Male"
 ### ELSEIF [Mob Gender] = "N" THEN "Non-Binary" ### Don't have this value yet - Confirm
 END
 
-df3['_MOB TGT Relation'] = 
+#%%###################################
+
+df3_edits1['_MOB TGT Relation'] = 
 IF [Adult1TGTRelation] = "Biological mother" THEN "MOB" ###FW
 ELSEIF  [Adult1TGTRelation] = "Biological father" THEN "FOB"
 ELSEIF  [Adult1TGTRelation] = "FOB" THEN "FOB"
@@ -1424,34 +1682,46 @@ ELSEIF [Primary Relation] = "PRIMARY CAREGIVER" AND [Mob Gender] = "M" THEN "FOB
 ELSEIF NOT ISNULL([Primary Relation]) THEN "Unrecognized Value"
 END
 
-df3['_Need Exclusion 1 - Sub Abuse'] = 
+#%%###################################
+
+df3_edits1['_Need Exclusion 1 - Sub Abuse'] = 
 IF [Need Exclusion1] = "Substance Abuse" THEN "Alcohol/Drug Abuse" ###FW
     ELSEIF [Need Exclusion1] = "Drug Abuse" THEN "Alcohol/Drug Abuse"
     ELSEIF [Need Exclusion1] = "Alcohol Abuse" THEN "Alcohol/Drug Abuse"
 ELSEIF [need exclusion1 (LLCHD)] = "Y" THEN "Alcohol/Drug Abuse" ###LLCHD
 END
 
-df3['_Need Exclusion 2 - Fam Plan'] = 
+#%%###################################
+
+df3_edits1['_Need Exclusion 2 - Fam Plan'] = 
 IF [Need Exclusion2] = "Family Planning" THEN "Family Planning" ###FW
 ELSEIF [need exclusion2 (LLCHD)] = "Y" THEN "Family Planning" ###LLCHD
 END
 
-df3['_Need Exclusion 3 - Mental Health'] = 
+#%%###################################
+
+df3_edits1['_Need Exclusion 3 - Mental Health'] = 
 IF [Need Exclusion3] = "Mental Health" THEN "Mental Health" ###FW
 ELSEIF [need exclusion3 (LLCHD)] = "Y" THEN "Mental Health" ###LLCHD
 END
 
-df3['_Need Exclusion 5 - IPV'] = 
+#%%###################################
+
+df3_edits1['_Need Exclusion 5 - IPV'] = 
 IF [Need Exclusion5] = "IPV Services" THEN "IPV Services" ###FW
 ELSEIF [need exclusion5 (LLCHD)] = "Y" THEN "IPV Services" ###LLCHD
 END
 
-df3['_Need Exclusion 6 - Tobacco'] = 
+#%%###################################
+
+df3_edits1['_Need Exclusion 6 - Tobacco'] = 
 IF [Need Exclusion6] = "Tobacco Cessation" THEN "Tobacco Cessation" ###FW
 ELSEIF [need_exclusion6] = "Y" THEN "Tobacco Cessation" ###LLCHD
 END
 
-df3['_T06 FOB Ethnicity'] = 
+#%%###################################
+
+df3_edits1['_T06 FOB Ethnicity'] = 
 IF [Fob Involved] = True ###FW
 THEN CASE [Fob Ethnicity]
     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino" 
@@ -1472,8 +1742,10 @@ THEN CASE [Fob Ethnicity1]
 ELSE NULL
 END
 
+#%%###################################
+
 ### Duplicate? Used?
-df3['_T06 FOB Ethnicity (1)'] = 
+df3_edits1['_T06 FOB Ethnicity (1)'] = 
 IF [Fob Involved] = True ###FW
 THEN CASE [Fob Ethnicity]
     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino" 
@@ -1494,7 +1766,9 @@ THEN CASE [Fob Ethnicity1]
 ELSE NULL
 END
 
-df3['_T06 MOB Ethnicity'] = 
+#%%###################################
+
+df3_edits1['_T06 MOB Ethnicity'] = 
 IF NOT ISNULL([Mob Ethnic]) THEN CASE [Mob Ethnic]
     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
@@ -1511,7 +1785,9 @@ ELSEIF NOT ISNULL([Mob Ethnicity]) THEN CASE [Mob Ethnicity]
 ELSE "Unknown/Did Not Report"
 END
 
-df3['_T07 FOB Race'] = 
+#%%###################################
+
+df3_edits1['_T07 FOB Race'] = 
 ###LLCHD
 ###multiracial
 IF [Fob Involved1]= "Y" THEN 
@@ -1543,7 +1819,9 @@ ELSEIF [Fob Involved]= True THEN
 ELSE NULL
 END
 
-df3['_T07 MOB Race'] = 
+#%%###################################
+
+df3_edits1['_T07 MOB Race'] = 
 ###LLCHD
 ###multiracial
 IF IIF([Mob Race Asian]="Y",1,0,0)+IIF([Mob Race Black]="Y",1,0,0)+IIF([Mob Race Hawaiian]="Y",1,0,0)+IIF([Mob Race Indian]="Y",1,0,0)
@@ -1570,7 +1848,9 @@ ELSEIF [MOB Race Other] = True THEN "Other"
 ELSE "Unknown/Did Not Report"
 END
 
-df3['_T08 FOB Marital Status'] = 
+#%%###################################
+
+df3_edits1['_T08 FOB Marital Status'] = 
 ###FW
 IF [Fob Involved] = True THEN CASE [Adult2MaritalStatus]
     WHEN "Divorced" THEN "Separated, Divorced, or Widowed"
@@ -1600,7 +1880,9 @@ ELSEIF [Fob Involved1] = "Y" THEN CASE [Mob Marital Status]
 ELSE NULL
 END
 
-df3['_T08 MOB Marital Status'] = 
+#%%###################################
+
+df3_edits1['_T08 MOB Marital Status'] = 
 ###FW
 IF NOT ISNULL([Adult1MaritalStatus]) THEN CASE [Adult1MaritalStatus]
     WHEN "Divorced" THEN "Separated, Divorced, or Widowed"
@@ -1633,7 +1915,9 @@ ELSEIF NOT ISNULL([Mob Marital Status]) THEN CASE [Mob Marital Status]
 ELSE "Unknown/Did Not Report"
 END
 
-df3['_T09 FOB Education Status'] = 
+#%%###################################
+
+df3_edits1['_T09 FOB Education Status'] = 
 IF [Fob Involved]= True THEN CASE[AD2EDLevel] ###FW
     WHEN "8th Grade or less" THEN "Less than HS diploma"
     WHEN "Some High School" THEN "Less than HS diploma"
@@ -1662,7 +1946,9 @@ ELSEIF [Fob Involved1]= "Y" THEN CASE [Fob Edu] ###LLCHD
 ELSE NULL
 END
 
-df3['_T10 FOB Educational Enrollment'] = 
+#%%###################################
+
+df3_edits1['_T10 FOB Educational Enrollment'] = 
 ###max
 IF [Fob Involved] = True THEN CASE[AD2InSchool] ###FW
     WHEN "College 2 Year" THEN "Student/trainee" 
@@ -1694,7 +1980,9 @@ ELSEIF [Fob Involved1] = "Y" THEN CASE[Fob Edu] ###LLCHD
 ELSE NULL
 END
 
-df3['_T11 FOB Employment'] = 
+#%%###################################
+
+df3_edits1['_T11 FOB Employment'] = 
 IF [Fob Involved] = True THEN CASE [AD2EmployStatus] ###FW
     WHEN "Employed Full Time" THEN "Employed Full Time"
     WHEN "Employed Part Time" THEN "Employed Part Time"
@@ -1725,7 +2013,9 @@ ELSEIF [Fob Involved1] = "Y" THEN CASE [Fob Employ] ###LLCHD
 ELSE NULL
 END
 
-df3['_T11 MOB Employment'] = 
+#%%###################################
+
+df3_edits1['_T11 MOB Employment'] = 
 IF NOT ISNULL([AD1EmpStatus]) THEN CASE [AD1EmpStatus] ###FW
     WHEN "Employed Full Time" THEN "Employed Full Time"
     WHEN "Employed Part Time" THEN "Employed Part Time"
@@ -1754,7 +2044,9 @@ ELSEIF NOT ISNULL([Mcafss Employ])THEN CASE [Mcafss Employ] ###LLCHD
 ELSE "Unknown/Did Not Report"
 END
 
-df3['_T12 MOB Housing Status'] = 
+#%%###################################
+
+df3_edits1['_T12 MOB Housing Status'] = 
 IF [_Agency]<> "ll" THEN CASE [Housing Status] ###FW
     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" ###Homeless and living in emergency or transitional shelter
     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
@@ -1782,7 +2074,9 @@ ELSEIF [_Agency] = "ll" THEN CASE[Mob Living Arrangement] ###LLCHD
     END
 END
 
-df3['_T14 Federal Poverty Categories'] = 
+#%%###################################
+
+df3_edits1['_T14 Federal Poverty Categories'] = 
 IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
 ELSEIF [_T14 Poverty Percent] <= 1.00 THEN "51-100%"
 ELSEIF [_T14 Poverty Percent] <= 1.33 THEN "101-133%"
@@ -1792,14 +2086,18 @@ ELSEIF [_T14 Poverty Percent] > 3.00  THEN ">300%"
 ELSEIF NULL THEN "Unknown/Did Not Report"
 END
 
-df3['_T14 Poverty Percent'] = 
+#%%###################################
+
+df3_edits1['_T14 Poverty Percent'] = 
 IF [_Agency] = "ll" AND ISNULL([Household Income]) THEN NULL ###LLCHD
 ELSEIF [_Agency] = "ll" AND ISNULL([Household Size]) THEN NULL
 ELSEIF [_Agency] = "ll" THEN [Household Income]/[_T14 Federal Poverty Level update]
 ELSEIF [_Agency] <> "ll" THEN [Poverty Level] ###FW
 END
 
-df3['_T17 Discharge Reason'] = 
+#%%###################################
+
+df3_edits1['_T17 Discharge Reason'] = 
 IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] ###LLCHD, see full reasons below
     WHEN "1" THEN "Completed Services" 
     WHEN "Family Has Met Program Goals" THEN "Completed Services"
@@ -1826,7 +2124,9 @@ END
 ###12Family never engaged
 ###13Unknown & a text box
 
-df3['_T20 FOB Insurance'] = 
+#%%###################################
+
+df3_edits1['_T20 FOB Insurance'] = 
 IF [Fob Involved] = True THEN CASE [AD2InsPrimary] ###FW
     WHEN "Medicaid" THEN "Medicaid or CHIP"
     WHEN "Medicare" THEN "Other" ###this is what our previous syntax indicated
@@ -1850,71 +2150,68 @@ ELSEIF [Fob Involved1] = "Y" THEN CASE [Hlth Insure Fob] ###LLCHD
 ELSE NULL
 END
 
-df3['_TGT 3 Month Date'] = DATE(DATEADD('month',3,[_TGT DOB]))
 
-df3['_TGT DOB'] = 
-IF [Tgt Dob] = DATE(1/1/1900) THEN NULL ###LLCHD
-ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL ###FW
-ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
-END
 
-df3['_TGT EDC Date'] = 
+#%%###################################
+
+### In Child2 & Adult3.
+df3_edits1['_TGT EDC Date'] = 
 IF [Dt Edc] = DATE(1/1/1900) THEN NULL ###LLCHD
 ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL ###FW
 ELSE IFNULL([Dt Edc],[EDC Date])
 END
 
-df3['_TGT ID'] = IFNULL([Tgt Id],[Child Number])
+#%%###################################
 
-df3['_UNCOPE C Recode'] = 
+df3_edits1['_UNCOPE C Recode'] = 
 IF [C] = "Yes" THEN INT(1)
 ELSEIF [C] = "No" THEN INT(0)
 END
 
-df3['_UNCOPE Date'] = IFNULL([Uncope Dt],[Dateuncope])
+#%%###################################
 
-df3['_UNCOPE Referral'] = IFNULL([Substance Abuse Ref Dt], [UNCOPE Ref Date])
-
-df3['_UNCOPE E Recode'] = 
+df3_edits1['_UNCOPE E Recode'] = 
 IF [E] = "Yes" THEN INT(1)
 ELSEIF [E] = "No" THEN INT(0)
 END
 
-df3['_UNCOPE N Recode'] = 
+#%%###################################
+
+df3_edits1['_UNCOPE N Recode'] = 
 IF [N] = "Yes" THEN INT(1)
 ELSEIF [N] = "No" THEN INT(0)
 END
 
-df3['_UNCOPE O Recode'] = 
+#%%###################################
+
+df3_edits1['_UNCOPE O Recode'] = 
 IF [O] = "Yes" THEN INT(1)
 ELSEIF [O] = "No" THEN INT(0)
 END
 
-df3['_UNCOPE P Recode'] = 
+#%%###################################
+
+df3_edits1['_UNCOPE P Recode'] = 
 IF [P] = "Yes" THEN INT(1)
 ELSEIF [P] = "No" THEN INT(0)
 END
 
-df3['_UNCOPE U Recode'] = 
+#%%###################################
+
+df3_edits1['_UNCOPE U Recode'] = 
 IF [U] = "Yes" THEN INT(1)
 ELSEIF [U] = "No" THEN INT(0)
 END
 
-df3['_UNCOPE Score FW'] = 
+#%%###################################
+
+df3_edits1['_UNCOPE Score FW'] = 
 [_UNCOPE U Recode]+[_UNCOPE N Recode]+[_UNCOPE C Recode]+[_UNCOPE O Recode]+[_UNCOPE P Recode]+[_UNCOPE E Recode]
 ###sum of UNCOPE scores in the FW dataset
 
-df3['_Zip'] = IFNULL([Zip],[Mob Zip])
+#%%###################################
 
-########################################
-
-df3['_C13 Behavioral Concerns Asked'] = IFNULL([BehaviorNumer],[Behavioral Concerns])
-
-df3['_C13 Behavioral Concerns Visits'] = IFNULL([BehaviorDenom],[home_visits_post])
-
-df3['_C17 CESD Score'] = IFNULL([Cesd Score],[CESD Total])
-
-df3['_FOB Involved'] = 
+df3_edits1['_FOB Involved'] = 
 IF [Fob Involved] = True THEN 1 ###FW
 ELSEIF [Fob Involved] = False THEN 0
 ELSEIF [Fob Involved1] = "Y" THEN 1 ###LLCHD
@@ -1922,23 +2219,31 @@ ELSEIF [Fob Involved1] = "N" THEN 0
 ELSE 0
 END
 
-df3['_T04 FOB Age'] = 
+#%%###################################
+
+df3_edits1['_T04 FOB Age'] = 
 IF [_FOB DOB]> DATEADD('year',-DATEDIFF('year',[_FOB DOB],TODAY()),TODAY())
 THEN DATEDIFF('year',[_FOB DOB],TODAY()-1)
 ELSE DATEDIFF('year',[_FOB DOB],TODAY())
 END
 
-df3['_T04 MOB Age'] = 
+#%%###################################
+
+df3_edits1['_T04 MOB Age'] = 
 IF [_MOB DOB]> DATEADD('year',-DATEDIFF('year',[_MOB DOB],TODAY()),TODAY())
 THEN DATEDIFF('year',[_MOB DOB],TODAY()-1)
 ELSE DATEDIFF('year',[_MOB DOB],TODAY())
 END
 
-df3['_T14 Federal Poverty Level update'] = 
+#%%###################################
+
+df3_edits1['_T14 Federal Poverty Level update'] = 
 ###uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available
 8870 + (4720 * [Household Size])
 
-df3['_T15-3 History Welfare Interaction'] = 
+#%%###################################
+
+df3_edits1['_T15-3 History Welfare Interaction'] = 
 IF [History Inter Welfare Adult] = True THEN 1 ###FW
 ELSEIF  [History Inter Welfare Adult] = False THEN 0
 ELSEIF[Priority Child Welfare] = "Y" THEN 1 ###LLCHD
@@ -1946,7 +2251,9 @@ ELSEIF [Priority Child Welfare] = "N" THEN 0
 ELSE 0
 END
 
-df3['_T15-5 Tobacco Use in Home'] = 
+#%%###################################
+
+df3_edits1['_T15-5 Tobacco Use in Home'] = 
 IF[Tobacco Use In Home] = "Yes" THEN 1 ###FW
 ELSEIF [Tobacco Use In Home] = "No" THEN 0
 ELSEIF [Priority Tobacco Use] = "Y" THEN 1 ###LLCHD
@@ -1954,7 +2261,9 @@ ELSEIF [Priority Tobacco Use] = "N" THEN 0
 ELSE 0
 END
 
-df3['_T15-6 Low Achievement'] = 
+#%%###################################
+
+df3_edits1['_T15-6 Low Achievement'] = 
 IF[Low Achievement] = "Yes" THEN 1 ###FW
 ELSEIF [Low Achievement] = "No" THEN 0
 ELSEIF [Priority Low Student] = "Y" THEN 1 ###LLCHD
@@ -1962,7 +2271,9 @@ ELSEIF [Priority Low Student] = "N" THEN 0
 ELSE 0
 END
 
-df3['_T15-8 Military'] = 
+#%%###################################
+
+df3_edits1['_T15-8 Military'] = 
 IF [Military]= "Y" THEN 1 ###FW
 ELSEIF [Military] = "N" THEN 0
 ELSEIF [Priority Military] = "Y" THEN 1 ###LLCHD
@@ -1970,9 +2281,55 @@ ELSEIF [Priority Military] = "N" THEN 0
 ELSE 0
 END
 
-df3['_T16 Number of Home Visits'] = IFNULL([HomeVisitsTotal],[Home Visits Num])
 
-df3['_UNCOPE Score'] = IFNULL([Uncope Score],[_UNCOPE Score FW])
+#%%##################################################
+### COALESCING 2 
+
+df3_edits1['_C19 IPV Screen Result'] = df3_edits1['_IPV Score FW'].combine_first(df3_edits1['Ipv Screen'])
+    ### IFNULL([_IPV Score FW],[Ipv Screen])
+    ### Data Type in Tableau: string.
+
+df3_edits1['_UNCOPE Score'] = df3_edits1['Uncope Score'].combine_first(df3_edits1['_UNCOPE Score FW'])
+    ### IFNULL([Uncope Score],[_UNCOPE Score FW]) 
+    ### Data Type in Tableau: int.
+
+
+
+#%%##################################################
+### DATE CALCULATIONS
+
+### These calculations assume all date variables are dtype "datetime64".
+
+df3_edits1['_90 Day UNCOPE Date'] = DATE(DATEADD('day',90,[_UNCOPE Date]))
+
+df3_edits1['_C05 TGT 30 Day Date'] = DATE(DATEADD('day',30,[_TGT DOB]))
+
+df3_edits1['_C05 TGT 56 Day Date'] = DATE(DATEADD('day',56,[_TGT DOB]))
+
+df3_edits1['_C17 90 Day CES-D Date'] = DATE(DATEADD('day',90, [_C03 CES-D Date]))
+
+df3_edits1['_C19 90 Day IPV Date'] = DATE(DATEADD('day',90, [_C14 IPV Date]))
+
+### In Child2 & Adult3.
+df3_edits1['_Enroll 3 Month Date'] = DATE(DATEADD('month',3,[_Enrollment Date]))
+
+### In Child2 & Adult3.
+df3_edits1['_TGT 3 Month Date'] = DATE(DATEADD('month',3,[_TGT DOB]))
+
+
+
+
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
+
+
 
 
 #%%##################################################
@@ -1982,22 +2339,132 @@ df3['_UNCOPE Score'] = IFNULL([Uncope Score],[_UNCOPE Score FW])
 ### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
 ### Across many variables.
 
+
+
 #%%##################################################
-### Data Types ###
+### Prepare CSV ###
 #####################################################
 
-### REMEMBER to check/set the data type of each column like it should be in output.
+#%%################################
+### REMOVE extra COLUMNS
+
+### Remove columns created in merge.
+df3_edits2 = df3_edits1.drop(columns=['LJ_df3_2ER', 'LJ_df3_3FW', 'LJ_df3_4LL', 'LJ_df3_5WC'])
+
+#%%################################
+### ORDER COLUMNS
+
+### Final order for columns:
+[*df3_comparison_csv]
+
+#%%
+### Reorder Columns.
+df3_edits2 = df3_edits2[[*df3_comparison_csv]]
+
+#%%################################
+### SORT ROWS
+
+df3_edits2 = df3_edits2.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+
+###################################
+### SET DATA TYPES
+### Set the data type of each column like it should be in output.
+
+#%%
+### Identify columns that should be Integers:
+int_cols_df3 = df3_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
+print(int_cols_df3.to_string())
+#%%
+print(df3_edits2.dtypes.to_string())
+
+#%%
+### Turn all columns that should be into Integers:
+df3_edits2[int_cols_df3] = df3_edits2[int_cols_df3].astype('Int64')
+#%%
+print(df3_edits2.dtypes.to_string())
 
 #%%##################################################
 ### WRITE ###
 #####################################################
 
-### Output for 3rd Tableau file, 1st Data Source (for Form 2):
-path_3_output = ''
+#%%
+### Created Final DF.
+df3__final = df3_edits2.copy()
 
-### move to top.
+#%%
+### Write out df.
+df3__final.to_csv(path_3_output, index=False, date_format="%#m/%#d/%Y")
+
+#%%
+### Read back in df for comparison.
+df3__final_from_csv = pd.read_csv(path_3_output, dtype=object, keep_default_na=False, na_values=[''])
+
+#%%##################################################
+### COMPARE CSVs ###
+#####################################################
+
+#%%###################################
+
+#%%
+### Column names:
+[*df3__final_from_csv]
+#%%
+### Column names:
+[*df3_comparison_csv]
+
+#%%
+### Overlap / Similarities: Columns in both.
+set([*df3_comparison_csv]).intersection([*df3__final_from_csv])
+
+#%%###################################
+### COLUMNS:
+
+#%%
+### Check if all Column names identical & in same order.
+[*df3__final_from_csv] == [*df3_comparison_csv]
+
+#%%
+### Differences: Columns only in one.
+set([*df3_comparison_csv]).symmetric_difference([*df3__final_from_csv])
+
+#%%###################################
+
+####### Compare values
+### including row count, distinct ids, 
+
+#%%
+# Check rows & cols:
+print(f'df3__final_from_csv Rows: {len(df3__final_from_csv)}')
+print(f'df3_comparison_csv Rows: {len(df3_comparison_csv)}')
+
+print(f'df3__final_from_csv Columns: {len(df3__final_from_csv.columns)}')
+print(f'df3_comparison_csv Columns: {len(df3_comparison_csv.columns)}')
+
+#%%
+df3__final_from_csv == df3_comparison_csv
+
+#%%
+### Checking ID columns used in Join >> DF should be empty (meaning all the same).
+df3_comp_compare = df3_comparison_csv[['Project Id','Year','Quarter']].compare(df3__final_from_csv[['Project Id','Year','Quarter']])
+df3_comp_compare
+
+###################################
+###################################
+###################################
+
+#%%
+### Now comparing ALL columns. DF created shows all differences:
+df3_comp_compare = df3_comparison_csv.compare(df3__final_from_csv)
+df3_comp_compare
+
+#%%
+### Number of columns with different values/types:
+len([*df3_comp_compare]) / 2 
 
 
+#%%
+### Columns:
+[*df3_comp_compare]
 
 
 
