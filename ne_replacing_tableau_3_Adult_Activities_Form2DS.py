@@ -682,6 +682,7 @@ df3_edits1 = df3.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT cop
 #%%##################################################
 ### COALESCING 1 
 
+### Depended on by many variables below.
 ### In Child2 & Adult3.
 df3_edits1['_Agency'] = df3_edits1['agency (Family Wise)'].combine_first(df3_edits1['Site Id'])
     ### IFNULL([agency (Family Wise)],[Site Id]) 
@@ -2199,60 +2200,63 @@ inspect_col(df3_edits1['_T09 FOB Education Status'])
 #%%###################################
 
 def fn_C16_CG_Insurance_Status(fdf_column):
-    match fdf_column:
-        ###########
-        ### FW.
-        case "Medicaid":
-            return "Medicaid or CHIP"
-        case "SCHIP":
-            return "Medicaid or CHIP"
-        case "Medicare":
-            return "Private or Other"
-        case "Tri-Care":
-            return "Tri-Care"
-        case "None":
-            return "No Insurance Coverage"
-        case "Other":
-            return "Private or Other"
-        case "Private":
-            return "Private or Other"
-        case "Unknown":
-            return "Unknown/Did Not Report"
-        case "null":
-            return "Unknown/Did Not Report"
-        case np.nan:
-            return "Unknown/Did Not Report"
-        ###########
-        ### LLCHD.
-        case "1":
-            return "Medicaid or CHIP"
-        case "2":
-            return "Tri-Care"
-        case "3":
-            return "Private or Other"
-        case "4":
-            return "Unknown/Did Not Report"
-        case "5":
-            return "No Insurance Coverage"
-        case "6":
-            return "Unknown/Did Not Report"
-        case "99":
-            return "Unknown/Did Not Report"
-        case "Medicaid":
-            return "Medicaid or CHIP"
-        case "Private":
-            return "Private or Other"
-        case "Unknown":
-            return "Unknown/Did Not Report"
-        case "Uninsure":
-            return "No Insurance Coverage"
-        case "FamilyCh":
-            return "FamilyChildHealthPlus"
-        case np.nan:
-            return "Unknown/Did Not Report"
-        ###########
-        case _:
-            return "Unrecognized Value"
+    if pd.isna(fdf_column):
+        return "Unknown/Did Not Report"
+    else:
+        match fdf_column:
+            ###########
+            ### FW.
+            case "Medicaid":
+                return "Medicaid or CHIP"
+            case "SCHIP":
+                return "Medicaid or CHIP"
+            case "Medicare":
+                return "Private or Other"
+            case "Tri-Care":
+                return "Tri-Care"
+            case "None":
+                return "No Insurance Coverage"
+            case "Other":
+                return "Private or Other"
+            case "Private":
+                return "Private or Other"
+            case "Unknown":
+                return "Unknown/Did Not Report"
+            case "null":
+                return "Unknown/Did Not Report"
+            ### case np.nan:
+            ###     return "Unknown/Did Not Report"
+            ###########
+            ### LLCHD.
+            case "1":
+                return "Medicaid or CHIP"
+            case "2":
+                return "Tri-Care"
+            case "3":
+                return "Private or Other"
+            case "4":
+                return "Unknown/Did Not Report"
+            case "5":
+                return "No Insurance Coverage"
+            case "6":
+                return "Unknown/Did Not Report"
+            case "99":
+                return "Unknown/Did Not Report"
+            case "Medicaid":
+                return "Medicaid or CHIP"
+            case "Private":
+                return "Private or Other"
+            case "Unknown":
+                return "Unknown/Did Not Report"
+            case "Uninsure":
+                return "No Insurance Coverage"
+            case "FamilyCh":
+                return "FamilyChildHealthPlus"
+            ### case np.nan:
+            ###     return "Unknown/Did Not Report"
+            ###########
+            case _:
+                return "Unrecognized Value"
     # CASE [AD1PrimaryIns.1] //FW
     #     WHEN "Medicaid" THEN "Medicaid or CHIP"
     #     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -2286,6 +2290,10 @@ def fn_C16_CG_Insurance_Status(fdf_column):
 df3_edits1['_C16 CG Insurance 1 Status'] = df3_edits1['AD1PrimaryIns.1'].apply(func=fn_C16_CG_Insurance_Status) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_C16 CG Insurance 1 Status']) 
+# #%%
+# compare_col(df3_edits1, '_C16 CG Insurance 1 Status')
+# #%%
+# compare_col(df3_edits1, '_C16 CG Insurance 1 Status', info_or_value_counts='value_counts')
 
 #%%###################################
 
@@ -2379,17 +2387,79 @@ inspect_col(df3_edits1['_C16 CG Insurance 16 Status'])
 
 #%%###################################
 
-df3_edits1['_T20 FOB Insurance'] = 
-
-
-
-
-
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
-
+def fn_T20_FOB_Insurance(fdf):
+    ###########
+    ### FW.
+    if (fdf['Fob Involved'] == True):
+        if pd.isna(fdf['AD2InsPrimary']):
+            return "Unknown/Did Not Report"
+        else:
+            match fdf['AD2InsPrimary'].lower():
+                case "medicaid":
+                    return "Medicaid or CHIP"
+                case "medicare":
+                    return "Other" ### this is what our previous syntax indicated.
+                case "none":
+                    return "No Insurance Coverage"
+                case "other" | "private":
+                    return "Private or Other"
+                case "tri-care":
+                    return "Tri-Care"
+                case "unknown":
+                    return "Unknown/Did Not Report"
+                ### case NULL:
+                ###     return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
+    ###########
+    ### LLCHD.
+    elif (fdf['Fob Involved1'] == "Y"):
+        if pd.isna(fdf['Hlth Insure Fob']):
+            return "Unknown/Did Not Report"
+        else:
+            match fdf['Hlth Insure Fob']:
+                case 1:
+                    return "Medicaid or CHIP"
+                case 2:
+                    return "Tri-Care"
+                case 3:
+                    return "Private or Other"
+                case 4:
+                    return "Unknown/Did Not Report"
+                case 5:
+                    return "No Insurance Coverage"
+                ### case NULL:
+                ###     return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
+    ###########
+    else:
+        return np.nan 
+    # IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
+    #     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    #     WHEN "Medicare" THEN "Other" //this is what our previous syntax indicated
+    #     WHEN "None" THEN "No Insurance Coverage"
+    #     WHEN "Other" THEN "Private or Other"
+    #     WHEN "Private" THEN "Private or Other"
+    #     WHEN "Tri-Care" THEN "Tri-Care"
+    #     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    #     WHEN NULL THEN "Unknown/Did Not Report"
+    #     ELSE "Unrecognized Value"
+    #     END
+    # ELSEIF [Fob Involved1] = "Y" THEN CASE [Hlth Insure Fob] //LLCHD
+    #     WHEN 1 THEN "Medicaid or CHIP"
+    #     WHEN 2 THEN "Tri-Care"
+    #     WHEN 3 THEN "Private or Other"
+    #     WHEN 4 THEN "Unknown/Did Not Report"
+    #     WHEN 5 THEN "No Insurance Coverage"
+    #     WHEN NULL THEN "Unknown/Did Not Report"
+    #     ELSE "Unrecognized Value"
+    #     END
+    # ELSE NULL
+    # END
+df3_edits1['_T20 FOB Insurance'] = df3_edits1.apply(func=fn_T20_FOB_Insurance, axis=1) 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df3_edits1['_T20 FOB Insurance']) 
 
 #%%###################################
 
@@ -2444,7 +2514,9 @@ inspect_col(df3_edits1['_FOB Involved'])
 
 #%%###################################
 
+### TO DO: Change to match-case statements.
 def fn_MOB_TGT_Relation(fdf):
+    ###########
     ### FW.
     if (fdf['Adult1TGTRelation'] == "Biological mother"):
         return "MOB" 
@@ -2466,6 +2538,7 @@ def fn_MOB_TGT_Relation(fdf):
         return "MOB"
     elif (pd.notna(fdf['Adult1TGTRelation'])):
         return "Unrecognized Value"
+    ###########
     ### LLCHD.
     elif (fdf['Primary Relation'] == "FATHER OF CHILD"):
         return "FOB" 
@@ -2504,24 +2577,18 @@ def fn_FOB_Relation(fdf):
         return "FOB"
     elif (fdf['Fob Involved'] == True):
         match fdf['Adult2TGTRelation']:
-            case "Biological father":
-                return "FOB"
-            case "Biological mother":
+            case "Biological mother" | "MOB":
                 return "MOB"
-            case "FOB":
-                return "FOB"
-            case "Foster father":
+            case "Biological father" | "FOB" | "Foster father":
                 return "FOB"
             case "Guardian":
                 return "Guardian"
             case "Grandmother":
                 return "Grandmother"
-            case "MOB":
-                return "MOB"
             case "Other":
                 return "Other"
     else:
-        return pd.nan
+        return np.nan
     # IF [Fob Involved1] = "Y" THEN "FOB"
     # ELSEIF [Fob Involved] = True
     # THEN CASE [Adult2TGTRelation]
@@ -2542,43 +2609,213 @@ inspect_col(df3_edits1['_FOB Relation'])
 
 #%%###################################
 
-df3_edits1['_T12 MOB Housing Status'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+def fn_T12_MOB_Housing_Status(fdf):
+    ###########
+    ### FW.
+    if (fdf['_Agency'] != "ll"):
+        if pd.isna(fdf['Housing Status']):
+            return "Unknown/Did Not Report"
+        else:
+            match fdf['Housing Status'].lower():
+                case "owns or shares own home, condominium, or apartment":
+                    return "Owns or shares own home, condominium, or apartment"
+                case (
+                    "rents of shares own home or apartment" | 
+                    "rents or shares own home or apartment"
+                ):
+                    return "Rents or shares own home or apartment"
+                case "lives with parent or family member":
+                    return "Lives with parent or family member"
+                case "live in public housing":
+                    return "Lives in public housing"
+                case "homeless and sharing housing":
+                    return "Homeless and sharing housing"
+                case "homeless and living in an emergency or transitional shelter":
+                    return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                case "some other arrangement":
+                    return "Some other arrangement"
+                case "other":
+                    return "Some other arrangement" ### Not sure this is the right category.
+                ### case np.nan:
+                ###     return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value" ### will have to add new FW values as they come in, they aren't all here.
+    ###########
+    ### LLCHD.
+    elif (fdf['_Agency'] == "ll"):
+        if pd.isna(fdf['Mob Living Arrangement']):
+            return "Unknown/Did Not Report"
+        else:
+            match fdf['Mob Living Arrangement']:
+                case 1:
+                    return "Owns or shares own home, condominium, or apartment" ### Owns or shared own home, condo, or apartment.
+                case 2:
+                    return "Rents or shares own home or apartment" ### Rents or shared own home or apartment.
+                case 3:
+                    return "Lives in public housing" ### Lives in public housing.
+                case 4:
+                    return "Lives with parent or family member" ### Lives with parent or family member.
+                case 5:
+                    return "Not homeless, some other arrangement" ### Some other arrangement.
+                case 6:
+                    return "Homeless and sharing housing" ### Homeless and sharing housing.
+                case 7:
+                    return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                case 8:
+                    return "Homeless, some other arrangement" ### Homeless with some other arrangement.
+                ### case np.nan:
+                ###     return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
+    # IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
+    #     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    #     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
+    #     WHEN "Live in public housing" THEN "Lives in public housing"
+    #     WHEN "Lives with parent or family member" THEN "Lives with parent or family member"
+    #     WHEN "Other" THEN  "Some other arrangement" //Not sure this is the right category
+    #     WHEN "Owns or shares own home, condominium, or apartment" THEN "Owns or shares own home, condominium, or apartment"
+    #     WHEN "Rents of shares own home or apartment" THEN "Rents or shares own home or apartment"
+    #     WHEN "Rents or shares own home or apartment" THEN "Rents or shares own home or apartment"
+    #     WHEN "Some other arrangement" THEN "Some other arrangement"
+    #     WHEN NULL THEN "Unknown/Did Not Report"
+    #     ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
+    #     END
+    # ELSEIF [_Agency] = "ll" THEN CASE[Mob Living Arrangement] //LLCHD
+    #     WHEN 1 THEN "Owns or shares own home, condominium, or apartment" //Owns or shared own home, condo, or apartment
+    #     WHEN 2 THEN "Rents or shares own home or apartment" //Rents or shared own home or apartment
+    #     WHEN 3 THEN "Lives in public housing" //Lives in public housing
+    #     WHEN 4 THEN "Lives with parent or family member" //Lives with parent or family member
+    #     WHEN 5 THEN "Not homeless, some other arrangement" //Some other arrangement
+    #     WHEN 6 THEN "Homeless and sharing housing" //Homeless and sharing housing
+    #     WHEN 7 THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    #     WHEN 8 THEN "Homeless, some other arrangement" //Homeless with some other arrangement
+    #     WHEN NULL THEN "Unknown/Did Not Report"
+    #     ELSE "Unrecognized Value"
+    #     END
+    # END
+df3_edits1['_T12 MOB Housing Status'] = df3_edits1.apply(func=fn_T12_MOB_Housing_Status, axis=1) 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df3_edits1['_T12 MOB Housing Status']) 
 
 #%%###################################
 
-df3_edits1['_T14 Federal Poverty Categories'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
-
-#%%###################################
-
-df3_edits1['_T14 Poverty Percent'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+### TO DO: Update to new year's federal poverty guidelines.
+def fn_T14_Federal_Poverty_Level_update(fdf):
+    ## uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available.
+    return 8870 + (4720 * fdf['Household Size'])
+    # //uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available
+    # 8870 + (4720 * [Household Size])
+df3_edits1['_T14 Federal Poverty Level update'] = df3_edits1.apply(func=fn_T14_Federal_Poverty_Level_update, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_T14 Federal Poverty Level update']) 
+# #%%
+# inspect_col(df3_edits1['Household Size']) 
 
 #%%###################################
 
-df3_edits1['_T14 Federal Poverty Level update'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+### Dependent on '_T14 Federal Poverty Level update' above.
+def fn_T14_Poverty_Percent(fdf):
+    ### LLCHD.
+    if (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Income'])):
+        return np.nan  
+    elif (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Size'])):
+        return np.nan 
+    elif (fdf['_Agency'] == "ll"):
+        return fdf['Household Income'] / fdf['_T14 Federal Poverty Level update']
+    ### FW.
+    elif (fdf['_Agency'] != "ll"):
+        return fdf['Poverty Level'] 
+    # IF [_Agency] = "ll" AND ISNULL([Household Income]) THEN NULL //LLCHD
+    # ELSEIF [_Agency] = "ll" AND ISNULL([Household Size]) THEN NULL
+    # ELSEIF [_Agency] = "ll" THEN [Household Income]/[_T14 Federal Poverty Level update]
+    # ELSEIF [_Agency] <> "ll" THEN [Poverty Level] //FW
+    # END
+df3_edits1['_T14 Poverty Percent'] = df3_edits1.apply(func=fn_T14_Poverty_Percent, axis=1) 
+    ### Data Type in Tableau: 'float'.
+inspect_col(df3_edits1['_T14 Poverty Percent']) 
+# #%%
+# inspect_col(df3_edits1['']) 
 
 #%%###################################
 
-df3_edits1['_T17 Discharge Reason'] = 
+### Dependent on '_T14 Poverty Percent' above.
+def fn_T14_Federal_Poverty_Categories(fdf):
+    if (fdf['_T14 Poverty Percent'] <= .50):
+        return "50% and Under"
+    elif (fdf['_T14 Poverty Percent'] <= 1.00):
+        return "51-100%"
+    elif (fdf['_T14 Poverty Percent'] <= 1.33):
+        return "101-133%"
+    elif (fdf['_T14 Poverty Percent'] <= 2.00):
+        return "134-200%"
+    elif (fdf['_T14 Poverty Percent'] <= 3.00):
+        return "201-300%"
+    elif (fdf['_T14 Poverty Percent'] > 3.00):
+        return ">300%"
+    ### TO DO: This option doesn't make much sense. Probably should be "elif pd.isna(fdf['_T14 Poverty Percent'])".
+    elif np.nan:
+        return "Unknown/Did Not Report"
+    # IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
+    # ELSEIF [_T14 Poverty Percent] <= 1.00 THEN "51-100%"
+    # ELSEIF [_T14 Poverty Percent] <= 1.33 THEN "101-133%"
+    # ELSEIF [_T14 Poverty Percent] <= 2.00 THEN "134-200%"
+    # ELSEIF [_T14 Poverty Percent] <= 3.00 THEN "201-300%"
+    # ELSEIF [_T14 Poverty Percent] > 3.00  THEN ">300%"
+    # ELSEIF NULL THEN "Unknown/Did Not Report"
+    # END
+df3_edits1['_T14 Federal Poverty Categories'] = df3_edits1.apply(func=fn_T14_Federal_Poverty_Categories, axis=1) 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df3_edits1['_T14 Federal Poverty Categories']) 
+# #%%
+# inspect_col(df3_edits1['_T14 Poverty Percent']) 
 
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+#%%###################################
+
+def fn_T17_Discharge_Reason(fdf):
+    ### LLCHD, see full reasons below.
+    if (pd.notna(fdf['Discharge Dt'])):
+        match fdf['Discharge Reason'].lower():
+            case "1" | "family has met program goals":
+                return "Completed Services"
+            case _:
+                return "Stopped Services Before Completion"
+    ### FW.
+    elif (pd.notna(fdf['Termination Date'])):
+        match fdf['Termination Status'].lower():
+            case "family graduated/met all program goals":
+                return "Completed Services"
+            case _:
+                return "Stopped Services Before Completion"
+    else:
+        return "Currently Receiving Services"
+    # IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
+    #     WHEN "1" THEN "Completed Services" 
+    #     WHEN "Family Has Met Program Goals" THEN "Completed Services"
+    #     ELSE "Stopped Services Before Completion"
+    #     END
+    # ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] //FW
+    #     WHEN "Family graduated/met all program goals" THEN "Completed Services"
+    #     ELSE "Stopped Services Before Completion"
+    #     END
+    # ELSE "Currently Receiving Services"
+    # END
+    # //LLCHD discharge reasons
+    # //1Family graduated/met all program goals
+    # //2Family moved out of service area
+    # //3Parent/guardian returned to school
+    # //4Parent/guardian returned to work
+    # //5Parent/guardian refused service
+    # //6Death of participant
+    # //7Unable to locate family
+    # //8Target child adopted
+    # //9Target child entered foster care
+    # //10Target child living with another care giverx
+    # //11Target child entered school/child care
+    # //12Family never engaged
+    # //13Unknown & a text box
+df3_edits1['_T17 Discharge Reason'] = df3_edits1.apply(func=fn_T17_Discharge_Reason, axis=1) 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df3_edits1['_T17 Discharge Reason']) 
 
 #%%###################################
 
@@ -2668,11 +2905,33 @@ inspect_col(df3_edits1['_Need Exclusion 6 - Tobacco'])
 
 #%%###################################
 
-df3_edits1['_T15-5 Tobacco Use in Home'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+def fn_T15_5_Tobacco_Use_in_Home(fdf):
+    ### FW.
+    if pd.notna(fdf['Tobacco Use In Home']):
+        match fdf['Tobacco Use In Home'].lower():
+            case "yes":
+                return 1 
+            case "no":
+                return 0
+    ### LLCHD.
+    elif pd.notna(fdf['Priority Tobacco Use']):
+        match fdf['Priority Tobacco Use'].lower():
+            case "y":
+                return 1 
+            case "n":
+                return 0
+    ###
+    else:
+        return 0
+    # IF[Tobacco Use In Home] = "Yes" THEN 1 //FW
+    # ELSEIF [Tobacco Use In Home] = "No" THEN 0
+    # ELSEIF [Priority Tobacco Use] = "Y" THEN 1 //LLCHD
+    # ELSEIF [Priority Tobacco Use] = "N" THEN 0
+    # ELSE 0
+    # END
+df3_edits1['_T15-5 Tobacco Use in Home'] = df3_edits1.apply(func=fn_T15_5_Tobacco_Use_in_Home, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_T15-5 Tobacco Use in Home']) 
 
 #%%###################################
 
@@ -2696,95 +2955,227 @@ def fn_IPV_Score_FW(fdf):
 df3_edits1['_IPV Score FW'] = df3_edits1.apply(func=fn_IPV_Score_FW, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_IPV Score FW']) 
+#%%
+# df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']])
+(
+    df3_comparison_csv
+    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+    .loc[:, ['Project Id', 'Agency', '_IPV Score FW', 'Assess Afraid', 'Assess IPV', 'Assess Police']]
+    .dropna(how='all', subset=[('_IPV Score FW', 'self'), ('_IPV Score FW', 'other')])
+    .loc[(lambda df: df[('_IPV Score FW', 'self')] != df[('_IPV Score FW', 'other')]), :]
+)
+#%%
+(
+    df3_edits1
+    .sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+    .loc[(lambda df: pd.isna(df['Agency'])), ['Project Id', 'Agency', '_IPV Score FW']]
+)
+### SO: When 'Agency' is NaN, code at first marked it as 'N' instead of NaN, because NaN is != '11', so needed to rewrite.
+
+
 
 #%%###################################
 
 ### In Child2 & Adult3.
-df3_edits1['_TGT EDC Date'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
-
-#%%###################################
-
-df3_edits1['_UNCOPE U Recode'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
-
-#%%###################################
-
-df3_edits1['_UNCOPE N Recode'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+def fn_TGT_EDC_Date(fdf):
+    ### LLCHD.
+    if (fdf['Dt Edc'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['EDC Date'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Dt Edc'] is not pd.NaT):
+            return fdf['Dt Edc']
+        else:
+            return fdf['EDC Date']
+    # IF [Dt Edc] = DATE(1/1/1900) THEN NULL //LLCHD
+    # ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL //FW
+    # ELSE IFNULL([Dt Edc],[EDC Date])
+    # END
+df3_edits1['_TGT EDC Date'] = df3_edits1.apply(func=fn_TGT_EDC_Date, axis=1) 
+    ### Data Type in Tableau: 'date'.
+inspect_col(df3_edits1['_TGT EDC Date']) 
 
 #%%###################################
 
-df3_edits1['_UNCOPE C Recode'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
-
-#%%###################################
-
-df3_edits1['_UNCOPE O Recode'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+def fn_UNCOPE_U_Recode(fdf):
+    if (fdf['U'] == "Yes"):
+        return 1 
+    elif (fdf['U'] == "No"):
+        return 0 
+    # IF [U] = "Yes" THEN INT(1)
+    # ELSEIF [U] = "No" THEN INT(0)
+    # END
+df3_edits1['_UNCOPE U Recode'] = df3_edits1.apply(func=fn_UNCOPE_U_Recode, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_UNCOPE U Recode']) 
 
 #%%###################################
 
-df3_edits1['_UNCOPE P Recode'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
-
-#%%###################################
-
-df3_edits1['_UNCOPE E Recode'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+def fn_UNCOPE_N_Recode(fdf):
+    if (fdf['N'] == "Yes"):
+        return 1 
+    elif (fdf['N'] == "No"):
+        return 0 
+    # IF [N] = "Yes" THEN INT(1)
+    # ELSEIF [N] = "No" THEN INT(0)
+    # END
+df3_edits1['_UNCOPE N Recode'] = df3_edits1.apply(func=fn_UNCOPE_N_Recode, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_UNCOPE N Recode']) 
 
 #%%###################################
 
-df3_edits1['_UNCOPE Score FW'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
-
-#%%###################################
-
-df3_edits1['_T15-3 History Welfare Interaction'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+def fn_UNCOPE_C_Recode(fdf):
+    if (fdf['C'] == "Yes"):
+        return 1 
+    elif (fdf['C'] == "No"):
+        return 0 
+    # IF [C] = "Yes" THEN INT(1)
+    # ELSEIF [C] = "No" THEN INT(0)
+    # END
+df3_edits1['_UNCOPE C Recode'] = df3_edits1.apply(func=fn_UNCOPE_C_Recode, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_UNCOPE C Recode']) 
 
 #%%###################################
 
-df3_edits1['_T15-6 Low Achievement'] = 
-
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+def fn_UNCOPE_O_Recode(fdf):
+    if (fdf['O'] == "Yes"):
+        return 1 
+    elif (fdf['O'] == "No"):
+        return 0 
+    # IF [O] = "Yes" THEN INT(1)
+    # ELSEIF [O] = "No" THEN INT(0)
+    # END
+df3_edits1['_UNCOPE O Recode'] = df3_edits1.apply(func=fn_UNCOPE_O_Recode, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_UNCOPE O Recode']) 
 
 #%%###################################
 
-df3_edits1['_T15-8 Military'] = 
+def fn_UNCOPE_P_Recode(fdf):
+    if (fdf['P'] == "Yes"):
+        return 1 
+    elif (fdf['P'] == "No"):
+        return 0 
+    # IF [P] = "Yes" THEN INT(1)
+    # ELSEIF [P] = "No" THEN INT(0)
+    # END
+df3_edits1['_UNCOPE P Recode'] = df3_edits1.apply(func=fn_UNCOPE_P_Recode, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_UNCOPE P Recode']) 
 
-df3_edits1['wwwwww'] = df3_edits1.apply(func=fn_wwwwww, axis=1) 
-    ### Data Type in Tableau: 'wwww'.
-inspect_col(df3_edits1['wwwwwww']) 
+#%%###################################
+
+def fn_UNCOPE_E_Recode(fdf):
+    if (fdf['E'] == "Yes"):
+        return 1 
+    elif (fdf['E'] == "No"):
+        return 0 
+    # IF [E] = "Yes" THEN INT(1)
+    # ELSEIF [E] = "No" THEN INT(0)
+    # END
+df3_edits1['_UNCOPE E Recode'] = df3_edits1.apply(func=fn_UNCOPE_E_Recode, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_UNCOPE E Recode']) 
+
+#%%###################################
+
+### Sum of UNCOPE scores in the FW dataset.
+def fn_UNCOPE_Score_FW(fdf):
+    return (
+        fdf['_UNCOPE U Recode'] + 
+        fdf['_UNCOPE N Recode'] + 
+        fdf['_UNCOPE C Recode'] + 
+        fdf['_UNCOPE O Recode'] + 
+        fdf['_UNCOPE P Recode'] + 
+        fdf['_UNCOPE E Recode']
+    )
+    # [_UNCOPE U Recode]+[_UNCOPE N Recode]+[_UNCOPE C Recode]+[_UNCOPE O Recode]+[_UNCOPE P Recode]+[_UNCOPE E Recode]
+    # //sum of UNCOPE scores in the FW dataset
+df3_edits1['_UNCOPE Score FW'] = df3_edits1.apply(func=fn_UNCOPE_Score_FW, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_UNCOPE Score FW']) 
+
+#%%###################################
+
+def fn_T15_3_History_Welfare_Interaction(fdf):
+    ### FW.
+    if (fdf['History Inter Welfare Adult'] == True):
+        return 1 
+    elif (fdf['History Inter Welfare Adult'] == False):
+        return 0 
+    ### LLCHD.
+    elif (fdf['Priority Child Welfare'] == "Y"):
+        return 1 
+    elif (fdf['Priority Child Welfare'] == "N"):
+        return 0 
+    ###
+    else:
+        return 0 
+    # IF [History Inter Welfare Adult] = True THEN 1 //FW
+    # ELSEIF  [History Inter Welfare Adult] = False THEN 0
+    # ELSEIF[Priority Child Welfare] = "Y" THEN 1 //LLCHD
+    # ELSEIF [Priority Child Welfare] = "N" THEN 0
+    # ELSE 0
+    # END
+df3_edits1['_T15-3 History Welfare Interaction'] = df3_edits1.apply(func=fn_T15_3_History_Welfare_Interaction, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_T15-3 History Welfare Interaction']) 
+
+#%%###################################
+
+def fn_T15_6_Low_Achievement(fdf):
+    ### FW.
+    if (fdf['Low Achievement'] == "Yes"):
+        return 1 
+    elif (fdf['Low Achievement'] == "No"):
+        return 0 
+    ### LLCHD.
+    elif (fdf['Priority Low Student'] == "Y"):
+        return 1 
+    elif (fdf['Priority Low Student'] == "N"):
+        return 0 
+    ###
+    else:
+        return 0 
+    # IF[Low Achievement] = "Yes" THEN 1 //FW
+    # ELSEIF [Low Achievement] = "No" THEN 0
+    # ELSEIF [Priority Low Student] = "Y" THEN 1 //LLCHD
+    # ELSEIF [Priority Low Student] = "N" THEN 0
+    # ELSE 0
+    # END
+df3_edits1['_T15-6 Low Achievement'] = df3_edits1.apply(func=fn_T15_6_Low_Achievement, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_T15-6 Low Achievement']) 
+
+#%%###################################
+
+def fn_T15_8_Military(fdf):
+    ### FW.
+    if (fdf['Military'] == "Y"):
+        return 1 
+    elif (fdf['Military'] == "N"):
+        return 0 
+    ### LLCHD.
+    elif (fdf['Priority Military'] == "Y"):
+        return 1 
+    elif (fdf['Priority Military'] == "N"):
+        return 0 
+    ###
+    else:
+        return 0 
+    # IF [Military]= "Y" THEN 1 //FW
+    # ELSEIF [Military] = "N" THEN 0
+    # ELSEIF [Priority Military] = "Y" THEN 1 //LLCHD
+    # ELSEIF [Priority Military] = "N" THEN 0
+    # ELSE 0
+    # END
+df3_edits1['_T15-8 Military'] = df3_edits1.apply(func=fn_T15_8_Military, axis=1) 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df3_edits1['_T15-8 Military']) 
 
 #%%##################################################
 ### COALESCING 2 
@@ -2805,23 +3196,38 @@ df3_edits1['_UNCOPE Score'] = df3_edits1['Uncope Score'].combine_first(df3_edits
 
 ### These calculations assume all date variables are dtype "datetime64".
 
-df3_edits1['_90 Day UNCOPE Date'] = DATE(DATEADD('day',90,[_UNCOPE Date]))
+df3_edits1['_90 Day UNCOPE Date'] = df3_edits1['_UNCOPE Date'] + pd.DateOffset(days=90)
+    ### DATE(DATEADD('day',90,[_UNCOPE Date]))
+    ### Data Type in Tableau: date.
 
-df3_edits1['_C05 TGT 30 Day Date'] = DATE(DATEADD('day',30,[_TGT DOB]))
+df3_edits1['_C05 TGT 30 Day Date'] = df3_edits1['_TGT DOB'] + pd.DateOffset(days=30)
+    ### DATE(DATEADD('day',30,[_TGT DOB]))
+    ### Data Type in Tableau: date.
 
-df3_edits1['_C05 TGT 56 Day Date'] = DATE(DATEADD('day',56,[_TGT DOB]))
+df3_edits1['_C05 TGT 56 Day Date'] = df3_edits1['_TGT DOB'] + pd.DateOffset(days=56)
+    ### DATE(DATEADD('day',56,[_TGT DOB]))
+    ### Data Type in Tableau: date.
 
-df3_edits1['_C17 90 Day CES-D Date'] = DATE(DATEADD('day',90, [_C03 CES-D Date]))
+df3_edits1['_C17 90 Day CES-D Date'] = df3_edits1['_C03 CES-D Date'] + pd.DateOffset(days=90)
+    ### DATE(DATEADD('day',90, [_C03 CES-D Date]))
+    ### Data Type in Tableau: date.
 
-df3_edits1['_C19 90 Day IPV Date'] = DATE(DATEADD('day',90, [_C14 IPV Date]))
+df3_edits1['_C19 90 Day IPV Date'] = df3_edits1['_C14 IPV Date'] + pd.DateOffset(days=90)
+    ### DATE(DATEADD('day',90, [_C14 IPV Date]))
+    ### Data Type in Tableau: date.
+
+### In Child2 & Adult3 (but based on a different variable).
+df3_edits1['_Enroll 3 Month Date'] = df3_edits1['_Enrollment Date'] + pd.DateOffset(months=3)
+    ### DATE(DATEADD('month',3,[_Enrollment Date]))
+    ### Data Type in Tableau: date.
 
 ### In Child2 & Adult3.
-df3_edits1['_Enroll 3 Month Date'] = DATE(DATEADD('month',3,[_Enrollment Date]))
+df3_edits1['_TGT 3 Month Date'] = df3_edits1['_TGT DOB'] + pd.DateOffset(months=3)
+    ### DATE(DATEADD('month',3,[_TGT DOB]))
+    ### Data Type in Tableau: date.
 
-### In Child2 & Adult3.
-df3_edits1['_TGT 3 Month Date'] = DATE(DATEADD('month',3,[_TGT DOB]))
-
-
+#%%##################################################
+df3_edits1['Number of Records'] = 1
 
 
 ##################################################################################################
@@ -2854,7 +3260,7 @@ df3_edits1['_TGT 3 Month Date'] = DATE(DATEADD('month',3,[_TGT DOB]))
 ### REMOVE extra COLUMNS
 
 ### Remove columns created in merge.
-df3_edits2 = df3_edits1.drop(columns=['LJ_df3_2ER', 'LJ_df3_3FW', 'LJ_df3_4LL', 'LJ_df3_5WC'])
+df3_edits2 = df3_edits1.drop(columns=['LJ_df3_2CI', 'LJ_df3_3FW', 'LJ_df3_4LL'])
 
 #%%################################
 ### ORDER COLUMNS
@@ -2965,12 +3371,23 @@ df3_comp_compare
 #%%
 ### Number of columns with different values/types:
 len([*df3_comp_compare]) / 2 
-
+    ### Start: 50.
 
 #%%
 ### Columns:
 [*df3_comp_compare]
 
+#%%
+# df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']], keep_equal=True).loc[(lambda df: df[('_IPV Score FW', 'self')] != df[('_IPV Score FW', 'other')]), ['_IPV Score FW']]
+df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']])
 
 
+
+#%%
+print(df3_comp_compare[['_IPV Score FW']].to_string())
+
+
+# %%
+# df3_comparison_csv[['Project Id', 'www']].compare(df3__final_from_csv[['Project Id', 'www']], keep_equal=True).loc[(lambda df: df[('www', 'self')] != df[('www', 'other')]), :]
+# df3_comparison_csv[['www']].compare(df3__final_from_csv[['www']])
 
