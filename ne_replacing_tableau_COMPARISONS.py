@@ -41,6 +41,10 @@ path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\pr
 df3_comparison_csv = pd.read_csv(path_3_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
+path_4_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File for Form 1 from Excel on NE Server.csv')
+df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
+df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+
 
 #%%##################################################
 ### COMPARE 2(Child) to 3(Adult) ###
@@ -49,7 +53,6 @@ df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Qua
 #%%
 ### Differences: Columns only in one.
 set([*df2_comparison_csv]).symmetric_difference([*df3_comparison_csv])
-
 
 #%%
 ### Overlap / Similarities: Columns in both.
@@ -66,6 +69,33 @@ set([*df2_comparison_csv]).intersection([*df3_comparison_csv])
     ###  '_TGT DOB',
     ###  '_TGT EDC Date',
     ###  '_Zip',
+
+
+#%%##################################################
+### COMPARE 3(Adult-Form2) to 4(Adult-Form1) ###
+#####################################################
+
+#%%
+### Overlap / Similarities: Columns in both.
+set([*df3_comparison_csv]).intersection([*df4_comparison_csv])
+
+### Created columns in both:
+    ### Lots!
+
+#%%
+### Differences: Columns only in one.
+set([*df3_comparison_csv]).symmetric_difference([*df4_comparison_csv])
+
+#%%
+###
+
+
+### Created columns in only df3_comparison_csv:
+
+
+### Created columns in only df4_comparison_csv:
+
+
 
 
 #%%
