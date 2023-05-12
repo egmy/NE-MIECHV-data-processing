@@ -705,6 +705,12 @@ df2 = (
     ) 
 )
 
+### Note: FW & LLCHD are created first.
+### There could be duplicates in the FW table.
+### Then Project ID tab created from IDs in two other tabs & then is deduplicated.
+### Then other tabs added (auxiliary tables): In these there may be clients that do not match those active in the Project ID tab.
+
+
 #%%##################################################
 ### Set Data Types ###
 #####################################################
@@ -1913,9 +1919,6 @@ df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
     ### DATE(DATEADD('month',9,[_TGT DOB])) 
 
 #%%##################################################
-df2_edits1['Number of Records'] = 1
-
-#%%##################################################
 ### COLUMNS with DIFFERENT VALUES from the Comparison:
 
 #%%
@@ -1950,7 +1953,6 @@ inspect_col(df2_edits1['_Family Number'])
 # #%%
 # ### This var should be an integer. Adjusting above.
 # df2_edits1['Family Number'].fillna(-9999).apply(float.is_integer).all()
-
 
 #%%###################################
 
@@ -2047,7 +2049,8 @@ df2_edits1['_T05 Age Categories'] = df2_edits1.apply(func=fn_T05_Age_Categories,
     ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T05 Age Categories'])
 
-
+#%%##################################################
+df2_edits1['Number of Records'] = 1
 
 
 
@@ -2120,14 +2123,14 @@ df2_edits2 = df2_edits2.sort_values(by=['Project Id','Year','Quarter'], ignore_i
 
 #%%
 ### Identify columns that should be Integers:
-int_cols_df2 = df2_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
-print(int_cols_df2.to_string())
+cols_int_df2 = df2_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
+print(cols_int_df2.to_string())
 #%%
 print(df2_edits2.dtypes.to_string())
 
 #%%
 ### Turn all columns that should be into Integers:
-df2_edits2[int_cols_df2] = df2_edits2[int_cols_df2].astype('Int64')
+df2_edits2[cols_int_df2] = df2_edits2[cols_int_df2].astype('Int64')
 #%%
 print(df2_edits2.dtypes.to_string())
 
@@ -2281,6 +2284,8 @@ print(df2_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_str
 #%%##################################################
 ### END: ALL GOOD.
 
+### Comparision:
+# df2_comparison_csv.compare(df2__final_from_csv)[['Project Id', 'www', 'www']]
 
 #%%##################################################
 ### Things to CHANGE when part of a fully-coded data pipeline ###

@@ -25,7 +25,9 @@ print('Version Of Numpy: ' + np.version.version)
 ### SETTINGS ###
 #####################################################
 
-### None for now.
+### Probably put this in a config file.
+### Current Federal Poverty something.....
+### appropriate_var = ''
 
 #%%##################################################
 ### PATHS ###
@@ -44,7 +46,7 @@ path_3_data_source_sheets = [
     ,'LLCHD' # 4
 ]
 
-### Output for 2nd Tableau file:
+### Output for 3rd Tableau file:
 path_3_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\04 output')
 path_3_output = Path(path_3_output_dir, 'Adult Activity Master File from Excel on NE Server.csv')
 
@@ -478,19 +480,21 @@ sorted(path_3_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x !
 ### READ all sheets:
 df3_1 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df3_1_col_dtypes)
 df3_2 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df3_2_col_dtypes)
-df3_3 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[2], keep_default_na=False, na_values=[''])#, dtype=df3_3_col_dtypes)
+df3_3 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[2], keep_default_na=False, na_values=[''])#, dtype={'FOBRaceAsian': 'boolean', 'FOBRaceBlack': 'boolean', 'FOBRaceHawaiianPacific': 'boolean', 'FOBRaceIndianAlaskan': 'boolean', 'FOBRaceOther': 'boolean', 'FOBRaceWhite': 'boolean'})#, dtype=df3_3_col_dtypes)
 df3_4 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[3], keep_default_na=False, na_values=[''])#, dtype=df3_4_col_dtypes)
+
+### TO DO: Problem: Boolean's cannot have NA.
 
 ### Review each sheet:
 ### Note: Even empty DFs merge fine below.
 
-#%%
+#%%### df3_1: 'Project ID'.
 inspect_df(df3_1)
-#%%
+#%%### df3_2: 'Caregiver Insurance'.
 inspect_df(df3_2)
-#%%
+#%%### df3_3: 'Family Wise'.
 inspect_df(df3_3)
-#%%
+#%%### df3_4: 'LLCHD'.
 inspect_df(df3_4)
 
 #%%##################################################
@@ -545,7 +549,6 @@ df3_4 = df3_4.rename(columns=df3_4_colnames)
 # ### df3_2 = df3_2_bf_ddup.copy()
 # ### df3_3 = df3_3_bf_ddup.copy()
 # ### df3_4 = df3_4_bf_ddup.copy()
-# ### df3_5 = df3_5_bf_ddup.copy()
 
 # #######################
 # ### NOTE: 24 duplicate rows. TO DO: Fix in Master File creation.
@@ -659,8 +662,9 @@ df3 = (
         ,how='left'
         ,left_on=['Project Id','Year','Quarter']
         ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
-        ,indicator='LJ_df3_4LL')
+        ,indicator='LJ_df3_4LL'
         # ,validate='one_to_one'
+    )
 ) 
 
 #%%##################################################
@@ -870,7 +874,7 @@ inspect_col(df3_edits1['_FOB DOB'])
 
 #%%###################################
 
-### TO DO: Move age calculations to Tableau Report Workbook.
+### TO DO: Move age calculations to Tableau Report Workbook. ### Joe ok!
 def fn_T04_MOB_Age(fdf):
 
     ### FIX:
@@ -891,7 +895,7 @@ inspect_col(df3_edits1['_T04 MOB Age'])
 
 #%%###################################
 
-### TO DO: Move age calculations to Tableau Report Workbook.
+### TO DO: Move age calculations to Tableau Report Workbook. ### Joe ok!
 def fn_T04_FOB_Age(fdf):
 
     ### FIX:
@@ -913,6 +917,7 @@ inspect_col(df3_edits1['_T04 FOB Age'])
 #%%###################################
 
 ### TO DO: Confirm that LLCHD not using "Non-Binary" yet.
+### TO DO: Add "unrecognized value"
 def fn_MOB_Gender(fdf):
     ### FW.
     if (fdf['Adult1Gender'] == "Female"):
@@ -944,6 +949,7 @@ inspect_col(df3_edits1['_MOB Gender'])
 
 ### TO DO: Question: Should we incorporate involved status into the fob variables?
 ### TO DO: Confirm that LLCHD not using "Non-Binary" yet.
+### TO DO: Add "unrecognized value"
 def fn_FOB_Gender(fdf):
     ### LLCHD.
     if (fdf['Fob Involved1'] == "Y"):
@@ -1157,6 +1163,7 @@ def fn_T06_FOB_Ethnicity_1(fdf):
 df3_edits1['_T06 FOB Ethnicity (1)'] = df3_edits1.apply(func=fn_T06_FOB_Ethnicity_1, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_T06 FOB Ethnicity (1)']) 
+### TO DO: Check this is one used in Tableau Report, then delete other (changelog). Only one should be used.
 
 #%%###################################
 
@@ -1423,6 +1430,7 @@ inspect_col(df3_edits1['_T08 MOB Marital Status'])
 #%%###################################
 
 ### TO DO: Fix ERROR: using ['Mob Marital Status'] when should be using ['Fob Marital Status'].
+    ### Go ahead & fix.
 def fn_T08_FOB_Marital_Status(fdf):
     ###########
     ### FW.
@@ -2162,6 +2170,12 @@ def fn_T09_FOB_Education_Status(fdf):
                     return "Unknown/Did Not Report"
                 ### case np.nan:
                 ###     return "Unknown/Did Not Report"
+                ##################
+                ### Adding new option to adjust for bad code. 
+                    ### Problem is 'Fob Edu' is string, so many options NOT numbers OR NA,
+                    ### but in Tableau var was made integer so all NA.
+                case _:
+                    return "Unknown/Did Not Report"
     ###########
     else:
         return np.nan 
@@ -2195,6 +2209,13 @@ def fn_T09_FOB_Education_Status(fdf):
 df3_edits1['_T09 FOB Education Status'] = df3_edits1.apply(func=fn_T09_FOB_Education_Status, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_T09 FOB Education Status']) 
+# #%%
+# compare_col(df3_edits1, '_T09 FOB Education Status', info_or_value_counts='value_counts')
+# compare_col(df3_edits1, 'Fob Edu', info_or_value_counts='value_counts')
+inspect_col(df3_edits1['Fob Edu']) 
+### TO DO: FIX this variable's logic: 'Fob Edu' should NOT be an integer; it is a string with multiple string values.
+    ### Fix after comparison, because Tableau logic also broken.
+    ### Go ahead & fix, but probably not used in Form 1 anyway.
 
 
 #%%###################################
@@ -2699,6 +2720,7 @@ inspect_col(df3_edits1['_T12 MOB Housing Status'])
 
 #%%###################################
 
+### TO DO: Change to pull from config file.
 ### TO DO: Update to new year's federal poverty guidelines.
 def fn_T14_Federal_Poverty_Level_update(fdf):
     ## uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available.
@@ -2753,6 +2775,7 @@ def fn_T14_Federal_Poverty_Categories(fdf):
     elif (fdf['_T14 Poverty Percent'] > 3.00):
         return ">300%"
     ### TO DO: This option doesn't make much sense. Probably should be "elif pd.isna(fdf['_T14 Poverty Percent'])".
+        ### But Python is catching this below: TO DO: Figure out why:
     elif np.nan:
         return "Unknown/Did Not Report"
     # IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
@@ -2907,22 +2930,41 @@ inspect_col(df3_edits1['_Need Exclusion 6 - Tobacco'])
 
 def fn_T15_5_Tobacco_Use_in_Home(fdf):
     ### FW.
-    if pd.notna(fdf['Tobacco Use In Home']):
-        match fdf['Tobacco Use In Home'].lower():
-            case "yes":
-                return 1 
-            case "no":
-                return 0
+    ### if (fdf['Tobacco Use In Home'].lower() == "yes"):
+    if (fdf['Tobacco Use In Home'] == "Yes"):
+        return 1 
+    elif (fdf['Tobacco Use In Home'] == "No"):
+        return 0
     ### LLCHD.
-    elif pd.notna(fdf['Priority Tobacco Use']):
-        match fdf['Priority Tobacco Use'].lower():
-            case "y":
-                return 1 
-            case "n":
-                return 0
-    ###
+    elif (fdf['Priority Tobacco Use'] == "Y"):
+        return 1 
+    elif (fdf['Priority Tobacco Use'] == "N"):
+        return 0
     else:
         return 0
+# def fn_T15_5_Tobacco_Use_in_Home(fdf):
+#     ### FW.
+#     if pd.notna(fdf['Tobacco Use In Home']):
+#         match fdf['Tobacco Use In Home'].lower():
+#             case "yes":
+#                 return 1 
+#             case "no":
+#                 return 0
+#             case _:
+#                 return 0
+#     ### LLCHD.
+#     elif pd.notna(fdf['Priority Tobacco Use']):
+#         match fdf['Priority Tobacco Use'].lower():
+#             case "y":
+#                 return 1 
+#             case "n":
+#                 return 0
+#             case _:
+#                 return 0
+#     ###
+#     else:
+#         return 0
+    #######
     # IF[Tobacco Use In Home] = "Yes" THEN 1 //FW
     # ELSEIF [Tobacco Use In Home] = "No" THEN 0
     # ELSEIF [Priority Tobacco Use] = "Y" THEN 1 //LLCHD
@@ -2932,12 +2974,26 @@ def fn_T15_5_Tobacco_Use_in_Home(fdf):
 df3_edits1['_T15-5 Tobacco Use in Home'] = df3_edits1.apply(func=fn_T15_5_Tobacco_Use_in_Home, axis=1) 
     ### Data Type in Tableau: 'int'.
 inspect_col(df3_edits1['_T15-5 Tobacco Use in Home']) 
+#%%
+inspect_col(df3_edits1['Priority Tobacco Use']) 
+#%%
+inspect_col(df3_edits1['Tobacco Use In Home']) 
+### old TO DO: extra value "Unknown" not being addressed. 
+### Fixed: Added extra "case _" in each section to catch.
+### Actually reverted back to if-elif clauses instead of match-case. Changed because can't use .lower() on any fload np.nan.
+### TO DO: Discuss whether need to use .lower() a lot or not.
+### Answer: Adjust so that if not values or NA is "Unrecognized" --- won't work because needs to be integer.
+    ### Need different function that catches if there WOULD have been Unrecognized values & mark at end so can fix.
+    ### Check if other variables like this.
 
 #%%###################################
 
 ### Required for '_C19 IPV Screen Result' below.
+### Returns both NaN & None at the moment.
 def fn_IPV_Score_FW(fdf):
-    if (fdf['Agency'] != "ll"):
+    if pd.isna(fdf['Agency']):
+        return np.nan 
+    elif (fdf['Agency'] != "ll"):
         if (
             fdf['Assess Afraid'] == True 
             or fdf['Assess IPV'] == True 
@@ -2955,24 +3011,22 @@ def fn_IPV_Score_FW(fdf):
 df3_edits1['_IPV Score FW'] = df3_edits1.apply(func=fn_IPV_Score_FW, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_IPV Score FW']) 
-#%%
-# df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']])
-(
-    df3_comparison_csv
-    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
-    .loc[:, ['Project Id', 'Agency', '_IPV Score FW', 'Assess Afraid', 'Assess IPV', 'Assess Police']]
-    .dropna(how='all', subset=[('_IPV Score FW', 'self'), ('_IPV Score FW', 'other')])
-    .loc[(lambda df: df[('_IPV Score FW', 'self')] != df[('_IPV Score FW', 'other')]), :]
-)
-#%%
-(
-    df3_edits1
-    .sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
-    .loc[(lambda df: pd.isna(df['Agency'])), ['Project Id', 'Agency', '_IPV Score FW']]
-)
-### SO: When 'Agency' is NaN, code at first marked it as 'N' instead of NaN, because NaN is != '11', so needed to rewrite.
-
-
+# #%%
+# # df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']])
+# (
+#     df3_comparison_csv
+#     .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+#     .loc[:, ['Project Id', 'Agency', '_IPV Score FW', 'Assess Afraid', 'Assess IPV', 'Assess Police']]
+#     .dropna(how='all', subset=[('_IPV Score FW', 'self'), ('_IPV Score FW', 'other')])
+#     .loc[(lambda df: df[('_IPV Score FW', 'self')] != df[('_IPV Score FW', 'other')]), :]
+# )
+# #%%
+# (
+#     df3_edits1
+#     .sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+#     .loc[(lambda df: pd.isna(df['Agency'])), ['Project Id', 'Agency', '_IPV Score FW']]
+# )
+# ### SO: When 'Agency' is NaN, code at first marked it as 'N' instead of NaN, because NaN is != '11', so needed to rewrite.
 
 #%%###################################
 
@@ -3240,7 +3294,9 @@ df3_edits1['Number of Records'] = 1
 ##################################################################################################
 
 
-
+#%%
+### For testing/comparisons
+df3_edits1_sorted = df3_edits1.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)[[*df3_comparison_csv]].copy() ### Rows then Columns sorted.
 
 
 #%%##################################################
@@ -3283,16 +3339,23 @@ df3_edits2 = df3_edits2.sort_values(by=['Project Id','Year','Quarter'], ignore_i
 
 #%%
 ### Identify columns that should be Integers:
-int_cols_df3 = df3_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
-print(int_cols_df3.to_string())
+cols_int_df3 = df3_edits2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
+print(cols_int_df3.to_string())
 #%%
 print(df3_edits2.dtypes.to_string())
 
 #%%
 ### Turn all columns that should be into Integers:
-df3_edits2[int_cols_df3] = df3_edits2[int_cols_df3].astype('Int64')
+df3_edits2[cols_int_df3] = df3_edits2[cols_int_df3].astype('Int64')
 #%%
 print(df3_edits2.dtypes.to_string())
+
+#######
+#%%
+### Columns that should be boolean: 
+cols_boolean_df3 = ['FOB Race Asian', 'FOB Race Black', 'FOB Race Hawaiian Pacific', 'FOB Race Indian Alaskan', 'FOB Race Other', 'FOB Race White']
+df3_edits2[cols_boolean_df3] = df3_edits2[cols_boolean_df3].astype('boolean')
+
 
 #%%##################################################
 ### WRITE ###
@@ -3377,17 +3440,194 @@ len([*df3_comp_compare]) / 2
 ### Columns:
 [*df3_comp_compare]
 
+###################################
+#### completed
+###################################
+
 #%%
 # df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']], keep_equal=True).loc[(lambda df: df[('_IPV Score FW', 'self')] != df[('_IPV Score FW', 'other')]), ['_IPV Score FW']]
-df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']])
+# df3_comparison_csv[['_IPV Score FW']].compare(df3__final_from_csv[['_IPV Score FW']])
+# print(df3_comp_compare[['_IPV Score FW']].to_string())
 
+###################################
 
+# #%%
+# # inspect_col(df3_comparison_csv['FOB Race White']) 
+# inspect_col(df3__final_from_csv['FOB Race White']) 
+# # inspect_col(df3_edits1_sorted['FOB Race White']) ### Float before changing in Read above.
+# # inspect_col(df3_edits1_sorted['FOB Race Asian']) ### Float before changing in Read above.
+# # inspect_col(df3_edits1_sorted['FOB Race Black']) ### Float before changing in Read above.
+# # inspect_col(df3_edits1_sorted['FOB Race Hawaiian Pacific']) ### Float before changing in Read above.
+# # inspect_col(df3_edits1_sorted['FOB Race Indian Alaskan']) ### Float before changing in Read above.
+# # inspect_col(df3_edits1_sorted['FOB Race Other']) ### Float before changing in Read above.
+# #%%
+# # var_to_compare = 'FOB Race Asian'
+# # var_to_compare = 'FOB Race Black'
+# # var_to_compare = 'FOB Race Hawaiian Pacific'
+# # var_to_compare = 'FOB Race Indian Alaskan'
+# # var_to_compare = 'FOB Race Other'
+# var_to_compare = 'FOB Race White'
+# var_list_for_comparison = ['_T07 FOB Race', 'FOB Race Asian', 'FOB Race Black', 'FOB Race Hawaiian Pacific', 'FOB Race Indian Alaskan', 'FOB Race Other', 'FOB Race White']
+# (
+#     df3_comparison_csv
+#     .compare(
+#         df3__final_from_csv
+#         # df3_edits1_sorted
+#         , keep_equal=True, keep_shape=True
+#     )
+#     .loc[:, ['Project Id', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
+#     .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
+#     .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
+# )
+# ### Fixed by changing the 6 "FOB Race" columns to Boolean at end.
+# ### TO DO:
+#     ### Change earlier in pipeline so Excel has True/Fasle instead of 1/0. (Needed?)
+
+###################################
+#### needs work
+###################################
 
 #%%
-print(df3_comp_compare[['_IPV Score FW']].to_string())
+# var_to_compare = 'AD1InsChangeDate.9'
+# var_to_compare = 'AD1InsChangeDate.10'
+# var_to_compare = 'AD1InsChangeDate.11'
+# var_to_compare = 'AD1InsChangeDate.12'
+# var_to_compare = 'AD1InsChangeDate.13'
+# var_to_compare = 'AD1InsChangeDate.14'
+# var_to_compare = 'AD1InsChangeDate.15'
+(
+    df3_comparison_csv
+    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+    .loc[:, ['Project Id', 'Agency', '_C16 CG Insurance 9 Status', 'AD1PrimaryIns.9', 'AD1InsChangeDate.9', 'AD1PrimaryIns.10', 'AD1InsChangeDate.10']]
+    .dropna(how='all', subset=[('AD1InsChangeDate.9', 'self'), ('AD1InsChangeDate.9', 'other')])
+    .loc[(lambda df: df[('AD1InsChangeDate.9', 'self')] != df[('AD1InsChangeDate.9', 'other')]), :]
+)
+### TO DO: Fix Tab "Caregiver Insurance":
+    ### Found that for 'Project Id's "hs123-1" & "hs123-2", from column "AD1PrimaryIns.9" to "AD1PrimaryIns.16" the dates & strings are switched. 
+    ### "AD1InsChangeDate.16" is blank, so maybe everything got shifted to the left?
+    ### It seems that for every person with ".9" & higher, the same pattern of incorrect entry exists.
 
+###################################
+
+#%%
+# inspect_col(df3_comparison_csv['Asq3 Referral 9Mm']) 
+# inspect_col(df3_comparison_csv['Asq3 Referral 18Mm'])
+# inspect_col(df3_comparison_csv['Asq3 Referral 24Mm'])
+# inspect_col(df3_comparison_csv['Asq3 Referral 30Mm'])
+#%%
+# var_to_compare = 'Asq3 Referral 18Mm'
+# var_to_compare = 'Asq3 Referral 24Mm'
+var_to_compare = 'Asq3 Referral 30Mm'
+var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Referral 30Mm', 'Asq3 Referral 9Mm']
+(
+    df3_comparison_csv
+    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+    .loc[:, ['Project Id'] + var_list_for_comparison]
+    .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
+    .assign(**{
+        'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df[('Asq3 Referral 18Mm', 'self')].astype('float64'), unit='D', origin='1899-12-30'))
+        ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df[('Asq3 Referral 24Mm', 'self')].astype('float64'), unit='D', origin='1899-12-30'))
+        ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df[('Asq3 Referral 30Mm', 'self')].astype('float64'), unit='D', origin='1899-12-30'))
+    }) ### When before the last .loc, no rows returned because all self/other dates match when 5-digit numbers turned to dates.
+    .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
+)
+### In Tableau, these 3 "Asq3 Referral" vars are Integers & [Asq3 Referral 9Mm] is a String (completely empty for Q1).
+### None of these 3 "Asq3 Referral" vars are used in calculations in this code.
+### For these 3 "Asq3 Referral" vars, the output should be in Date format, BUT the original output is an Int.
+### TO DO: Check that this output is read in the same in the Report Tableau Workbooks.
+
+###################################
+
+#%%
+# var_to_compare = 'Fob Edu' ### TO DO: Fix: NOT supposed to be an int, but is int in Tableau.
+# var_to_compare = '_T09 FOB Education Status' ### Temporarily fixed, but need to actually fix for 'Fob Edu'.
+# var_list_for_comparison = ['_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']
+### TO DO: Fix code above after comparisons are done.
+
+###################################
+
+# var_to_compare = 'Poverty Level' ### Both are floats, but Tableau output drops all non-significatn digits (like ".0").
+### TO DO: Test matching numeric style in output.
+
+
+###################################
+### investigation
+###################################
+
+#%%
+### Columns still different:
+[*df3_comp_compare]
+
+#%%
+
+# var_to_compare = '_Family ID'
+# var_to_compare = '_T06 FOB Ethnicity'
+# var_to_compare = '_T06 FOB Ethnicity (1)'
+# var_to_compare = '_T06 MOB Ethnicity'
+# var_to_compare = '_T10 FOB Educational Enrollment'
+# var_to_compare = '_T11 FOB Employment'
+# var_to_compare = '_T11 MOB Employment'
+# var_to_compare = '_T14 Federal Poverty Categories'
+# var_to_compare = '_T14 Poverty Percent'
+# var_to_compare = '_Zip'
+# var_to_compare = '_T04 FOB Age'
+# var_to_compare = '_T04 MOB Age'
+
+###
+var_to_compare = '_T15-5 Tobacco Use in Home'
+
+
+
+
+#######
+
+var_list_for_comparison = [var_to_compare]
+
+#%%
+(
+    df3_comparison_csv
+    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+    .loc[:, ['Project Id'] + var_list_for_comparison]
+    # .loc[:, ['Project Id', 'Agency'] + var_list_for_comparison]
+    # .loc[:, ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
+    .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
+    .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
+)
+
+#%%
+# compare_col(df3__final_from_csv, var_to_compare, info_or_value_counts='info')
+compare_col(df3__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
+#%%
+inspect_col(df3__final_from_csv[var_to_compare]) 
+#%%
+inspect_col(df3_comparison_csv[var_to_compare]) 
+#%%
+inspect_col(df3_edits1[var_to_compare]) 
+# #%%
+# print(df3_comp_compare[[var_to_compare]].to_string())
+
+###################################
+### templates
+###################################
 
 # %%
 # df3_comparison_csv[['Project Id', 'www']].compare(df3__final_from_csv[['Project Id', 'www']], keep_equal=True).loc[(lambda df: df[('www', 'self')] != df[('www', 'other')]), :]
 # df3_comparison_csv[['www']].compare(df3__final_from_csv[['www']])
+
+# #%%
+# # df3_comparison_csv[['variable']].compare(df3__final_from_csv[['variable']])
+# (
+#     df3_comparison_csv
+#     .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+#     .loc[:, ['Project Id', 'Agency', 'variable']]
+#     .dropna(how='all', subset=[('variable', 'self'), ('variable', 'other')])
+#     .loc[(lambda df: df[('variable', 'self')] != df[('variable', 'other')]), :]
+# )
+# #%%
+# (
+#     df3_edits1
+#     .sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+#     .loc[(lambda df: pd.isna(df['Agency'])), ['Project Id', 'Agency', 'variable']]
+# )
+
 
