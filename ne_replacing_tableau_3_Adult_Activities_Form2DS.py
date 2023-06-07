@@ -5,7 +5,7 @@
 ### INSTRUCTIONS ###
 #####################################################
 
-### TO DO: Instructions for how to get into environment & how to edit/run code files.
+### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
 ### PACKAGES ###
@@ -483,7 +483,7 @@ df3_2 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[1], keep_defaul
 df3_3 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[2], keep_default_na=False, na_values=[''])#, dtype={'FOBRaceAsian': 'boolean', 'FOBRaceBlack': 'boolean', 'FOBRaceHawaiianPacific': 'boolean', 'FOBRaceIndianAlaskan': 'boolean', 'FOBRaceOther': 'boolean', 'FOBRaceWhite': 'boolean'})#, dtype=df3_3_col_dtypes)
 df3_4 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[3], keep_default_na=False, na_values=[''])#, dtype=df3_4_col_dtypes)
 
-### TO DO: Problem: Boolean's cannot have NA.
+### TODO: Problem: Boolean's cannot have NA.
 
 ### Review each sheet:
 ### Note: Even empty DFs merge fine below.
@@ -542,7 +542,7 @@ df3_4 = df3_4.rename(columns=df3_4_colnames)
 #####################################################
 
 # ### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
-# ### TO DO: Actually run section to deduplicate.
+# ### TODO: Actually run section to deduplicate.
 
 # #%%### Restart deduplication
 # ### df3_1 = df3_1_bf_ddup.copy()
@@ -551,7 +551,7 @@ df3_4 = df3_4.rename(columns=df3_4_colnames)
 # ### df3_4 = df3_4_bf_ddup.copy()
 
 # #######################
-# ### NOTE: 24 duplicate rows. TO DO: Fix in Master File creation.
+# ### NOTE: 24 duplicate rows. TODO: Fix in Master File creation.
 # #%%### df3_1: 'Project ID'. 
 # ### Backup:
 # df3_1_bf_ddup = df3_1.copy()
@@ -594,7 +594,7 @@ df3_4 = df3_4.rename(columns=df3_4_colnames)
 #     print("Don't know what's going on here!")
 
 # #######################
-# ### NOTE: 3 duplicate rows. TO DO: Fix in Master File creation.
+# ### NOTE: 3 duplicate rows. TODO: Fix in Master File creation.
 # #%%### df3_3: 'Family Wise'.
 # df3_3_bf_ddup = df3_3.copy()
 # #%%### df3_3: 'Family Wise'.
@@ -637,8 +637,8 @@ df3_4 = df3_4.rename(columns=df3_4_colnames)
 ### JOIN ###
 #####################################################
 
-### TO DO: Turn on validation once deduplication turned on.
-### TO DO: Address "PerformanceWarning: DataFrame is highly fragmented." from running merge.
+### TODO: Turn on validation once deduplication turned on.
+### TODO: Address "PerformanceWarning: DataFrame is highly fragmented." from running merge.
 
 #%%
 df3 = (
@@ -757,11 +757,6 @@ df3_edits1['_UNCOPE Referral'] = df3_edits1['Substance Abuse Ref Dt'].combine_fi
     ### Data Type in Tableau: date.
 
 ### In Child2 & Adult3.
-df3_edits1['_Zip'] = df3_edits1['Zip'].combine_first(df3_edits1['Mob Zip'])
-    ### IFNULL([Zip],[Mob Zip]) 
-    ### Data Type in Tableau: string.
-
-### In Child2 & Adult3.
 df3_edits1['_C13 Behavioral Concerns Asked'] = df3_edits1['BehaviorNumer'].combine_first(df3_edits1['Behavioral Concerns'])
     ### IFNULL([BehaviorNumer],[Behavioral Concerns]) 
     ### Data Type in Tableau: int.
@@ -778,6 +773,17 @@ df3_edits1['_C17 CESD Score'] = df3_edits1['Cesd Score'].combine_first(df3_edits
 df3_edits1['_T16 Number of Home Visits'] = df3_edits1['HomeVisitsTotal'].combine_first(df3_edits1['Home Visits Num'])
     ### IFNULL([HomeVisitsTotal],[Home Visits Num]) 
     ### Data Type in Tableau: int.
+
+#%%
+### In Child2 & Adult3.
+df3_edits1['_Zip'] = df3_edits1['Zip'].combine_first(df3_edits1['Mob Zip'])
+    ### IFNULL([Zip],[Mob Zip]) 
+    ### Data Type in Tableau: string.
+inspect_col(df3_edits1['_Zip'])
+#%%
+inspect_col(df3_edits1['Zip'])
+#%%
+inspect_col(df3_edits1['Mob Zip'])
 
 #%%###################################
 
@@ -874,7 +880,7 @@ inspect_col(df3_edits1['_FOB DOB'])
 
 #%%###################################
 
-### TO DO: Move age calculations to Tableau Report Workbook. ### Joe ok!
+### TODO: Move age calculations to Tableau Report Workbook. ### Joe ok!
 def fn_T04_MOB_Age(fdf):
 
     ### FIX:
@@ -895,7 +901,7 @@ inspect_col(df3_edits1['_T04 MOB Age'])
 
 #%%###################################
 
-### TO DO: Move age calculations to Tableau Report Workbook. ### Joe ok!
+### TODO: Move age calculations to Tableau Report Workbook. ### Joe ok!
 def fn_T04_FOB_Age(fdf):
 
     ### FIX:
@@ -916,8 +922,8 @@ inspect_col(df3_edits1['_T04 FOB Age'])
 
 #%%###################################
 
-### TO DO: Confirm that LLCHD not using "Non-Binary" yet.
-### TO DO: Add "unrecognized value"
+### TODO: Confirm that LLCHD not using "Non-Binary" yet.
+### TODO: Add "unrecognized value"
 def fn_MOB_Gender(fdf):
     ### FW.
     if (fdf['Adult1Gender'] == "Female"):
@@ -947,9 +953,9 @@ inspect_col(df3_edits1['_MOB Gender'])
 
 #%%###################################
 
-### TO DO: Question: Should we incorporate involved status into the fob variables?
-### TO DO: Confirm that LLCHD not using "Non-Binary" yet.
-### TO DO: Add "unrecognized value"
+### TODO: Question: Should we incorporate involved status into the fob variables?
+### TODO: Confirm that LLCHD not using "Non-Binary" yet.
+### TODO: Add "unrecognized value"
 def fn_FOB_Gender(fdf):
     ### LLCHD.
     if (fdf['Fob Involved1'] == "Y"):
@@ -1102,7 +1108,7 @@ inspect_col(df3_edits1['_T06 FOB Ethnicity'])
 
 #%%###################################
 
-### TO DO: Check: Is this a Duplicate? Is it Used?
+### TODO: Check: Is this a Duplicate? Is it Used?
     ### Slight difference between vars in original Tableau: "NON-Hispanic" in (1) vs "NON-HISPANIC" in original.
     ### However, duplicate Python code because of the ".lower()".
 def fn_T06_FOB_Ethnicity_1(fdf):
@@ -1163,7 +1169,7 @@ def fn_T06_FOB_Ethnicity_1(fdf):
 df3_edits1['_T06 FOB Ethnicity (1)'] = df3_edits1.apply(func=fn_T06_FOB_Ethnicity_1, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_T06 FOB Ethnicity (1)']) 
-### TO DO: Check this is one used in Tableau Report, then delete other (changelog). Only one should be used.
+### TODO: Check this is one used in Tableau Report, then delete other (changelog). Only one should be used.
 
 #%%###################################
 
@@ -1429,7 +1435,7 @@ inspect_col(df3_edits1['_T08 MOB Marital Status'])
 
 #%%###################################
 
-### TO DO: Fix ERROR: using ['Mob Marital Status'] when should be using ['Fob Marital Status'].
+### TODO: Fix ERROR: using ['Mob Marital Status'] when should be using ['Fob Marital Status'].
     ### Go ahead & fix.
 def fn_T08_FOB_Marital_Status(fdf):
     ###########
@@ -1665,7 +1671,7 @@ inspect_col(df3_edits1['_T11 FOB Employment'])
 
 #%%###################################
 
-### TO DO: Ask about significant difference from '_C15 Max Educational Enrollment'.
+### TODO: Ask about significant difference from '_C15 Max Educational Enrollment'.
 def fn_C15_Min_Educational_Enrollment(fdf):
     ###########
     ### FW.
@@ -2213,7 +2219,7 @@ inspect_col(df3_edits1['_T09 FOB Education Status'])
 # compare_col(df3_edits1, '_T09 FOB Education Status', info_or_value_counts='value_counts')
 # compare_col(df3_edits1, 'Fob Edu', info_or_value_counts='value_counts')
 inspect_col(df3_edits1['Fob Edu']) 
-### TO DO: FIX this variable's logic: 'Fob Edu' should NOT be an integer; it is a string with multiple string values.
+### TODO: FIX this variable's logic: 'Fob Edu' should NOT be an integer; it is a string with multiple string values.
     ### Fix after comparison, because Tableau logic also broken.
     ### Go ahead & fix, but probably not used in Form 1 anyway.
 
@@ -2535,7 +2541,7 @@ inspect_col(df3_edits1['_FOB Involved'])
 
 #%%###################################
 
-### TO DO: Change to match-case statements.
+### TODO: Change to match-case statements.
 def fn_MOB_TGT_Relation(fdf):
     ###########
     ### FW.
@@ -2720,8 +2726,8 @@ inspect_col(df3_edits1['_T12 MOB Housing Status'])
 
 #%%###################################
 
-### TO DO: Change to pull from config file.
-### TO DO: Update to new year's federal poverty guidelines.
+### TODO: Change to pull from config file.
+### TODO: Update to new year's federal poverty guidelines.
 def fn_T14_Federal_Poverty_Level_update(fdf):
     ## uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available.
     return 8870 + (4720 * fdf['Household Size'])
@@ -2774,8 +2780,8 @@ def fn_T14_Federal_Poverty_Categories(fdf):
         return "201-300%"
     elif (fdf['_T14 Poverty Percent'] > 3.00):
         return ">300%"
-    ### TO DO: This option doesn't make much sense. Probably should be "elif pd.isna(fdf['_T14 Poverty Percent'])".
-        ### But Python is catching this below: TO DO: Figure out why:
+    ### TODO: This option doesn't make much sense. Probably should be "elif pd.isna(fdf['_T14 Poverty Percent'])".
+        ### But Python is catching this below: TODO: Figure out why:
     elif np.nan:
         return "Unknown/Did Not Report"
     # IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
@@ -2978,12 +2984,12 @@ inspect_col(df3_edits1['_T15-5 Tobacco Use in Home'])
 inspect_col(df3_edits1['Priority Tobacco Use']) 
 #%%
 inspect_col(df3_edits1['Tobacco Use In Home']) 
-### old TO DO: extra value "Unknown" not being addressed. 
+### old TODO: extra value "Unknown" not being addressed. 
 ### Fixed: Added extra "case _" in each section to catch.
 ### Actually reverted back to if-elif clauses instead of match-case. Changed because can't use .lower() on any fload np.nan.
-### TO DO: Discuss whether need to use .lower() a lot or not.
+### TODO: Discuss whether need to use .lower() a lot or not.
 ### Answer: Adjust so that if not values or NA is "Unrecognized" --- won't work because needs to be integer.
-    ### Need different function that catches if there WOULD have been Unrecognized values & mark at end so can fix.
+    ### TODO: Need different function that catches if there WOULD have been Unrecognized values & mark at end so can fix.
     ### Check if other variables like this.
 
 #%%###################################
@@ -3480,7 +3486,7 @@ len([*df3_comp_compare]) / 2
 #     .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
 # )
 # ### Fixed by changing the 6 "FOB Race" columns to Boolean at end.
-# ### TO DO:
+# ### TODO:
 #     ### Change earlier in pipeline so Excel has True/Fasle instead of 1/0. (Needed?)
 
 ###################################
@@ -3502,10 +3508,11 @@ len([*df3_comp_compare]) / 2
     .dropna(how='all', subset=[('AD1InsChangeDate.9', 'self'), ('AD1InsChangeDate.9', 'other')])
     .loc[(lambda df: df[('AD1InsChangeDate.9', 'self')] != df[('AD1InsChangeDate.9', 'other')]), :]
 )
-### TO DO: Fix Tab "Caregiver Insurance":
+### TODO: Fix Tab "Caregiver Insurance":
     ### Found that for 'Project Id's "hs123-1" & "hs123-2", from column "AD1PrimaryIns.9" to "AD1PrimaryIns.16" the dates & strings are switched. 
     ### "AD1InsChangeDate.16" is blank, so maybe everything got shifted to the left?
     ### It seems that for every person with ".9" & higher, the same pattern of incorrect entry exists.
+### Answer: Corrected for Q2!
 
 ###################################
 
@@ -3534,20 +3541,35 @@ var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Ref
 ### In Tableau, these 3 "Asq3 Referral" vars are Integers & [Asq3 Referral 9Mm] is a String (completely empty for Q1).
 ### None of these 3 "Asq3 Referral" vars are used in calculations in this code.
 ### For these 3 "Asq3 Referral" vars, the output should be in Date format, BUT the original output is an Int.
-### TO DO: Check that this output is read in the same in the Report Tableau Workbooks.
+### TODO: Check that this output is read in the same in the Report Tableau Workbooks.
 
 ###################################
 
 #%%
-# var_to_compare = 'Fob Edu' ### TO DO: Fix: NOT supposed to be an int, but is int in Tableau.
+# var_to_compare = 'Fob Edu' ### TODO: Fix: NOT supposed to be an int, but is int in Tableau.
 # var_to_compare = '_T09 FOB Education Status' ### Temporarily fixed, but need to actually fix for 'Fob Edu'.
 # var_list_for_comparison = ['_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']
-### TO DO: Fix code above after comparisons are done.
+### TODO: Fix code above after comparisons are done.
 
 ###################################
 
 # var_to_compare = 'Poverty Level' ### Both are floats, but Tableau output drops all non-significatn digits (like ".0").
-### TO DO: Test matching numeric style in output.
+### TODO: Test matching numeric style in output.
+
+###################################
+
+# var_to_compare = '_T15-5 Tobacco Use in Home'
+### Answer: Adjust so that if not values or NA is "Unrecognized" --- won't work because needs to be integer.
+    ### TODO: Need different function that catches if there WOULD have been Unrecognized values & mark at end so can fix.
+
+###################################
+
+# var_to_compare = '_T04 FOB Age'
+# var_to_compare = '_T04 MOB Age'
+### TODO: move to Tableau reports.
+
+###################################
+
 
 
 ###################################
@@ -3569,14 +3591,10 @@ var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Ref
 # var_to_compare = '_T11 MOB Employment'
 # var_to_compare = '_T14 Federal Poverty Categories'
 # var_to_compare = '_T14 Poverty Percent'
-# var_to_compare = '_Zip'
-# var_to_compare = '_T04 FOB Age'
-# var_to_compare = '_T04 MOB Age'
 
 ###
-var_to_compare = '_T15-5 Tobacco Use in Home'
 
-
+var_to_compare = '_Zip'
 
 
 #######
@@ -3584,6 +3602,7 @@ var_to_compare = '_T15-5 Tobacco Use in Home'
 var_list_for_comparison = [var_to_compare]
 
 #%%
+print(
 (
     df3_comparison_csv
     .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
@@ -3592,7 +3611,8 @@ var_list_for_comparison = [var_to_compare]
     # .loc[:, ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
     .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
     .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
-)
+# )
+).to_string())
 
 #%%
 # compare_col(df3__final_from_csv, var_to_compare, info_or_value_counts='info')
