@@ -33,15 +33,15 @@ print('Version Of Numpy: ' + np.version.version)
 
 ### Files created for Y12Q1 by the old data sourcing process with Tableau.
 
-path_2_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+path_2_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
 df2_comparison_csv = pd.read_csv(path_2_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df2_comparison_csv = df2_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
+path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
 df3_comparison_csv = pd.read_csv(path_3_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-path_4_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File for Form 1 from Excel on NE Server.csv')
+path_4_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File for Form 1 from Excel on NE Server.csv')
 df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 

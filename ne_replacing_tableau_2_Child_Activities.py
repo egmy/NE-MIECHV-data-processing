@@ -5,21 +5,21 @@
 ### INSTRUCTIONS ###
 #####################################################
 
-### TO DO: Instructions for how to get into environment & how to edit/run code files.
+### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
 ### PACKAGES ###
 #####################################################
 
-import pandas as pd
-from pathlib import Path
-import numpy as np
-import sys
-import IPython
+# import pandas as pd
+# from pathlib import Path
+# import numpy as np
+# import sys
+# import IPython
 
-print('Version Of Python: ' + sys.version)
-print('Version Of Pandas: ' + pd.__version__)
-print('Version Of Numpy: ' + np.version.version)
+# print('Version Of Python: ' + sys.version)
+# print('Version Of Pandas: ' + pd.__version__)
+# print('Version Of Numpy: ' + np.version.version)
 
 #%%##################################################
 ### SETTINGS ###
@@ -31,70 +31,71 @@ print('Version Of Numpy: ' + np.version.version)
 ### PATHS ###
 #####################################################
 
-### Data Source for 2nd Tableau file:
-### path_2_data_source_file = 'U:\\Working\\Tableau\\Y12 (Oct 2022 - Sept 2023)\\Child Activity Master File.xlsx' ### old.
-### local:
-path_2_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01 original\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File.xlsx')
+# ### Data Source for 2nd Tableau file:
+# ### path_2_data_source_file = 'U:\\Working\\Tableau\\Y12 (Oct 2022 - Sept 2023)\\Child Activity Master File.xlsx' ### old.
+# ### local:
+# path_2_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01_input\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File.xlsx')
 
-path_2_data_source_sheets = [
-    'Project ID',  # 1
-    'ER Injury',  # 3
-    'Family Wise',  # 4
-    'LLCHD',  # 5
-    'Well Child'  # 6
-]
+# path_2_data_source_sheets = [
+#     'Project ID',  # 1
+#     'ER Injury',  # 2
+#     'Family Wise',  # 3
+#     'LLCHD',  # 4
+#     'Well Child'  # 5
+# ]
 
-### Output for 2nd Tableau file:
-path_2_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\04 output')
-path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel on NE Server.csv')
+# ### Output for 2nd Tableau file:
+# path_2_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\03_output')
+# path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel on NE Server.csv')
 
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
-### File created for Y12Q1 by the old data sourcing process with Tableau.
-path_2_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+# ### File created for Y12Q1 by the old data sourcing process with Tableau.
+# path_2_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+
 df2_comparison_csv = pd.read_csv(path_2_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df2_comparison_csv = df2_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-#%%##################################################
-### Utility Functions ###
-#####################################################
+# #%%##################################################
+# ### Utility Functions ###
+# #####################################################
 
-def inspect_df (df):
-    print(df.describe(include='all'))
-    print('\n')
-    print(df.dtypes.to_string())
-    print('\n')
-    print(df.info(verbose=True, show_counts=True))
-    print('\n')
-    print(f'Rows: {len(df)}')
-    print(f'Columns: {len(df.columns)}')
-    print('\n')
-    IPython.display.display(df)
+# def inspect_df (df):
+#     print(df.describe(include='all'))
+#     print('\n')
+#     print(df.dtypes.to_string())
+#     print('\n')
+#     print(df.info(verbose=True, show_counts=True))
+#     print('\n')
+#     print(f'Rows: {len(df)}')
+#     print(f'Columns: {len(df.columns)}')
+#     print('\n')
+#     IPython.display.display(df)
 
-### fSeries = df column or Series: e.g., df['colname'].
-def inspect_col(fSeries):
-    print(fSeries.info())
-    print('\n')
-    print('value_counts:')
-    print(fSeries.value_counts(dropna=False))
-    print('\n')
-    print(fSeries)
+# ### fSeries = df column or Series: e.g., df['colname'].
+# def inspect_col(fSeries):
+#     print(fSeries.info())
+#     print('\n')
+#     print('value_counts:')
+#     print(fSeries.value_counts(dropna=False))
+#     print('\n')
+#     print(fSeries)
 
-def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df2_comparison_csv): ### or 'value_counts'.
-    if info_or_value_counts=='info':
-        print(f'DataFrame 1 (df2_comparison_csv):\n')
-        print(fdf_1[fcol].info())
-        print('\n')
-        print(f'DataFrame 2:\n')
-        print(fdf_2[fcol].info())
-    elif info_or_value_counts=='value_counts':
-        print(f'DataFrame 1 (df2_comparison_csv):\n')
-        print(fdf_1[fcol].value_counts(dropna=False))
-        print('\n')
-        print(f'DataFrame 2:\n')
-        print(fdf_2[fcol].value_counts(dropna=False))
+# def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df2_comparison_csv): ### or 'value_counts'.
+#     if info_or_value_counts=='info':
+#         print(f'DataFrame 1 (df2_comparison_csv):\n')
+#         print(fdf_1[fcol].info())
+#         print('\n')
+#         print(f'DataFrame 2:\n')
+#         print(fdf_2[fcol].info())
+#     elif info_or_value_counts=='value_counts':
+#         print(f'DataFrame 1 (df2_comparison_csv):\n')
+#         print(fdf_1[fcol].value_counts(dropna=False))
+#         print('\n')
+#         print(f'DataFrame 2:\n')
+#         print(fdf_2[fcol].value_counts(dropna=False))
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -1740,6 +1741,7 @@ inspect_col(df2_edits1['_TGT Race'])
 
 #%%###################################
 
+### TODO: from RUNME, function fn_C11_Literacy_Read_Sing throws error: "TypeError: boolean value of NA is ambiguous".
 def fn_C11_Literacy_Read_Sing(fdf):
     ### FW.
     if (fdf['_Agency'] != "ll"):
@@ -1771,7 +1773,7 @@ def fn_C11_Literacy_Read_Sing(fdf):
                 return 0
             case "Y":
                 return 7
-                ### Y = “Every day of the week / Most days of the week / Several days of the week”
+                ### Y = "Every day of the week / Most days of the week / Several days of the week"
             case _:
                 return np.nan
     ### IF [_Agency] <> "ll" THEN CASE [Read Tell Story Sing]  // FW
@@ -1789,9 +1791,9 @@ def fn_C11_Literacy_Read_Sing(fdf):
     ### ELSEIF [_Agency] = "ll" THEN CASE [Early Language]  // LLCHD
     ###     WHEN "N" THEN 0
     ###     WHEN "Y" THEN 7
-    ### // Y = “Every day of the week / 
+    ### // Y = "Every day of the week / 
     ###     // Most days of the week / 
-    ###     // Several days of the week”
+    ###     // Several days of the week"
     ###     ELSE NULL
     ###     END
     ### END
@@ -1930,9 +1932,9 @@ inspect_col(df2_edits1['_C18 ASQ 9 Mo Referral Date'])
 # #%%
 # inspect_col(df2_edits1['ASQ9MoRefDate'])
 # #%%
-# compare_col(df2_edits1, '_C18 ASQ 9 Mo Referral Date')
+# compare_col(df2_comparison_csv, df2_edits1, '_C18 ASQ 9 Mo Referral Date')
 # #%%
-# compare_col(df2_edits1, '_C18 ASQ 9 Mo Referral Date', 'value_counts')
+# compare_col(df2_comparison_csv, df2_edits1, '_C18 ASQ 9 Mo Referral Date', 'value_counts')
 # #%%
 # df2_comparison_csv[['_C18 ASQ 9 Mo Referral Date']].compare(df2_edits1[['_C18 ASQ 9 Mo Referral Date']])
 # #%%

@@ -11,15 +11,15 @@
 ### PACKAGES ###
 #####################################################
 
-import pandas as pd
-from pathlib import Path
-import numpy as np
-import sys
-import IPython
+# import pandas as pd
+# from pathlib import Path
+# import numpy as np
+# import sys
+# import IPython
 
-print('Version Of Python: ' + sys.version)
-print('Version Of Pandas: ' + pd.__version__)
-print('Version Of Numpy: ' + np.version.version)
+# print('Version Of Python: ' + sys.version)
+# print('Version Of Pandas: ' + pd.__version__)
+# print('Version Of Numpy: ' + np.version.version)
 
 #%%##################################################
 ### SETTINGS ###
@@ -33,70 +33,71 @@ print('Version Of Numpy: ' + np.version.version)
 ### PATHS ###
 #####################################################
 
-### Data Source for 3rd Tableau file, 1st Data Source (for Form 2):
-### DS: "Adult Activity Master File from Excel on NE Server".
-### path_3_data_source = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Adult Activity Master File Y12.xlsx'
-### local:
-path_3_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01 original\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File.xlsx')
+# ### Data Source for 3rd Tableau file, 1st Data Source (for Form 2):
+# ### DS: "Adult Activity Master File from Excel on NE Server".
+# ### path_3_data_source = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Adult Activity Master File Y12.xlsx'
+# ### local:
+# path_3_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01_input\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File.xlsx')
 
-path_3_data_source_sheets = [
-    'Project ID' # 1
-    ,'Caregiver Insurance' # 2
-    ,'Family Wise' # 3
-    ,'LLCHD' # 4
-]
+# path_3_data_source_sheets = [
+#     'Project ID' # 1
+#     ,'Caregiver Insurance' # 2
+#     ,'Family Wise' # 3
+#     ,'LLCHD' # 4
+# ]
 
-### Output for 3rd Tableau file:
-path_3_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\04 output')
-path_3_output = Path(path_3_output_dir, 'Adult Activity Master File from Excel on NE Server.csv')
+# ### Output for 3rd Tableau file:
+# path_3_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\03_output')
+# path_3_output = Path(path_3_output_dir, 'Adult Activity Master File from Excel on NE Server.csv')
 
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
-### File created for Y12Q1 by the old data sourcing process with Tableau.
-path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
+# ### File created for Y12Q1 by the old data sourcing process with Tableau.
+# path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
+
 df3_comparison_csv = pd.read_csv(path_3_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-#%%##################################################
-### Utility Functions ###
-#####################################################
+# #%%##################################################
+# ### Utility Functions ###
+# #####################################################
 
-def inspect_df (df):
-    print(df.describe(include='all'))
-    print('\n')
-    print(df.dtypes.to_string())
-    print('\n')
-    print(df.info(verbose=True, show_counts=True))
-    print('\n')
-    print(f'Rows: {len(df)}')
-    print(f'Columns: {len(df.columns)}')
-    print('\n')
-    IPython.display.display(df)
+# def inspect_df (df):
+#     print(df.describe(include='all'))
+#     print('\n')
+#     print(df.dtypes.to_string())
+#     print('\n')
+#     print(df.info(verbose=True, show_counts=True))
+#     print('\n')
+#     print(f'Rows: {len(df)}')
+#     print(f'Columns: {len(df.columns)}')
+#     print('\n')
+#     IPython.display.display(df)
 
-### fSeries = df column or Series: e.g., df['colname'].
-def inspect_col(fSeries):
-    print(fSeries.info())
-    print('\n')
-    print('value_counts:')
-    print(fSeries.value_counts(dropna=False))
-    print('\n')
-    print(fSeries)
+# ### fSeries = df column or Series: e.g., df['colname'].
+# def inspect_col(fSeries):
+#     print(fSeries.info())
+#     print('\n')
+#     print('value_counts:')
+#     print(fSeries.value_counts(dropna=False))
+#     print('\n')
+#     print(fSeries)
 
-def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df3_comparison_csv): ### or 'value_counts'.
-    if info_or_value_counts=='info':
-        print(f'DataFrame 1 (df3_comparison_csv):\n')
-        print(fdf_1[fcol].info())
-        print('\n')
-        print(f'DataFrame 2:\n')
-        print(fdf_2[fcol].info())
-    elif info_or_value_counts=='value_counts':
-        print(f'DataFrame 1 (df3_comparison_csv):\n')
-        print(fdf_1[fcol].value_counts(dropna=False))
-        print('\n')
-        print(f'DataFrame 2:\n')
-        print(fdf_2[fcol].value_counts(dropna=False))
+# def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df3_comparison_csv): ### or 'value_counts'.
+#     if info_or_value_counts=='info':
+#         print(f'DataFrame 1 (df3_comparison_csv):\n')
+#         print(fdf_1[fcol].info())
+#         print('\n')
+#         print(f'DataFrame 2:\n')
+#         print(fdf_2[fcol].info())
+#     elif info_or_value_counts=='value_counts':
+#         print(f'DataFrame 1 (df3_comparison_csv):\n')
+#         print(fdf_1[fcol].value_counts(dropna=False))
+#         print('\n')
+#         print(f'DataFrame 2:\n')
+#         print(fdf_2[fcol].value_counts(dropna=False))
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -2216,8 +2217,8 @@ df3_edits1['_T09 FOB Education Status'] = df3_edits1.apply(func=fn_T09_FOB_Educa
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_T09 FOB Education Status']) 
 # #%%
-# compare_col(df3_edits1, '_T09 FOB Education Status', info_or_value_counts='value_counts')
-# compare_col(df3_edits1, 'Fob Edu', info_or_value_counts='value_counts')
+# compare_col(df3_comparison_csv, df3_edits1, '_T09 FOB Education Status', info_or_value_counts='value_counts')
+# compare_col(df3_comparison_csv, df3_edits1, 'Fob Edu', info_or_value_counts='value_counts')
 inspect_col(df3_edits1['Fob Edu']) 
 ### TODO: FIX this variable's logic: 'Fob Edu' should NOT be an integer; it is a string with multiple string values.
     ### Fix after comparison, because Tableau logic also broken.
@@ -2318,9 +2319,9 @@ df3_edits1['_C16 CG Insurance 1 Status'] = df3_edits1['AD1PrimaryIns.1'].apply(f
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_C16 CG Insurance 1 Status']) 
 # #%%
-# compare_col(df3_edits1, '_C16 CG Insurance 1 Status')
+# compare_col(df3_comparison_csv, df3_edits1, '_C16 CG Insurance 1 Status')
 # #%%
-# compare_col(df3_edits1, '_C16 CG Insurance 1 Status', info_or_value_counts='value_counts')
+# compare_col(df3_comparison_csv, df3_edits1, '_C16 CG Insurance 1 Status', info_or_value_counts='value_counts')
 
 #%%###################################
 
@@ -3615,8 +3616,8 @@ print(
 ).to_string())
 
 #%%
-# compare_col(df3__final_from_csv, var_to_compare, info_or_value_counts='info')
-compare_col(df3__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
+# compare_col(df3_comparison_csv, df3__final_from_csv, var_to_compare, info_or_value_counts='info')
+compare_col(df3_comparison_csv, df3__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
 #%%
 inspect_col(df3__final_from_csv[var_to_compare]) 
 #%%
