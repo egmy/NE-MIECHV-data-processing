@@ -482,7 +482,7 @@ sorted(path_2_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x !
 ### READ all sheets:
 df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df2_1_col_dtypes)
 df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df2_2_col_dtypes)
-df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=df2_3_col_dtypes)
+df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=df2_3_col_dtypes) ### object not string because code can't handle NA's until end.
 df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
 df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4], keep_default_na=False, na_values=[''])#, dtype=df2_5_col_dtypes)
 
@@ -718,6 +718,17 @@ df2 = (
 
 ### Tableau does this automatically. So does Python on Read in. Made needed adjustments above.
 
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
+
 #%%##################################################
 ### RECODE / Creating Columns ###
 #####################################################
@@ -730,15 +741,19 @@ df2_edits1 = df2.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT cop
 
 df2_edits1['_C18 ASQ 18 Mo Ref Location'] = df2_edits1['ASQ18MoRefLocation']
     ### [ASQ18MoRefLocation]
+    ### Data Type in Tableau: string.
 
 df2_edits1['_C18 ASQ 24 Mo Ref Location'] = df2_edits1['ASQ24MoRefLocation']
     ### [ASQ24MoRefLocation]
+    ### Data Type in Tableau: string.
 
 df2_edits1['_C18 ASQ 30 Mo Ref Location'] = df2_edits1['ASQ30MoRefLocation']
     ### [ASQ30MoRefLocation]
+    ### Data Type in Tableau: string.
 
 df2_edits1['_C18 ASQ 9 Mo Ref Location'] = df2_edits1['ASQ9MoRefLocation']
     ### [ASQ9MoRefLocation]
+    ### Data Type in Tableau: string.
 
 ### TO DO: LLCHD needs to provide a safe sleep partial date.
 df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['Safe Sleep Partial Date']
@@ -746,137 +761,179 @@ df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['Safe Sleep Partial Date'
     ### [Safe Sleep Partial Date]  // FW
     ### // ,[Safe Sleep Yes Dt]) // LLCHD needs to provide a safe sleep partial date
     ### // END
+    ### Data Type in Tableau: date.
 
 #%%##################################################
 ### COALESCING
 
 df2_edits1['_Agency'] = df2_edits1['Agency'].combine_first(df2_edits1['Site Id'])
     ### IFNULL([Agency],[Site Id])
+    ### Data Type in Tableau: string.
 
 df2_edits1['_C11 Literacy'] = df2_edits1['Max Early Literacy Date'].combine_first(df2_edits1['Early Language Dt'])
     ### IFNULL([Max Early Literacy Date],[Early Language Dt])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C12 ASQ 18 Mo Date'] = df2_edits1['ASQ18MoDate'].combine_first(df2_edits1['Asq3 Dt 18Mm'])
     ### IFNULL([ASQ18MoDate],[Asq3 Dt 18Mm])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C12 ASQ 24 Mo Date'] = df2_edits1['ASQ24MoDate'].combine_first(df2_edits1['Asq3 Dt 24Mm'])
     ### IFNULL([ASQ24MoDate],[Asq3 Dt 24Mm])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C12 ASQ 30 Mo Date'] = df2_edits1['ASQ30MoDate'].combine_first(df2_edits1['Asq3 Dt 30Mm'])
     ### IFNULL([ASQ30MoDate],[Asq3 Dt 30Mm])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C12 ASQ 9 Mo Date'] = df2_edits1['Asq3 Dt 9Mm'].combine_first(df2_edits1['ASQ9MoDate'])
     ### IFNULL([Asq3 Dt 9Mm],[ASQ9MoDate])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 18 Mo Referral Date'] = df2_edits1['Asq3 Referral 18Mm'].combine_first(df2_edits1['ASQ18MoRefDate'])
     ### IFNULL([Asq3 Referral 18Mm],[ASQ18MoRefDate])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 24 Mo Referral Date'] = df2_edits1['ASQ24MoRefDate'].combine_first(df2_edits1['Asq3 Referral 24Mm'])
     ### IFNULL([ASQ24MoRefDate],[Asq3 Referral 24Mm])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 30 Mo Referral Date'] = df2_edits1['ASQ30MoRefDate'].combine_first(df2_edits1['Asq3 Referral 30Mm'])
     ### IFNULL([ASQ30MoRefDate],[Asq3 Referral 30Mm])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C2 BF Discontinuation Date'] = df2_edits1['Min Of Date Discontinue BF'].combine_first(df2_edits1['Lsp Bf Discon Dt'])
     ### IFNULL([Min Of Date Discontinue BF],[Lsp Bf Discon Dt])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C2 BF Initiation Date'] = df2_edits1['Min HV Date BF Yes'].combine_first(df2_edits1['Lsp Bf Initiation Dt'])
     ### IFNULL([Min HV Date BF Yes],[Lsp Bf Initiation Dt])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C7 Safe Sleep Date'] = df2_edits1['Safe Sleep Date'].combine_first(df2_edits1['Safe Sleep Yes Dt'])
     ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_Discharge Date'] = df2_edits1['Discharge Dt'].combine_first(df2_edits1['Termination Date'])
     ### IFNULL([Discharge Dt],[Termination Date])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_Enroll'] = df2_edits1['Enroll Dt'].combine_first(df2_edits1['Min Of HV Date'])
     ### IFNULL([Enroll Dt],[Min Of HV Date])
+    ### Data Type in Tableau: date.
 
 #%%###################################
 
 df2_edits1['_Max HV Date'] = df2_edits1['Maxof HV Date'].combine_first(df2_edits1['Last Home Visit'])
     ### IFNULL([Maxof HV Date],[Last Home Visit])
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C12 ASQ 18 Mo Communication'] = df2_edits1['Asq3 Comm 18Mm'].combine_first(df2_edits1['ASQ18MoCom'])
     ### IFNULL([Asq3 Comm 18Mm],[ASQ18MoCom])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 18 Mo Fine Motor'] = df2_edits1['ASQ18MoFine'].combine_first(df2_edits1['Asq3 Fine 18Mm'])
     ### IFNULL([ASQ18MoFine],[Asq3 Fine 18Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 18 Mo Gross Motor'] = df2_edits1['ASQ18MoGross'].combine_first(df2_edits1['Asq3 Gross 18Mm'])
     ### IFNULL([ASQ18MoGross],[Asq3 Gross 18Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 18 Mo Personal Social'] = df2_edits1['ASQ18MoPersonal'].combine_first(df2_edits1['Asq3 Social 18Mm'])
     ### IFNULL([ASQ18MoPersonal],[Asq3 Social 18Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 18 Mo Problem Solving'] = df2_edits1['ASQ18MoProblem'].combine_first(df2_edits1['Asq3 Problem 18Mm'])
     ### IFNULL([ASQ18MoProblem],[Asq3 Problem 18Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 24 Mo Communication'] = df2_edits1['Asq3 Comm 24Mm'].combine_first(df2_edits1['ASQ24MoCom'])
     ### IFNULL([Asq3 Comm 24Mm],[ASQ24MoCom])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 24 Mo Fine Motor'] = df2_edits1['ASQ24MoFine'].combine_first(df2_edits1['Asq3 Fine 24Mm'])
     ### IFNULL([ASQ24MoFine],[Asq3 Fine 24Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 24 Mo Gross Motor'] = df2_edits1['ASQ24MoGross'].combine_first(df2_edits1['Asq3 Gross 24Mm'])
     ### IFNULL([ASQ24MoGross],[Asq3 Gross 24Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 24 Mo Personal Social'] = df2_edits1['ASQ24MoPersonal'].combine_first(df2_edits1['Asq3 Social 24Mm'])
     ### IFNULL([ASQ24MoPersonal],[Asq3 Social 24Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 24 Mo Problem Solving'] = df2_edits1['ASQ24MoProblem'].combine_first(df2_edits1['Asq3 Problem 24Mm'])
     ### IFNULL([ASQ24MoProblem],[Asq3 Problem 24Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 30 Mo Communication'] = df2_edits1['ASQ30MoCom'].combine_first(df2_edits1['Asq3 Comm 30Mm'])
     ### IFNULL([ASQ30MoCom],[Asq3 Comm 30Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 30 Mo Fine Motor'] = df2_edits1['ASQ30MoFine'].combine_first(df2_edits1['Asq3 Fine 30Mm'])
     ### IFNULL([ASQ30MoFine],[Asq3 Fine 30Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 30 Mo Gross Motor'] = df2_edits1['ASQ30MoGross'].combine_first(df2_edits1['Asq3 Gross 30Mm'])
     ### IFNULL([ASQ30MoGross],[Asq3 Gross 30Mm])
+    ### Data Type in Tableau: integer.
 
 #%%###################################
 df2_edits1['_C12 ASQ 30 Mo Personal Social'] = df2_edits1['ASQ30MoPersonal'].combine_first(df2_edits1['Asq3 Social 30Mm'])
     ### IFNULL([ASQ30MoPersonal],[Asq3 Social 30Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 30 Mo Problem Solving'] = df2_edits1['ASQ30MoProblem'].combine_first(df2_edits1['Asq3 Problem 30Mm'])
     ### IFNULL([ASQ30MoProblem],[Asq3 Problem 30Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 9 Mo Communication'] = df2_edits1['ASQ9MoCom'].combine_first(df2_edits1['Asq3 Comm 9Mm'])
     ### IFNULL([ASQ9MoCom],[Asq3 Comm 9Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 9 Mo Fine Motor'] = df2_edits1['ASQ9MoFine'].combine_first(df2_edits1['Asq3 Fine 9Mm'])
     ### IFNULL([ASQ9MoFine],[Asq3 Fine 9Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 9 Mo Gross Motor'] = df2_edits1['ASQ9MoGross'].combine_first(df2_edits1['Asq3 Gross 9Mm'])
     ### IFNULL([ASQ9MoGross],[Asq3 Gross 9Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 9 Mo Personal Social'] = df2_edits1['ASQ9MoPersonal'].combine_first(df2_edits1['Asq3 Social 9Mm'])
     ### IFNULL([ASQ9MoPersonal],[Asq3 Social 9Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C12 ASQ 9 Mo Problem Solving'] = df2_edits1['ASQ9MoProblem'].combine_first(df2_edits1['Asq3 Problem 9Mm'])
     ### IFNULL([ASQ9MoProblem],[Asq3 Problem 9Mm])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C13 Behavioral Concerns Asked'] = df2_edits1['Behavior Numer'].combine_first(df2_edits1['Behavioral Concerns'])
     ### IFNULL([Behavior Numer],[Behavioral Concerns])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_C13 Behavioral Concerns Visits'] = df2_edits1['Behavior Denom'].combine_first(df2_edits1['Home Visits Post'])
     ### IFNULL([Behavior Denom],[Home Visits Post])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_T16 Total Home Visits'] = df2_edits1['Home Visits Total'].combine_first(df2_edits1['Home Visits Num'])
     ### IFNULL([Home Visits Total],[Home Visits Num])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_TGT Number'] = df2_edits1['Tgt Id'].combine_first(df2_edits1['Child Number'])
     ### IFNULL([Tgt Id],[Child Number])
+    ### Data Type in Tableau: integer.
 
 df2_edits1['_Zip'] = df2_edits1['zip'].combine_first(df2_edits1['ZIP Code'])
     ### IFNULL([zip],[ZIP Code])
+    ### Data Type in Tableau: integer.
 
 #%%###################################
 ### If variables are already dtypes "datetime64", then this should be a date too:
 df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].combine_first(df2_edits1['Hlth Insure Tgt Dt'])
     ### DATE(IFNULL([TGT Insure Change Date],[Hlth Insure Tgt Dt]))
+    ### Data Type in Tableau: date.
 
 #%%##################################################
 ### DATE CALCULATIONS
@@ -885,34 +942,44 @@ df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].com
 
 df2_edits1['_C18 ASQ 18 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 18 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 18 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 18 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 24 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 24 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 24 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 24 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 24 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 24 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 30 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 30 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 30 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 30 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 30 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 30 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 9 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 9 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_C18 ASQ 9 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 9 Mo Date])) 
+    ### Data Type in Tableau: date.
 
 #%%###################################
 df2_edits1['_Enroll 3 Month Date'] = df2_edits1['_Enroll'] + pd.DateOffset(months=3) 
     ### DATE(DATEADD('month',3,[_Enroll])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_Enroll 6 Month Date'] = df2_edits1['_Enroll'] + pd.DateOffset(months=6) 
     ### DATE(DATEADD('month',6,[_Enroll])) 
+    ### Data Type in Tableau: date.
 
 #%%##################################################
 ### IF/ELSE, CASE/WHEN
@@ -1081,7 +1148,8 @@ inspect_col(df2_edits1['_C2 BF Status'])
 # #%%
 # inspect_col(df2_edits1['Breast Feeding']) ### Originally, csv read in as int, then NA's converted to a float. Should be a string. Fixed in Read above.
 # #%%
-# pd.crosstab(df2_edits1['_C2 BF Status'], df2_edits1['_Agency'], dropna=False)
+# # pd.crosstab(df2_edits1['_Agency'], df2_edits1['_C2 BF Status'], dropna=False)
+# pd.crosstab(df2_edits1['_C2 BF Status'], df2_edits1['_Agency'], dropna=False, margins=True)
 
 #%%###################################
 
@@ -1745,27 +1813,30 @@ inspect_col(df2_edits1['_TGT Race'])
 def fn_C11_Literacy_Read_Sing(fdf):
     ### FW.
     if (fdf['_Agency'] != "ll"):
-        match fdf['Read Tell Story Sing']:
-            case "0":
-                return 0
-            case "1":
-                return 1
-            case "2":
-                return 2
-            case "3":
-                return 3
-            case "4":
-                return 4
-            case "5":
-                return 5
-            case "6":
-                return 6
-            case "7":
-                return 7
-            case "YES":
-                return 7
-            case _:
-                return np.nan 
+        if (pd.isna(fdf['Read Tell Story Sing'])):
+            return np.nan
+        else:
+            match fdf['Read Tell Story Sing']:
+                case "0":
+                    return 0
+                case "1":
+                    return 1
+                case "2":
+                    return 2
+                case "3":
+                    return 3
+                case "4":
+                    return 4
+                case "5":
+                    return 5
+                case "6":
+                    return 6
+                case "7":
+                    return 7
+                case "YES":
+                    return 7
+                case _:
+                    return np.nan 
     ### LLCHD.
     elif (fdf['_Agency'] == "ll"):
         match fdf['Early Language']:
@@ -1800,10 +1871,11 @@ def fn_C11_Literacy_Read_Sing(fdf):
 df2_edits1['_C11 Literacy Read Sing'] = df2_edits1.apply(func=fn_C11_Literacy_Read_Sing, axis=1)
     ### Data Type in Tableau: 'int'.
 inspect_col(df2_edits1['_C11 Literacy Read Sing'])
-# #%%
-# inspect_col(df2_edits1['Read Tell Story Sing']) ### Originally, csv read in as float64. Should be a string. But that breaks this is/else logic. Fixed in Read above by reading in as object.
-# #%%
-# inspect_col(df2_edits1['Early Language'])
+#%%
+inspect_col(df2_edits1['Read Tell Story Sing']) ### Originally, csv read in as float64. Should be a string. But that breaks this is/else logic. Fixed in Read above by reading in as object.
+    ### Above read in as "object" not "string" so that same data type
+#%%
+inspect_col(df2_edits1['Early Language'])
 
 #%%###################################
 
@@ -1857,6 +1929,7 @@ inspect_col(df2_edits1['_T15-6 Low Student Achievement'])
 ### Dependent on '_FW Gestation Age Recode'.
 df2_edits1['_TGT Gestational Age'] = df2_edits1['tgt GestationalAge'].combine_first(df2_edits1['_FW Gestation Age Recode'])
     ### IFNULL([tgt GestationalAge], [_FW Gestation Age Recode])
+    ### Data Type in Tableau: integer.
 
 #%%##################################################
 ### DATE CALCULATIONS
@@ -1866,59 +1939,77 @@ df2_edits1['_TGT Gestational Age'] = df2_edits1['tgt GestationalAge'].combine_fi
 
 df2_edits1['_TGT 2 Week Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(weeks=2) 
     ### DATE(DATEADD('week',2,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 3 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=3) 
     ### DATE(DATEADD('day',3,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 30 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 5 Week Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(weeks=5) 
     ### DATE(DATEADD('week',5,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 56 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=56) 
     ### DATE(DATEADD('day',56,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 7 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=7) 
     ### DATE(DATEADD('day',7,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 8 Day Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(days=8) 
     ### DATE(DATEADD('day',8,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 4 Week Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(weeks=4) 
     ### DATE(DATEADD('week',4,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 ### TO DO: Fix Space in variable name! (but not yet.)
 df2_edits1['_TGT 10 Month Date '] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=10) 
     ### DATE(DATEADD('month',10,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 11 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=11) 
     ### DATE(DATEADD('month',11,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 2 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=2) 
     ### DATE(DATEADD('month',2,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 3 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=3) 
     ### DATE(DATEADD('month',3,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 4 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=4) 
     ### DATE(DATEADD('month',4,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 5 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=5) 
     ### DATE(DATEADD('month',5,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 ### TO DO: Fix Space in variable name! (but not yet.)
 df2_edits1['_TGT 6 Month Date '] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=6) 
     ### DATE(DATEADD('month',6,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 7 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=7) 
     ### DATE(DATEADD('month',7,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 8 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=8) 
     ### DATE(DATEADD('month',8,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=9) 
     ### DATE(DATEADD('month',9,[_TGT DOB])) 
+    ### Data Type in Tableau: date.
 
 #%%##################################################
 ### COLUMNS with DIFFERENT VALUES from the Comparison:
@@ -1926,6 +2017,7 @@ df2_edits1['_TGT 9 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
 #%%
 df2_edits1['_C18 ASQ 9 Mo Referral Date'] = df2_edits1['Asq3 Referral 9Mm'].combine_first(df2_edits1['ASQ9MoRefDate'])
     ### IFNULL([Asq3 Referral 9Mm],[ASQ9MoRefDate])
+    ### Data Type in Tableau: date.
 inspect_col(df2_edits1['_C18 ASQ 9 Mo Referral Date'])
 # #%%
 # inspect_col(df2_edits1['Asq3 Referral 9Mm']) ### Empty & so did not read in as a Date. Fixed above in Read.
@@ -1946,6 +2038,7 @@ inspect_col(df2_edits1['_C18 ASQ 9 Mo Referral Date'])
 #%%
 df2_edits1['_Family Number'] = df2_edits1['Family Id'].combine_first(df2_edits1['Family Number'].astype('Int64'))
     ### IFNULL([Family Id],[Family Number])
+    ### Data Type in Tableau: string.
 inspect_col(df2_edits1['_Family Number'])
 ### Most are integers, some are long string ID's of letters & numbers.
 # #%%
@@ -2053,6 +2146,7 @@ inspect_col(df2_edits1['_T05 Age Categories'])
 
 #%%##################################################
 df2_edits1['Number of Records'] = 1
+    ### Data Type in Tableau: integer.
 
 
 

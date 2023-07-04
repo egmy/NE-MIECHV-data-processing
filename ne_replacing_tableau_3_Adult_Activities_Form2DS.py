@@ -3652,3 +3652,6 @@ inspect_col(df3_edits1[var_to_compare])
 # )
 
 
+### GENERAL:
+### TODO: Every column function should build in what to do if any NA present in any var.
+
