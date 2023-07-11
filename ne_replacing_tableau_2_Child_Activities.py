@@ -1,6 +1,9 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
+#%%
+exec(open('RUNME.py').read())
+
 #%%##################################################
 ### INSTRUCTIONS ###
 #####################################################
@@ -17,85 +20,12 @@
 # import sys
 # import IPython
 
-# print('Version Of Python: ' + sys.version)
-# print('Version Of Pandas: ' + pd.__version__)
-# print('Version Of Numpy: ' + np.version.version)
-
-#%%##################################################
-### SETTINGS ###
-#####################################################
-
-### None for now.
-
-#%%##################################################
-### PATHS ###
-#####################################################
-
-# ### Data Source for 2nd Tableau file:
-# ### path_2_data_source_file = 'U:\\Working\\Tableau\\Y12 (Oct 2022 - Sept 2023)\\Child Activity Master File.xlsx' ### old.
-# ### local:
-# path_2_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01_input\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File.xlsx')
-
-# path_2_data_source_sheets = [
-#     'Project ID',  # 1
-#     'ER Injury',  # 2
-#     'Family Wise',  # 3
-#     'LLCHD',  # 4
-#     'Well Child'  # 5
-# ]
-
-# ### Output for 2nd Tableau file:
-# path_2_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\03_output')
-# path_2_output = Path(path_2_output_dir, 'Child Activity Master File from Excel on NE Server.csv')
-
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
-# ### File created for Y12Q1 by the old data sourcing process with Tableau.
-# path_2_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
-
 df2_comparison_csv = pd.read_csv(path_2_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df2_comparison_csv = df2_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
-
-# #%%##################################################
-# ### Utility Functions ###
-# #####################################################
-
-# def inspect_df (df):
-#     print(df.describe(include='all'))
-#     print('\n')
-#     print(df.dtypes.to_string())
-#     print('\n')
-#     print(df.info(verbose=True, show_counts=True))
-#     print('\n')
-#     print(f'Rows: {len(df)}')
-#     print(f'Columns: {len(df.columns)}')
-#     print('\n')
-#     IPython.display.display(df)
-
-# ### fSeries = df column or Series: e.g., df['colname'].
-# def inspect_col(fSeries):
-#     print(fSeries.info())
-#     print('\n')
-#     print('value_counts:')
-#     print(fSeries.value_counts(dropna=False))
-#     print('\n')
-#     print(fSeries)
-
-# def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df2_comparison_csv): ### or 'value_counts'.
-#     if info_or_value_counts=='info':
-#         print(f'DataFrame 1 (df2_comparison_csv):\n')
-#         print(fdf_1[fcol].info())
-#         print('\n')
-#         print(f'DataFrame 2:\n')
-#         print(fdf_2[fcol].info())
-#     elif info_or_value_counts=='value_counts':
-#         print(f'DataFrame 1 (df2_comparison_csv):\n')
-#         print(fdf_1[fcol].value_counts(dropna=False))
-#         print('\n')
-#         print(f'DataFrame 2:\n')
-#         print(fdf_2[fcol].value_counts(dropna=False))
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -712,12 +642,6 @@ df2 = (
 ### Then other tabs added (auxiliary tables): In these there may be clients that do not match those active in the Project ID tab.
 
 
-#%%##################################################
-### Set Data Types ###
-#####################################################
-
-### Tableau does this automatically. So does Python on Read in. Made needed adjustments above.
-
 ##################################################################################################
 ##################################################################################################
 ##################################################################################################
@@ -730,7 +654,7 @@ df2 = (
 
 
 #%%##################################################
-### RECODE / Creating Columns ###
+### RECREATE every Tableau Calculation ###
 #####################################################
 
 #%%
@@ -755,7 +679,7 @@ df2_edits1['_C18 ASQ 9 Mo Ref Location'] = df2_edits1['ASQ9MoRefLocation']
     ### [ASQ9MoRefLocation]
     ### Data Type in Tableau: string.
 
-### TO DO: LLCHD needs to provide a safe sleep partial date.
+### TODO: LLCHD needs to provide a safe sleep partial date.
 df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['Safe Sleep Partial Date']
     ### // IFNULL(
     ### [Safe Sleep Partial Date]  // FW
@@ -766,13 +690,27 @@ df2_edits1['_C7 Safe Sleep Partial Date'] = df2_edits1['Safe Sleep Partial Date'
 #%%##################################################
 ### COALESCING
 
+    ### combine_first() fills in NA/Missing locations in the first column with values from the 2nd. Can still have missing at end if both NA/Missing.
+
 df2_edits1['_Agency'] = df2_edits1['Agency'].combine_first(df2_edits1['Site Id'])
     ### IFNULL([Agency],[Site Id])
     ### Data Type in Tableau: string.
+# inspect_col(df2_edits1['_Agency'])
+# #%%
+# inspect_col(df2_edits1['Agency'])
+# #%%
+# inspect_col(df2_edits1['Site Id'])
+# #%%
 
 df2_edits1['_C11 Literacy'] = df2_edits1['Max Early Literacy Date'].combine_first(df2_edits1['Early Language Dt'])
     ### IFNULL([Max Early Literacy Date],[Early Language Dt])
     ### Data Type in Tableau: date.
+# inspect_col(df2_edits1['_C11 Literacy'])
+# #%%
+# inspect_col(df2_edits1['Max Early Literacy Date'])
+# #%%
+# inspect_col(df2_edits1['Early Language Dt'])
+# #%%
 
 df2_edits1['_C12 ASQ 18 Mo Date'] = df2_edits1['ASQ18MoDate'].combine_first(df2_edits1['Asq3 Dt 18Mm'])
     ### IFNULL([ASQ18MoDate],[Asq3 Dt 18Mm])
@@ -822,11 +760,11 @@ df2_edits1['_Enroll'] = df2_edits1['Enroll Dt'].combine_first(df2_edits1['Min Of
     ### IFNULL([Enroll Dt],[Min Of HV Date])
     ### Data Type in Tableau: date.
 
-#%%###################################
-
 df2_edits1['_Max HV Date'] = df2_edits1['Maxof HV Date'].combine_first(df2_edits1['Last Home Visit'])
     ### IFNULL([Maxof HV Date],[Last Home Visit])
     ### Data Type in Tableau: date.
+
+#%%###################################
 
 df2_edits1['_C12 ASQ 18 Mo Communication'] = df2_edits1['Asq3 Comm 18Mm'].combine_first(df2_edits1['ASQ18MoCom'])
     ### IFNULL([Asq3 Comm 18Mm],[ASQ18MoCom])
@@ -934,6 +872,7 @@ df2_edits1['_Zip'] = df2_edits1['zip'].combine_first(df2_edits1['ZIP Code'])
 df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].combine_first(df2_edits1['Hlth Insure Tgt Dt'])
     ### DATE(IFNULL([TGT Insure Change Date],[Hlth Insure Tgt Dt]))
     ### Data Type in Tableau: date.
+inspect_col(df2_edits1['_T20 TGT Insurance Date'])
 
 #%%##################################################
 ### DATE CALCULATIONS
@@ -943,6 +882,10 @@ df2_edits1['_T20 TGT Insurance Date'] = df2_edits1['TGT Insure Change Date'].com
 df2_edits1['_C18 ASQ 18 Mo 30 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.DateOffset(days=30) 
     ### DATE(DATEADD('day',30,[_C12 ASQ 18 Mo Date])) 
     ### Data Type in Tableau: date.
+# inspect_col(df2_edits1['_C18 ASQ 18 Mo 30 Day Date'])
+# #%%
+# inspect_col(df2_edits1['_C12 ASQ 18 Mo Date'])
+# #%%
 
 df2_edits1['_C18 ASQ 18 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 18 Mo Date'] + pd.DateOffset(days=45) 
     ### DATE(DATEADD('day',45,[_C12 ASQ 18 Mo Date])) 
@@ -972,7 +915,6 @@ df2_edits1['_C18 ASQ 9 Mo 45 Day Date'] = df2_edits1['_C12 ASQ 9 Mo Date'] + pd.
     ### DATE(DATEADD('day',45,[_C12 ASQ 9 Mo Date])) 
     ### Data Type in Tableau: date.
 
-#%%###################################
 df2_edits1['_Enroll 3 Month Date'] = df2_edits1['_Enroll'] + pd.DateOffset(months=3) 
     ### DATE(DATEADD('month',3,[_Enroll])) 
     ### Data Type in Tableau: date.
@@ -1007,6 +949,12 @@ def fn_TGT_EDC_Date(fdf):
 df2_edits1['_TGT EDC Date'] = df2_edits1.apply(func=fn_TGT_EDC_Date, axis=1)
     ### Data Type in Tableau: 'date'.
 inspect_col(df2_edits1['_TGT EDC Date'])
+# #%%
+# inspect_col(df2_edits1['Dt Edc'])
+# #%%
+# inspect_col(df2_edits1['EDC Date'])
+#%%
+print(df2_edits1[['_TGT EDC Date', 'Dt Edc', 'EDC Date']].query('`Dt Edc` == "1900-01-01" or `EDC Date` == "1900-01-01"').to_string())
 
 #%%###################################
 
@@ -1033,6 +981,8 @@ inspect_col(df2_edits1['_TGT DOB'])
 # inspect_col(df2_edits1['Tgt Dob'])
 # #%%
 # inspect_col(df2_edits1['Tgt Dob-Cr'])
+#%%
+print(df2_edits1[['_TGT DOB', 'Tgt Dob', 'Tgt Dob-Cr']].query('`Tgt Dob` == "1900-01-01" or `Tgt Dob-Cr` == "1900-01-01"').to_string())
 
 #%%###################################
 
@@ -1054,6 +1004,17 @@ def fn_C7_Safe_Sleep_Yes_Date(fdf):
 df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
     ### Data Type in Tableau: 'date'.
 inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
+#%%
+inspect_col(df2_edits1['Sleep On Back']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+#%%
+inspect_col(df2_edits1['Co Sleeping']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+#%%
+inspect_col(df2_edits1['Soft Bedding']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+#%%
+inspect_col(df2_edits1['Safe Sleep Date'])
+#%%
+inspect_col(df2_edits1['Safe Sleep Yes Dt'])
+### TODO: Investigate why all 3 FW safe sleep variable all empty.
 
 #%%###################################
 
@@ -1141,7 +1102,7 @@ def fn_C2_BF_Status(fdf):
     ### ELSEIF [_Agency] = "ll" THEN NULL  // add CASE for LLCHD values when they add them to their dataset
     ### END
 df2_edits1['_C2 BF Status'] = df2_edits1.apply(func=fn_C2_BF_Status, axis=1)
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df2_edits1['_C2 BF Status'])
 # #%%
 # inspect_col(df2_edits1['_Agency'])
@@ -1181,6 +1142,13 @@ def fn_FW_Gestation_Age_Recode(fdf):
             return 42
         case 'Unknown':
             return np.nan
+        # case np.nan: ### no error, but doesn't work.
+        # case pd.isna(): ### no error, but doesn't work.
+        # case pd.isna(): ### TypeError: called match pattern must be a type.
+        # case '':
+        # case pd.NA: ### TypeError: boolean value of NA is ambiguous.
+        # case _ if pd.isna(_): ###ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all(). ### Note: This error only notice when running first time, not after var already created.
+        #     return 100
         case _:
             return np.nan
     ### CASE [Gestational Age]
@@ -1200,8 +1168,12 @@ def fn_FW_Gestation_Age_Recode(fdf):
     ### ELSE NULL
     ### END
 df2_edits1['_FW Gestation Age Recode'] = df2_edits1.apply(func=fn_FW_Gestation_Age_Recode, axis=1)
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df2_edits1['_FW Gestation Age Recode'])
+#%%
+inspect_col(df2_edits1['Gestational Age'])
+### TODO: Check with Joe -- but need to add in values for "22/24/27/28/30/32 weeks".
+    ### OR change to check if follows patter, then pull first 2 chars, & then turn to int.
 
 #%%###################################
 
@@ -1454,7 +1426,7 @@ def fn_T15_7_Household_Developmental_Delay(fdf):
     ### END
     ### //To determine priority population, positive ASQ results also need to be considered
 df2_edits1['_T15-7 Household Developmental Delay'] = df2_edits1.apply(func=fn_T15_7_Household_Developmental_Delay, axis=1)
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df2_edits1['_T15-7 Household Developmental Delay'])
 
 #%%###################################
@@ -1869,7 +1841,7 @@ def fn_C11_Literacy_Read_Sing(fdf):
     ###     END
     ### END
 df2_edits1['_C11 Literacy Read Sing'] = df2_edits1.apply(func=fn_C11_Literacy_Read_Sing, axis=1)
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df2_edits1['_C11 Literacy Read Sing'])
 #%%
 inspect_col(df2_edits1['Read Tell Story Sing']) ### Originally, csv read in as float64. Should be a string. But that breaks this is/else logic. Fixed in Read above by reading in as object.
@@ -1898,7 +1870,7 @@ def fn_Child_Welfare_Interaction(fdf):
     ### END
     ### //For priority population, current maltreatment reports also need to be considered
 df2_edits1['_Child Welfare Interaction'] = df2_edits1.apply(func=fn_Child_Welfare_Interaction, axis=1)
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df2_edits1['_Child Welfare Interaction'])
 
 #%%###################################
@@ -1920,7 +1892,7 @@ def fn_T15_6_Low_Student_Achievement(fdf):
     ### ELSEIF [Priority Low Student] = "Y" THEN 1
     ### END
 df2_edits1['_T15-6 Low Student Achievement'] = df2_edits1.apply(func=fn_T15_6_Low_Student_Achievement, axis=1)
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df2_edits1['_T15-6 Low Student Achievement'])
 
 #%%##################################################
@@ -2090,7 +2062,7 @@ def fn_T05_TGT_Age_in_Months(fdf):
     ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
     ### END
 df2_edits1['_T05 TGT Age in Months'] = df2_edits1.apply(func=fn_T05_TGT_Age_in_Months, axis=1).round()#.astype('Float64').astype('Int64')
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df2_edits1['_T05 TGT Age in Months'])
 
 # #%%
@@ -2149,7 +2121,6 @@ df2_edits1['Number of Records'] = 1
     ### Data Type in Tableau: integer.
 
 
-
 ##################################################################################################
 ##################################################################################################
 ##################################################################################################
@@ -2158,9 +2129,7 @@ df2_edits1['Number of Records'] = 1
 ##################################################################################################
 ##################################################################################################
 ##################################################################################################
-
-
-
+##################################################################################################
 
 
 #%%##################################################
@@ -2241,6 +2210,18 @@ df2__final = df2_edits2.copy()
 #%%
 ### Write out df.
 df2__final.to_csv(path_2_output, index=False, date_format="%#m/%#d/%Y")
+
+
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
 
 #%%
 ### Read back in df for comparison.

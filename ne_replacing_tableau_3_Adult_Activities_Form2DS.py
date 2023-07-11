@@ -1,6 +1,9 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
+#%%
+exec(open('RUNME.py').read())
+
 #%%##################################################
 ### INSTRUCTIONS ###
 #####################################################
@@ -17,87 +20,12 @@
 # import sys
 # import IPython
 
-# print('Version Of Python: ' + sys.version)
-# print('Version Of Pandas: ' + pd.__version__)
-# print('Version Of Numpy: ' + np.version.version)
-
-#%%##################################################
-### SETTINGS ###
-#####################################################
-
-### Probably put this in a config file.
-### Current Federal Poverty something.....
-### appropriate_var = ''
-
-#%%##################################################
-### PATHS ###
-#####################################################
-
-# ### Data Source for 3rd Tableau file, 1st Data Source (for Form 2):
-# ### DS: "Adult Activity Master File from Excel on NE Server".
-# ### path_3_data_source = 'U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Adult Activity Master File Y12.xlsx'
-# ### local:
-# path_3_data_source_file = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01_input\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File.xlsx')
-
-# path_3_data_source_sheets = [
-#     'Project ID' # 1
-#     ,'Caregiver Insurance' # 2
-#     ,'Family Wise' # 3
-#     ,'LLCHD' # 4
-# ]
-
-# ### Output for 3rd Tableau file:
-# path_3_output_dir = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\03_output')
-# path_3_output = Path(path_3_output_dir, 'Adult Activity Master File from Excel on NE Server.csv')
-
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
-# ### File created for Y12Q1 by the old data sourcing process with Tableau.
-# path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
-
 df3_comparison_csv = pd.read_csv(path_3_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
 df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
-
-# #%%##################################################
-# ### Utility Functions ###
-# #####################################################
-
-# def inspect_df (df):
-#     print(df.describe(include='all'))
-#     print('\n')
-#     print(df.dtypes.to_string())
-#     print('\n')
-#     print(df.info(verbose=True, show_counts=True))
-#     print('\n')
-#     print(f'Rows: {len(df)}')
-#     print(f'Columns: {len(df.columns)}')
-#     print('\n')
-#     IPython.display.display(df)
-
-# ### fSeries = df column or Series: e.g., df['colname'].
-# def inspect_col(fSeries):
-#     print(fSeries.info())
-#     print('\n')
-#     print('value_counts:')
-#     print(fSeries.value_counts(dropna=False))
-#     print('\n')
-#     print(fSeries)
-
-# def compare_col(fdf_2, fcol, info_or_value_counts='info', fdf_1=df3_comparison_csv): ### or 'value_counts'.
-#     if info_or_value_counts=='info':
-#         print(f'DataFrame 1 (df3_comparison_csv):\n')
-#         print(fdf_1[fcol].info())
-#         print('\n')
-#         print(f'DataFrame 2:\n')
-#         print(fdf_2[fcol].info())
-#     elif info_or_value_counts=='value_counts':
-#         print(f'DataFrame 1 (df3_comparison_csv):\n')
-#         print(fdf_1[fcol].value_counts(dropna=False))
-#         print('\n')
-#         print(f'DataFrame 2:\n')
-#         print(fdf_2[fcol].value_counts(dropna=False))
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -668,14 +596,20 @@ df3 = (
     )
 ) 
 
-#%%##################################################
-### Set Data Types ###
-#####################################################
 
-### Tableau does this automatically. So does Python on Read in. Made needed adjustments above.
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
 
 #%%##################################################
-### RECODE / Creating Columns ###
+### RECREATE every Tableau Calculation ###
 #####################################################
 
 #%%
@@ -897,7 +831,7 @@ def fn_T04_MOB_Age(fdf):
     # ELSE DATEDIFF('year',[_MOB DOB],TODAY())
     # END
 df3_edits1['_T04 MOB Age'] = df3_edits1.apply(func=fn_T04_MOB_Age, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T04 MOB Age']) 
 
 #%%###################################
@@ -918,7 +852,7 @@ def fn_T04_FOB_Age(fdf):
     # ELSE DATEDIFF('year',[_FOB DOB],TODAY())
     # END
 df3_edits1['_T04 FOB Age'] = df3_edits1.apply(func=fn_T04_FOB_Age, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T04 FOB Age']) 
 
 #%%###################################
@@ -2537,7 +2471,7 @@ def fn_FOB_Involved(fdf):
     # ELSE 0
     # END
 df3_edits1['_FOB Involved'] = df3_edits1.apply(func=fn_FOB_Involved, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_FOB Involved']) 
 
 #%%###################################
@@ -2735,7 +2669,7 @@ def fn_T14_Federal_Poverty_Level_update(fdf):
     # //uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available
     # 8870 + (4720 * [Household Size])
 df3_edits1['_T14 Federal Poverty Level update'] = df3_edits1.apply(func=fn_T14_Federal_Poverty_Level_update, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T14 Federal Poverty Level update']) 
 # #%%
 # inspect_col(df3_edits1['Household Size']) 
@@ -2979,7 +2913,7 @@ def fn_T15_5_Tobacco_Use_in_Home(fdf):
     # ELSE 0
     # END
 df3_edits1['_T15-5 Tobacco Use in Home'] = df3_edits1.apply(func=fn_T15_5_Tobacco_Use_in_Home, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T15-5 Tobacco Use in Home']) 
 #%%
 inspect_col(df3_edits1['Priority Tobacco Use']) 
@@ -3069,7 +3003,7 @@ def fn_UNCOPE_U_Recode(fdf):
     # ELSEIF [U] = "No" THEN INT(0)
     # END
 df3_edits1['_UNCOPE U Recode'] = df3_edits1.apply(func=fn_UNCOPE_U_Recode, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_UNCOPE U Recode']) 
 
 #%%###################################
@@ -3083,7 +3017,7 @@ def fn_UNCOPE_N_Recode(fdf):
     # ELSEIF [N] = "No" THEN INT(0)
     # END
 df3_edits1['_UNCOPE N Recode'] = df3_edits1.apply(func=fn_UNCOPE_N_Recode, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_UNCOPE N Recode']) 
 
 #%%###################################
@@ -3097,7 +3031,7 @@ def fn_UNCOPE_C_Recode(fdf):
     # ELSEIF [C] = "No" THEN INT(0)
     # END
 df3_edits1['_UNCOPE C Recode'] = df3_edits1.apply(func=fn_UNCOPE_C_Recode, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_UNCOPE C Recode']) 
 
 #%%###################################
@@ -3111,7 +3045,7 @@ def fn_UNCOPE_O_Recode(fdf):
     # ELSEIF [O] = "No" THEN INT(0)
     # END
 df3_edits1['_UNCOPE O Recode'] = df3_edits1.apply(func=fn_UNCOPE_O_Recode, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_UNCOPE O Recode']) 
 
 #%%###################################
@@ -3125,7 +3059,7 @@ def fn_UNCOPE_P_Recode(fdf):
     # ELSEIF [P] = "No" THEN INT(0)
     # END
 df3_edits1['_UNCOPE P Recode'] = df3_edits1.apply(func=fn_UNCOPE_P_Recode, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_UNCOPE P Recode']) 
 
 #%%###################################
@@ -3139,7 +3073,7 @@ def fn_UNCOPE_E_Recode(fdf):
     # ELSEIF [E] = "No" THEN INT(0)
     # END
 df3_edits1['_UNCOPE E Recode'] = df3_edits1.apply(func=fn_UNCOPE_E_Recode, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_UNCOPE E Recode']) 
 
 #%%###################################
@@ -3157,7 +3091,7 @@ def fn_UNCOPE_Score_FW(fdf):
     # [_UNCOPE U Recode]+[_UNCOPE N Recode]+[_UNCOPE C Recode]+[_UNCOPE O Recode]+[_UNCOPE P Recode]+[_UNCOPE E Recode]
     # //sum of UNCOPE scores in the FW dataset
 df3_edits1['_UNCOPE Score FW'] = df3_edits1.apply(func=fn_UNCOPE_Score_FW, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_UNCOPE Score FW']) 
 
 #%%###################################
@@ -3183,7 +3117,7 @@ def fn_T15_3_History_Welfare_Interaction(fdf):
     # ELSE 0
     # END
 df3_edits1['_T15-3 History Welfare Interaction'] = df3_edits1.apply(func=fn_T15_3_History_Welfare_Interaction, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T15-3 History Welfare Interaction']) 
 
 #%%###################################
@@ -3209,7 +3143,7 @@ def fn_T15_6_Low_Achievement(fdf):
     # ELSE 0
     # END
 df3_edits1['_T15-6 Low Achievement'] = df3_edits1.apply(func=fn_T15_6_Low_Achievement, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T15-6 Low Achievement']) 
 
 #%%###################################
@@ -3235,7 +3169,7 @@ def fn_T15_8_Military(fdf):
     # ELSE 0
     # END
 df3_edits1['_T15-8 Military'] = df3_edits1.apply(func=fn_T15_8_Military, axis=1) 
-    ### Data Type in Tableau: 'int'.
+    ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T15-8 Military']) 
 
 #%%##################################################
@@ -3291,6 +3225,7 @@ df3_edits1['_TGT 3 Month Date'] = df3_edits1['_TGT DOB'] + pd.DateOffset(months=
 df3_edits1['Number of Records'] = 1
 
 
+##################################################################################################
 ##################################################################################################
 ##################################################################################################
 ##################################################################################################
@@ -3375,6 +3310,18 @@ df3__final = df3_edits2.copy()
 #%%
 ### Write out df.
 df3__final.to_csv(path_3_output, index=False, date_format="%#m/%#d/%Y")
+
+
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
 
 #%%
 ### Read back in df for comparison.

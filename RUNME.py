@@ -14,6 +14,13 @@
 ### In SETTINGS below:
     ### Change Quarter variable.
 
+### Create 4 folders with name of nehv_quarter in these locations:
+    ### U:\Working\nebraska_miechv_coded_data_source\data\01_input 
+    ### U:\Working\nebraska_miechv_coded_data_source\previous\previous_output 
+    ### U:\Working\nebraska_miechv_coded_data_source\previous\previous_tableau 
+    ### U:\Working\nebraska_miechv_coded_data_source\data\03_output 
+### ... and then copy over the associated files for the first 3 locations (no this code's output).
+    ### In old folders see "source....txt" files to see where to copy from.
 
 #%%##################################################
 ### PACKAGES ###
@@ -34,7 +41,8 @@ print('Version Of Numpy: ' + np.version.version)
 ### SETTINGS ###
 #####################################################
 
-nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
+# nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
+nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 
 ### From #3:
     ### Current Federal Poverty something.....
@@ -188,5 +196,8 @@ print('end file :)')
 
 
 # %%
+
+### TODO:
+    ### Function to stop & show/flag Unrecognized Values.
 
 

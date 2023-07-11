@@ -1,19 +1,18 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
+#%%
+exec(open('RUNME.py').read())
+
 # %% ################################################
 ### PACKAGES ###
 #####################################################
 
-### pip list ### See packages installed in this virtual environment that can be imported.
-
-import pandas as pd
-
-# import matplotlib.pyplot as plt
+# import pandas as pd
+# from pathlib import Path
 # import numpy as np
-
-### Test that pandas imported:
-print(pd.__version__)
+# import sys
+# import IPython
 
 # %% ################################################
 ### READ ###
@@ -46,10 +45,6 @@ df5 = pd.read_excel(path_5_data_source, sheet_name='')
 # %% ################################################
 ### RECODE ###
 #####################################################
-
-### numpy.where() --- Sami: use to treat NULL values weird at times; may be quicker than apply.
-
-### pandas
 
 
 
