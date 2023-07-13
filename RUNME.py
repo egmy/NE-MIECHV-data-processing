@@ -32,6 +32,7 @@ import numpy as np
 import sys
 import runpy
 import IPython
+import collections
 
 print('Version Of Python: ' + sys.version)
 print('Version Of Pandas: ' + pd.__version__)
@@ -199,5 +200,5 @@ print('end file :)')
 
 ### TODO:
     ### Function to stop & show/flag Unrecognized Values.
-
+    ### Read in all with desired dtypes.
 

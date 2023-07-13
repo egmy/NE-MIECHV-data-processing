@@ -52,7 +52,8 @@ df4_1_colnames = {x[0]:x[1] for x in df4_1_col_detail if x[2] != 'same' and x[0]
 df4_1_colnames
 #%%### df4_1: 'Project ID'.
 df4_1_col_dtypes = {x[0]:x[3] for x in df4_1_col_detail}
-df4_1_col_dtypes
+print(df4_1_col_dtypes)
+print(collections.Counter(list(df4_1_col_dtypes.values())))
 
 #######################
 #%%### df4_2: 'Caregiver Insurance'.
@@ -102,7 +103,8 @@ df4_2_colnames = {x[0]:x[1] for x in df4_2_col_detail if x[2] != 'same' and x[0]
 df4_2_colnames
 #%%### df4_2: 'Caregiver Insurance'.
 df4_2_col_dtypes = {x[0]:x[3] for x in df4_2_col_detail}
-df4_2_col_dtypes
+print(df4_2_col_dtypes)
+print(collections.Counter(list(df4_2_col_dtypes.values())))
 
 #######################
 #%%### df4_3: 'Family Wise'.
@@ -212,7 +214,8 @@ df4_3_colnames = {x[0]:x[1] for x in df4_3_col_detail if x[2] != 'same' and x[0]
 df4_3_colnames
 #%%### df4_3: 'Family Wise'.
 df4_3_col_dtypes = {x[0]:x[3] for x in df4_3_col_detail}
-df4_3_col_dtypes
+print(df4_3_col_dtypes)
+print(collections.Counter(list(df4_3_col_dtypes.values())))
 
 #######################
 #%%### df4_4: 'LLCHD'.
@@ -329,7 +332,8 @@ df4_4_col_detail = [
     ['asq3_comm_9mm', 'Asq3 Comm 9Mm', '', 'Int64'],
     ['asq3_gross_9mm', 'Asq3 Gross 9Mm', '', 'Int64'],
     ['asq3_fine_9mm', 'Asq3 Fine 9Mm', '', 'Int64'],
-    ['asq3_social_9mm', 'Asq3 Social 9m', '', 'Int64'],
+    ['asq3_problem_9mm', 'Asq3 Problem 9Mm', '', 'Int64'],
+    ['asq3_social_9mm', 'Asq3 Social 9Mm', '', 'Int64'],
     ['asq3_feedback_9mm', 'Asq3 Feedback 9Mm', '', 'string'],
     ['asq3_referral_9mm', 'Asq3 Referral 9Mm', '', 'string'], ### 'string' in Tableau; but probably should be 'int'.
     ['asq3_dt_18mm', 'Asq3 Dt 18Mm', '', 'datetime64[ns]'],
@@ -337,7 +341,8 @@ df4_4_col_detail = [
     ['asq3_comm_18mm', 'Asq3 Comm 18Mm', '', 'Int64'],
     ['asq3_gross_18mm', 'Asq3 Gross 18Mm', '', 'Int64'],
     ['asq3_fine_18mm', 'Asq3 Fine 18Mm', '', 'Int64'],
-    ['asq3_social_18mm', 'Asq3 Social 1Mm', '', 'Int64'],
+    ['asq3_problem_18mm', 'Asq3 Problem 18Mm', '', 'Int64'],
+    ['asq3_social_18mm', 'Asq3 Social 18Mm', '', 'Int64'],
     ['asq3_feedback_18mm', 'Asq3 Feedback 18Mm', '', 'string'],
     ['asq3_referral_18mm', 'Asq3 Referral 18Mm', '', 'Int64'],
     ['asq3_dt_24mm', 'Asq3 Dt 24Mm', '', 'datetime64[ns]'],
@@ -345,7 +350,8 @@ df4_4_col_detail = [
     ['asq3_comm_24mm', 'Asq3 Comm 24Mm', '', 'Int64'],
     ['asq3_gross_24mm', 'Asq3 Gross 24Mm', '', 'Int64'],
     ['asq3_fine_24mm', 'Asq3 Fine 24Mm', '', 'Int64'],
-    ['asq3_social_24mm', 'Asq3 Social 2Mm', '', 'Int64'],
+    ['asq3_problem_24mm', 'Asq3 Problem 24Mm', '', 'Int64'],
+    ['asq3_social_24mm', 'Asq3 Social 24Mm', '', 'Int64'],
     ['asq3_feedback_24mm', 'Asq3 Feedback 24Mm', '', 'string'],
     ['asq3_referral_24mm', 'Asq3 Referral 24Mm', '', 'Int64'],
     ['asq3_dt_30mm', 'Asq3 Dt 30Mm', '', 'datetime64[ns]'],
@@ -353,7 +359,8 @@ df4_4_col_detail = [
     ['asq3_comm_30mm', 'Asq3 Comm 30Mm', '', 'Int64'],
     ['asq3_gross_30mm', 'Asq3 Gross 30Mm', '', 'Int64'],
     ['asq3_fine_30mm', 'Asq3 Fine 30Mm', '', 'Int64'],
-    ['asq3_social_30mm', 'Asq3 Social 3Mm', '', 'Int64'],
+    ['asq3_problem_30mm', 'Asq3 Problem 30Mm', '', 'Int64'],
+    ['asq3_social_30mm', 'Asq3 Social 30Mm', '', 'Int64'],
     ['asq3_feedback_30mm', 'Asq3 Feedback 30Mm', '', 'string'],
     ['asq3_referral_30mm', 'Asq3 Referral 30Mm', '', 'Int64'],
     ['behavioral_concerns', 'Behavioral Concerns', '', 'Int64'],
@@ -386,7 +393,8 @@ df4_4_colnames = {x[0]:x[1] for x in df4_4_col_detail if x[2] != 'same' and x[0]
 df4_4_colnames
 #%%### df4_4: 'LLCHD'.
 df4_4_col_dtypes = {x[0]:x[3] for x in df4_4_col_detail}
-df4_4_col_dtypes
+print(df4_4_col_dtypes)
+print(collections.Counter(list(df4_4_col_dtypes.values())))
 
 #######################
 #%%### df4_5: 'MOB or FOB'.
@@ -399,7 +407,9 @@ df4_5_colnames = {x[0]:x[1] for x in df4_5_col_detail if x[2] != 'same' and x[0]
 df4_5_colnames
 #%%### df4_5: 'MOB or FOB'.
 df4_5_col_dtypes = {x[0]:x[3] for x in df4_5_col_detail}
-df4_5_col_dtypes
+print(df4_5_col_dtypes)
+print(collections.Counter(list(df4_5_col_dtypes.values())))
+
 
 #%%##################################################
 ### READ ###
@@ -412,17 +422,133 @@ xlsx = pd.ExcelFile(path_4_data_source_file)
 #%% 
 ### CHECK that all path_4_data_source_sheets same as xlsx.sheet_names (different order ok):
 print(sorted(path_4_data_source_sheets))
-print([x for x in sorted(xlsx.sheet_names) if x != 'MOB or FOB'])
-sorted(path_4_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x != 'MOB or FOB']
+print(sorted(xlsx.sheet_names))
+sorted(path_4_data_source_sheets) == sorted(xlsx.sheet_names)
+
+#%%###################################
+### READ all sheets:
+
+# df4_1 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype=df4_1_col_dtypes)
+
+# #%%
+# df4_2 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype=df4_2_col_dtypes)
+# ### ValueError: Unable to convert column AD1InsChangeDate.9 to type datetime64[ns].
+
+# #%%
+# df4_3 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype=df4_3_col_dtypes)
+# ### ValueError: False cannot be cast to bool.
+
+# #%%
+# df4_4 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype=df4_4_col_dtypes)
+# ### ValueError: Unable to parse string "HS Grad" at position 0.
+
+# #%%
+# df4_5 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype=df4_5_col_dtypes)
+
+#%%###################################
+### READ in all sheets as strings.
+
+### To read in EVERYTHING as a string with NO NA:
+### df4_1_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[0], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_1_col_dtypes)
+### df4_2_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[1], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_2_col_dtypes)
+### df4_3_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[2], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_3_col_dtypes)
+### df4_4_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[3], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_4_col_dtypes)
+### df4_5_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[4], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_5_col_dtypes)
+
+### To read in EVERYTHING as a string WITH NA:
+df4_1_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_1_col_dtypes)
+df4_2_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_2_col_dtypes)
+df4_3_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_3_col_dtypes)
+df4_4_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_4_col_dtypes)
+df4_5_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_5_col_dtypes)
+
+df4_1 = df4_1_allstring.copy()
+df4_2 = df4_2_allstring.copy()
+df4_3 = df4_3_allstring.copy()
+df4_4 = df4_4_allstring.copy()
+df4_5 = df4_5_allstring.copy()
+
+#%%##################################################
+### CLEAN ###
+#####################################################
+
+def fn_try_astype(fdf, dict_col_dtypes):
+    for column in fdf.columns:
+        try:
+            fdf[column] = fdf[column].astype(dict_col_dtypes[column])
+        except Exception as e:
+            print('Error for column: ', column)
+            print('Attempted dtype: ', dict_col_dtypes[column])
+            print(e, '\n')
+
+def fn_apply_dtypes(fdf, dict_col_dtypes):
+    for column in fdf.columns:
+        if (dict_col_dtypes[column] == 'datetime64[ns]'):
+            fdf[column] = pd.to_datetime(fdf[column])
+        else:
+            fdf[column] = fdf[column].astype(dict_col_dtypes[column])
+    return fdf 
+
+#%%###################################
+### Testing
+
+# inspect_col(df4_2['AD1InsChangeDate.1'])
+### In df4_2 tab "Caregiver Insurance", dates columns have 2 conflicting formats.
 
 #%%
-### READ all sheets:
-df4_1 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df4_1_col_dtypes)
-df4_2 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df4_2_col_dtypes)
-df4_3 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''])#, dtype=df4_3_col_dtypes)
-df4_4 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''])#, dtype=df4_4_col_dtypes)
-df4_5 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''])#, dtype=df4_5_col_dtypes)
+# fn_try_astype(df4_2, df4_2_col_dtypes)
+# fn_apply_dtypes(df4_2, df4_2_col_dtypes)
 
+#%%
+# fn_try_astype(df4_3, df4_3_col_dtypes)
+# fn_apply_dtypes(df4_3, df4_3_col_dtypes)
+
+#%%
+# fn_try_astype(df4_4, df4_4_col_dtypes)
+# fn_apply_dtypes(df4_4, df4_4_col_dtypes)
+
+#%%###################################
+df4_1 = (
+    df4_1
+    ###.astype(df4_1_col_dtypes)
+    .pipe(fn_apply_dtypes, df4_1_col_dtypes)
+)
+inspect_df(df4_1)
+
+#%%###################################
+df4_2 = (
+    df4_2
+    ###.astype(df4_2_col_dtypes)
+    .pipe(fn_apply_dtypes, df4_2_col_dtypes)
+)
+inspect_df(df4_2)
+
+#%%###################################
+df4_3 = (
+    df4_3
+    ###.astype(df4_3_col_dtypes)
+    .pipe(fn_apply_dtypes, df4_3_col_dtypes)
+) 
+inspect_df(df4_3)
+
+#%%###################################
+df4_4 = (
+    df4_4
+    ###.astype(df4_4_col_dtypes)
+    .pipe(fn_apply_dtypes, df4_4_col_dtypes)
+)
+inspect_df(df4_4)
+
+#%%###################################
+df4_5 = (
+    df4_5
+    ###.astype(df4_5_col_dtypes)
+    .pipe(fn_apply_dtypes, df4_5_col_dtypes)
+)
+inspect_df(df4_5)
+
+
+#%%###################################
 ### Review each sheet:
 ### Note: Even empty DFs merge fine below.
 
@@ -666,10 +792,44 @@ df4_edits1 = df4.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT cop
 #%%##################################################
 ### DUPLICATING
 
+
 #%%##################################################
 ### COALESCING 
 
 
+#%%##################################################
+### DATE CALCULATIONS
+
+### These calculations assume all date variables are dtype "datetime64".
+
+
+#%%##################################################
+### IF/ELSE, CASE/WHEN
+
+### fdf == "function DataFrame"
+
+#%%###################################
+
+def fn__F1_Caregiver_ID_for_MOB_or_FOB(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN STR([__Primary Caregiver ID]) + "MOB"
+    ###     WHEN "FOB" THEN STR([__Primary Caregiver ID]) + "FOB"
+    ### END
+df4_edits1['__F1 Caregiver ID for MOB or FOB'] = df4_edits1.apply(func=fn__F1_Caregiver_ID_for_MOB_or_FOB, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['__F1 Caregiver ID for MOB or FOB']) 
+
+#%%###################################
+
+def fn_newvar(fdf):
+    return True
+    ### /// Tableau Calculation:
+
+df4_edits1['newvar'] = df4_edits1.apply(func=fn_newvar, axis=1)###.astype('www') 
+    ### Data Type in Tableau: 'www'.
+inspect_col(df4_edits1['newvar']) 
 
 
 
