@@ -163,6 +163,11 @@ def compare_col(fdf_1, fdf_2, fcol, info_or_value_counts='info'): ### or 'value_
         print(f'DataFrame 2:\n')
         print(fdf_2[fcol].value_counts(dropna=False))
 
+def fn_all_value_counts(fdf):
+    for column in fdf.columns:
+        print('Column: ', column)
+        print(fdf[column].value_counts(dropna=False).to_string(), '\n')
+
 
 #%%##################################################
 ### END of Setup ###
@@ -201,4 +206,5 @@ print('end file :)')
 ### TODO:
     ### Function to stop & show/flag Unrecognized Values.
     ### Read in all with desired dtypes.
+    ### After testing, make all ASQ3 scores floats (document that should be).
 
