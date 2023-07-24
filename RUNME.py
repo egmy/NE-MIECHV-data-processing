@@ -33,6 +33,7 @@ import sys
 import runpy
 import IPython
 import collections
+import re
 
 print('Version Of Python: ' + sys.version)
 print('Version Of Pandas: ' + pd.__version__)
@@ -145,7 +146,7 @@ def inspect_col(fSeries):
     print(fSeries.info())
     print('\n')
     print('value_counts:')
-    print(fSeries.value_counts(dropna=False))
+    print(fSeries.value_counts(dropna=False).to_string())
     print('\n')
     print(fSeries)
 

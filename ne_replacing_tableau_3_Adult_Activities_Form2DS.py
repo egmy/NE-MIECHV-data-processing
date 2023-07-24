@@ -1,9 +1,6 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-#%%
-exec(open('RUNME.py').read())
-
 #%%##################################################
 ### INSTRUCTIONS ###
 #####################################################
@@ -11,14 +8,33 @@ exec(open('RUNME.py').read())
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
+### SETUP ###
+#####################################################
+
+### import RUNME ### This does not run the code.
+
+exec(open('RUNME.py').read())
+
+#%%##################################################
 ### PACKAGES ###
 #####################################################
 
-# import pandas as pd
-# from pathlib import Path
-# import numpy as np
-# import sys
-# import IPython
+### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
+
+import pandas as pd
+import numpy as np
+import sys
+import collections
+import re
+
+print('Version Of Python: ' + sys.version)
+print('Version Of Pandas: ' + pd.__version__)
+print('Version Of Numpy: ' + np.version.version)
+
+from RUNME import inspect_df
+from RUNME import inspect_col
+from RUNME import compare_col
+from RUNME import fn_all_value_counts
 
 #%%##################################################
 ### Comparison File ###
@@ -744,7 +760,7 @@ inspect_col(df3_edits1['_C15 Min Education Date'])
 #%%###################################
 
 ### Other vars depend on this.
-### In Child2 & Adult3. Copied exactly.
+### In Child2 & Adult3 & Adult4. Copied exactly.
 def fn_TGT_DOB(fdf):
     ### LLCHD.
     if (fdf['Tgt Dob'].date() == pd.Timestamp("1900-01-01").date()):

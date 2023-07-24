@@ -1,9 +1,6 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-#%%
-exec(open('RUNME.py').read())
-
 #%%##################################################
 ### INSTRUCTIONS ###
 #####################################################
@@ -11,14 +8,33 @@ exec(open('RUNME.py').read())
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
+### SETUP ###
+#####################################################
+
+### import RUNME ### This does not run the code.
+
+exec(open('RUNME.py').read())
+
+#%%##################################################
 ### PACKAGES ###
 #####################################################
 
-# import pandas as pd
-# from pathlib import Path
-# import numpy as np
-# import sys
-# import IPython
+### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
+
+import pandas as pd
+import numpy as np
+import sys
+import collections
+import re
+
+print('Version Of Python: ' + sys.version)
+print('Version Of Pandas: ' + pd.__version__)
+print('Version Of Numpy: ' + np.version.version)
+
+from RUNME import inspect_df
+from RUNME import inspect_col
+from RUNME import compare_col
+from RUNME import fn_all_value_counts
 
 #%%##################################################
 ### Comparison File ###
@@ -663,6 +679,8 @@ inspect_df(df4_4)
 #%%### df4_5: 'MOB or FOB'.
 inspect_df(df4_5)
 
+### TODO: Ask how cross-joining (exploding) ALL rows with "MOB" & "FOB" helps anything.
+
 #%%##################################################
 ### Rename Columns ###
 #####################################################
@@ -898,6 +916,16 @@ df4_edits1 = df4.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT cop
 df4_edits1['Number of Records'] = 1 
 inspect_col(df4_edits1['Number of Records'])
 
+#%%
+df4_edits1['source'] = (
+    df4_edits1
+    .apply(func=(
+        lambda df: 'FW' if pd.notna(df['Project ID1']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+    ), axis=1)
+    .astype('string') 
+)
+inspect_col(df4_edits1['source'])
+
 
 #####################################################
 #####################################################
@@ -929,12 +957,30 @@ inspect_col(df4_edits1['_TGT ID'])
 
 #%%###################################
 
-df4_edits1['_Zip'] = df4_edits1['Zip'].combine_first(df4_edits1['Mob Zip']).astype('Int64') 
+### 'Mob Zip' has the string value "null" that needs to be recoded.
+### TODO: limit ZIP codes to first five -- have some with the extra 4.
+df4_edits1['_Zip'] = (
+    df4_edits1['Zip'].combine_first(df4_edits1['Mob Zip'])
+    .replace('null', pd.NA)
+    .astype('Int64') 
+)
     ### IFNULL([Zip], INT([Mob Zip]))
     ### Data Type in Tableau: integer.
 inspect_col(df4_edits1['_Zip'])
+# #%%
+# print(df4_edits1['_Zip'].value_counts(dropna=False).to_string())
+# #%%
+# # inspect_col(df4_edits1['Zip'])
+# print(df4_edits1['Zip'].value_counts(dropna=False).to_string())
+# #%%
+# # inspect_col(df4_edits1['Mob Zip'])
+# print(df4_edits1['Mob Zip'].value_counts(dropna=False).to_string()) ### Actually has text "null".
+# #%%
+# print(df4_edits1[['_Zip', 'Mob Zip', 'Zip']].query('`Mob Zip` == "null"').to_string())
 
-df4_edits1['_T16 Number of Home Visits'] = df4_edits1['HomeVisitsTotal'].combine_first(df4_edits1['Home Visits Num']).astype('Int64') 
+#%%
+
+df4_edits1['_T16 Number of Home Visits'] = df4_edits1['HomeVisitsTotal'].combine_first(df4_edits1['Home Visits Num']).astype('Float64').astype('Int64') 
     ### IFNULL([HomeVisitsTotal],[Home Visits Num])
     ### Data Type in Tableau: integer.
 inspect_col(df4_edits1['_T16 Number of Home Visits'])
@@ -984,6 +1030,38 @@ inspect_col(df4_edits1['_T14 Federal Poverty Level update'])
 #####################################################
 #####################################################
 #%%##################################################
+
+### Other vars depend on this ('_TGT 3 Month Date').
+### In Child2 & Adult3 & Adult4. Copied exactly. (except added astype()).
+def fn_TGT_DOB(fdf):
+    ### LLCHD.
+    if (fdf['Tgt Dob'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['Tgt Dob-Cr'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Tgt Dob'] is not pd.NaT):
+            return fdf['Tgt Dob']
+        else:
+            return fdf['Tgt Dob-Cr']
+    ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
+    ### END
+df4_edits1['_TGT DOB'] = df4_edits1.apply(func=fn_TGT_DOB, axis=1).astype('datetime64[ns]') 
+    ### Data Type in Tableau: 'date'.
+inspect_col(df4_edits1['_TGT DOB'])
+# #%%
+# inspect_col(df4_edits1['Tgt Dob'])
+# #%%
+# inspect_col(df4_edits1['Tgt Dob-Cr'])
+
+
+#####################################################
+#####################################################
+#####################################################
+#%%##################################################
 ### DATE CALCULATIONS
 
 ### These calculations assume all date variables are dtype "datetime64".
@@ -1009,8 +1087,28 @@ inspect_col(df4_edits1['_TGT 3 Month Date'])
 
 #%%###################################
 
+### Required for '__F1 Caregiver ID for MOB or FOB'.
+### Purpose: Remove "-" & numbers after.
+def fn__Primary_Caregiver_ID(fdf):
+    return re.findall(r'^.*(?=-)', fdf['Project Id'])[0]
+    ### /// Tableau Calculation:
+    ### MID([Project Id], 1, FIND([Project Id], '-') - 1) 
+df4_edits1['__Primary Caregiver ID'] = df4_edits1.apply(func=fn__Primary_Caregiver_ID, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['__Primary Caregiver ID']) 
+# #%%
+# re.findall(r'(^.*)(?=-)', df4_edits1['Project Id'])[0]
+# re.findall(r'.*', df4_edits1['Project Id'])#[0]
+# re.findall(r'^.*(?=-)', 'llSF77010001416-562')[0]
+
+#%%###################################
+
 def fn__F1_Caregiver_ID_for_MOB_or_FOB(fdf):
-    return True
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['__Primary Caregiver ID'] + "MOB"
+        case "FOB":
+            return fdf['__Primary Caregiver ID'] + "FOB"
     ### /// Tableau Calculation:
     ### CASE [MOB or FOB]
     ###     WHEN "MOB" THEN STR([__Primary Caregiver ID]) + "MOB"
@@ -1022,286 +1120,71 @@ inspect_col(df4_edits1['__F1 Caregiver ID for MOB or FOB'])
 
 #%%###################################
 
-def fn__Primary_Caregiver_ID(fdf):
+def fn_Caregiver_Involved(fdf):
     return True
     ### /// Tableau Calculation:
-    ### MID([Project Id], 1, FIND([Project Id], '-') - 1) 
-df4_edits1['__Primary Caregiver ID'] = df4_edits1.apply(func=fn__Primary_Caregiver_ID, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['__Primary Caregiver ID']) 
+    ### [MOB or FOB] = "MOB"
+    ### OR
+    ###     ([MOB or FOB] = "FOB"
+    ###     AND
+    ###     [_FOB Involved] = 1)
+df4_edits1['Caregiver Involved'] = df4_edits1.apply(func=fn_Caregiver_Involved, axis=1).astype('boolean') 
+    ### Data Type in Tableau: 'boolean'.
+inspect_col(df4_edits1['Caregiver Involved']) 
 
 #%%###################################
 
-def fn_C15_Max_Educational_Enrollment(fdf):
+def fn_FOB_Involved(fdf):
     return True
     ### /// Tableau Calculation:
-    ### IF [Max Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
-    ### ELSEIF [Max Edu Enroll] = "College 4 Year" THEN "Student/trainee"
-    ### ELSEIF [Max Edu Enroll] = "ESL" THEN "Student/trainee"
-    ### ELSEIF [Max Edu Enroll] = "GED Program" THEN "Student/trainee HS/GED"
-    ### ELSEIF [Max Edu Enroll] = "Graduate School" THEN "Student/trainee"
-    ### ELSEIF [Max Edu Enroll] = "High/Middle School" THEN "Student/trainee HS/GED"
-    ### ELSEIF [Max Edu Enroll] = "Not Enrolled in School" THEN "Not a student/trainee"
-    ### ELSEIF [Max Edu Enroll] = "Unknown" THEN "Unknown/Did not Report"
-    ### ELSEIF [Max Edu Enroll] = "Vocational College" THEN "Student/trainee"
-    ### ////
-    ### ELSEIF ([mcafss_edu2_enroll] = "YES" // LLCHD Enrolled
-    ###         AND
-    ###         ([mcafss_edu2_prog] = 1 // Enrolled in Middle School
-    ###         OR
-    ###         [mcafss_edu2_prog] = 2 // Enrolled in High School
-    ###         OR
-    ###         [mcafss_edu2_prog] = 3 // Enrolled in GED
-    ###         )) THEN "Student/trainee HS/GED" //LLCHD
-    ### ELSEIF [mcafss_edu2_enroll] = "NO" THEN "Not a student/trainee"
-    ### ELSE "Unknown/Did not Report"
+    ### IF [Fob Involved] = True THEN 1 //FW
+    ### ELSEIF [Fob Involved] = False THEN 0
+    ### ELSEIF [Fob Involved1] = "Y" THEN 1 //LLCHD
+    ### ELSEIF [Fob Involved1] = "N" THEN 0
+    ### ELSE 0
     ### END
-    ### //Student/trainee indicates enrollment in a program other than a high school diploma or GED
-    ### //LLCHD - Kodi sent this coding for mcafss_edu2_prog on 12/7/2021
-    ### //01 = Middle School
-    ### //02 = High School
-    ### //03 = GED
-    ### //04 = ESL
-    ### //05 = Adult education in basic reading or math
-    ### //06 = College
-    ### //07 = Vocational training, technical or trade school (excluding training received during HS)
-    ### //08 = Job search or job placement
-    ### //09 = Work experience
-    ### //10 = Other (Specify)
-df4_edits1['_C15 Max Educational Enrollment'] = df4_edits1.apply(func=fn_C15_Max_Educational_Enrollment, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Max Educational Enrollment']) 
+df4_edits1['_FOB Involved'] = df4_edits1.apply(func=fn_FOB_Involved, axis=1).astype('Int64') 
+    ### Data Type in Tableau: 'int'.
+inspect_col(df4_edits1['_FOB Involved']) 
 
 #%%###################################
 
-def fn_C15_Max_Educational_Status(fdf):
-    return True
+def fn_TGT_EDC_Date(fdf):
+    ### LLCHD.
+    if (fdf['Dt Edc'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['EDC Date'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Dt Edc'] is not pd.NaT):
+            return fdf['Dt Edc']
+        else:
+            return fdf['EDC Date']
     ### /// Tableau Calculation:
-    ### //LLCHD
-    ### IF [Mcafss Edu2] = 1 THEN "Less than HS diploma" // Less than 8th Grade
-    ### ELSEIF [Mcafss Edu2] = 2 THEN "Less than HS diploma" // 8-11th Grade
-    ### ELSEIF [Mcafss Edu2] = 3 THEN "HS diploma/GED" // High School Grad
-    ### ELSEIF [Mcafss Edu2] = 4 THEN "HS diploma/GED" //Completed a GED
-    ### ELSEIF [Mcafss Edu2] = 5 THEN "Technical Training or Associates Degree" // Vocational School after High School
-    ### ELSEIF [Mcafss Edu2] = 6 THEN "Some college/training" // Some College
-    ### ELSEIF [Mcafss Edu2] = 7 THEN "Technical Training or Associates Degree" // Associates Degree
-    ### ELSEIF [Mcafss Edu2] = 8 THEN "Bachelor's Degree or Higher"  // Bachelors Degree or Higher
-    ### // ELSEIF [Mcafss Edu2] = 9 THEN "HS diploma/GED" //currently enrolled in college - vocational training or trade apprenticeship
-    ### // ELSEIF [Mcafss Edu2] = 10 THEN "HS diploma/GED"  //currently not enrolled in college - vocational training or trade apprenticeship
-    ### // ELSEIF [Mcafss Edu2] = 11 THEN "Other" //other education
-    ### // ELSEIF [Mcafss Edu2] = 12 THEN "Unknown/Did Not Report" //unknown/did not report
-    ### ELSEIF [Mcafss Edu2] = 0 THEN "Unknown/Did Not Report" //unknown/did not report (missing data)
-    ### ELSEIF [Mcafss Edu2] >= 9 THEN "Unknown/Did Not Report" 
-    ### //FW
-    ### ELSEIF [AD1MaxEdu] = "8th Grade or less" THEN "Less than HS diploma"
-    ### ELSEIF [AD1MaxEdu] = "Some High School" THEN "Less than HS diploma"
-    ### ELSEIF [AD1MaxEdu] = "GED" THEN "HS diploma/GED"
-    ### ELSEIF [AD1MaxEdu] = "High School Graduate" THEN "HS diploma/GED"
-    ### ELSEIF [AD1MaxEdu] = "Achievement Certificate" THEN "Technical Training or Certification"
-    ### ELSEIF [AD1MaxEdu] = "Certificate Program" THEN "Technical Training or Certification"
-    ### ELSEIF [AD1MaxEdu] = "Some College" THEN "Some college/training"
-    ### ELSEIF [AD1MaxEdu] = "Associates or Two Year Technical Degree" THEN "Technical Training or Associates Degree" //these are two serparate categories on F1
-    ### ELSEIF [AD1MaxEdu] = "Two Year Degree" THEN "Associate's Degree"
-    ### ELSEIF [AD1MaxEdu] = "Four Year College Degree" THEN "Bachelor's Degree or Higher"
-    ### ELSEIF [AD1MaxEdu] = "Graduate School" THEN "Bachelor's Degree or Higher"
-    ### ELSEIF [AD1MaxEdu] = "Unknown" THEN "Unknown/Did Not Report"
-    ### ELSEIF [AD1MaxEdu] = "null" THEN "Unknown/Did Not Report"
-    ### ELSEIF ISNULL([Mcafss Edu2]) AND ISNULL([AD1MaxEdu]) THEN "Unknown/Did Not Report"
-    ### ELSE "Unrecognized Value"
+    ### IF [Dt Edc] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Dt Edc],[EDC Date])
     ### END
-    ### //LLCHD Code from Kodi on 11/30/2021
-    ### //1 – Less than 8th Grade
-    ### //2 – 8-11th Grade
-    ### //3 – High School Grad
-    ### //4 - Completed a GED
-    ### //5 - Vocational School after High School
-    ### //6 – Some College
-    ### //7 – Associates Degree 
-    ### //8 - Bachelors Degree or Higher
-    ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
-df4_edits1['_C15 Max Educational Status'] = df4_edits1.apply(func=fn_C15_Max_Educational_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Max Educational Status']) 
-
-#%%###################################
-
-def fn_C15_Min_Educational_Enrollment(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### //FW
-    ### IF [Min Edu Enroll] = "College 2 Year" THEN "Student/trainee" 
-    ### ELSEIF [Min Edu Enroll] = "College 4 Year" THEN "Student/trainee"
-    ### ELSEIF [Min Edu Enroll] = "ESL" THEN "Student/trainee"
-    ### ELSEIF [Min Edu Enroll] = "GED Program" THEN "Student/trainee HS/GED"
-    ### ELSEIF [Min Edu Enroll] = "Graduate School" THEN "Student/trainee"
-    ### ELSEIF [Min Edu Enroll] = "High/Middle School" THEN "Student/trainee HS/GED"
-    ### ELSEIF [Min Edu Enroll] = "Not Enrolled in School" THEN "Not a student/trainee"
-    ### ELSEIF [Min Edu Enroll] = "Unknown" THEN "Unknown/Did not Report"
-    ### ELSEIF [Min Edu Enroll] = "Vocational College" THEN "Student/trainee"
-    ### //LLCHD
-    ### ELSEIF ([mcafss_edu1_enroll] = "YES" // Enrolled
-    ###         AND
-    ###         ([mcafss_edu1_prog] = 1 // Enrolled in Middle School
-    ###         OR
-    ###         [mcafss_edu1_prog] = 2 // Enrolled in High School
-    ###         OR
-    ###         [mcafss_edu1_prog] = 3 // Enrolled in GED
-    ###         )) THEN "Student/trainee HS/GED" 
-    ### ELSEIF [mcafss_edu1_enroll] = "NO" THEN "Student/trainee"
-    ### ELSE "Unknown/Did not Report"
-    ### END
-    ### //Student/trainee indicates enrollment in a program other than a high school diploma or GED
-    ### //LLCHD - Kodi sent this coding for mcafss_edu1_prog on 12/7/2021
-    ### //01 = Middle School
-    ### //02 = High School
-    ### //03 = GED
-    ### //04 = ESL
-    ### //05 = Adult education in basic reading or math
-    ### //06 = College
-    ### //07 = Vocational training, technical or trade school (excluding training received during HS)
-    ### //08 = Job search or job placement
-    ### //09 = Work experience
-    ### //10 = Other (Specify)
-df4_edits1['_C15 Min Educational Enrollment'] = df4_edits1.apply(func=fn_C15_Min_Educational_Enrollment, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Min Educational Enrollment']) 
-
-#%%###################################
-
-def fn_C15_Min_Educational_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### //LLCHD
-    ### IF [Mcafss Edu1] = 1 THEN "Less than HS diploma" // Less than 8th Grade
-    ### ELSEIF [Mcafss Edu1] = 2 THEN "Less than HS diploma" // 8-11th Grade
-    ### ELSEIF [Mcafss Edu1] = 3 THEN "HS diploma/GED" // High School Grad
-    ### ELSEIF [Mcafss Edu1] = 4 THEN "HS diploma/GED" //Completed a GED
-    ### ELSEIF [Mcafss Edu1] = 5 THEN "Technical Training or Associates Degree" // Vocational School after High School
-    ### ELSEIF [Mcafss Edu1] = 6 THEN "Some college/training" // Some College
-    ### ELSEIF [Mcafss Edu1] = 7 THEN "Technical Training or Associates Degree" // Associates Degree
-    ### ELSEIF [Mcafss Edu1] = 8 THEN "Bachelor's Degree or Higher"  // Bachelors Degree or Higher
-    ### // ELSEIF [Mcafss Edu1] = 9 THEN "HS diploma/GED"
-    ### // ELSEIF [Mcafss Edu1] = 10 THEN "HS diploma/GED" 
-    ### // ELSEIF [Mcafss Edu1] = 11 THEN "Other"
-    ### // ELSEIF [Mcafss Edu1] = 12 THEN "Unknown/Did Not Report"
-    ### ELSEIF [Mcafss Edu1] = 0 THEN "Unknown/Did Not Report"
-    ### ELSEIF [Mcafss Edu1] >= 9 THEN "Unknown/Did Not Report"
-    ### ////
-    ### ELSEIF [AD1MinEdu] = "8th Grade or less" THEN "Less than HS diploma"
-    ### ELSEIF [AD1MinEdu] = "Some High School" THEN "Less than HS diploma"
-    ### ELSEIF [AD1MinEdu] = "GED" THEN "HS diploma/GED"
-    ### ELSEIF [AD1MinEdu] = "High School Graduate" THEN "HS diploma/GED"
-    ### ELSEIF [AD1MinEdu] = "Achievement Certificate" THEN "Technical Training or Certification"
-    ### ELSEIF [AD1MinEdu] = "Certificate Program" THEN "Technical Training or Certification"
-    ### ELSEIF [AD1MinEdu] = "Some College" THEN "Some college/training"
-    ### ELSEIF [AD1MinEdu] = "Associates or Two Year Technical Degree" THEN "Technical Training or Associates Degree" //these are two serparate categories on F1
-    ### ELSEIF [AD1MinEdu] = "Two Year Degree" THEN "Associate's Degree"
-    ### ELSEIF [AD1MinEdu] = "Four Year College Degree" THEN "Bachelor's Degree or Higher"
-    ### ELSEIF [AD1MinEdu] = "Graduate School" THEN "Bachelor's Degree or Higher"
-    ### ELSEIF [AD1MinEdu] = "Unknown" THEN "Unknown/Did Not Report"
-    ### ELSEIF [AD1MinEdu] = "null"  THEN  "Unknown/Did Not Report"
-    ### ////
-    ### ELSEIF ISNULL([Mcafss Edu1])AND ISNULL([AD1MinEdu]) THEN "Unknown/Did Not Report"
-    ### ELSE "Unrecognized Value"
-    ### END
-    ### //LLCHD Code from Kodi on 11/30/2021
-    ### //1 – Less than 8th Grade
-    ### //2 – 8-11th Grade
-    ### //3 – High School Grad
-    ### //4 - Completed a GED
-    ### //5 - Vocational School after High School
-    ### //6 – Some College
-    ### //7 – Associates Degree 
-    ### //8 - Bachelors Degree or Higher
-    ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
-df4_edits1['_C15 Min Educational Status'] = df4_edits1.apply(func=fn_C15_Min_Educational_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Min Educational Status']) 
-
-#%%###################################
-
-def fn_C16_CG_Insurance_1_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### CASE [AD1PrimaryIns.1] //FW
-    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
-    ###     WHEN "SCHIP" THEN "Medicaid or CHIP"
-    ###     WHEN "Medicare" THEN "Private or Other"
-    ###     WHEN "Tri-Care" THEN "Tri-Care"
-    ###     WHEN "None" THEN "No Insurance Coverage"
-    ###     WHEN "Other" THEN "Private or Other"
-    ###     WHEN "Private" THEN "Private or Other"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN "null" THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ### //LLCHD
-    ###     WHEN "1" THEN "Medicaid or CHIP"
-    ###     WHEN "2" THEN "Tri-Care"
-    ###     WHEN "3" THEN "Private or Other"
-    ###     WHEN "4" THEN "FamilyChildHealthPlus"
-    ###     WHEN "5" THEN "No Insurance Coverage"
-    ###     WHEN "6" THEN "Unknown/Did Not Report"
-    ###     WHEN "99" THEN "Unknown/Did Not Report"
-    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
-    ###     WHEN "Private" THEN "Private or Other"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN "Uninsure" THEN "No Insurance Coverage"
-    ###     WHEN "FamilyCh" THEN "FamilyChildHealthPlus"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ### ELSE "Unrecognized Value"
-    ### END
-df4_edits1['_C16 CG Insurance 1 Status'] = df4_edits1.apply(func=fn_C16_CG_Insurance_1_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 1 Status']) 
-
-### Only difference:
-### _C16 CG Insurance 4 Status
-###     WHEN "4" THEN "Unknown/Did Not Report"
-### NOTE: this different version is the same as ALL of the Form 2 versions.
-
-### TODO: all the other insurance vars.
-### all strings.
-
-#%%###################################
-
-def fn_Enroll_Preg_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Pregnancystatus] = 0 THEN "Pregnant" //FW
-    ### ELSEIF [Pregnancystatus] = 1 THEN "Not pregnant"
-    ### ELSEIF [Enroll Preg Status] = "Postpartum" THEN "Not pregnant" //LLCHD
-    ### ELSEIF [Enroll Preg Status] = "Pregnant" THEN "Pregnant"
-    ### ELSE NULL
-    ### END
-df4_edits1['_Enroll Preg Status'] = df4_edits1.apply(func=fn_Enroll_Preg_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_Enroll Preg Status']) 
-
-#%%###################################
-
-def fn_F1_Caregiver_Gender(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_MOB Gender]
-    ###     WHEN "FOB" THEN [_FOB Gender]
-    ### END
-df4_edits1['_F1 Caregiver Gender'] = df4_edits1.apply(func=fn_F1_Caregiver_Gender, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_F1 Caregiver Gender']) 
-
-#%%###################################
-
-def fn_FOB_DOB(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Fob Dob] = DATE(1/1/1900) THEN NULL //LLCHD
-    ### ELSEIF [Fobdob] = DATE(1/1/1900) THEN NULL //FW
-    ### ELSE IFNULL([Fob Dob],[Fobdob])
-    ### END
-df4_edits1['_FOB DOB'] = df4_edits1.apply(func=fn_FOB_DOB, axis=1).astype('datetime64[ns]') 
+df4_edits1['_TGT EDC Date'] = df4_edits1.apply(func=fn_TGT_EDC_Date, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_FOB DOB']) 
+inspect_col(df4_edits1['_TGT EDC Date']) 
+
+#%%###################################
+
+def fn_MOB_Gender(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF [Adult1Gender] = "Female" THEN "Female" //FW
+    ### ELSEIF [Adult1Gender] = "Male" THEN "Male"
+    ### ELSEIF [Adult1Gender] = "Non-Binary" THEN "Non-Binary"
+    ### ELSEIF [Mob Gender]= "F" THEN "Female" //LLCHD
+    ### ELSEIF [Mob Gender] = "M" THEN "Male"
+    ### // ELSEIF [Mob Gender] = "N" THEN "Non-Binary" // Don't have this value yet - Confirm
+    ### END
+df4_edits1['_MOB Gender'] = df4_edits1.apply(func=fn_MOB_Gender, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_MOB Gender']) 
 
 #%%###################################
 
@@ -1323,18 +1206,45 @@ inspect_col(df4_edits1['_FOB Gender'])
 
 #%%###################################
 
-def fn_FOB_Involved(fdf):
+def fn_F1_Caregiver_Gender(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_MOB Gender']
+        case "FOB":
+            return fdf['_FOB Gender']
+    ### /// Tableau Calculation:
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN [_MOB Gender]
+    ###     WHEN "FOB" THEN [_FOB Gender]
+    ### END
+df4_edits1['_F1 Caregiver Gender'] = df4_edits1.apply(func=fn_F1_Caregiver_Gender, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_F1 Caregiver Gender']) 
+
+#%%###################################
+
+def fn_MOB_TGT_Relation(fdf):
     return True
     ### /// Tableau Calculation:
-    ### IF [Fob Involved] = True THEN 1 //FW
-    ### ELSEIF [Fob Involved] = False THEN 0
-    ### ELSEIF [Fob Involved1] = "Y" THEN 1 //LLCHD
-    ### ELSEIF [Fob Involved1] = "N" THEN 0
-    ### ELSE 0
+    ### //should we call this primary relation??
+    ### //FW
+    ### IF [Adult1TGTRelation] = "Biological mother" THEN "MOB" 
+    ### ELSEIF  [Adult1TGTRelation] = "Biological father" THEN "FOB"
+    ### ELSEIF  [Adult1TGTRelation] = "FOB" THEN "FOB"
+    ### ELSEIF  [Adult1TGTRelation] = "MOB" THEN "MOB"
+    ### ELSEIF  [Adult1TGTRelation] = "Foster mother" THEN "MOB"
+    ### ELSEIF  [Adult1TGTRelation] = "Adoptive father" THEN "FOB"
+    ### ELSEIF  [Adult1TGTRelation] = "Grandmother" THEN "MOB"
+    ### //LLCHD
+    ### ELSEIF [Primary Relation] = "FATHER OF CHILD" THEN "FOB" 
+    ### ELSEIF [Primary Relation] = "MOTHER OF CHILD" THEN "MOB"
+    ### ELSEIF [Primary Relation] = "PRIMARY CAREGIVER" AND [Mob Gender] = "F" THEN "MOB"
+    ### ELSEIF [Primary Relation] = "PRIMARY CAREGIVER" AND [Mob Gender] = "M" THEN "FOB"
+    ### //alternatively we could just leave PCs as that
     ### END
-df4_edits1['_FOB Involved'] = df4_edits1.apply(func=fn_FOB_Involved, axis=1).astype('Int64') 
-    ### Data Type in Tableau: 'int'.
-inspect_col(df4_edits1['_FOB Involved']) 
+df4_edits1['_MOB TGT Relation'] = df4_edits1.apply(func=fn_MOB_TGT_Relation, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_MOB TGT Relation']) 
 
 #%%###################################
 
@@ -1361,6 +1271,21 @@ inspect_col(df4_edits1['_FOB Relation'])
 
 #%%###################################
 
+def fn_Enroll_Preg_Status(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF [Pregnancystatus] = 0 THEN "Pregnant" //FW
+    ### ELSEIF [Pregnancystatus] = 1 THEN "Not pregnant"
+    ### ELSEIF [Enroll Preg Status] = "Postpartum" THEN "Not pregnant" //LLCHD
+    ### ELSEIF [Enroll Preg Status] = "Pregnant" THEN "Pregnant"
+    ### ELSE NULL
+    ### END
+df4_edits1['_Enroll Preg Status'] = df4_edits1.apply(func=fn_Enroll_Preg_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_Enroll Preg Status']) 
+
+#%%###################################
+
 def fn_IPV_Score_FW(fdf):
     return True
     ### /// Tableau Calculation:
@@ -1373,60 +1298,6 @@ def fn_IPV_Score_FW(fdf):
 df4_edits1['_IPV Score FW'] = df4_edits1.apply(func=fn_IPV_Score_FW, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_IPV Score FW']) 
-
-#%%###################################
-
-def fn_MOB_DOB(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Mob Dob] = DATE(1/1/1900) THEN NULL //LLCHD
-    ### ELSEIF [Mobdob] = DATE(1/1/1900) THEN NULL //FW
-    ### ELSE IFNULL([Mob Dob],[Mobdob])
-    ### END
-df4_edits1['_MOB DOB'] = df4_edits1.apply(func=fn_MOB_DOB, axis=1).astype('datetime64[ns]') 
-    ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_MOB DOB']) 
-
-#%%###################################
-
-def fn_MOB_Gender(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Adult1Gender] = "Female" THEN "Female" //FW
-    ### ELSEIF [Adult1Gender] = "Male" THEN "Male"
-    ### ELSEIF [Adult1Gender] = "Non-Binary" THEN "Non-Binary"
-    ### ELSEIF [Mob Gender]= "F" THEN "Female" //LLCHD
-    ### ELSEIF [Mob Gender] = "M" THEN "Male"
-    ### // ELSEIF [Mob Gender] = "N" THEN "Non-Binary" // Don't have this value yet - Confirm
-    ### END
-df4_edits1['_MOB Gender'] = df4_edits1.apply(func=fn_MOB_Gender, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_MOB Gender']) 
-
-#%%###################################
-
-def fn_MOB_TGT_Relation(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### //should we call this primary relation??
-    ### //FW
-    ### IF [Adult1TGTRelation] = "Biological mother" THEN "MOB" 
-    ### ELSEIF  [Adult1TGTRelation] = "Biological father" THEN "FOB"
-    ### ELSEIF  [Adult1TGTRelation] = "FOB" THEN "FOB"
-    ### ELSEIF  [Adult1TGTRelation] = "MOB" THEN "MOB"
-    ### ELSEIF  [Adult1TGTRelation] = "Foster mother" THEN "MOB"
-    ### ELSEIF  [Adult1TGTRelation] = "Adoptive father" THEN "FOB"
-    ### ELSEIF  [Adult1TGTRelation] = "Grandmother" THEN "MOB"
-    ### //LLCHD
-    ### ELSEIF [Primary Relation] = "FATHER OF CHILD" THEN "FOB" 
-    ### ELSEIF [Primary Relation] = "MOTHER OF CHILD" THEN "MOB"
-    ### ELSEIF [Primary Relation] = "PRIMARY CAREGIVER" AND [Mob Gender] = "F" THEN "MOB"
-    ### ELSEIF [Primary Relation] = "PRIMARY CAREGIVER" AND [Mob Gender] = "M" THEN "FOB"
-    ### //alternatively we could just leave PCs as that
-    ### END
-df4_edits1['_MOB TGT Relation'] = df4_edits1.apply(func=fn_MOB_TGT_Relation, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_MOB TGT Relation']) 
 
 #%%###################################
 
@@ -1492,8 +1363,58 @@ inspect_col(df4_edits1['_Need Exclusion 6 - Tobacco'])
 
 #%%###################################
 
+def fn_MOB_DOB(fdf):
+    ### LLCHD.
+    if (fdf['Mob Dob'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['Mobdob'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Mob Dob'] is not pd.NaT):
+            return fdf['Mob Dob']
+        else:
+            return fdf['Mobdob']
+    ### /// Tableau Calculation:
+    ### IF [Mob Dob] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [Mobdob] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Mob Dob],[Mobdob])
+    ### END
+df4_edits1['_MOB DOB'] = df4_edits1.apply(func=fn_MOB_DOB, axis=1).astype('datetime64[ns]') 
+    ### Data Type in Tableau: 'date'.
+inspect_col(df4_edits1['_MOB DOB']) 
+
+#%%###################################
+
+def fn_FOB_DOB(fdf):
+    ### LLCHD.
+    if (fdf['Fob Dob'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    ### FW.
+    elif (fdf['Fobdob'].date() == pd.Timestamp("1900-01-01").date()):
+        return pd.NaT 
+    else:
+        if (fdf['Fob Dob'] is not pd.NaT):
+            return fdf['Fob Dob']
+        else:
+            return fdf['Fobdob']
+    ### /// Tableau Calculation:
+    ### IF [Fob Dob] = DATE(1/1/1900) THEN NULL //LLCHD
+    ### ELSEIF [Fobdob] = DATE(1/1/1900) THEN NULL //FW
+    ### ELSE IFNULL([Fob Dob],[Fobdob])
+    ### END
+df4_edits1['_FOB DOB'] = df4_edits1.apply(func=fn_FOB_DOB, axis=1).astype('datetime64[ns]') 
+    ### Data Type in Tableau: 'date'.
+inspect_col(df4_edits1['_FOB DOB']) 
+
+#%%###################################
+
 def fn_T04_Caregiver_DOB(fdf):
-    return True
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_MOB DOB']
+        case "FOB":
+            return fdf['_FOB DOB']
     ### /// Tableau Calculation:
     ### CASE [MOB or FOB]
     ###     WHEN "MOB" THEN [_MOB DOB]
@@ -1505,16 +1426,28 @@ inspect_col(df4_edits1['_T04 Caregiver DOB'])
 
 #%%###################################
 
-def fn_T06_Ethnicity(fdf):
+def fn_T06_MOB_Ethnicity(fdf):
     return True
     ### /// Tableau Calculation:
-    ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T06 MOB Ethnicity]
-    ###     WHEN "FOB" THEN [_T06 FOB Ethnicity]
+    ### IF NOT ISNULL([Mob Ethnic]) THEN CASE [Mob Ethnic]
+    ###     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
+    ###     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### //LLCHD
+    ### ELSEIF NOT ISNULL([Mob Ethnicity]) THEN CASE [Mob Ethnicity]
+    ###     WHEN "HISPANIC/LATINO" THEN "Hispanic or Latino" 
+    ###     WHEN "Hispanic" THEN "Hispanic or Latino"
+    ###     WHEN "NON-Hispanic" THEN "Not Hispanic or Latino"
+    ###     WHEN "NOT HISPANIC/LATINO" THEN "Not Hispanic or Latino"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE "Unknown/Did Not Report"
     ### END
-df4_edits1['_T06 Ethnicity'] = df4_edits1.apply(func=fn_T06_Ethnicity, axis=1).astype('string') 
+df4_edits1['_T06 MOB Ethnicity'] = df4_edits1.apply(func=fn_T06_MOB_Ethnicity, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T06 Ethnicity']) 
+inspect_col(df4_edits1['_T06 MOB Ethnicity']) 
 
 #%%###################################
 
@@ -1546,28 +1479,56 @@ inspect_col(df4_edits1['_T06 FOB Ethnicity'])
 
 #%%###################################
 
-def fn_T06_MOB_Ethnicity(fdf):
+def fn_T06_Ethnicity(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T06 MOB Ethnicity']
+        case "FOB":
+            return fdf['_T06 FOB Ethnicity']
+    ### /// Tableau Calculation:
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN [_T06 MOB Ethnicity]
+    ###     WHEN "FOB" THEN [_T06 FOB Ethnicity]
+    ### END
+df4_edits1['_T06 Ethnicity'] = df4_edits1.apply(func=fn_T06_Ethnicity, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T06 Ethnicity']) 
+
+#%%###################################
+
+def fn_T07_MOB_Race(fdf):
     return True
     ### /// Tableau Calculation:
-    ### IF NOT ISNULL([Mob Ethnic]) THEN CASE [Mob Ethnic]
-    ###     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
-    ###     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
     ### //LLCHD
-    ### ELSEIF NOT ISNULL([Mob Ethnicity]) THEN CASE [Mob Ethnicity]
-    ###     WHEN "HISPANIC/LATINO" THEN "Hispanic or Latino" 
-    ###     WHEN "Hispanic" THEN "Hispanic or Latino"
-    ###     WHEN "NON-Hispanic" THEN "Not Hispanic or Latino"
-    ###     WHEN "NOT HISPANIC/LATINO" THEN "Not Hispanic or Latino"
-    ###     ELSE "Unrecognized Value"
-    ###     END
+    ### //multiracial
+    ### IF IIF([Mob Race Asian]="Y",1,0,0)+IIF([Mob Race Black]="Y",1,0,0)+IIF([Mob Race Hawaiian]="Y",1,0,0)+IIF([Mob Race Indian]="Y",1,0,0)
+    ### +IIF([Mob Race Other]="Y",1,0,0)+IIF([Mob Race White]="Y",1,0,0) > 1 THEN "More than one race"
+    ### //single race
+    ### ELSEIF [Mob Race Asian] = "Y" THEN "Asian"
+    ### ELSEIF [Mob Race Black] = "Y" THEN "Black or African American"
+    ### ELSEIF [Mob Race Hawaiian] = "Y" THEN "Native Hawaiian or Other Pacific Islander"
+    ### ELSEIF [Mob Race Indian] = "Y" THEN "American Indian or Alaska Native"
+    ### ELSEIF [Mob Race White] = "Y" THEN "White"
+    ### ELSEIF [Mob Race Other] = "Y" THEN "Other"
+    ### ////
+    ### //FW
+    ### //multiracial, = "True" is not required in IIF statement because race is boolean
+    ### ELSEIF IIF([MOB Race Asian],1,0,0)+IIF([MOB Race Black],1,0,0)+IIF([MOB Race Hawaiian Pacific],1,0,0)
+    ### +IIF([MOB Race Indian Alaskan],1,0,0)+IIF([MOB Race White],1,0,0) +IIF([MOB Race Other],1,0,0) > 1 
+    ### THEN "More than one race"
+    ### //single race
+    ### ELSEIF [MOB Race Asian] = True THEN "Asian"
+    ### ELSEIF [MOB Race Black] = True THEN "Black or African American"
+    ### ELSEIF [MOB Race Hawaiian Pacific] = True THEN "Native Hawaiian or Other Pacific Islander"
+    ### ELSEIF [MOB Race Indian Alaskan] = True THEN "American Indian or Alaska Native"
+    ### ELSEIF [MOB Race White] = True THEN "White"
+    ### ELSEIF [MOB Race Other] = True THEN "Other"
+    ### ////
     ### ELSE "Unknown/Did Not Report"
     ### END
-df4_edits1['_T06 MOB Ethnicity'] = df4_edits1.apply(func=fn_T06_MOB_Ethnicity, axis=1).astype('string') 
+df4_edits1['_T07 MOB Race'] = df4_edits1.apply(func=fn_T07_MOB_Race, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T06 MOB Ethnicity']) 
+inspect_col(df4_edits1['_T07 MOB Race']) 
 
 #%%###################################
 
@@ -1610,44 +1571,12 @@ inspect_col(df4_edits1['_T07 FOB Race'])
 
 #%%###################################
 
-def fn_T07_MOB_Race(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### //LLCHD
-    ### //multiracial
-    ### IF IIF([Mob Race Asian]="Y",1,0,0)+IIF([Mob Race Black]="Y",1,0,0)+IIF([Mob Race Hawaiian]="Y",1,0,0)+IIF([Mob Race Indian]="Y",1,0,0)
-    ### +IIF([Mob Race Other]="Y",1,0,0)+IIF([Mob Race White]="Y",1,0,0) > 1 THEN "More than one race"
-    ### //single race
-    ### ELSEIF [Mob Race Asian] = "Y" THEN "Asian"
-    ### ELSEIF [Mob Race Black] = "Y" THEN "Black or African American"
-    ### ELSEIF [Mob Race Hawaiian] = "Y" THEN "Native Hawaiian or Other Pacific Islander"
-    ### ELSEIF [Mob Race Indian] = "Y" THEN "American Indian or Alaska Native"
-    ### ELSEIF [Mob Race White] = "Y" THEN "White"
-    ### ELSEIF [Mob Race Other] = "Y" THEN "Other"
-    ### ////
-    ### //FW
-    ### //multiracial, = "True" is not required in IIF statement because race is boolean
-    ### ELSEIF IIF([MOB Race Asian],1,0,0)+IIF([MOB Race Black],1,0,0)+IIF([MOB Race Hawaiian Pacific],1,0,0)
-    ### +IIF([MOB Race Indian Alaskan],1,0,0)+IIF([MOB Race White],1,0,0) +IIF([MOB Race Other],1,0,0) > 1 
-    ### THEN "More than one race"
-    ### //single race
-    ### ELSEIF [MOB Race Asian] = True THEN "Asian"
-    ### ELSEIF [MOB Race Black] = True THEN "Black or African American"
-    ### ELSEIF [MOB Race Hawaiian Pacific] = True THEN "Native Hawaiian or Other Pacific Islander"
-    ### ELSEIF [MOB Race Indian Alaskan] = True THEN "American Indian or Alaska Native"
-    ### ELSEIF [MOB Race White] = True THEN "White"
-    ### ELSEIF [MOB Race Other] = True THEN "Other"
-    ### ////
-    ### ELSE "Unknown/Did Not Report"
-    ### END
-df4_edits1['_T07 MOB Race'] = df4_edits1.apply(func=fn_T07_MOB_Race, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T07 MOB Race']) 
-
-#%%###################################
-
 def fn_T07_Race(fdf):
-    return True
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T07 MOB Race']
+        case "FOB":
+            return fdf['_T07 FOB Race']
     ### /// Tableau Calculation:
     ### CASE [MOB or FOB]
     ###     WHEN "MOB" THEN [_T07 MOB Race]
@@ -1656,61 +1585,6 @@ def fn_T07_Race(fdf):
 df4_edits1['_T07 Race'] = df4_edits1.apply(func=fn_T07_Race, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T07 Race']) 
-
-#%%###################################
-
-def fn_T08_Caregiver_Marital_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T08 MOB Marital Status]
-    ###     WHEN "FOB" THEN [_T08 FOB Marital Status]
-    ### END
-df4_edits1['_T08 Caregiver Marital Status'] = df4_edits1.apply(func=fn_T08_Caregiver_Marital_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T08 Caregiver Marital Status']) 
-
-#%%###################################
-
-def fn_T08_FOB_Marital_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### //FW
-    ### IF [Fob Involved] = True THEN CASE [Adult2MaritalStatus]
-    ###     WHEN "Divorced" THEN "Separated, Divorced, or Widowed"
-    ###     WHEN "Living with Partner" THEN "Not Married but Living Together with Partner"
-    ###     WHEN "Married" THEN "Married"
-    ###     WHEN "Separated" THEN "Separated, Divorced, or Widowed"
-    ###     WHEN "Single" THEN "Never Married"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN "Widowed" THEN "Separated, Divorced, or Widowed"
-    ###     WHEN "Null" THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### //LLCHD
-    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Fob Marital Status] 
-    ###     WHEN "DIVORCED" THEN "Separated, Divorced, or Widowed"
-    ###     WHEN "LEGALLY SEPARATED" THEN "Separated, Divorced, or Widowed"
-    ###     WHEN "LIFE PARTNER" THEN "Not Married but Living Together with Partner"
-    ###     WHEN "LIVING WITH PARTNER" THEN " Not Married but Living Toghther with Partner"
-    ###     WHEN "MARRIED" THEN "Married"
-    ###     WHEN "Married" THEN "Married"
-    ###     WHEN "SEPARATED" THEN "Separated, Divorced, or Widowed"
-    ###     WHEN "SINGLE" THEN "Never Married"
-    ###     WHEN "NOT MARRIED" THEN "Never Married"
-    ###     WHEN "Not married" THEN "Never Married"
-    ###     WHEN "UNKNOWN" THEN "Unknown/Did Not Report"
-    ###     WHEN "WIDOWED" THEN "Separated, Divorced, or Widowed"
-    ###     WHEN "NULL" THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE NULL
-    ### END
-df4_edits1['_T08 FOB Marital Status'] = df4_edits1.apply(func=fn_T08_FOB_Marital_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T08 FOB Marital Status']) 
 
 #%%###################################
 
@@ -1757,21 +1631,349 @@ inspect_col(df4_edits1['_T08 MOB Marital Status'])
 
 #%%###################################
 
-def fn_T09_Caregiver_Education_Status(fdf):
+def fn_T08_FOB_Marital_Status(fdf):
     return True
     ### /// Tableau Calculation:
-    ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_C15 Max Educational Status]
-    ###     WHEN "FOB" THEN [_T09 FOB Education Status]
+    ### //FW
+    ### IF [Fob Involved] = True THEN CASE [Adult2MaritalStatus]
+    ###     WHEN "Divorced" THEN "Separated, Divorced, or Widowed"
+    ###     WHEN "Living with Partner" THEN "Not Married but Living Together with Partner"
+    ###     WHEN "Married" THEN "Married"
+    ###     WHEN "Separated" THEN "Separated, Divorced, or Widowed"
+    ###     WHEN "Single" THEN "Never Married"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "Widowed" THEN "Separated, Divorced, or Widowed"
+    ###     WHEN "Null" THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### //LLCHD
+    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Fob Marital Status] 
+    ###     WHEN "DIVORCED" THEN "Separated, Divorced, or Widowed"
+    ###     WHEN "LEGALLY SEPARATED" THEN "Separated, Divorced, or Widowed"
+    ###     WHEN "LIFE PARTNER" THEN "Not Married but Living Together with Partner"
+    ###     WHEN "LIVING WITH PARTNER" THEN " Not Married but Living Toghther with Partner"
+    ###     WHEN "MARRIED" THEN "Married"
+    ###     WHEN "Married" THEN "Married"
+    ###     WHEN "SEPARATED" THEN "Separated, Divorced, or Widowed"
+    ###     WHEN "SINGLE" THEN "Never Married"
+    ###     WHEN "NOT MARRIED" THEN "Never Married"
+    ###     WHEN "Not married" THEN "Never Married"
+    ###     WHEN "UNKNOWN" THEN "Unknown/Did Not Report"
+    ###     WHEN "WIDOWED" THEN "Separated, Divorced, or Widowed"
+    ###     WHEN "NULL" THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE NULL
     ### END
-df4_edits1['_T09 Caregiver Education Status'] = df4_edits1.apply(func=fn_T09_Caregiver_Education_Status, axis=1).astype('string') 
+df4_edits1['_T08 FOB Marital Status'] = df4_edits1.apply(func=fn_T08_FOB_Marital_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T09 Caregiver Education Status']) 
+inspect_col(df4_edits1['_T08 FOB Marital Status']) 
+
+#%%###################################
+
+def fn_T08_Caregiver_Marital_Status(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T08 MOB Marital Status']
+        case "FOB":
+            return fdf['_T08 FOB Marital Status']
+    ### /// Tableau Calculation:
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN [_T08 MOB Marital Status]
+    ###     WHEN "FOB" THEN [_T08 FOB Marital Status]
+    ### END
+df4_edits1['_T08 Caregiver Marital Status'] = df4_edits1.apply(func=fn_T08_Caregiver_Marital_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T08 Caregiver Marital Status']) 
+
+#%%###################################
+
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
+def fn_C15_Min_Educational_Status(fdf):
+    if (pd.isna(fdf['Mcafss Edu1']) and pd.isna(fdf['AD1MinEdu'])):
+        return "Unknown/Did Not Report"
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Mcafss Edu1']:
+            case _ if pd.isna(fdf['Mcafss Edu1']): 
+                return "Unrecognized Value" 
+            case 1 | 2:
+                return "Less than HS diploma" ### "Less than 8th Grade" | "8-11th Grade".
+            case 3 | 4:
+                return "HS diploma/GED" ### "High School Grad" | "Completed a GED".
+            case 5 | 7:
+                return "Technical Training or Associates Degree" ### "Vocational School after High School" | "Associates Degree".
+            case 6:
+                return "Some college/training" ### Some College.
+            case 8:
+                return "Bachelor's Degree or Higher" ### Bachelors Degree or Higher.
+            ### case 9:
+            ###     return "HS diploma/GED" ### currently enrolled in college - vocational training or trade apprenticeship.
+            ### case 10:
+            ###     return "HS diploma/GED" ### currently not enrolled in college - vocational training or trade apprenticeship.
+            ### case 11:
+            ###     return "Other" ### other education.
+            ### case 12:
+            ###     return "Unknown/Did Not Report" ### unknown/did not report.
+            case 0:
+                return "Unknown/Did Not Report" ### unknown/did not report (missing data).
+            case _ if int(fdf['Mcafss Edu1']) >= 9:
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ###########
+    ### FW.
+    elif (fdf['source'] == 'FW'):
+        match fdf['AD1MinEdu']:
+            case _ if pd.isna(fdf['AD1MinEdu']): 
+                return "Unrecognized Value" 
+            case "8th Grade or less" | "Some High School":
+                return "Less than HS diploma"
+            case "GED" | "High School Graduate":
+                return "HS diploma/GED"
+            case "Achievement Certificate" | "Certificate Program":
+                return "Technical Training or Certification"
+            case "Some College":
+                return "Some college/training"
+            case "Associates or Two Year Technical Degree":
+                return "Technical Training or Associates Degree" ### these are two separate categories on F1.
+            case "Two Year Degree":
+                return "Associate's Degree"
+            case "Four Year College Degree" | "Graduate School":
+                return "Bachelor's Degree or Higher"
+            case "Unknown" | "null":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ###########
+    else:
+        return "Unrecognized Value"
+    ###########
+    ### /// Tableau Calculation:
+    ### //LLCHD
+    ### IF [Mcafss Edu1] = 1 THEN "Less than HS diploma" // Less than 8th Grade
+    ### ELSEIF [Mcafss Edu1] = 2 THEN "Less than HS diploma" // 8-11th Grade
+    ### ELSEIF [Mcafss Edu1] = 3 THEN "HS diploma/GED" // High School Grad
+    ### ELSEIF [Mcafss Edu1] = 4 THEN "HS diploma/GED" //Completed a GED
+    ### ELSEIF [Mcafss Edu1] = 5 THEN "Technical Training or Associates Degree" // Vocational School after High School
+    ### ELSEIF [Mcafss Edu1] = 6 THEN "Some college/training" // Some College
+    ### ELSEIF [Mcafss Edu1] = 7 THEN "Technical Training or Associates Degree" // Associates Degree
+    ### ELSEIF [Mcafss Edu1] = 8 THEN "Bachelor's Degree or Higher"  // Bachelors Degree or Higher
+    ### // ELSEIF [Mcafss Edu1] = 9 THEN "HS diploma/GED"
+    ### // ELSEIF [Mcafss Edu1] = 10 THEN "HS diploma/GED" 
+    ### // ELSEIF [Mcafss Edu1] = 11 THEN "Other"
+    ### // ELSEIF [Mcafss Edu1] = 12 THEN "Unknown/Did Not Report"
+    ### ELSEIF [Mcafss Edu1] = 0 THEN "Unknown/Did Not Report"
+    ### ELSEIF [Mcafss Edu1] >= 9 THEN "Unknown/Did Not Report"
+    ### ////
+    ### ELSEIF [AD1MinEdu] = "8th Grade or less" THEN "Less than HS diploma"
+    ### ELSEIF [AD1MinEdu] = "Some High School" THEN "Less than HS diploma"
+    ### ELSEIF [AD1MinEdu] = "GED" THEN "HS diploma/GED"
+    ### ELSEIF [AD1MinEdu] = "High School Graduate" THEN "HS diploma/GED"
+    ### ELSEIF [AD1MinEdu] = "Achievement Certificate" THEN "Technical Training or Certification"
+    ### ELSEIF [AD1MinEdu] = "Certificate Program" THEN "Technical Training or Certification"
+    ### ELSEIF [AD1MinEdu] = "Some College" THEN "Some college/training"
+    ### ELSEIF [AD1MinEdu] = "Associates or Two Year Technical Degree" THEN "Technical Training or Associates Degree" //these are two serparate categories on F1
+    ### ELSEIF [AD1MinEdu] = "Two Year Degree" THEN "Associate's Degree"
+    ### ELSEIF [AD1MinEdu] = "Four Year College Degree" THEN "Bachelor's Degree or Higher"
+    ### ELSEIF [AD1MinEdu] = "Graduate School" THEN "Bachelor's Degree or Higher"
+    ### ELSEIF [AD1MinEdu] = "Unknown" THEN "Unknown/Did Not Report"
+    ### ELSEIF [AD1MinEdu] = "null"  THEN  "Unknown/Did Not Report"
+    ### ////
+    ### ELSEIF ISNULL([Mcafss Edu1])AND ISNULL([AD1MinEdu]) THEN "Unknown/Did Not Report"
+    ### ELSE "Unrecognized Value"
+    ### END
+    ### //LLCHD Code from Kodi on 11/30/2021
+    ### //1 – Less than 8th Grade
+    ### //2 – 8-11th Grade
+    ### //3 – High School Grad
+    ### //4 - Completed a GED
+    ### //5 - Vocational School after High School
+    ### //6 – Some College
+    ### //7 – Associates Degree 
+    ### //8 - Bachelors Degree or Higher
+    ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
+df4_edits1['_C15 Min Educational Status'] = df4_edits1.apply(func=fn_C15_Min_Educational_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C15 Min Educational Status']) 
+
+#%%###################################
+
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
+def fn_C15_Max_Educational_Status(fdf):
+    if (pd.isna(fdf['Mcafss Edu2']) and pd.isna(fdf['AD1MaxEdu'])):
+        return "Unknown/Did Not Report"
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Mcafss Edu2']:
+            case _ if pd.isna(fdf['Mcafss Edu2']): 
+                return "Unrecognized Value" 
+            case 1 | 2:
+                return "Less than HS diploma" ### "Less than 8th Grade" | "8-11th Grade".
+            case 3 | 4:
+                return "HS diploma/GED" ### "High School Grad" | "Completed a GED".
+            case 5 | 7:
+                return "Technical Training or Associates Degree" ### "Vocational School after High School" | "Associates Degree".
+            case 6:
+                return "Some college/training" ### Some College.
+            case 8:
+                return "Bachelor's Degree or Higher" ### Bachelors Degree or Higher.
+            ### case 9:
+            ###     return "HS diploma/GED" ### currently enrolled in college - vocational training or trade apprenticeship.
+            ### case 10:
+            ###     return "HS diploma/GED" ### currently not enrolled in college - vocational training or trade apprenticeship.
+            ### case 11:
+            ###     return "Other" ### other education.
+            ### case 12:
+            ###     return "Unknown/Did Not Report" ### unknown/did not report.
+            case 0:
+                return "Unknown/Did Not Report" ### unknown/did not report (missing data).
+            case _ if int(fdf['Mcafss Edu2']) >= 9:
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ###########
+    ### FW.
+    elif (fdf['source'] == 'FW'):
+        match fdf['AD1MaxEdu']:
+            case _ if pd.isna(fdf['AD1MaxEdu']): 
+                return "Unrecognized Value" 
+            case "8th Grade or less" | "Some High School":
+                return "Less than HS diploma"
+            case "GED" | "High School Graduate":
+                return "HS diploma/GED"
+            case "Achievement Certificate" | "Certificate Program":
+                return "Technical Training or Certification"
+            case "Some College":
+                return "Some college/training"
+            case "Associates or Two Year Technical Degree":
+                return "Technical Training or Associates Degree" ### these are two separate categories on F1.
+            case "Two Year Degree":
+                return "Associate's Degree"
+            case "Four Year College Degree" | "Graduate School":
+                return "Bachelor's Degree or Higher"
+            case "Unknown" | "null":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ###########
+    else:
+        return "Unrecognized Value"
+    ###########
+    ### /// Tableau Calculation:
+    ### //LLCHD
+    ### IF [Mcafss Edu2] = 1 THEN "Less than HS diploma" // Less than 8th Grade
+    ### ELSEIF [Mcafss Edu2] = 2 THEN "Less than HS diploma" // 8-11th Grade
+    ### ELSEIF [Mcafss Edu2] = 3 THEN "HS diploma/GED" // High School Grad
+    ### ELSEIF [Mcafss Edu2] = 4 THEN "HS diploma/GED" //Completed a GED
+    ### ELSEIF [Mcafss Edu2] = 5 THEN "Technical Training or Associates Degree" // Vocational School after High School
+    ### ELSEIF [Mcafss Edu2] = 6 THEN "Some college/training" // Some College
+    ### ELSEIF [Mcafss Edu2] = 7 THEN "Technical Training or Associates Degree" // Associates Degree
+    ### ELSEIF [Mcafss Edu2] = 8 THEN "Bachelor's Degree or Higher"  // Bachelors Degree or Higher
+    ### // ELSEIF [Mcafss Edu2] = 9 THEN "HS diploma/GED" //currently enrolled in college - vocational training or trade apprenticeship
+    ### // ELSEIF [Mcafss Edu2] = 10 THEN "HS diploma/GED"  //currently not enrolled in college - vocational training or trade apprenticeship
+    ### // ELSEIF [Mcafss Edu2] = 11 THEN "Other" //other education
+    ### // ELSEIF [Mcafss Edu2] = 12 THEN "Unknown/Did Not Report" //unknown/did not report
+    ### ELSEIF [Mcafss Edu2] = 0 THEN "Unknown/Did Not Report" //unknown/did not report (missing data)
+    ### ELSEIF [Mcafss Edu2] >= 9 THEN "Unknown/Did Not Report" 
+    ### //FW
+    ### ELSEIF [AD1MaxEdu] = "8th Grade or less" THEN "Less than HS diploma"
+    ### ELSEIF [AD1MaxEdu] = "Some High School" THEN "Less than HS diploma"
+    ### ELSEIF [AD1MaxEdu] = "GED" THEN "HS diploma/GED"
+    ### ELSEIF [AD1MaxEdu] = "High School Graduate" THEN "HS diploma/GED"
+    ### ELSEIF [AD1MaxEdu] = "Achievement Certificate" THEN "Technical Training or Certification"
+    ### ELSEIF [AD1MaxEdu] = "Certificate Program" THEN "Technical Training or Certification"
+    ### ELSEIF [AD1MaxEdu] = "Some College" THEN "Some college/training"
+    ### ELSEIF [AD1MaxEdu] = "Associates or Two Year Technical Degree" THEN "Technical Training or Associates Degree" //these are two serparate categories on F1
+    ### ELSEIF [AD1MaxEdu] = "Two Year Degree" THEN "Associate's Degree"
+    ### ELSEIF [AD1MaxEdu] = "Four Year College Degree" THEN "Bachelor's Degree or Higher"
+    ### ELSEIF [AD1MaxEdu] = "Graduate School" THEN "Bachelor's Degree or Higher"
+    ### ELSEIF [AD1MaxEdu] = "Unknown" THEN "Unknown/Did Not Report"
+    ### ELSEIF [AD1MaxEdu] = "null" THEN "Unknown/Did Not Report"
+    ### ELSEIF ISNULL([Mcafss Edu2]) AND ISNULL([AD1MaxEdu]) THEN "Unknown/Did Not Report"
+    ### ELSE "Unrecognized Value"
+    ### END
+    ### //LLCHD Code from Kodi on 11/30/2021
+    ### //1 – Less than 8th Grade
+    ### //2 – 8-11th Grade
+    ### //3 – High School Grad
+    ### //4 - Completed a GED
+    ### //5 - Vocational School after High School
+    ### //6 – Some College
+    ### //7 – Associates Degree 
+    ### //8 - Bachelors Degree or Higher
+    ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
+df4_edits1['_C15 Max Educational Status'] = df4_edits1.apply(func=fn_C15_Max_Educational_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C15 Max Educational Status']) 
 
 #%%###################################
 
 def fn_T09_FOB_Education_Status(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            match fdf['AD2EDLevel']:
+                case _ if pd.isna(fdf['AD2EDLevel']):
+                    return "Unknown/Did Not Report"
+                case "8th Grade or less" | "Some High School":
+                    return "Less than HS diploma"
+                case "GED" | "High School Graduate":
+                    return "HS diploma/GED"
+                case "Achievement Certificate":
+                    return "Some college/training" ### is this the right category?
+                case "Certificate Program":
+                    return "Some college/training" ### is this the right category?
+                case "Some College":
+                    return "Some college/training"
+                case "Associates or Two Year Technical Degree" | "Two Year Degree":
+                    return "Technical Training or Associates Degree" ### these are two serparate categories on F1.
+                case "Four Year College Degree" | "Graduate School":
+                    return "Bachelor's Degree or Higher"
+                case "Unknown":
+                    return "Unknown/Did Not Report"
+                case _:
+                    return pd.NA 
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            match fdf['Fob Edu']:
+                case _ if pd.isna(fdf['Fob Edu']):
+                    return "Unknown/Did Not Report"
+                case 1 | 2:
+                    return "Less than HS diploma"
+                case 3 | 4:
+                    return "HS diploma/GED"
+                case 5:
+                    return "Vocational School after High School"
+                case 6:
+                    return "Some college/training"
+                case 7:
+                    return "Associates Degree" ### these are two separate categories on F1.
+                case 8:
+                    return "Bachelor's Degree or Higher"
+                case 0:
+                    return "Unknow/Did Not Report" ### TODO: After compare, fix spelling "Unknown".
+                case _:
+                    return pd.NA 
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### //FW
     ### IF [Fob Involved]= True THEN CASE [AD2EDLevel] 
@@ -1820,21 +2022,252 @@ inspect_col(df4_edits1['_T09 FOB Education Status'])
 
 #%%###################################
 
-def fn_T10_Caregiver_Educational_Enrollment(fdf):
-    return True
+def fn_T09_Caregiver_Education_Status(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_C15 Max Educational Status']
+        case "FOB":
+            return fdf['_T09 FOB Education Status']
     ### /// Tableau Calculation:
     ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_C15 Max Educational Enrollment]
-    ###     WHEN "FOB" THEN [_T10 FOB Educational Enrollment]
+    ###     WHEN "MOB" THEN [_C15 Max Educational Status]
+    ###     WHEN "FOB" THEN [_T09 FOB Education Status]
     ### END
-df4_edits1['_T10 Caregiver Educational Enrollment'] = df4_edits1.apply(func=fn_T10_Caregiver_Educational_Enrollment, axis=1).astype('string') 
+df4_edits1['_T09 Caregiver Education Status'] = df4_edits1.apply(func=fn_T09_Caregiver_Education_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T10 Caregiver Educational Enrollment']) 
+inspect_col(df4_edits1['_T09 Caregiver Education Status']) 
+### TODO: standardize "Educational Status" & "Education Status" variable names.
+
+#%%###################################
+
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
+def fn_C15_Min_Educational_Enrollment(fdf):
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Min Edu Enroll']:
+            case _ if pd.isna(fdf['Min Edu Enroll']):
+                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            case "College 2 Year" | "College 4 Year" | "ESL" | "Graduate School" | "Vocational College":
+                return "Student/trainee"
+            case "GED Program" | "High/Middle School":
+                return "Student/trainee HS/GED"
+            case "Not Enrolled in School":
+                return "Not a student/trainee"
+            case "Unknown":
+                return "Unknown/Did not Report"
+            case _:
+                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if (
+            pd.isna(fdf['mcafss_edu1_enroll']) or
+            (fdf['mcafss_edu1_enroll'] == "YES" and pd.isna(fdf['mcafss_edu1_prog'])) ### TODO: After comparison, change to 'Y'.
+        ):
+            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        elif (
+            fdf['mcafss_edu1_enroll'] == "YES" ### Enrolled. ### TODO: After comparison, change to 'Y'.
+            and
+            (
+                fdf['mcafss_edu1_prog'] == 1 ### Enrolled in Middle School.
+                or
+                fdf['mcafss_edu1_prog'] == 2 ### Enrolled in High School.
+                or
+                fdf['mcafss_edu1_prog'] == 3 ### Enrolled in GED.
+            )
+        ):
+            return "Student/trainee HS/GED" 
+        elif (fdf['mcafss_edu1_enroll'] == "NO"): ### TODO: After comparison, change to 'N'.
+            return "Student/trainee" ### Only difference from '_C15 Max Educational Enrollment' (other than diff vars).
+        else:
+            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### /// Tableau Calculation:
+    ### //FW
+    ### IF [Min Edu Enroll] = "College 2 Year" THEN "Student/trainee" 
+    ### ELSEIF [Min Edu Enroll] = "College 4 Year" THEN "Student/trainee"
+    ### ELSEIF [Min Edu Enroll] = "ESL" THEN "Student/trainee"
+    ### ELSEIF [Min Edu Enroll] = "GED Program" THEN "Student/trainee HS/GED"
+    ### ELSEIF [Min Edu Enroll] = "Graduate School" THEN "Student/trainee"
+    ### ELSEIF [Min Edu Enroll] = "High/Middle School" THEN "Student/trainee HS/GED"
+    ### ELSEIF [Min Edu Enroll] = "Not Enrolled in School" THEN "Not a student/trainee"
+    ### ELSEIF [Min Edu Enroll] = "Unknown" THEN "Unknown/Did not Report"
+    ### ELSEIF [Min Edu Enroll] = "Vocational College" THEN "Student/trainee"
+    ### //LLCHD
+    ### ELSEIF ([mcafss_edu1_enroll] = "YES" // Enrolled
+    ###         AND
+    ###         ([mcafss_edu1_prog] = 1 // Enrolled in Middle School
+    ###         OR
+    ###         [mcafss_edu1_prog] = 2 // Enrolled in High School
+    ###         OR
+    ###         [mcafss_edu1_prog] = 3 // Enrolled in GED
+    ###         )) THEN "Student/trainee HS/GED" 
+    ### ELSEIF [mcafss_edu1_enroll] = "NO" THEN "Student/trainee"
+    ### ELSE "Unknown/Did not Report"
+    ### END
+    ### //Student/trainee indicates enrollment in a program other than a high school diploma or GED
+    ### //LLCHD - Kodi sent this coding for mcafss_edu1_prog on 12/7/2021
+    ### //01 = Middle School
+    ### //02 = High School
+    ### //03 = GED
+    ### //04 = ESL
+    ### //05 = Adult education in basic reading or math
+    ### //06 = College
+    ### //07 = Vocational training, technical or trade school (excluding training received during HS)
+    ### //08 = Job search or job placement
+    ### //09 = Work experience
+    ### //10 = Other (Specify)
+df4_edits1['_C15 Min Educational Enrollment'] = df4_edits1.apply(func=fn_C15_Min_Educational_Enrollment, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C15 Min Educational Enrollment']) 
+
+#%%###################################
+
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
+def fn_C15_Max_Educational_Enrollment(fdf):
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Max Edu Enroll']:
+            case _ if pd.isna(fdf['Max Edu Enroll']):
+                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            case "College 2 Year" | "College 4 Year" | "ESL" | "Graduate School" | "Vocational College":
+                return "Student/trainee"
+            case "GED Program" | "High/Middle School":
+                return "Student/trainee HS/GED"
+            case "Not Enrolled in School":
+                return "Not a student/trainee"
+            case "Unknown":
+                return "Unknown/Did not Report"
+            case _:
+                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if (
+            pd.isna(fdf['mcafss_edu2_enroll']) or
+            (fdf['mcafss_edu2_enroll'] == "YES" and pd.isna(fdf['mcafss_edu2_prog'])) ### TODO: After comparison, change to 'Y'.
+        ):
+            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        elif (
+            fdf['mcafss_edu2_enroll'] == "YES" ### Enrolled. ### TODO: After comparison, change to 'Y'.
+            and
+            (
+                fdf['mcafss_edu2_prog'] == 1 ### Enrolled in Middle School.
+                or
+                fdf['mcafss_edu2_prog'] == 2 ### Enrolled in High School.
+                or
+                fdf['mcafss_edu2_prog'] == 3 ### Enrolled in GED.
+            )
+        ):
+            return "Student/trainee HS/GED" 
+        elif (fdf['mcafss_edu2_enroll'] == "NO"): ### TODO: After comparison, change to 'N'.
+            return "Not a student/trainee" ### Only difference from '_C15 Min Educational Enrollment' (other than diff vars).
+        else:
+            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### /// Tableau Calculation:
+    ### IF [Max Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
+    ### ELSEIF [Max Edu Enroll] = "College 4 Year" THEN "Student/trainee"
+    ### ELSEIF [Max Edu Enroll] = "ESL" THEN "Student/trainee"
+    ### ELSEIF [Max Edu Enroll] = "GED Program" THEN "Student/trainee HS/GED"
+    ### ELSEIF [Max Edu Enroll] = "Graduate School" THEN "Student/trainee"
+    ### ELSEIF [Max Edu Enroll] = "High/Middle School" THEN "Student/trainee HS/GED"
+    ### ELSEIF [Max Edu Enroll] = "Not Enrolled in School" THEN "Not a student/trainee"
+    ### ELSEIF [Max Edu Enroll] = "Unknown" THEN "Unknown/Did not Report"
+    ### ELSEIF [Max Edu Enroll] = "Vocational College" THEN "Student/trainee"
+    ### ////
+    ### ELSEIF ([mcafss_edu2_enroll] = "YES" // LLCHD Enrolled
+    ###         AND
+    ###         ([mcafss_edu2_prog] = 1 // Enrolled in Middle School
+    ###         OR
+    ###         [mcafss_edu2_prog] = 2 // Enrolled in High School
+    ###         OR
+    ###         [mcafss_edu2_prog] = 3 // Enrolled in GED
+    ###         )) THEN "Student/trainee HS/GED" //LLCHD
+    ### ELSEIF [mcafss_edu2_enroll] = "NO" THEN "Not a student/trainee"
+    ### ELSE "Unknown/Did not Report"
+    ### END
+    ### //Student/trainee indicates enrollment in a program other than a high school diploma or GED
+    ### //LLCHD - Kodi sent this coding for mcafss_edu2_prog on 12/7/2021
+    ### //01 = Middle School
+    ### //02 = High School
+    ### //03 = GED
+    ### //04 = ESL
+    ### //05 = Adult education in basic reading or math
+    ### //06 = College
+    ### //07 = Vocational training, technical or trade school (excluding training received during HS)
+    ### //08 = Job search or job placement
+    ### //09 = Work experience
+    ### //10 = Other (Specify)
+df4_edits1['_C15 Max Educational Enrollment'] = df4_edits1.apply(func=fn_C15_Max_Educational_Enrollment, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C15 Max Educational Enrollment']) 
+# #%%
+# inspect_col(df4_edits1['Max Edu Enroll']) 
+# #%%
+# inspect_col(df4_edits1['mcafss_edu2_enroll']) 
+# #%%
+# inspect_col(df4_edits1['mcafss_edu2_prog']) 
+#%%
+df4_edits1[['source', '_C15 Max Educational Enrollment', 'Max Edu Enroll', 'mcafss_edu2_enroll', 'mcafss_edu2_prog']].drop_duplicates(ignore_index=True)
 
 #%%###################################
 
 def fn_T10_FOB_Educational_Enrollment(fdf):
-    return True
+    ### max.
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            match fdf['AD2InSchool']:
+                case _ if pd.isna(fdf['AD2InSchool']):
+                    return "Unknown/Did Not Report"
+                case "College 2 Year" | "College 4 Year" | "ESL" | "GED Program" | "Graduate School" | "High/Middle School" | "Vocational College":
+                    return "Student/trainee"
+                case "Not Enrolled in School":
+                    return "Not a student/trainee"
+                case "Unknown":
+                    return "Unknown/Did Not Report"
+                case _:
+                    return pd.NA 
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            match fdf['Fob Edu']:
+                case _ if pd.isna(fdf['Fob Edu']):
+                    return "Unknown/Did Not Report"
+                ### case 1 | 9:
+                ###     return "Student/trainee"
+                ### case 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 11:
+                ###     return "Not a student/trainee"
+                ### case 12:
+                ###     return "Unknown/Did Not Report"
+                case _:
+                    return pd.NA 
+        else:
+            return pd.NA 
+    ### TODO: Older note: Need an FOB enrollment prog from LLCHD.
+    ### TODO: Ask why cases 1-12 for LL commented out?
+    ### TODO: Fix logic because 'Fob Edu' is text not numbers. That's probably why.
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### //max
     ### //FW
@@ -1873,57 +2306,26 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
 df4_edits1['_T10 FOB Educational Enrollment'] = df4_edits1.apply(func=fn_T10_FOB_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T10 FOB Educational Enrollment']) 
+#%%
+print(df4_edits1[['source', '_T10 FOB Educational Enrollment', 'Fob Involved', 'AD2InSchool', 'Fob Involved1', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
-def fn_T11_Caregiver_Employment(fdf):
-    return True
+def fn_T10_Caregiver_Educational_Enrollment(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_C15 Max Educational Enrollment']
+        case "FOB":
+            return fdf['_T10 FOB Educational Enrollment']
     ### /// Tableau Calculation:
     ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T11 MOB Employment]
-    ###     WHEN "FOB" THEN [_T11 FOB Employment]
+    ###     WHEN "MOB" THEN [_C15 Max Educational Enrollment]
+    ###     WHEN "FOB" THEN [_T10 FOB Educational Enrollment]
     ### END
-df4_edits1['_T11 Caregiver Employment'] = df4_edits1.apply(func=fn_T11_Caregiver_Employment, axis=1).astype('string') 
+df4_edits1['_T10 Caregiver Educational Enrollment'] = df4_edits1.apply(func=fn_T10_Caregiver_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T11 Caregiver Employment']) 
-
-#%%###################################
-
-def fn_T11_FOB_Employment(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Fob Involved] = True THEN CASE [AD2EmployStatus] //FW
-    ###     WHEN "Employed Full Time" THEN "Employed Full Time"
-    ###     WHEN "Employed Part Time" THEN "Employed Part Time"
-    ###     WHEN "Maternal leave, paid, full time" THEN "Employed Full Time"
-    ###     WHEN "Maternal leave, unpaid, full time" THEN "Employed Full Time"
-    ###     WHEN "Maternal leave, unpaid, part time" THEN "Employed Part Time"
-    ###     WHEN "Permanent Disability" THEN "Not Employed"
-    ###     WHEN "Self-Employed" THEN "Employed Part Time"
-    ###     WHEN "Unemployed - Unspecified" THEN "Not Employed"
-    ###     WHEN "Unemployed Not Seeking Work-Barriers" THEN "Not Employed"
-    ###     WHEN "Unemployed Not Seeking Work-Preference" THEN "Not Employed"
-    ###     WHEN "Unemployed Not Seeking Work-Teen Caregiver" THEN "Not Employed"
-    ###     WHEN "Unemployed Seeking Work" THEN "Not Employed"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN "null" THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Fob Employ] //LLCHD
-    ###     WHEN 1 THEN "Not Employed"
-    ###     WHEN 2 THEN "Not Employed"
-    ###     WHEN 3 THEN "Employed Part Time"
-    ###     WHEN 4 THEN "Employed Full Time"
-    ###     WHEN 5 THEN "Employed Full Time"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE NULL
-    ### END
-df4_edits1['_T11 FOB Employment'] = df4_edits1.apply(func=fn_T11_FOB_Employment, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T11 FOB Employment']) 
+inspect_col(df4_edits1['_T10 Caregiver Educational Enrollment']) 
+### TODO: Standardize "Unknown/Did not Report" vs "Unknown/Did Not Report".
 
 #%%###################################
 
@@ -1966,29 +2368,96 @@ inspect_col(df4_edits1['_T11 MOB Employment'])
 
 #%%###################################
 
-def fn_T12_Caregiver_Homeless_Status(fdf):
+def fn_T11_FOB_Employment(fdf):
     return True
     ### /// Tableau Calculation:
-    ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T12 MOB Homeless Status]
-    ###     WHEN "FOB" THEN [_T12 FOB Homeless Status]
+    ### IF [Fob Involved] = True THEN CASE [AD2EmployStatus] //FW
+    ###     WHEN "Employed Full Time" THEN "Employed Full Time"
+    ###     WHEN "Employed Part Time" THEN "Employed Part Time"
+    ###     WHEN "Maternal leave, paid, full time" THEN "Employed Full Time"
+    ###     WHEN "Maternal leave, unpaid, full time" THEN "Employed Full Time"
+    ###     WHEN "Maternal leave, unpaid, part time" THEN "Employed Part Time"
+    ###     WHEN "Permanent Disability" THEN "Not Employed"
+    ###     WHEN "Self-Employed" THEN "Employed Part Time"
+    ###     WHEN "Unemployed - Unspecified" THEN "Not Employed"
+    ###     WHEN "Unemployed Not Seeking Work-Barriers" THEN "Not Employed"
+    ###     WHEN "Unemployed Not Seeking Work-Preference" THEN "Not Employed"
+    ###     WHEN "Unemployed Not Seeking Work-Teen Caregiver" THEN "Not Employed"
+    ###     WHEN "Unemployed Seeking Work" THEN "Not Employed"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "null" THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Fob Employ] //LLCHD
+    ###     WHEN 1 THEN "Not Employed"
+    ###     WHEN 2 THEN "Not Employed"
+    ###     WHEN 3 THEN "Employed Part Time"
+    ###     WHEN 4 THEN "Employed Full Time"
+    ###     WHEN 5 THEN "Employed Full Time"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE NULL
     ### END
-df4_edits1['_T12 Caregiver Homeless Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Homeless_Status, axis=1).astype('string') 
+df4_edits1['_T11 FOB Employment'] = df4_edits1.apply(func=fn_T11_FOB_Employment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 Caregiver Homeless Status']) 
+inspect_col(df4_edits1['_T11 FOB Employment']) 
 
 #%%###################################
 
-def fn_T12_Caregiver_Housing_Status(fdf):
-    return True
+def fn_T11_Caregiver_Employment(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T11 MOB Employment']
+        case "FOB":
+            return fdf['_T11 FOB Employment']
     ### /// Tableau Calculation:
     ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T12 MOB Housing Status]
-    ###     WHEN "FOB" THEN [_T12 FOB Housing Status]
+    ###     WHEN "MOB" THEN [_T11 MOB Employment]
+    ###     WHEN "FOB" THEN [_T11 FOB Employment]
     ### END
-df4_edits1['_T12 Caregiver Housing Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Housing_Status, axis=1).astype('string') 
+df4_edits1['_T11 Caregiver Employment'] = df4_edits1.apply(func=fn_T11_Caregiver_Employment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 Caregiver Housing Status']) 
+inspect_col(df4_edits1['_T11 Caregiver Employment']) 
+
+#%%###################################
+
+def fn_T12_MOB_Homeless_Status(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF [_Agency]<> "ll" THEN CASE [Homeless Status] //FW
+    ###     WHEN "Homeless" THEN "Homeless"
+    ###     WHEN "Not Homeless" THEN "Not Homeless"
+    ###     ELSE CASE [Housing Status] //FW
+    ###         WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless"
+    ###         WHEN "Homeless and sharing housing" THEN "Homeless"
+    ###         WHEN "Live in public housing" THEN "Not Homeless"
+    ###         WHEN "Lives with parent or family member" THEN "Not Homeless"
+    ###         WHEN "Other" THEN  "Unknown/Did Not Report" //Not sure this is the right category
+    ###         WHEN "Owns or shares own home, condominium, or apartment" THEN "Not Homeless"
+    ###         WHEN "Rents of shares own home or apartment" THEN "Not Homeless"
+    ###         WHEN "Some other arrangement" THEN "Unknown/Did Not Report"
+    ###         WHEN NULL THEN "Unknown/Did Not Report"
+    ###         ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
+    ###         END
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN CASE [Mob Living Arrangement] //LLCHD
+    ###     WHEN 1 THEN "Not Homeless" //Owns or shared own home, condo, or apartment
+    ###     WHEN 2 THEN "Not Homeless" //Rents or shared own home or apartment
+    ###     WHEN 3 THEN "Not Homeless" //Lives in public housing
+    ###     WHEN 4 THEN "Not Homeless" //Lives with parent or family member
+    ###     WHEN 5 THEN "Not Homeless" //Some other arrangement
+    ###     WHEN 6 THEN "Homeless" //Homeless and sharing housing
+    ###     WHEN 7 THEN "Homeless" //Homesless and living in emergency or transitional shelter
+    ###     WHEN 8 THEN "Homeless" //Homeless with some other arrangement
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### END
+df4_edits1['_T12 MOB Homeless Status'] = df4_edits1.apply(func=fn_T12_MOB_Homeless_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T12 MOB Homeless Status']) 
 
 #%%###################################
 
@@ -2031,77 +2500,20 @@ inspect_col(df4_edits1['_T12 FOB Homeless Status'])
 
 #%%###################################
 
-def fn_T12_FOB_Housing_Status(fdf):
-    return True
+def fn_T12_Caregiver_Homeless_Status(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T12 MOB Homeless Status']
+        case "FOB":
+            return fdf['_T12 FOB Homeless Status']
     ### /// Tableau Calculation:
-    ### IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
-    ###     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
-    ###     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
-    ###     WHEN "Live in public housing" THEN "Lives in public housing"
-    ###     WHEN "Lives with parent or family member" THEN "Lives with parent or family member"
-    ###     WHEN "Other" THEN  "Some other arrangement" //Not sure this is the right category
-    ###     WHEN "Owns or shares own home, condominium, or apartment" THEN "Owns or shares own home, condominium, or apartment"
-    ###     WHEN "Rents of shares own home or apartment" THEN "Rents or shares own home or apartment"
-    ###     WHEN "Rents or shares own home or apartment" THEN "Rents or shares own home or apartment"
-    ###     WHEN "Some other arrangement" THEN "Some other arrangement"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
-    ###     END
-    ### ELSEIF [_Agency] = "ll" THEN CASE [Fob Living Arrangement] //LLCHD
-    ###     WHEN 1 THEN "Owns or shares own home, condominium, or apartment" //Owns or shared own home, condo, or apartment
-    ###     WHEN 2 THEN "Rents or shares own home or apartment" //Rents or shared own home or apartment
-    ###     WHEN 3 THEN "Lives in public housing" //Lives in public housing
-    ###     WHEN 4 THEN "Lives with parent or family member" //Lives with parent or family member
-    ###     WHEN 5 THEN "Not homeless, some other arrangement" //Some other arrangement
-    ###     WHEN 6 THEN "Homeless and sharing housing" //Homeless and sharing housing
-    ###     WHEN 7 THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
-    ###     WHEN 8 THEN "Homeless, some other arrangement" //Homeless with some other arrangement
-    ###     WHEN 88 THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN [_T12 MOB Homeless Status]
+    ###     WHEN "FOB" THEN [_T12 FOB Homeless Status]
     ### END
-df4_edits1['_T12 FOB Housing Status'] = df4_edits1.apply(func=fn_T12_FOB_Housing_Status, axis=1).astype('string') 
+df4_edits1['_T12 Caregiver Homeless Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Homeless_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 FOB Housing Status']) 
-
-#%%###################################
-
-def fn_T12_MOB_Homeless_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [_Agency]<> "ll" THEN CASE [Homeless Status] //FW
-    ###     WHEN "Homeless" THEN "Homeless"
-    ###     WHEN "Not Homeless" THEN "Not Homeless"
-    ###     ELSE CASE [Housing Status] //FW
-    ###         WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless"
-    ###         WHEN "Homeless and sharing housing" THEN "Homeless"
-    ###         WHEN "Live in public housing" THEN "Not Homeless"
-    ###         WHEN "Lives with parent or family member" THEN "Not Homeless"
-    ###         WHEN "Other" THEN  "Unknown/Did Not Report" //Not sure this is the right category
-    ###         WHEN "Owns or shares own home, condominium, or apartment" THEN "Not Homeless"
-    ###         WHEN "Rents of shares own home or apartment" THEN "Not Homeless"
-    ###         WHEN "Some other arrangement" THEN "Unknown/Did Not Report"
-    ###         WHEN NULL THEN "Unknown/Did Not Report"
-    ###         ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
-    ###         END
-    ###     END
-    ### ELSEIF [_Agency] = "ll" THEN CASE [Mob Living Arrangement] //LLCHD
-    ###     WHEN 1 THEN "Not Homeless" //Owns or shared own home, condo, or apartment
-    ###     WHEN 2 THEN "Not Homeless" //Rents or shared own home or apartment
-    ###     WHEN 3 THEN "Not Homeless" //Lives in public housing
-    ###     WHEN 4 THEN "Not Homeless" //Lives with parent or family member
-    ###     WHEN 5 THEN "Not Homeless" //Some other arrangement
-    ###     WHEN 6 THEN "Homeless" //Homeless and sharing housing
-    ###     WHEN 7 THEN "Homeless" //Homesless and living in emergency or transitional shelter
-    ###     WHEN 8 THEN "Homeless" //Homeless with some other arrangement
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### END
-df4_edits1['_T12 MOB Homeless Status'] = df4_edits1.apply(func=fn_T12_MOB_Homeless_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 MOB Homeless Status']) 
+inspect_col(df4_edits1['_T12 Caregiver Homeless Status']) 
 
 #%%###################################
 
@@ -2140,20 +2552,56 @@ inspect_col(df4_edits1['_T12 MOB Housing Status'])
 
 #%%###################################
 
-def fn_T14_Federal_Poverty_Categories(fdf):
+def fn_T12_FOB_Housing_Status(fdf):
     return True
     ### /// Tableau Calculation:
-    ### IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
-    ### ELSEIF [_T14 Poverty Percent] <= 1.00 THEN "51-100%"
-    ### ELSEIF [_T14 Poverty Percent] <= 1.33 THEN "101-133%"
-    ### ELSEIF [_T14 Poverty Percent] <= 2.00 THEN "134-200%"
-    ### ELSEIF [_T14 Poverty Percent] <= 3.00 THEN "201-300%"
-    ### ELSEIF [_T14 Poverty Percent] > 3.00  THEN ">300%"
-    ### ELSEIF NULL THEN "Unknown/Did Not Report"
+    ### IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
+    ###     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    ###     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
+    ###     WHEN "Live in public housing" THEN "Lives in public housing"
+    ###     WHEN "Lives with parent or family member" THEN "Lives with parent or family member"
+    ###     WHEN "Other" THEN  "Some other arrangement" //Not sure this is the right category
+    ###     WHEN "Owns or shares own home, condominium, or apartment" THEN "Owns or shares own home, condominium, or apartment"
+    ###     WHEN "Rents of shares own home or apartment" THEN "Rents or shares own home or apartment"
+    ###     WHEN "Rents or shares own home or apartment" THEN "Rents or shares own home or apartment"
+    ###     WHEN "Some other arrangement" THEN "Some other arrangement"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN CASE [Fob Living Arrangement] //LLCHD
+    ###     WHEN 1 THEN "Owns or shares own home, condominium, or apartment" //Owns or shared own home, condo, or apartment
+    ###     WHEN 2 THEN "Rents or shares own home or apartment" //Rents or shared own home or apartment
+    ###     WHEN 3 THEN "Lives in public housing" //Lives in public housing
+    ###     WHEN 4 THEN "Lives with parent or family member" //Lives with parent or family member
+    ###     WHEN 5 THEN "Not homeless, some other arrangement" //Some other arrangement
+    ###     WHEN 6 THEN "Homeless and sharing housing" //Homeless and sharing housing
+    ###     WHEN 7 THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    ###     WHEN 8 THEN "Homeless, some other arrangement" //Homeless with some other arrangement
+    ###     WHEN 88 THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
     ### END
-df4_edits1['_T14 Federal Poverty Categories'] = df4_edits1.apply(func=fn_T14_Federal_Poverty_Categories, axis=1).astype('string') 
+df4_edits1['_T12 FOB Housing Status'] = df4_edits1.apply(func=fn_T12_FOB_Housing_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T14 Federal Poverty Categories']) 
+inspect_col(df4_edits1['_T12 FOB Housing Status']) 
+
+#%%###################################
+
+def fn_T12_Caregiver_Housing_Status(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T12 MOB Housing Status']
+        case "FOB":
+            return fdf['_T12 FOB Housing Status']
+    ### /// Tableau Calculation:
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN [_T12 MOB Housing Status]
+    ###     WHEN "FOB" THEN [_T12 FOB Housing Status]
+    ### END
+df4_edits1['_T12 Caregiver Housing Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Housing_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T12 Caregiver Housing Status']) 
 
 #%%###################################
 
@@ -2171,36 +2619,35 @@ inspect_col(df4_edits1['_T14 Poverty Percent'])
 
 #%%###################################
 
-def fn_T15_4_Caregiver_Substance_Abuse(fdf):
+def fn_T14_Federal_Poverty_Categories(fdf):
     return True
     ### /// Tableau Calculation:
-    ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T15-4 MOB Substance Abuse]
-    ###     WHEN "FOB" THEN [_T15-4 FOB Substance Abuse]
+    ### IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
+    ### ELSEIF [_T14 Poverty Percent] <= 1.00 THEN "51-100%"
+    ### ELSEIF [_T14 Poverty Percent] <= 1.33 THEN "101-133%"
+    ### ELSEIF [_T14 Poverty Percent] <= 2.00 THEN "134-200%"
+    ### ELSEIF [_T14 Poverty Percent] <= 3.00 THEN "201-300%"
+    ### ELSEIF [_T14 Poverty Percent] > 3.00  THEN ">300%"
+    ### ELSEIF NULL THEN "Unknown/Did Not Report"
     ### END
-df4_edits1['_T15-4 Caregiver Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_Caregiver_Substance_Abuse, axis=1).astype('string') 
+df4_edits1['_T14 Federal Poverty Categories'] = df4_edits1.apply(func=fn_T14_Federal_Poverty_Categories, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T15-4 Caregiver Substance Abuse']) 
+inspect_col(df4_edits1['_T14 Federal Poverty Categories']) 
 
 #%%###################################
 
-def fn_T15_4_FOB_Substance_Abuse(fdf):
+def fn_T15_3_History_Welfare_Interaction(fdf):
     return True
     ### /// Tableau Calculation:
-    ### IF [_Agency] <> "ll" THEN CASE[Fob Substance Abuse] //FW
-    ###     WHEN TRUE THEN "Yes"
-    ###     WHEN FALSE THEN "No"
-    ###     ELSE "Unknown/Did Not Report"
-    ###     END     
-    ### ELSEIF [_Agency] = "ll" THEN CASE[Priority Substance Abuse]
-    ###     WHEN "Y" THEN "Yes"
-    ###     WHEN "N" THEN "No"
-    ###     ELSE "Unknown/Did Not Report"
-    ###     END
+    ### IF [History Inter Welfare Adult] = True THEN 1 //FW
+    ### ELSEIF  [History Inter Welfare Adult] = False THEN 0
+    ### ELSEIF[Priority Child Welfare] = "Y" THEN 1 //LLCHD
+    ### ELSEIF [Priority Child Welfare] = "N" THEN 0
+    ### ELSE 0
     ### END
-df4_edits1['_T15-4 FOB Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_FOB_Substance_Abuse, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T15-4 FOB Substance Abuse']) 
+df4_edits1['_T15-3 History Welfare Interaction'] = df4_edits1.apply(func=fn_T15_3_History_Welfare_Interaction, axis=1).astype('Int64') 
+    ### Data Type in Tableau: 'integer'.
+inspect_col(df4_edits1['_T15-3 History Welfare Interaction']) 
 
 #%%###################################
 
@@ -2224,246 +2671,40 @@ inspect_col(df4_edits1['_T15-4 MOB Substance Abuse'])
 
 #%%###################################
 
-def fn_T17_Discharge_Reason(fdf):
+def fn_T15_4_FOB_Substance_Abuse(fdf):
     return True
     ### /// Tableau Calculation:
-    ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
-    ###     WHEN "1" THEN "Completed Services" 
-    ###     WHEN "Family Has Met Program Goals" THEN "Completed Services"
-    ###     ELSE "Stopped Services Before Completion"
+    ### IF [_Agency] <> "ll" THEN CASE[Fob Substance Abuse] //FW
+    ###     WHEN TRUE THEN "Yes"
+    ###     WHEN FALSE THEN "No"
+    ###     ELSE "Unknown/Did Not Report"
+    ###     END     
+    ### ELSEIF [_Agency] = "ll" THEN CASE[Priority Substance Abuse]
+    ###     WHEN "Y" THEN "Yes"
+    ###     WHEN "N" THEN "No"
+    ###     ELSE "Unknown/Did Not Report"
     ###     END
-    ### ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] //FW
-    ###     WHEN "Family graduated/met all program goals" THEN "Completed Services"
-    ###     ELSE "Stopped Services Before Completion"
-    ###     END
-    ### ELSE "Currently Receiving Services"
     ### END
-    ### //LLCHD discharge reasons
-    ### //1Family graduated/met all program goals
-    ### //2Family moved out of service area
-    ### //3Parent/guardian returned to school
-    ### //4Parent/guardian returned to work
-    ### //5Parent/guardian refused service
-    ### //6Death of participant
-    ### //7Unable to locate family
-    ### //8Target child adopted
-    ### //9Target child entered foster care
-    ### //10Target child living with another care giverx
-    ### //11Target child entered school/child care
-    ### //12Family never engaged
-    ### //13Unknown & a text box
-    ### //Family Has Met Program Goals
-    ### //Miscarriage/Pregnancy Terminated
-    ### //Other
-    ### //Out of Geographical Target
-    ### //Participant non-compliant,unresponsive
-    ### //Participant refused
-    ### //Participant Unavailable Due to School or Employment
-    ### //Program Unable to Locate or Make Contact
-    ### //Transferred/Referred/Involved in Other Program
-df4_edits1['_T17 Discharge Reason'] = df4_edits1.apply(func=fn_T17_Discharge_Reason, axis=1).astype('string') 
+df4_edits1['_T15-4 FOB Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_FOB_Substance_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T17 Discharge Reason']) 
+inspect_col(df4_edits1['_T15-4 FOB Substance Abuse']) 
 
 #%%###################################
 
-def fn_T20_CG_Insurance_1_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF NOT ISNULL([AD1PrimaryIns.1]) THEN
-    ### CASE [AD1PrimaryIns.1] // FW
-    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
-    ###     WHEN "SCHIP" THEN "Medicaid or CHIP"
-    ###     WHEN "Medicare" THEN "Private or Other"
-    ###     WHEN "Tri-Care" THEN "Tri-Care"
-    ###     WHEN "None" THEN "No Insurance Coverage"
-    ###     WHEN "Other" THEN "Private or Other"
-    ###     WHEN "Private" THEN "Private or Other"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN "null" THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ### //LLCHD
-    ###     WHEN "0" THEN "No Insurance Coverage"
-    ###     WHEN "1" THEN "Medicaid or CHIP"
-    ###     WHEN "2" THEN "Tri-Care"
-    ###     WHEN "3" THEN "Private or Other"
-    ###     WHEN "4" THEN "FamilyChildHealthPlus"
-    ###     WHEN "5" THEN "No Insurance Coverage"
-    ###     WHEN "6" THEN "Unknown/Did Not Report"
-    ###     WHEN "99" THEN "Unknown/Did Not Report"
-    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
-    ###     WHEN "Private" THEN "Private or Other"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN "Uninsure" THEN "No Insurance Coverage"
-    ###     WHEN "FamilyCh" THEN "FamilyChildHealthPlus"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ### ELSE "Unrecognized Value"
-    ### END
-    ### END
-df4_edits1['_T20 CG Insurance 1 Status'] = df4_edits1.apply(func=fn_T20_CG_Insurance_1_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 1 Status']) 
-
-### SAME as all other similar vars.
-
-#%%###################################
-
-def fn_T20_CG_Insurance_Status(fdf):
-    return True
+def fn_T15_4_Caregiver_Substance_Abuse(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T15-4 MOB Substance Abuse']
+        case "FOB":
+            return fdf['_T15-4 FOB Substance Abuse']
     ### /// Tableau Calculation:
     ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T20 MOB Insurance Status]
-    ###     WHEN "FOB" THEN [_T20 FOB Insurance Status]
+    ###     WHEN "MOB" THEN [_T15-4 MOB Substance Abuse]
+    ###     WHEN "FOB" THEN [_T15-4 FOB Substance Abuse]
     ### END
-df4_edits1['_T20 CG Insurance Status'] = df4_edits1.apply(func=fn_T20_CG_Insurance_Status, axis=1).astype('string') 
+df4_edits1['_T15-4 Caregiver Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_Caregiver_Substance_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance Status']) 
-
-#%%###################################
-
-def fn_T20_FOB_Insurance(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
-    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
-    ###     WHEN "Medicare" THEN "Other" //this is what our previous syntax indicated
-    ###     WHEN "None" THEN "No Insurance Coverage"
-    ###     WHEN "Other" THEN "Private or Other"
-    ###     WHEN "Private" THEN "Private or Other"
-    ###     WHEN "Tri-Care" THEN "Tri-Care"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Hlth Insure Fob] //LLCHD
-    ###     WHEN 1 THEN "Medicaid or CHIP"
-    ###     WHEN 2 THEN "Tri-Care"
-    ###     WHEN 3 THEN "Private or Other"
-    ###     WHEN 4 THEN "Unknown/Did Not Report"
-    ###     WHEN 5 THEN "No Insurance Coverage"
-    ###     WHEN 99 THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE NULL
-    ### END
-df4_edits1['_T20 FOB Insurance'] = df4_edits1.apply(func=fn_T20_FOB_Insurance, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 FOB Insurance']) 
-
-#%%###################################
-
-def fn_T20_FOB_Insurance_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
-    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
-    ###     WHEN "Medicare" THEN "Private or Other" //this is what our previous syntax indicated
-    ###     WHEN "None" THEN "No Insurance Coverage"
-    ###     WHEN "Other" THEN "Private or Other"
-    ###     WHEN "Private" THEN "Private or Other"
-    ###     WHEN "Tri-Care" THEN "Tri-Care"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     //WHEN NULL THEN "Unknown/Did Not Report"
-    ###     //ELSE "Unrecognized Value"
-    ###     END
-    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Hlth Insure Fob] //LLCHD
-    ###     WHEN 1 THEN "Medicaid or CHIP"
-    ###     WHEN 2 THEN "Tri-Care"
-    ###     WHEN 3 THEN "Private or Other"
-    ###     WHEN 4 THEN "FamilyChildHealthPlus"
-    ###     WHEN 5 THEN "No Insurance Coverage"
-    ###     WHEN 6 THEN "Unknown/Did Not Report"
-    ###     WHEN 99 THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE NULL
-    ### END
-df4_edits1['_T20 FOB Insurance Status'] = df4_edits1.apply(func=fn_T20_FOB_Insurance_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 FOB Insurance Status']) 
-
-#%%###################################
-
-def fn_T20_MOB_Insurance_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF NOT ISNULL([_T20 CG Insurance 16 Status]) THEN [_T20 CG Insurance 16 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 15 Status]) THEN [_T20 CG Insurance 16 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 14 Status]) THEN [_T20 CG Insurance 14 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 13 Status]) THEN [_T20 CG Insurance 13 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 12 Status]) THEN [_T20 CG Insurance 12 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 11 Status]) THEN [_T20 CG Insurance 11 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 10 Status]) THEN [_T20 CG Insurance 10 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 9 Status]) THEN [_T20 CG Insurance 9 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 8 Status]) THEN [_T20 CG Insurance 8 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 7 Status]) THEN [_T20 CG Insurance 7 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 6 Status]) THEN [_T20 CG Insurance 6 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 5 Status]) THEN [_T20 CG Insurance 5 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 4 Status]) THEN [_T20 CG Insurance 4 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 3 Status]) THEN [_T20 CG Insurance 3 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 2 Status]) THEN [_T20 CG Insurance 2 Status]
-    ### ELSEIF NOT ISNULL([_T20 CG Insurance 1 Status]) THEN [_T20 CG Insurance 1 Status]
-    ### END
-df4_edits1['_T20 MOB Insurance Status'] = df4_edits1.apply(func=fn_T20_MOB_Insurance_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 MOB Insurance Status']) 
-
-#%%###################################
-
-def fn_TGT_DOB(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
-    ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
-    ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
-    ### END
-df4_edits1['_TGT DOB'] = df4_edits1.apply(func=fn_TGT_DOB, axis=1).astype('datetime64[ns]') 
-    ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_TGT DOB']) 
-
-#%%###################################
-
-def fn_TGT_EDC_Date(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [Dt Edc] = DATE(1/1/1900) THEN NULL //LLCHD
-    ### ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL //FW
-    ### ELSE IFNULL([Dt Edc],[EDC Date])
-    ### END
-df4_edits1['_TGT EDC Date'] = df4_edits1.apply(func=fn_TGT_EDC_Date, axis=1).astype('datetime64[ns]') 
-    ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_TGT EDC Date']) 
-
-#%%###################################
-
-def fn_Caregiver_Involved(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### [MOB or FOB] = "MOB"
-    ### OR
-    ###     ([MOB or FOB] = "FOB"
-    ###     AND
-    ###     [_FOB Involved] = 1)
-df4_edits1['Caregiver Involved'] = df4_edits1.apply(func=fn_Caregiver_Involved, axis=1).astype('boolean') 
-    ### Data Type in Tableau: 'boolean'.
-inspect_col(df4_edits1['Caregiver Involved']) 
-
-#%%###################################
-
-def fn_T15_3_History_Welfare_Interaction(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [History Inter Welfare Adult] = True THEN 1 //FW
-    ### ELSEIF  [History Inter Welfare Adult] = False THEN 0
-    ### ELSEIF[Priority Child Welfare] = "Y" THEN 1 //LLCHD
-    ### ELSEIF [Priority Child Welfare] = "N" THEN 0
-    ### ELSE 0
-    ### END
-df4_edits1['_T15-3 History Welfare Interaction'] = df4_edits1.apply(func=fn_T15_3_History_Welfare_Interaction, axis=1).astype('Int64') 
-    ### Data Type in Tableau: 'integer'.
-inspect_col(df4_edits1['_T15-3 History Welfare Interaction']) 
+inspect_col(df4_edits1['_T15-4 Caregiver Substance Abuse']) 
 
 #%%###################################
 
@@ -2510,6 +2751,242 @@ df4_edits1['_T15-8 Military'] = df4_edits1.apply(func=fn_T15_8_Military, axis=1)
     ### Data Type in Tableau: 'integer'.
 inspect_col(df4_edits1['_T15-8 Military']) 
 
+#%%###################################
+
+def fn_T17_Discharge_Reason(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
+    ###     WHEN "1" THEN "Completed Services" 
+    ###     WHEN "Family Has Met Program Goals" THEN "Completed Services"
+    ###     ELSE "Stopped Services Before Completion"
+    ###     END
+    ### ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] //FW
+    ###     WHEN "Family graduated/met all program goals" THEN "Completed Services"
+    ###     ELSE "Stopped Services Before Completion"
+    ###     END
+    ### ELSE "Currently Receiving Services"
+    ### END
+    ### //LLCHD discharge reasons
+    ### //1Family graduated/met all program goals
+    ### //2Family moved out of service area
+    ### //3Parent/guardian returned to school
+    ### //4Parent/guardian returned to work
+    ### //5Parent/guardian refused service
+    ### //6Death of participant
+    ### //7Unable to locate family
+    ### //8Target child adopted
+    ### //9Target child entered foster care
+    ### //10Target child living with another care giverx
+    ### //11Target child entered school/child care
+    ### //12Family never engaged
+    ### //13Unknown & a text box
+    ### //Family Has Met Program Goals
+    ### //Miscarriage/Pregnancy Terminated
+    ### //Other
+    ### //Out of Geographical Target
+    ### //Participant non-compliant,unresponsive
+    ### //Participant refused
+    ### //Participant Unavailable Due to School or Employment
+    ### //Program Unable to Locate or Make Contact
+    ### //Transferred/Referred/Involved in Other Program
+df4_edits1['_T17 Discharge Reason'] = df4_edits1.apply(func=fn_T17_Discharge_Reason, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T17 Discharge Reason']) 
+
+#%%###################################
+
+def fn_C16_CG_Insurance_1_Status(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### CASE [AD1PrimaryIns.1] //FW
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "SCHIP" THEN "Medicaid or CHIP"
+    ###     WHEN "Medicare" THEN "Private or Other"
+    ###     WHEN "Tri-Care" THEN "Tri-Care"
+    ###     WHEN "None" THEN "No Insurance Coverage"
+    ###     WHEN "Other" THEN "Private or Other"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "null" THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ### //LLCHD
+    ###     WHEN "1" THEN "Medicaid or CHIP"
+    ###     WHEN "2" THEN "Tri-Care"
+    ###     WHEN "3" THEN "Private or Other"
+    ###     WHEN "4" THEN "FamilyChildHealthPlus"
+    ###     WHEN "5" THEN "No Insurance Coverage"
+    ###     WHEN "6" THEN "Unknown/Did Not Report"
+    ###     WHEN "99" THEN "Unknown/Did Not Report"
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "Uninsure" THEN "No Insurance Coverage"
+    ###     WHEN "FamilyCh" THEN "FamilyChildHealthPlus"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ### ELSE "Unrecognized Value"
+    ### END
+df4_edits1['_C16 CG Insurance 1 Status'] = df4_edits1.apply(func=fn_C16_CG_Insurance_1_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 1 Status']) 
+
+### Only difference:
+### _C16 CG Insurance 4 Status
+###     WHEN "4" THEN "Unknown/Did Not Report"
+### NOTE: this different version is the same as ALL of the Form 2 versions.
+
+### TODO: all the other insurance vars.
+### all strings.
+
+#%%###################################
+
+def fn_T20_CG_Insurance_1_Status(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF NOT ISNULL([AD1PrimaryIns.1]) THEN
+    ### CASE [AD1PrimaryIns.1] // FW
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "SCHIP" THEN "Medicaid or CHIP"
+    ###     WHEN "Medicare" THEN "Private or Other"
+    ###     WHEN "Tri-Care" THEN "Tri-Care"
+    ###     WHEN "None" THEN "No Insurance Coverage"
+    ###     WHEN "Other" THEN "Private or Other"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "null" THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ### //LLCHD
+    ###     WHEN "0" THEN "No Insurance Coverage"
+    ###     WHEN "1" THEN "Medicaid or CHIP"
+    ###     WHEN "2" THEN "Tri-Care"
+    ###     WHEN "3" THEN "Private or Other"
+    ###     WHEN "4" THEN "FamilyChildHealthPlus"
+    ###     WHEN "5" THEN "No Insurance Coverage"
+    ###     WHEN "6" THEN "Unknown/Did Not Report"
+    ###     WHEN "99" THEN "Unknown/Did Not Report"
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "Uninsure" THEN "No Insurance Coverage"
+    ###     WHEN "FamilyCh" THEN "FamilyChildHealthPlus"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ### ELSE "Unrecognized Value"
+    ### END
+    ### END
+df4_edits1['_T20 CG Insurance 1 Status'] = df4_edits1.apply(func=fn_T20_CG_Insurance_1_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 1 Status']) 
+
+### SAME as all other similar vars.
+
+#%%###################################
+
+def fn_T20_MOB_Insurance_Status(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF NOT ISNULL([_T20 CG Insurance 16 Status]) THEN [_T20 CG Insurance 16 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 15 Status]) THEN [_T20 CG Insurance 16 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 14 Status]) THEN [_T20 CG Insurance 14 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 13 Status]) THEN [_T20 CG Insurance 13 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 12 Status]) THEN [_T20 CG Insurance 12 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 11 Status]) THEN [_T20 CG Insurance 11 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 10 Status]) THEN [_T20 CG Insurance 10 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 9 Status]) THEN [_T20 CG Insurance 9 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 8 Status]) THEN [_T20 CG Insurance 8 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 7 Status]) THEN [_T20 CG Insurance 7 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 6 Status]) THEN [_T20 CG Insurance 6 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 5 Status]) THEN [_T20 CG Insurance 5 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 4 Status]) THEN [_T20 CG Insurance 4 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 3 Status]) THEN [_T20 CG Insurance 3 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 2 Status]) THEN [_T20 CG Insurance 2 Status]
+    ### ELSEIF NOT ISNULL([_T20 CG Insurance 1 Status]) THEN [_T20 CG Insurance 1 Status]
+    ### END
+df4_edits1['_T20 MOB Insurance Status'] = df4_edits1.apply(func=fn_T20_MOB_Insurance_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 MOB Insurance Status']) 
+
+#%%###################################
+
+def fn_T20_FOB_Insurance_Status(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "Medicare" THEN "Private or Other" //this is what our previous syntax indicated
+    ###     WHEN "None" THEN "No Insurance Coverage"
+    ###     WHEN "Other" THEN "Private or Other"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Tri-Care" THEN "Tri-Care"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     //WHEN NULL THEN "Unknown/Did Not Report"
+    ###     //ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Hlth Insure Fob] //LLCHD
+    ###     WHEN 1 THEN "Medicaid or CHIP"
+    ###     WHEN 2 THEN "Tri-Care"
+    ###     WHEN 3 THEN "Private or Other"
+    ###     WHEN 4 THEN "FamilyChildHealthPlus"
+    ###     WHEN 5 THEN "No Insurance Coverage"
+    ###     WHEN 6 THEN "Unknown/Did Not Report"
+    ###     WHEN 99 THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE NULL
+    ### END
+df4_edits1['_T20 FOB Insurance Status'] = df4_edits1.apply(func=fn_T20_FOB_Insurance_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 FOB Insurance Status']) 
+
+#%%###################################
+
+def fn_T20_FOB_Insurance(fdf):
+    return True
+    ### /// Tableau Calculation:
+    ### IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "Medicare" THEN "Other" //this is what our previous syntax indicated
+    ###     WHEN "None" THEN "No Insurance Coverage"
+    ###     WHEN "Other" THEN "Private or Other"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Tri-Care" THEN "Tri-Care"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF [Fob Involved1] = "Y" THEN CASE [Hlth Insure Fob] //LLCHD
+    ###     WHEN 1 THEN "Medicaid or CHIP"
+    ###     WHEN 2 THEN "Tri-Care"
+    ###     WHEN 3 THEN "Private or Other"
+    ###     WHEN 4 THEN "Unknown/Did Not Report"
+    ###     WHEN 5 THEN "No Insurance Coverage"
+    ###     WHEN 99 THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSE NULL
+    ### END
+df4_edits1['_T20 FOB Insurance'] = df4_edits1.apply(func=fn_T20_FOB_Insurance, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 FOB Insurance']) 
+
+#%%###################################
+
+def fn_T20_CG_Insurance_Status(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T20 MOB Insurance Status']
+        case "FOB":
+            return fdf['_T20 FOB Insurance Status']
+    ### /// Tableau Calculation:
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN [_T20 MOB Insurance Status]
+    ###     WHEN "FOB" THEN [_T20 FOB Insurance Status]
+    ### END
+df4_edits1['_T20 CG Insurance Status'] = df4_edits1.apply(func=fn_T20_CG_Insurance_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance Status']) 
+
 
 ##################################################################################################
 ##################################################################################################
@@ -2523,4 +3000,6 @@ inspect_col(df4_edits1['_T15-8 Military'])
 
 
 
+
+#%%
 
