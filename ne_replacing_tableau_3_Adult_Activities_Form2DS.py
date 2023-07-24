@@ -220,7 +220,7 @@ df3_3_col_detail = [
     ['need_exclusion2', 'Need Exclusion2', '', 'string'],
     ['need_exclusion3', 'Need Exclusion3', '', 'string'],
     ['need_exclusion5', 'Need Exclusion5', '', 'string'],
-    ['need_exclusion6', 'Need Exclusion6', '', 'string']
+    ['need_exclusion6', 'Need Exclusion6', '', 'string'] ### Different from Adult4 Form1: 'need_exclusion6 (Family Wise)'.
 ]
 #%%### df3_3: 'Family Wise'.
 df3_3_colnames = {x[0]:x[1] for x in df3_3_col_detail if x[2] != 'same' and x[0] != x[1]}
@@ -2178,63 +2178,40 @@ inspect_col(df3_edits1['Fob Edu'])
 #%%###################################
 
 def fn_C16_CG_Insurance_Status(fdf_column):
-    if pd.isna(fdf_column):
-        return "Unknown/Did Not Report"
-    else:
-        match fdf_column:
-            ###########
-            ### FW.
-            case "Medicaid":
-                return "Medicaid or CHIP"
-            case "SCHIP":
-                return "Medicaid or CHIP"
-            case "Medicare":
-                return "Private or Other"
-            case "Tri-Care":
-                return "Tri-Care"
-            case "None":
-                return "No Insurance Coverage"
-            case "Other":
-                return "Private or Other"
-            case "Private":
-                return "Private or Other"
-            case "Unknown":
-                return "Unknown/Did Not Report"
-            case "null":
-                return "Unknown/Did Not Report"
-            ### case np.nan:
-            ###     return "Unknown/Did Not Report"
-            ###########
-            ### LLCHD.
-            case "1":
-                return "Medicaid or CHIP"
-            case "2":
-                return "Tri-Care"
-            case "3":
-                return "Private or Other"
-            case "4":
-                return "Unknown/Did Not Report"
-            case "5":
-                return "No Insurance Coverage"
-            case "6":
-                return "Unknown/Did Not Report"
-            case "99":
-                return "Unknown/Did Not Report"
-            case "Medicaid":
-                return "Medicaid or CHIP"
-            case "Private":
-                return "Private or Other"
-            case "Unknown":
-                return "Unknown/Did Not Report"
-            case "Uninsure":
-                return "No Insurance Coverage"
-            case "FamilyCh":
-                return "FamilyChildHealthPlus"
-            ### case np.nan:
-            ###     return "Unknown/Did Not Report"
-            ###########
-            case _:
-                return "Unrecognized Value"
+    match fdf_column:
+        case _ if pd.isna(fdf_column):
+            return "Unknown/Did Not Report"
+        ###########
+        ### FW.
+        case "Medicaid" | "SCHIP":
+            return "Medicaid or CHIP"
+        case "Private" | "Other" | "Medicare":
+            return "Private or Other"
+        case "Tri-Care":
+            return "Tri-Care"
+        case "None":
+            return "No Insurance Coverage"
+        case "Unknown" | "null":
+            return "Unknown/Did Not Report"
+        ###########
+        ### LLCHD.
+        case "1" | "Medicaid":
+            return "Medicaid or CHIP"
+        case "2":
+            return "Tri-Care"
+        case "3" | "Private":
+            return "Private or Other"
+        case "4":
+            return "Unknown/Did Not Report" ### Different from Form 1's "FamilyChildHealthPlus". ### TODO: standardize.
+        case "5" | "Uninsure":
+            return "No Insurance Coverage"
+        case "6" | "99" | "Unknown":
+            return "Unknown/Did Not Report"
+        case "FamilyCh":
+            return "FamilyChildHealthPlus"
+        ###########
+        case _:
+            return "Unrecognized Value"
     # CASE [AD1PrimaryIns.1] //FW
     #     WHEN "Medicaid" THEN "Medicaid or CHIP"
     #     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -3454,7 +3431,7 @@ len([*df3_comp_compare]) / 2
 #     ### Change earlier in pipeline so Excel has True/Fasle instead of 1/0. (Needed?)
 
 ###################################
-#### needs work
+#### need work
 ###################################
 
 #%%

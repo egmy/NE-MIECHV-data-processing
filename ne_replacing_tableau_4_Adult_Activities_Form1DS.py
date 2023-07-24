@@ -41,7 +41,7 @@ from RUNME import fn_all_value_counts
 #####################################################
 
 df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
-df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -223,7 +223,7 @@ df4_3_col_detail = [
     ['need_exclusion2', 'Need Exclusion2', '', 'string'],
     ['need_exclusion3', 'Need Exclusion3', '', 'string'],
     ['need_exclusion5', 'Need Exclusion5', '', 'string'],
-    ['need_exclusion6', 'Need Exclusion6', '', 'string']
+    ['need_exclusion6', 'need_exclusion6 (Family Wise)', '', 'string'] ### Different from Adult3 Form2: 'Need Exclusion6'.
 ]
 #%%### df4_3: 'Family Wise'.
 df4_3_colnames = {x[0]:x[1] for x in df4_3_col_detail if x[2] != 'same' and x[0] != x[1]}
@@ -1120,22 +1120,34 @@ inspect_col(df4_edits1['__F1 Caregiver ID for MOB or FOB'])
 
 #%%###################################
 
-def fn_Caregiver_Involved(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### [MOB or FOB] = "MOB"
-    ### OR
-    ###     ([MOB or FOB] = "FOB"
-    ###     AND
-    ###     [_FOB Involved] = 1)
-df4_edits1['Caregiver Involved'] = df4_edits1.apply(func=fn_Caregiver_Involved, axis=1).astype('boolean') 
-    ### Data Type in Tableau: 'boolean'.
-inspect_col(df4_edits1['Caregiver Involved']) 
-
-#%%###################################
-
+### Required for 'Caregiver Involved'.
 def fn_FOB_Involved(fdf):
-    return True
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Fob Involved']:
+            case _ if pd.isna(fdf['Fob Involved']):
+                return 0 
+            case True:
+                return 1 
+            case False:
+                return 0 
+            case _:
+                return 0 
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Fob Involved1']:
+            case _ if pd.isna(fdf['Fob Involved1']):
+                return 0 
+            case True:
+                return 1 
+            case False:
+                return 0 
+            case _:
+                return 0 
+    ####
+    else:
+        return 0 
+    ###########
     ### /// Tableau Calculation:
     ### IF [Fob Involved] = True THEN 1 //FW
     ### ELSEIF [Fob Involved] = False THEN 0
@@ -1146,6 +1158,26 @@ def fn_FOB_Involved(fdf):
 df4_edits1['_FOB Involved'] = df4_edits1.apply(func=fn_FOB_Involved, axis=1).astype('Int64') 
     ### Data Type in Tableau: 'int'.
 inspect_col(df4_edits1['_FOB Involved']) 
+
+#%%###################################
+
+def fn_Caregiver_Involved(fdf):
+    return (
+    fdf['MOB or FOB'] == "MOB"
+    or
+        (fdf['MOB or FOB'] == "FOB"
+        and
+        fdf['_FOB Involved'] == 1)
+    )
+    ### /// Tableau Calculation:
+    ### [MOB or FOB] = "MOB"
+    ### OR
+    ###     ([MOB or FOB] = "FOB"
+    ###     AND
+    ###     [_FOB Involved] = 1)
+df4_edits1['Caregiver Involved'] = df4_edits1.apply(func=fn_Caregiver_Involved, axis=1).astype('boolean') 
+    ### Data Type in Tableau: 'boolean'.
+inspect_col(df4_edits1['Caregiver Involved']) 
 
 #%%###################################
 
@@ -1173,7 +1205,38 @@ inspect_col(df4_edits1['_TGT EDC Date'])
 #%%###################################
 
 def fn_MOB_Gender(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Adult1Gender']:
+            case _ if pd.isna(fdf['Adult1Gender']):
+                return pd.NA 
+            case "Female":
+                return "Female"
+            case "Male":
+                return "Male" 
+            case "Non-Binary":
+                return "Non-Binary" 
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Mob Gender']:
+            case _ if pd.isna(fdf['Mob Gender']):
+                return pd.NA 
+            case "F":
+                return "Female"
+            case "M":
+                return "Male" 
+            ### case "Non-Binary":
+            ###     return "Non-Binary" ### Don't have this value yet - Confirm.
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [Adult1Gender] = "Female" THEN "Female" //FW
     ### ELSEIF [Adult1Gender] = "Male" THEN "Male"
@@ -1185,12 +1248,43 @@ def fn_MOB_Gender(fdf):
 df4_edits1['_MOB Gender'] = df4_edits1.apply(func=fn_MOB_Gender, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_MOB Gender']) 
+### TODO:Confirm that we don't have/are not expecting "N" from LL.
 
 #%%###################################
 
 def fn_FOB_Gender(fdf):
-    return True
-    ### /// Tableau Calculation:
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            return fdf['Adult2Gender'] 
+        else:
+            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            match fdf['Fob Gender']:
+                case _ if pd.isna(fdf['Fob Gender']):
+                    return pd.NA 
+                case "F":
+                    return "Female"
+                case "M":
+                    return "Male" 
+                case "Non-Binary":
+                    return "Non-Binary" ### Don't have this value yet - Confirm.
+                case _:
+                    return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        else:
+            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########    ### /// Tableau Calculation:
     ### //should we incorporate involved status into the fob variables?
     ### IF [Fob Involved1] = "Y" THEN CASE[Fob Gender]
     ###     WHEN "M" THEN "Male" //LLCHD
@@ -1203,6 +1297,8 @@ def fn_FOB_Gender(fdf):
 df4_edits1['_FOB Gender'] = df4_edits1.apply(func=fn_FOB_Gender, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_FOB Gender']) 
+### TODO:Confirm that we don't have/are not expecting "N" from LL.
+### TODO: Ask old question: //should we incorporate involved status into the fob variables?
 
 #%%###################################
 
@@ -1224,7 +1320,45 @@ inspect_col(df4_edits1['_F1 Caregiver Gender'])
 #%%###################################
 
 def fn_MOB_TGT_Relation(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Adult1TGTRelation']:
+            case _ if pd.isna(fdf['Adult1TGTRelation']):
+                return pd.NA 
+            case "MOB" | "Biological mother" | "Foster mother" | "Grandmother":
+                return "MOB"
+            case "FOB" | "Biological father" | "Adoptive father":
+                return "FOB"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+            ### TODO: Maybe add options from 'Adult2TGTRelation': "Foster father", "Guardian", "Other".
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Primary Relation']:
+            case _ if pd.isna(fdf['Primary Relation']):
+                return pd.NA 
+            case "MOTHER OF CHILD":
+                return "MOB"
+            case "FATHER OF CHILD":
+                return "FOB" 
+            case "PRIMARY CAREGIVER":
+                match fdf['Mob Gender']:
+                    case _ if pd.isna(fdf['Mob Gender']):
+                        return pd.NA 
+                    case "F":
+                        return "MOB"
+                    case "M":
+                        return "FOB"
+                    case _:
+                        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### //should we call this primary relation??
     ### //FW
@@ -1245,11 +1379,47 @@ def fn_MOB_TGT_Relation(fdf):
 df4_edits1['_MOB TGT Relation'] = df4_edits1.apply(func=fn_MOB_TGT_Relation, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_MOB TGT Relation']) 
+### TODO: Ask old question: //should we call this primary relation??
+### TODO: Ask: What is this referring to?: //alternatively we could just leave PCs as that.
 
 #%%###################################
 
 def fn_FOB_Relation(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            match fdf['Adult2TGTRelation']:
+                case _ if pd.isna(fdf['Adult2TGTRelation']):
+                    return pd.NA 
+                case "MOB" | "Biological mother" | "Grandmother":
+                    return "MOB"
+                case "FOB" | "Biological father" | "Foster father":
+                    return "FOB"
+                case "Guardian":
+                    return "Guardian"
+                case "Other":
+                    return "Other"
+                case _:
+                    return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+                ### TODO: Maybe add options from 'Adult1TGTRelation': "Foster mother", "Adoptive father".
+        else:
+            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            return "FOB"
+        else:
+            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [Fob Involved1] = "Y" THEN "FOB"
     ### ELSEIF [Fob Involved] = True
@@ -2796,9 +2966,42 @@ inspect_col(df4_edits1['_T17 Discharge Reason'])
 
 #%%###################################
 
-def fn_C16_CG_Insurance_1_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
+def fn_C16_CG_Insurance_Status(fdf_column):
+    match fdf_column:
+        case _ if pd.isna(fdf_column):
+            return "Unknown/Did Not Report" ### Difference from fn_T20_CG_Insurance_Status where it's pd.NA.
+        ###########
+        ### FW.
+        case "Medicaid" | "SCHIP":
+            return "Medicaid or CHIP"
+        case "Private" | "Other" | "Medicare":
+            return "Private or Other"
+        case "Tri-Care":
+            return "Tri-Care"
+        case "None":
+            return "No Insurance Coverage"
+        case "Unknown" | "null":
+            return "Unknown/Did Not Report"
+        ###########
+        ### LLCHD.
+        case "1" | "Medicaid":
+            return "Medicaid or CHIP"
+        case "2":
+            return "Tri-Care"
+        case "3" | "Private":
+            return "Private or Other"
+        case "4":
+            return "FamilyChildHealthPlus" ### Different from Form2's "Unknown/Did Not Report". ### TODO: standardize.
+        case "5" | "Uninsure":
+            return "No Insurance Coverage"
+        case "6" | "99" | "Unknown":
+            return "Unknown/Did Not Report"
+        case "FamilyCh":
+            return "FamilyChildHealthPlus"
+        ###########
+        case _:
+            return "Unrecognized Value"
+    ###########
     ### CASE [AD1PrimaryIns.1] //FW
     ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
     ###     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -2826,22 +3029,221 @@ def fn_C16_CG_Insurance_1_Status(fdf):
     ###     WHEN NULL THEN "Unknown/Did Not Report"
     ### ELSE "Unrecognized Value"
     ### END
-df4_edits1['_C16 CG Insurance 1 Status'] = df4_edits1.apply(func=fn_C16_CG_Insurance_1_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 1 Status']) 
 
-### Only difference:
-### _C16 CG Insurance 4 Status
-###     WHEN "4" THEN "Unknown/Did Not Report"
-### NOTE: this different version is the same as ALL of the Form 2 versions.
-
-### TODO: all the other insurance vars.
-### all strings.
+### Only Form1 difference:
+### ['_C16 CG Insurance 4 Status']: WHEN "4" THEN "Unknown/Did Not Report"
+###     NOTE: this different version is the same as ALL of the Form2 versions.
+### TODO: standardize.
 
 #%%###################################
 
-def fn_T20_CG_Insurance_1_Status(fdf):
-    return True
+df4_edits1['_C16 CG Insurance 1 Status'] = df4_edits1['AD1PrimaryIns.1'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 1 Status']) 
+# #%%
+# compare_col(df4_comparison_csv, df4_edits1, '_C16 CG Insurance 1 Status')
+# #%%
+# compare_col(df4_comparison_csv, df4_edits1, '_C16 CG Insurance 1 Status', info_or_value_counts='value_counts')
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 2 Status'] = df4_edits1['AD1PrimaryIns.2'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 2 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 3 Status'] = df4_edits1['AD1PrimaryIns.3'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 3 Status']) 
+
+#%%###################################
+
+### df4_edits1['_C16 CG Insurance 4 Status'] = df4_edits1['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+###     ### Data Type in Tableau: 'string'.
+### inspect_col(df4_edits1['_C16 CG Insurance 4 Status']) 
+
+### Alternative because of one difference:
+def fn_C16_CG_Insurance_4_Status(fdf_column):
+    match fdf_column:
+        case _ if pd.isna(fdf_column):
+            return "Unknown/Did Not Report" ### Difference from fn_T20_CG_Insurance_Status where it's pd.NA.
+        ###########
+        ### FW.
+        case "Medicaid" | "SCHIP":
+            return "Medicaid or CHIP"
+        case "Private" | "Other" | "Medicare":
+            return "Private or Other"
+        case "Tri-Care":
+            return "Tri-Care"
+        case "None":
+            return "No Insurance Coverage"
+        case "Unknown" | "null":
+            return "Unknown/Did Not Report"
+        ###########
+        ### LLCHD.
+        case "1" | "Medicaid":
+            return "Medicaid or CHIP"
+        case "2":
+            return "Tri-Care"
+        case "3" | "Private":
+            return "Private or Other"
+        case "4":
+            return "Unknown/Did Not Report" ### #4 like Form2 but not other Form1's "FamilyChildHealthPlus". ### TODO: standardize.
+        case "5" | "Uninsure":
+            return "No Insurance Coverage"
+        case "6" | "99" | "Unknown":
+            return "Unknown/Did Not Report"
+        case "FamilyCh":
+            return "FamilyChildHealthPlus"
+        ###########
+        case _:
+            return "Unrecognized Value"
+    ###########
+    ### /// Tableau Calculation:
+    ### CASE [AD1PrimaryIns.4] //FW
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "SCHIP" THEN "Medicaid or CHIP"
+    ###     WHEN "Medicare" THEN "Private or Other"
+    ###     WHEN "Tri-Care" THEN "Tri-Care"
+    ###     WHEN "None" THEN "No Insurance Coverage"
+    ###     WHEN "Other" THEN "Private or Other"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "null" THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ### //LLCHD
+    ###     WHEN "1" THEN "Medicaid or CHIP"
+    ###     WHEN "2" THEN "Tri-Care"
+    ###     WHEN "3" THEN "Private or Other"
+    ###     WHEN "4" THEN "Unknown/Did Not Report"
+    ###     WHEN "5" THEN "No Insurance Coverage"
+    ###     WHEN "6" THEN "Unknown/Did Not Report"
+    ###     WHEN "99" THEN "Unknown/Did Not Report"
+    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
+    ###     WHEN "Private" THEN "Private or Other"
+    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
+    ###     WHEN "Uninsure" THEN "No Insurance Coverage"
+    ###     WHEN "FamilyCh" THEN "FamilyChildHealthPlus"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ### ELSE "Unrecognized Value"
+    ### END
+df4_edits1['_C16 CG Insurance 4 Status'] = df4_edits1['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_4_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 4 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 5 Status'] = df4_edits1['AD1PrimaryIns.5'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 5 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 6 Status'] = df4_edits1['AD1PrimaryIns.6'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 6 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 7 Status'] = df4_edits1['AD1PrimaryIns.7'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 7 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 8 Status'] = df4_edits1['AD1PrimaryIns.8'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 8 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 9 Status'] = df4_edits1['AD1PrimaryIns.9'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 9 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 10 Status'] = df4_edits1['AD1PrimaryIns.10'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 10 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 11 Status'] = df4_edits1['AD1PrimaryIns.11'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 11 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 12 Status'] = df4_edits1['AD1PrimaryIns.12'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 12 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 13 Status'] = df4_edits1['AD1PrimaryIns.13'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 13 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 14 Status'] = df4_edits1['AD1PrimaryIns.14'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 14 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 15 Status'] = df4_edits1['AD1PrimaryIns.15'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 15 Status']) 
+
+#%%###################################
+
+df4_edits1['_C16 CG Insurance 16 Status'] = df4_edits1['AD1PrimaryIns.16'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_C16 CG Insurance 16 Status']) 
+
+#%%###################################
+
+def fn_T20_CG_Insurance_Status(fdf_column):
+    match fdf_column:
+        case _ if pd.isna(fdf_column):
+            return pd.NA ### Difference from fn_C16_CG_Insurance_Status where it's "Unknown/Did Not Report". ### TODO: standardize? Or at least document why different.
+        ###########
+        ### FW.
+        case "Medicaid" | "SCHIP":
+            return "Medicaid or CHIP"
+        case "Private" | "Other" | "Medicare":
+            return "Private or Other"
+        case "Tri-Care":
+            return "Tri-Care"
+        case "None":
+            return "No Insurance Coverage"
+        case "Unknown" | "null":
+            return "Unknown/Did Not Report"
+        ###########
+        ### LLCHD.
+        case "0":
+            return "No Insurance Coverage" ### New option not in fn_C16_CG_Insurance_Status variables. ### TODO: Add to fn_C16_CG_Insurance_Status?
+        case "1" | "Medicaid":
+            return "Medicaid or CHIP"
+        case "2":
+            return "Tri-Care"
+        case "3" | "Private":
+            return "Private or Other"
+        case "4":
+            return "FamilyChildHealthPlus" ### Different from Form2's "Unknown/Did Not Report". ### TODO: standardize.
+        case "5" | "Uninsure":
+            return "No Insurance Coverage"
+        case "6" | "99" | "Unknown":
+            return "Unknown/Did Not Report"
+        case "FamilyCh":
+            return "FamilyChildHealthPlus"
+        ###########
+        case _:
+            return "Unrecognized Value"
+    ###########
     ### /// Tableau Calculation:
     ### IF NOT ISNULL([AD1PrimaryIns.1]) THEN
     ### CASE [AD1PrimaryIns.1] // FW
@@ -2873,11 +3275,108 @@ def fn_T20_CG_Insurance_1_Status(fdf):
     ### ELSE "Unrecognized Value"
     ### END
     ### END
-df4_edits1['_T20 CG Insurance 1 Status'] = df4_edits1.apply(func=fn_T20_CG_Insurance_1_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 1 Status']) 
 
 ### SAME as all other similar vars.
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 1 Status'] = df4_edits1['AD1PrimaryIns.1'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 1 Status']) 
+# #%%
+# compare_col(df4_comparison_csv, df4_edits1, '_T20 CG Insurance 1 Status')
+# #%%
+# compare_col(df4_comparison_csv, df4_edits1, '_T20 CG Insurance 1 Status', info_or_value_counts='value_counts')
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 2 Status'] = df4_edits1['AD1PrimaryIns.2'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 2 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 3 Status'] = df4_edits1['AD1PrimaryIns.3'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 3 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 4 Status'] = df4_edits1['AD1PrimaryIns.4'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 4 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 5 Status'] = df4_edits1['AD1PrimaryIns.5'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 5 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 6 Status'] = df4_edits1['AD1PrimaryIns.6'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 6 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 7 Status'] = df4_edits1['AD1PrimaryIns.7'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 7 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 8 Status'] = df4_edits1['AD1PrimaryIns.8'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 8 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 9 Status'] = df4_edits1['AD1PrimaryIns.9'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 9 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 10 Status'] = df4_edits1['AD1PrimaryIns.10'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 10 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 11 Status'] = df4_edits1['AD1PrimaryIns.11'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 11 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 12 Status'] = df4_edits1['AD1PrimaryIns.12'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 12 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 13 Status'] = df4_edits1['AD1PrimaryIns.13'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 13 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 14 Status'] = df4_edits1['AD1PrimaryIns.14'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 14 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 15 Status'] = df4_edits1['AD1PrimaryIns.15'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 15 Status']) 
+
+#%%###################################
+
+df4_edits1['_T20 CG Insurance 16 Status'] = df4_edits1['AD1PrimaryIns.16'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T20 CG Insurance 16 Status']) 
 
 #%%###################################
 
@@ -2969,6 +3468,7 @@ def fn_T20_FOB_Insurance(fdf):
 df4_edits1['_T20 FOB Insurance'] = df4_edits1.apply(func=fn_T20_FOB_Insurance, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T20 FOB Insurance']) 
+### TODO: Is this var old & should be deleted?
 
 #%%###################################
 
@@ -2997,6 +3497,151 @@ inspect_col(df4_edits1['_T20 CG Insurance Status'])
 ##################################################################################################
 ##################################################################################################
 ##################################################################################################
+
+
+#%%##################################################
+### Identify/FLAG "Unrecognized Value" ###
+#####################################################
+
+### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
+### Across many variables.
+
+
+
+#%%##################################################
+### Prepare CSV ###
+#####################################################
+
+#%%################################
+### REMOVE extra COLUMNS
+
+# sorted([*df4_edits1])
+
+#%%
+### Remove columns created in merge.
+df4_edits2 = df4_edits1.drop(columns=['LJ_df4_2CI', 'LJ_df4_3FW', 'LJ_df4_4LL', 'LJ_df4_5MoF'])
+
+#%%################################
+### ORDER COLUMNS
+
+### Final order for columns:
+[*df4_comparison_csv]
+
+#%%
+### Reorder Columns.
+df4_edits2 = df4_edits2[[*df4_comparison_csv]]
+
+#%%################################
+### SORT ROWS
+
+df4_edits2 = df4_edits2.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
+
+
+
+#%%##################################################
+### WRITE ###
+#####################################################
+
+#%%
+### Created Final DF.
+df4__final = df4_edits2.copy()
+
+#%%
+### Write out df.
+df4__final.to_csv(path_4_output, index=False, date_format="%#m/%#d/%Y")
+
+
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
+
+#%%
+### Read back in df for comparison.
+df4__final_from_csv = pd.read_csv(path_4_output, dtype=object, keep_default_na=False, na_values=[''])
+
+
+#%%##################################################
+### COMPARE CSVs ###
+#####################################################
+
+#%%###################################
+
+#%%
+### Column names:
+[*df4__final_from_csv]
+#%%
+### Column names:
+[*df4_comparison_csv]
+
+#%%
+### Overlap / Similarities: Columns in both.
+set([*df4_comparison_csv]).intersection([*df4__final_from_csv])
+
+#%%###################################
+### COLUMNS:
+
+#%%
+### Check if all Column names identical & in same order.
+[*df4__final_from_csv] == [*df4_comparison_csv]
+
+#%%
+### Differences: Columns only in one.
+set([*df4_comparison_csv]).symmetric_difference([*df4__final_from_csv])
+
+#%%###################################
+
+####### Compare values
+### including row count, distinct ids, 
+
+#%%
+# Check rows & cols:
+print(f'df4__final_from_csv Rows: {len(df4__final_from_csv)}')
+print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
+
+print(f'df4__final_from_csv Columns: {len(df4__final_from_csv.columns)}')
+print(f'df4_comparison_csv Columns: {len(df4_comparison_csv.columns)}')
+
+#%%
+df4__final_from_csv == df4_comparison_csv
+
+#%%
+### Checking ID columns used in Join >> DF should be empty (meaning all the same).
+df4_comp_compare = df4_comparison_csv[['Project Id','Year','Quarter']].compare(df4__final_from_csv[['Project Id','Year','Quarter']])
+df4_comp_compare
+
+###################################
+###################################
+###################################
+
+#%%
+### Now comparing ALL columns. DF created shows all differences:
+df4_comp_compare = df4_comparison_csv.compare(df4__final_from_csv)
+df4_comp_compare
+
+#%%
+### Number of columns with different values/types:
+len([*df4_comp_compare]) / 2 
+    ### Start: 50.
+
+#%%
+### Columns:
+[*df4_comp_compare]
+
+###################################
+#### completed
+###################################
+
+
+###################################
+#### need work
+###################################
 
 
 
