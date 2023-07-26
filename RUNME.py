@@ -46,10 +46,21 @@ print('Version Of Numpy: ' + np.version.version)
 # nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
 nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 
-### From #3:
-    ### Current Federal Poverty something.....
-    ### appropriate_var = ''
+###########################
+### Federal Poverty Guidelines
+    ### https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines 
+    ### https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines/prior-hhs-poverty-guidelines-federal-register-references 
 
+### 2023: https://www.federalregister.gov/documents/2023/01/19/2023-00885/annual-update-of-the-hhs-poverty-guidelines 
+if (nehv_quarter == 'Y12Q1 (Oct 2022 - Dec 2023)'):
+    ### 8870 + (4720 * [household size])
+    Fpg_Base = 8870 
+    Fpg_Increment = 4720 
+### 2022: https://www.federalregister.gov/documents/2022/01/21/2022-01166/annual-update-of-the-hhs-poverty-guidelines 
+elif (nehv_quarter == 'Y12Q2 (Oct 2022 - Mar 2023)'):
+    ### 9440 + (5140 * [household size])
+    Fpg_Base = 9440 
+    Fpg_Increment = 5140 
 
 #%%##################################################
 ### PATHS ###

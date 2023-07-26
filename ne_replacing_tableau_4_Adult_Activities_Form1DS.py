@@ -1017,19 +1017,6 @@ inspect_col(df4_edits1['_Max HV Date'])
 #####################################################
 #####################################################
 #%%##################################################
-### NUMERIC CALCULATIONS
-
-df4_edits1['_T14 Federal Poverty Level update'] = 9440 + (5140 * df4_edits1['Household Size'].astype('Int64'))
-    ### //uses 2023 federal guidelines, will need to update to 2024 guidelines when they become available
-    ### 9440 + (5140 * [Household Size])
-    ### Data Type in Tableau: integer.
-inspect_col(df4_edits1['_T14 Federal Poverty Level update'])
-
-
-#####################################################
-#####################################################
-#####################################################
-#%%##################################################
 
 ### Other vars depend on this ('_TGT 3 Month Date').
 ### In Child2 & Adult3 & Adult4. Copied exactly. (except added astype()).
@@ -1122,6 +1109,7 @@ inspect_col(df4_edits1['__F1 Caregiver ID for MOB or FOB'])
 
 ### Required for 'Caregiver Involved'.
 def fn_FOB_Involved(fdf):
+    ###########
     ### FW.
     if (fdf['source'] == 'FW'):
         match fdf['Fob Involved']:
@@ -1133,6 +1121,7 @@ def fn_FOB_Involved(fdf):
                 return 0 
             case _:
                 return 0 
+    ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
         match fdf['Fob Involved1']:
@@ -1144,7 +1133,7 @@ def fn_FOB_Involved(fdf):
                 return 0 
             case _:
                 return 0 
-    ####
+    ###########
     else:
         return 0 
     ###########
@@ -1442,7 +1431,34 @@ inspect_col(df4_edits1['_FOB Relation'])
 #%%###################################
 
 def fn_Enroll_Preg_Status(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Pregnancystatus']:
+            case _ if pd.isna(fdf['Pregnancystatus']):
+                return pd.NA 
+            case 0:
+                return 'Pregnant'
+            case 1:
+                return 'Not pregnant'
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Enroll Preg Status']:
+            case _ if pd.isna(fdf['Enroll Preg Status']):
+                return pd.NA 
+            case 'Pregnant':
+                return 'Pregnant'
+            case 'Postpartum':
+                return 'Not pregnant'
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [Pregnancystatus] = 0 THEN "Pregnant" //FW
     ### ELSEIF [Pregnancystatus] = 1 THEN "Not pregnant"
@@ -1456,8 +1472,36 @@ inspect_col(df4_edits1['_Enroll Preg Status'])
 
 #%%###################################
 
+### ### Test whether code works with NAs:
+### df4_edits1['Assess Afraid'] = df4_edits1['Assess Afraid'].sample(frac=0.8)
+### df4_edits1['Assess IPV'] = df4_edits1['Assess IPV'].sample(frac=0.8)
+### df4_edits1['Assess Police'] = df4_edits1['Assess Police'].sample(frac=0.8)
+
+### TODO: Is 'Agency' from df4_2 ('Caregiver Insurance') wanted? Or 'agency (Family Wise)'? Or '_Agency'?
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_IPV_Score_FW(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Agency']):
+            return pd.NA
+        elif (fdf['Agency'] != '11'):
+            if ((
+                (0 if pd.isna(fdf['Assess Afraid']) else (1 if fdf['Assess Afraid'] else 0)) + 
+                (0 if pd.isna(fdf['Assess IPV']) else (1 if fdf['Assess IPV'] else 0)) +
+                (0 if pd.isna(fdf['Assess Police']) else (1 if fdf['Assess Police'] else 0))
+                ) >= 1 
+            ):
+                return 'P'
+            else:
+                return 'N'
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+        ### including LLCHD.
+    ###########
     ### /// Tableau Calculation:
     ### IF [Agency] <> "ll" THEN
     ###     (IF [Assess Afraid] = TRUE 
@@ -1468,11 +1512,37 @@ def fn_IPV_Score_FW(fdf):
 df4_edits1['_IPV Score FW'] = df4_edits1.apply(func=fn_IPV_Score_FW, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_IPV Score FW']) 
+#%%
+# print(df4_edits1[['source', '_IPV Score FW', 'Agency', 'Assess Afraid', 'Assess IPV', 'Assess Police']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+# print(df4_edits1[['source', '_IPV Score FW', 'Assess Afraid', 'Assess IPV', 'Assess Police']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
 def fn_Need_Exclusion_1_Sub_Abuse(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion1']:
+            case _ if pd.isna(fdf['Need Exclusion1']):
+                return pd.NA 
+            case "Substance Abuse" | "Drug Abuse" | "Alcohol Abuse":
+                return "Alcohol/Drug Abuse"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion1 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion1 (LLCHD)']):
+                return pd.NA 
+            case "Y":
+                return "Alcohol/Drug Abuse"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion1] = "Substance Abuse" THEN "Alcohol/Drug Abuse" //FW
     ###     ELSEIF [Need Exclusion1] = "Drug Abuse" THEN "Alcohol/Drug Abuse"
@@ -1486,7 +1556,30 @@ inspect_col(df4_edits1['_Need Exclusion 1 - Sub Abuse'])
 #%%###################################
 
 def fn_Need_Exclusion_2_Fam_Plan(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion2']:
+            case _ if pd.isna(fdf['Need Exclusion2']):
+                return pd.NA 
+            case "Family Planning":
+                return "Family Planning"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion2 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion2 (LLCHD)']):
+                return pd.NA 
+            case "Y":
+                return "Family Planning"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion2] = "Family Planning" THEN "Family Planning" //FW
     ### ELSEIF [need exclusion2 (LLCHD)] = "Y" THEN "Family Planning" //LLCHD
@@ -1498,7 +1591,30 @@ inspect_col(df4_edits1['_Need Exclusion 2 - Fam Plan'])
 #%%###################################
 
 def fn_Need_Exclusion_3_Mental_Health(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion3']:
+            case _ if pd.isna(fdf['Need Exclusion3']):
+                return pd.NA 
+            case "Mental Health":
+                return "Mental Health"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion3 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion3 (LLCHD)']):
+                return pd.NA 
+            case "Y":
+                return "Mental Health"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion3] = "Mental Health" THEN "Mental Health" //FW
     ### ELSEIF [need exclusion3 (LLCHD)] = "Y" THEN "Mental Health" //LLCHD
@@ -1510,7 +1626,30 @@ inspect_col(df4_edits1['_Need Exclusion 3 - Mental Health'])
 #%%###################################
 
 def fn_Need_Exclusion_5_IPV(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion5']:
+            case _ if pd.isna(fdf['Need Exclusion5']):
+                return pd.NA 
+            case "IPV Services":
+                return "IPV Services"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion5 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion5 (LLCHD)']):
+                return pd.NA 
+            case "Y":
+                return "IPV Services"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion5] = "IPV Services" THEN "IPV Services" //FW
     ### ELSEIF [need exclusion5 (LLCHD)] = "Y" THEN "IPV Services" //LLCHD
@@ -1522,7 +1661,30 @@ inspect_col(df4_edits1['_Need Exclusion 5 - IPV'])
 #%%###################################
 
 def fn_Need_Exclusion_6_Tobacco(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['need_exclusion6 (Family Wise)']:
+            case _ if pd.isna(fdf['need_exclusion6 (Family Wise)']):
+                return pd.NA 
+            case "Tobacco Cessation":
+                return "Tobacco Cessation"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['need_exclusion6']:
+            case _ if pd.isna(fdf['need_exclusion6']):
+                return pd.NA 
+            case "Y":
+                return "Tobacco Cessation"
+            case _:
+                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF [need_exclusion6 (Family Wise)] = "Tobacco Cessation" THEN "Tobacco Cessation" //FW
     ### ELSEIF [need_exclusion6] = "Y" THEN "Tobacco Cessation" //LLCHD
@@ -1596,8 +1758,40 @@ inspect_col(df4_edits1['_T04 Caregiver DOB'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T06_MOB_Ethnicity(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.notna(fdf['Mob Ethnic']):
+            match fdf['Mob Ethnic'].lower():
+                case "hispanic/latino":
+                    return "Hispanic or Latino"
+                case "non hispanic/latino":
+                    return "Not Hispanic or Latino"
+                case "unknown":
+                    return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
+        else: 
+            return "Unknown/Did Not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.notna(fdf['Mob Ethnicity']):
+            match fdf['Mob Ethnicity'].lower():
+                case "hispanic/latino" | "hispanic":
+                    return "Hispanic or Latino"
+                case "not hispanic/latino" | "non-hispanic":
+                    return "Not Hispanic or Latino"
+                case _:
+                    return "Unrecognized Value"
+        else: 
+            return "Unknown/Did Not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
+    else:
+        return "Unknown/Did Not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+    ###########
     ### /// Tableau Calculation:
     ### IF NOT ISNULL([Mob Ethnic]) THEN CASE [Mob Ethnic]
     ###     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
@@ -1621,8 +1815,52 @@ inspect_col(df4_edits1['_T06 MOB Ethnicity'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T06_FOB_Ethnicity(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['Fob Ethnicity']):
+                return "Unknown/Did Not Report"
+            else: 
+                match fdf['Fob Ethnicity'].lower():
+                    case "hispanic/latino":
+                        return "Hispanic or Latino"
+                    case "non hispanic/latino":
+                        return "Not Hispanic or Latino" 
+                    case "unknown":
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            if pd.isna(fdf['Fob Ethnicity1']):
+                return "Unknown/Did Not Report"
+            else: 
+                match fdf['Fob Ethnicity1'].lower():
+                    case "hispanic/latino":
+                        return "Hispanic or Latino" 
+                    case "not hispanic/latino" | "non-hispanic":
+                        return "Not Hispanic or Latino"
+                    case "unreported/refused to report":
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA  
+    ###########
     ### /// Tableau Calculation:
     ### IF [Fob Involved] = True //FW
     ### THEN CASE[Fob Ethnicity]
@@ -1666,8 +1904,72 @@ inspect_col(df4_edits1['_T06 Ethnicity'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T07_MOB_Race(fdf):
-    return True
+    ###########
+    ### FW (FW race variables are boolean).
+    ### multiracial.
+    if (fdf['source'] == 'FW'):
+        if (
+            (
+                (0 if pd.isna(fdf['MOB Race Asian']) else (1 if fdf['MOB Race Asian'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Black']) else (1 if fdf['MOB Race Black'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (1 if fdf['MOB Race Hawaiian Pacific'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Indian Alaskan']) else (1 if fdf['MOB Race Indian Alaskan'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race White']) else (1 if fdf['MOB Race White'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Other']) else (1 if fdf['MOB Race Other'] else 0)) 
+            ) > 1 
+        ):
+            return "More than one race"
+        ### single race.
+        elif (False if pd.isna(fdf['MOB Race Asian']) else (True if fdf['MOB Race Asian'] else False)):
+            return "Asian"
+        elif (False if pd.isna(fdf['MOB Race Black']) else (True if fdf['MOB Race Black'] else False)):
+            return "Black or African American"
+        elif (False if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (True if fdf['MOB Race Hawaiian Pacific'] else False)):
+            return "Native Hawaiian or Other Pacific Islander"
+        elif (False if pd.isna(fdf['MOB Race Indian Alaskan']) else (True if fdf['MOB Race Indian Alaskan'] else False)):
+            return "American Indian or Alaska Native"
+        elif (False if pd.isna(fdf['MOB Race White']) else (True if fdf['MOB Race White'] else False)):
+            return "White"
+        elif (False if pd.isna(fdf['MOB Race Other']) else (True if fdf['MOB Race Other'] else False)):
+            return "Other"
+        else:
+            return "Unknown/Did Not Report"
+    ###########
+    ### LLCHD (LL race variables are strings).
+    ### multiracial.
+    elif (fdf['source'] == 'LL'):
+        if (
+            (
+                (0 if pd.isna(fdf['Mob Race Asian']) else (1 if fdf['Mob Race Asian']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Black']) else (1 if fdf['Mob Race Black']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Hawaiian']) else (1 if fdf['Mob Race Hawaiian']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Indian']) else (1 if fdf['Mob Race Indian']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Mob Race White']) else (1 if fdf['Mob Race White']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Other']) else (1 if fdf['Mob Race Other']=="Y" else 0)) 
+            ) > 1 
+        ):
+            return "More than one race"
+        ### single race.
+        elif (False if pd.isna(fdf['Mob Race Asian']) else (True if fdf['Mob Race Asian']=="Y" else False)):
+            return "Asian"
+        elif (False if pd.isna(fdf['Mob Race Black']) else (True if fdf['Mob Race Black']=="Y" else False)):
+            return "Black or African American"
+        elif (False if pd.isna(fdf['Mob Race Hawaiian']) else (True if fdf['Mob Race Hawaiian']=="Y" else False)):
+            return "Native Hawaiian or Other Pacific Islander"
+        elif (False if pd.isna(fdf['Mob Race Indian']) else (True if fdf['Mob Race Indian']=="Y" else False)):
+            return "American Indian or Alaska Native"
+        elif (False if pd.isna(fdf['Mob Race White']) else (True if fdf['Mob Race White']=="Y" else False)):
+            return "White"
+        elif (False if pd.isna(fdf['Mob Race Other']) else (True if fdf['Mob Race Other']=="Y" else False)):
+            return "Other"
+        else:
+            return "Unknown/Did Not Report"
+    ###########
+    else:
+        return "Unknown/Did Not Report"
+    ###########
     ### /// Tableau Calculation:
     ### //LLCHD
     ### //multiracial
@@ -1702,8 +2004,82 @@ inspect_col(df4_edits1['_T07 MOB Race'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T07_FOB_Race(fdf):
-    return True
+    ###########
+    ### FW (FW race variables are boolean).
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            ### multiracial.
+            if (
+                (
+                    (0 if pd.isna(fdf['MOB Race Asian']) else (1 if fdf['MOB Race Asian'] else 0)) + 
+                    (0 if pd.isna(fdf['MOB Race Black']) else (1 if fdf['MOB Race Black'] else 0)) + 
+                    (0 if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (1 if fdf['MOB Race Hawaiian Pacific'] else 0)) + 
+                    (0 if pd.isna(fdf['MOB Race Indian Alaskan']) else (1 if fdf['MOB Race Indian Alaskan'] else 0)) + 
+                    (0 if pd.isna(fdf['MOB Race White']) else (1 if fdf['MOB Race White'] else 0)) + 
+                    (0 if pd.isna(fdf['MOB Race Other']) else (1 if fdf['MOB Race Other'] else 0)) 
+                ) > 1 
+            ):
+                return "More than one race"
+            ### single race.
+            elif (False if pd.isna(fdf['MOB Race Asian']) else (True if fdf['MOB Race Asian'] else False)):
+                return "Asian"
+            elif (False if pd.isna(fdf['MOB Race Black']) else (True if fdf['MOB Race Black'] else False)):
+                return "Black or African American"
+            elif (False if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (True if fdf['MOB Race Hawaiian Pacific'] else False)):
+                return "Native Hawaiian or Other Pacific Islander"
+            elif (False if pd.isna(fdf['MOB Race Indian Alaskan']) else (True if fdf['MOB Race Indian Alaskan'] else False)):
+                return "American Indian or Alaska Native"
+            elif (False if pd.isna(fdf['MOB Race White']) else (True if fdf['MOB Race White'] else False)):
+                return "White"
+            elif (False if pd.isna(fdf['MOB Race Other']) else (True if fdf['MOB Race Other'] else False)):
+                return "Other"
+            else:
+                return "Unknown/Did Not Report"
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD (LL race variables are strings).
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            ### multiracial.
+            if (
+                (
+                    (0 if pd.isna(fdf['Mob Race Asian']) else (1 if fdf['Mob Race Asian']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Mob Race Black']) else (1 if fdf['Mob Race Black']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Mob Race Hawaiian']) else (1 if fdf['Mob Race Hawaiian']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Mob Race Indian']) else (1 if fdf['Mob Race Indian']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Mob Race White']) else (1 if fdf['Mob Race White']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Mob Race Other']) else (1 if fdf['Mob Race Other']=="Y" else 0)) 
+                ) > 1 
+            ):
+                return "More than one race"
+            ### single race.
+            elif (False if pd.isna(fdf['Mob Race Asian']) else (True if fdf['Mob Race Asian']=="Y" else False)):
+                return "Asian"
+            elif (False if pd.isna(fdf['Mob Race Black']) else (True if fdf['Mob Race Black']=="Y" else False)):
+                return "Black or African American"
+            elif (False if pd.isna(fdf['Mob Race Hawaiian']) else (True if fdf['Mob Race Hawaiian']=="Y" else False)):
+                return "Native Hawaiian or Other Pacific Islander"
+            elif (False if pd.isna(fdf['Mob Race Indian']) else (True if fdf['Mob Race Indian']=="Y" else False)):
+                return "American Indian or Alaska Native"
+            elif (False if pd.isna(fdf['Mob Race White']) else (True if fdf['Mob Race White']=="Y" else False)):
+                return "White"
+            elif (False if pd.isna(fdf['Mob Race Other']) else (True if fdf['Mob Race Other']=="Y" else False)):
+                return "Other"
+            else:
+                return "Unknown/Did Not Report"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA ### Different from MOB Race's "Unknown/Did Not Report".
+    ###########
     ### /// Tableau Calculation:
     ### //LLCHD
     ### //multiracial
@@ -1758,8 +2134,44 @@ inspect_col(df4_edits1['_T07 Race'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. SIMILAR Tableau Calculations: some different options, could be combined. Python modified.
 def fn_T08_MOB_Marital_Status(fdf):
-    return True
+    ###########
+    ### FW.
+    if (pd.notna(fdf['Adult1MaritalStatus'])):
+        match fdf['Adult1MaritalStatus'].lower():
+            case "married":
+                return "Married"
+            case "living with partner":
+                return "Not Married but Living Together with Partner"
+            case "separated" | "legally separated" | "divorced" | "widowed":
+                return "Separated, Divorced, or Widowed"
+            case "single":
+                return "Never Married"
+            case "unknown" | "null":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ###########
+    ### LLCHD.
+    elif (pd.notna(fdf['Mob Marital Status'])):
+        match fdf['Mob Marital Status'].lower():
+            case "married":
+                return "Married"
+            case "living with partner" | "life partner":
+                return "Not Married but Living Together with Partner"
+            case "separated" | "legally separated" | "divorced" | "widowed":
+                return "Separated, Divorced, or Widowed"
+            case "single" | "not married" | "not":
+                return "Never Married"
+            case "unknown" | "null":
+                return "Unknown/Did Not Report"
+            case _:
+                return "Unrecognized Value"
+    ###########
+    else:
+        return "Unknown/Did Not Report"
+    ###########
     ### /// Tableau Calculation:
     ### //FW
     ### IF NOT ISNULL([Adult1MaritalStatus]) THEN CASE [Adult1MaritalStatus]
@@ -1801,8 +2213,60 @@ inspect_col(df4_edits1['_T08 MOB Marital Status'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. SIMILAR Tableau Calculations: some different options, could be combined. Python modified.
 def fn_T08_FOB_Marital_Status(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['Adult2MaritalStatus']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Adult2MaritalStatus'].lower():
+                    case "married":
+                        return "Married"
+                    case "living with partner":
+                        return "Not Married but Living Together with Partner"
+                    case "separated" | "legally separated" | "divorced" | "widowed":
+                        return "Separated, Divorced, or Widowed"
+                    case "single":
+                        return "Never Married"
+                    case "unknown" | "null":
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            if pd.isna(fdf['Fob Marital Status']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Fob Marital Status'].lower():
+                    case "married":
+                        return "Married"
+                    case "living with partner" | "life partner":
+                        return "Not Married but Living Together with Partner"
+                    case "separated" | "legally separated" | "divorced" | "widowed":
+                        return "Separated, Divorced, or Widowed"
+                    case "single" | "not married":
+                        return "Never Married"
+                    case "unknown" | "null":
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA
+    ###########
     ### /// Tableau Calculation:
     ### //FW
     ### IF [Fob Involved] = True THEN CASE [Adult2MaritalStatus]
@@ -2499,8 +2963,50 @@ inspect_col(df4_edits1['_T10 Caregiver Educational Enrollment'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. SIMILAR Tableau Calculations: some different options, could be combined. Python modified.
 def fn_T11_MOB_Employment(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if (pd.isna(fdf['AD1EmpStatus'])):
+            return "Unknown/Did Not Report"
+        else:
+            match fdf['AD1EmpStatus'].lower():
+                case "employed full time" | "maternal leave, paid, full time" | "maternal leave, unpaid, full time":
+                    return "Employed Full Time"
+                case "employed part time" | "maternal leave, unpaid, part time" | "self-employed":
+                    return "Employed Part Time"
+                case (
+                    "permanent disability" |
+                    "temporary disability" |
+                    "unemployed - unspecified" |
+                    "unemployed not seeking work-barriers" |
+                    "unemployed not seeking work-preference" |
+                    "unemployed not seeking work-teen caregiver" |
+                    "unemployed seeking work"
+                ):
+                    return "Not Employed"
+                case "unknown" | "null":
+                    return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if (pd.isna(fdf['Mcafss Employ'])):
+            return "Unknown/Did Not Report"
+        else:
+            match fdf['Mcafss Employ']:
+                case 0 | 1 | 2:
+                    return "Not Employed"
+                case 3 | 4 | 5:
+                    return "Employed Full Time"
+                case _:
+                    return "Unrecognized Value"
+    ###########
+    else:
+        return "Unknown/Did Not Report"
+    ###########
     ### /// Tableau Calculation:
     ### IF NOT ISNULL([AD1EmpStatus]) THEN CASE [AD1EmpStatus] //FW
     ###     WHEN "Employed Full Time" THEN "Employed Full Time"
@@ -2508,8 +3014,8 @@ def fn_T11_MOB_Employment(fdf):
     ###     WHEN "Maternal leave, paid, full time" THEN "Employed Full Time"
     ###     WHEN "Maternal leave, unpaid, full time" THEN "Employed Full Time"
     ###     WHEN "Maternal leave, unpaid, part time" THEN "Employed Part Time"
-    ###     WHEN "Null" THEN "Unknown/Did Not Report"
-    ###     WHEN "null" THEN "Unknown/Did Not Report"
+    ###     WHEN "Null" THEN "Unknown/Did Not Report" /// Not in Adult3 Form2.
+    ###     WHEN "null" THEN "Unknown/Did Not Report" /// Not in Adult3 Form2.
     ###     WHEN "Permanent Disability" THEN "Not Employed"
     ###     WHEN "Self-Employed" THEN "Employed Part Time"
     ###     WHEN "Temporary Disability" THEN "Not Employed"
@@ -2522,7 +3028,7 @@ def fn_T11_MOB_Employment(fdf):
     ###     ELSE "Unrecognized Value"
     ###     END
     ### ELSEIF NOT ISNULL([Mcafss Employ])THEN CASE [Mcafss Employ] //LLCHD
-    ###     WHEN 0 THEN "Not Employed"
+    ###     WHEN 0 THEN "Not Employed" /// Not in Adult3 Form2.
     ###     WHEN 1 THEN "Not Employed"
     ###     WHEN 2 THEN "Not Employed"
     ###     WHEN 3 THEN "Employed Part Time"
@@ -2538,8 +3044,60 @@ inspect_col(df4_edits1['_T11 MOB Employment'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T11_FOB_Employment(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['AD2EmployStatus']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['AD2EmployStatus'].lower():
+                    case "employed full time" | "maternal leave, paid, full time" | "maternal leave, unpaid, full time":
+                        return "Employed Full Time"
+                    case "employed part time" | "maternal leave, unpaid, part time" | "self-employed":
+                        return "Employed Part Time"
+                    case (
+                        "permanent disability" |
+                        "temporary disability" |
+                        "unemployed - unspecified" |
+                        "unemployed not seeking work-barriers" |
+                        "unemployed not seeking work-preference" |
+                        "unemployed not seeking work-teen caregiver" |
+                        "unemployed seeking work"
+                    ):
+                        return "Not Employed"
+                    case "unknown" | "null":
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            if pd.isna(fdf['Fob Employ']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Fob Employ']:
+                    case 1 | 2:
+                        return "Not Employed"
+                    case 3 | 4 | 5:
+                        return "Employed Full Time"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [Fob Involved] = True THEN CASE [AD2EmployStatus] //FW
     ###     WHEN "Employed Full Time" THEN "Employed Full Time"
@@ -2593,8 +3151,285 @@ inspect_col(df4_edits1['_T11 Caregiver Employment'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
+def fn_T12_MOB_Housing_Status(fdf):
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] != "ll"):
+            if pd.isna(fdf['Housing Status']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Housing Status'].lower():
+                    case "owns or shares own home, condominium, or apartment":
+                        return "Owns or shares own home, condominium, or apartment"
+                    case (
+                        "rents of shares own home or apartment" | 
+                        "rents or shares own home or apartment"
+                    ):
+                        return "Rents or shares own home or apartment"
+                    case "lives with parent or family member":
+                        return "Lives with parent or family member"
+                    case "live in public housing":
+                        return "Lives in public housing"
+                    case "homeless and sharing housing":
+                        return "Homeless and sharing housing"
+                    case "homeless and living in an emergency or transitional shelter":
+                        return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                    case "some other arrangement":
+                        return "Some other arrangement"
+                    case "other":
+                        return "Some other arrangement" ### TODO: Check old comment: Not sure this is the right category.
+                    case _:
+                        return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            match fdf['Mob Living Arrangement']:
+                case _ if pd.isna(fdf['Mob Living Arrangement']):
+                    return "Unknown/Did Not Report"
+                case 1:
+                    return "Owns or shares own home, condominium, or apartment" ### Owns or shared own home, condo, or apartment.
+                case 2:
+                    return "Rents or shares own home or apartment" ### Rents or shared own home or apartment.
+                case 3:
+                    return "Lives in public housing" ### Lives in public housing.
+                case 4:
+                    return "Lives with parent or family member" ### Lives with parent or family member.
+                case 5:
+                    return "Not homeless, some other arrangement" ### Some other arrangement.
+                case 6:
+                    return "Homeless and sharing housing" ### Homeless and sharing housing.
+                case 7:
+                    return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                case 8:
+                    return "Homeless, some other arrangement" ### Homeless with some other arrangement.
+                case _:
+                    return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
+    ### /// Tableau Calculation:
+    ### IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
+    ###     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    ###     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
+    ###     WHEN "Live in public housing" THEN "Lives in public housing"
+    ###     WHEN "Lives with parent or family member" THEN "Lives with parent or family member"
+    ###     WHEN "Other" THEN  "Some other arrangement" //Not sure this is the right category
+    ###     WHEN "Owns or shares own home, condominium, or apartment" THEN "Owns or shares own home, condominium, or apartment"
+    ###     WHEN "Rents of shares own home or apartment" THEN "Rents or shares own home or apartment"
+    ###     WHEN "Rents or shares own home or apartment" THEN "Rents or shares own home or apartment"
+    ###     WHEN "Some other arrangement" THEN "Some other arrangement"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN CASE[Mob Living Arrangement] //LLCHD
+    ###     WHEN 1 THEN "Owns or shares own home, condominium, or apartment" //Owns or shared own home, condo, or apartment
+    ###     WHEN 2 THEN "Rents or shares own home or apartment" //Rents or shared own home or apartment
+    ###     WHEN 3 THEN "Lives in public housing" //Lives in public housing
+    ###     WHEN 4 THEN "Lives with parent or family member" //Lives with parent or family member
+    ###     WHEN 5 THEN "Not homeless, some other arrangement" //Some other arrangement
+    ###     WHEN 6 THEN "Homeless and sharing housing" //Homeless and sharing housing
+    ###     WHEN 7 THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    ###     WHEN 8 THEN "Homeless, some other arrangement" //Homeless with some other arrangement
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### END
+df4_edits1['_T12 MOB Housing Status'] = df4_edits1.apply(func=fn_T12_MOB_Housing_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T12 MOB Housing Status']) 
+# #%%
+# inspect_col(df4_edits1['Mob Living Arrangement']) ### Integer.
+
+#%%###################################
+
+def fn_T12_FOB_Housing_Status(fdf):
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] != "ll"):
+            if pd.isna(fdf['Housing Status']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Housing Status'].lower():
+                    case "owns or shares own home, condominium, or apartment":
+                        return "Owns or shares own home, condominium, or apartment"
+                    case (
+                        "rents of shares own home or apartment" | 
+                        "rents or shares own home or apartment"
+                    ):
+                        return "Rents or shares own home or apartment"
+                    case "lives with parent or family member":
+                        return "Lives with parent or family member"
+                    case "live in public housing":
+                        return "Lives in public housing"
+                    case "homeless and sharing housing":
+                        return "Homeless and sharing housing"
+                    case "homeless and living in an emergency or transitional shelter":
+                        return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                    case "some other arrangement":
+                        return "Some other arrangement"
+                    case "other":
+                        return "Some other arrangement" ### TODO: Check old comment: Not sure this is the right category.
+                    case _:
+                        return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            match fdf['Fob Living Arrangement']:
+                case _ if pd.isna(fdf['Fob Living Arrangement']): ### One of 2 differences between FOB & MOB.
+                    return "Unknown/Did Not Report"
+                case 1:
+                    return "Owns or shares own home, condominium, or apartment" ### Owns or shared own home, condo, or apartment.
+                case 2:
+                    return "Rents or shares own home or apartment" ### Rents or shared own home or apartment.
+                case 3:
+                    return "Lives in public housing" ### Lives in public housing.
+                case 4:
+                    return "Lives with parent or family member" ### Lives with parent or family member.
+                case 5:
+                    return "Not homeless, some other arrangement" ### Some other arrangement.
+                case 6:
+                    return "Homeless and sharing housing" ### Homeless and sharing housing.
+                case 7:
+                    return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                case 8:
+                    return "Homeless, some other arrangement" ### Homeless with some other arrangement.
+                case 88: ### One of 2 differences between FOB & MOB.
+                    return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
+    ### /// Tableau Calculation:
+    ### IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
+    ###     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    ###     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
+    ###     WHEN "Live in public housing" THEN "Lives in public housing"
+    ###     WHEN "Lives with parent or family member" THEN "Lives with parent or family member"
+    ###     WHEN "Other" THEN  "Some other arrangement" //Not sure this is the right category
+    ###     WHEN "Owns or shares own home, condominium, or apartment" THEN "Owns or shares own home, condominium, or apartment"
+    ###     WHEN "Rents of shares own home or apartment" THEN "Rents or shares own home or apartment"
+    ###     WHEN "Rents or shares own home or apartment" THEN "Rents or shares own home or apartment"
+    ###     WHEN "Some other arrangement" THEN "Some other arrangement"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN CASE [Fob Living Arrangement] //LLCHD
+    ###     WHEN 1 THEN "Owns or shares own home, condominium, or apartment" //Owns or shared own home, condo, or apartment
+    ###     WHEN 2 THEN "Rents or shares own home or apartment" //Rents or shared own home or apartment
+    ###     WHEN 3 THEN "Lives in public housing" //Lives in public housing
+    ###     WHEN 4 THEN "Lives with parent or family member" //Lives with parent or family member
+    ###     WHEN 5 THEN "Not homeless, some other arrangement" //Some other arrangement
+    ###     WHEN 6 THEN "Homeless and sharing housing" //Homeless and sharing housing
+    ###     WHEN 7 THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
+    ###     WHEN 8 THEN "Homeless, some other arrangement" //Homeless with some other arrangement
+    ###     WHEN 88 THEN "Unknown/Did Not Report"
+    ###     WHEN NULL THEN "Unknown/Did Not Report"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### END
+df4_edits1['_T12 FOB Housing Status'] = df4_edits1.apply(func=fn_T12_FOB_Housing_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T12 FOB Housing Status']) 
+
+#%%###################################
+
+def fn_T12_Caregiver_Housing_Status(fdf):
+    match fdf['MOB or FOB']:
+        case "MOB":
+            return fdf['_T12 MOB Housing Status']
+        case "FOB":
+            return fdf['_T12 FOB Housing Status']
+    ### /// Tableau Calculation:
+    ### CASE [MOB or FOB]
+    ###     WHEN "MOB" THEN [_T12 MOB Housing Status]
+    ###     WHEN "FOB" THEN [_T12 FOB Housing Status]
+    ### END
+df4_edits1['_T12 Caregiver Housing Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Housing_Status, axis=1).astype('string') 
+    ### Data Type in Tableau: 'string'.
+inspect_col(df4_edits1['_T12 Caregiver Housing Status']) 
+
+#%%###################################
+
 def fn_T12_MOB_Homeless_Status(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] != "ll"):
+            match ('NA' if pd.isna(fdf['Homeless Status']) else fdf['Homeless Status']):
+                case "Homeless":
+                    return "Homeless"
+                case "Not Homeless":
+                        return "Not Homeless"
+                case _:
+                    if pd.isna(fdf['Housing Status']):
+                        return "Unknown/Did Not Report"
+                    else:
+                        match fdf['Housing Status'].lower():
+                            case "homeless and sharing housing" | "homeless and living in an emergency or transitional shelter":
+                                return "Homeless"
+                            case (
+                                "owns or shares own home, condominium, or apartment" | 
+                                "rents of shares own home or apartment" | 
+                                "rents or shares own home or apartment" | 
+                                "lives with parent or family member" | 
+                                "live in public housing" 
+                            ):
+                                return "Not Homeless"
+                            case "some other arrangement":
+                                return "Unknown/Did Not Report"
+                            case "other":
+                                return "Unknown/Did Not Report" ### TODO: Check old comment: Not sure this is the right category.
+                            case _:
+                                return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            match fdf['Mob Living Arrangement']:
+                case _ if pd.isna(fdf['Mob Living Arrangement']):
+                    return "Unknown/Did Not Report"
+                case 1 | 2 | 3 | 4 | 5:
+                    return "Not Homeless" 
+                case 6 | 7 | 8:
+                    return "Homeless" 
+                case _:
+                    return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [_Agency]<> "ll" THEN CASE [Homeless Status] //FW
     ###     WHEN "Homeless" THEN "Homeless"
@@ -2632,7 +3467,63 @@ inspect_col(df4_edits1['_T12 MOB Homeless Status'])
 #%%###################################
 
 def fn_T12_FOB_Homeless_Status(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] != "ll"):
+            match ('NA' if pd.isna(fdf['Homeless Status']) else fdf['Homeless Status']):
+                case "Homeless":
+                    return "Homeless"
+                case "Not Homeless":
+                        return "Not Homeless"
+                case _:
+                    if pd.isna(fdf['Housing Status']):
+                        return "Unknown/Did Not Report"
+                    else:
+                        match fdf['Housing Status'].lower():
+                            case "homeless and sharing housing" | "homeless and living in an emergency or transitional shelter":
+                                return "Homeless"
+                            case (
+                                "owns or shares own home, condominium, or apartment" | 
+                                "rents of shares own home or apartment" | 
+                                "rents or shares own home or apartment" | 
+                                "lives with parent or family member" | 
+                                "live in public housing" 
+                            ):
+                                return "Not Homeless"
+                            case "some other arrangement":
+                                return "Unknown/Did Not Report"
+                            case "other":
+                                return "Unknown/Did Not Report" ### TODO: Check old comment: Not sure this is the right category.
+                            case _:
+                                return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            match fdf['Fob Living Arrangement']: ### One of 2 differences between FOB & MOB.
+                case _ if pd.isna(fdf['Fob Living Arrangement']):
+                    return "Unknown/Did Not Report"
+                case 1 | 2 | 3 | 4 | 5:
+                    return "Not Homeless" 
+                case 6 | 7 | 8:
+                    return "Homeless" 
+                case 88: ### One of 2 differences between FOB & MOB.
+                    return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [_Agency]<> "ll" THEN CASE [Homeless Status] //FW
     ###     WHEN "Homeless" THEN "Homeless"
@@ -2685,98 +3576,46 @@ df4_edits1['_T12 Caregiver Homeless Status'] = df4_edits1.apply(func=fn_T12_Care
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T12 Caregiver Homeless Status']) 
 
-#%%###################################
+#%%##################################################
 
-def fn_T12_MOB_Housing_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
-    ###     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
-    ###     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
-    ###     WHEN "Live in public housing" THEN "Lives in public housing"
-    ###     WHEN "Lives with parent or family member" THEN "Lives with parent or family member"
-    ###     WHEN "Other" THEN  "Some other arrangement" //Not sure this is the right category
-    ###     WHEN "Owns or shares own home, condominium, or apartment" THEN "Owns or shares own home, condominium, or apartment"
-    ###     WHEN "Rents of shares own home or apartment" THEN "Rents or shares own home or apartment"
-    ###     WHEN "Rents or shares own home or apartment" THEN "Rents or shares own home or apartment"
-    ###     WHEN "Some other arrangement" THEN "Some other arrangement"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
-    ###     END
-    ### ELSEIF [_Agency] = "ll" THEN CASE[Mob Living Arrangement] //LLCHD
-    ###     WHEN 1 THEN "Owns or shares own home, condominium, or apartment" //Owns or shared own home, condo, or apartment
-    ###     WHEN 2 THEN "Rents or shares own home or apartment" //Rents or shared own home or apartment
-    ###     WHEN 3 THEN "Lives in public housing" //Lives in public housing
-    ###     WHEN 4 THEN "Lives with parent or family member" //Lives with parent or family member
-    ###     WHEN 5 THEN "Not homeless, some other arrangement" //Some other arrangement
-    ###     WHEN 6 THEN "Homeless and sharing housing" //Homeless and sharing housing
-    ###     WHEN 7 THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
-    ###     WHEN 8 THEN "Homeless, some other arrangement" //Homeless with some other arrangement
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### END
-df4_edits1['_T12 MOB Housing Status'] = df4_edits1.apply(func=fn_T12_MOB_Housing_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 MOB Housing Status']) 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
+### REMINDER: Update to new year's federal poverty guidelines in RUNME.py.
+df4_edits1['_T14 Federal Poverty Level update'] = Fpg_Base + (Fpg_Increment * df4_edits1['Household Size'].astype('Int64'))
+    ### /// Tableau Calculation Q2:
+    ### //uses 2023 federal guidelines, will need to update to 2024 guidelines when they become available
+    ### 9440 + (5140 * [Household Size])
+    ### Data Type in Tableau: integer.
+inspect_col(df4_edits1['_T14 Federal Poverty Level update'])
 
 #%%###################################
 
-def fn_T12_FOB_Housing_Status(fdf):
-    return True
-    ### /// Tableau Calculation:
-    ### IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
-    ###     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
-    ###     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
-    ###     WHEN "Live in public housing" THEN "Lives in public housing"
-    ###     WHEN "Lives with parent or family member" THEN "Lives with parent or family member"
-    ###     WHEN "Other" THEN  "Some other arrangement" //Not sure this is the right category
-    ###     WHEN "Owns or shares own home, condominium, or apartment" THEN "Owns or shares own home, condominium, or apartment"
-    ###     WHEN "Rents of shares own home or apartment" THEN "Rents or shares own home or apartment"
-    ###     WHEN "Rents or shares own home or apartment" THEN "Rents or shares own home or apartment"
-    ###     WHEN "Some other arrangement" THEN "Some other arrangement"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value" //will have to add new FW values as they come in, they aren't all here
-    ###     END
-    ### ELSEIF [_Agency] = "ll" THEN CASE [Fob Living Arrangement] //LLCHD
-    ###     WHEN 1 THEN "Owns or shares own home, condominium, or apartment" //Owns or shared own home, condo, or apartment
-    ###     WHEN 2 THEN "Rents or shares own home or apartment" //Rents or shared own home or apartment
-    ###     WHEN 3 THEN "Lives in public housing" //Lives in public housing
-    ###     WHEN 4 THEN "Lives with parent or family member" //Lives with parent or family member
-    ###     WHEN 5 THEN "Not homeless, some other arrangement" //Some other arrangement
-    ###     WHEN 6 THEN "Homeless and sharing housing" //Homeless and sharing housing
-    ###     WHEN 7 THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
-    ###     WHEN 8 THEN "Homeless, some other arrangement" //Homeless with some other arrangement
-    ###     WHEN 88 THEN "Unknown/Did Not Report"
-    ###     WHEN NULL THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### END
-df4_edits1['_T12 FOB Housing Status'] = df4_edits1.apply(func=fn_T12_FOB_Housing_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 FOB Housing Status']) 
-
-#%%###################################
-
-def fn_T12_Caregiver_Housing_Status(fdf):
-    match fdf['MOB or FOB']:
-        case "MOB":
-            return fdf['_T12 MOB Housing Status']
-        case "FOB":
-            return fdf['_T12 FOB Housing Status']
-    ### /// Tableau Calculation:
-    ### CASE [MOB or FOB]
-    ###     WHEN "MOB" THEN [_T12 MOB Housing Status]
-    ###     WHEN "FOB" THEN [_T12 FOB Housing Status]
-    ### END
-df4_edits1['_T12 Caregiver Housing Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Housing_Status, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 Caregiver Housing Status']) 
-
-#%%###################################
-
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T14_Poverty_Percent(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] != "ll"):
+            return fdf['Poverty Level'] 
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            if (pd.isna(fdf['Household Income']) or pd.isna(fdf['Household Size'])):
+                return np.nan 
+            else:
+                return fdf['Household Income'] / fdf['_T14 Federal Poverty Level update']
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [_Agency] = "ll" AND ISNULL([Household Income]) THEN NULL //LLCHD
     ### ELSEIF [_Agency] = "ll" AND ISNULL([Household Size]) THEN NULL
@@ -2786,11 +3625,28 @@ def fn_T14_Poverty_Percent(fdf):
 df4_edits1['_T14 Poverty Percent'] = df4_edits1.apply(func=fn_T14_Poverty_Percent, axis=1).astype('Float64') 
     ### Data Type in Tableau: 'float'.
 inspect_col(df4_edits1['_T14 Poverty Percent']) 
+# #%%
+# inspect_col(df4_edits1['Poverty Level']) ### float.
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T14_Federal_Poverty_Categories(fdf):
-    return True
+    if (pd.isna(fdf['_T14 Poverty Percent'])):
+        return "Unknown/Did Not Report"
+    elif (fdf['_T14 Poverty Percent'] <= .50):
+        return "50% and Under"
+    elif (fdf['_T14 Poverty Percent'] <= 1.00):
+        return "51-100%"
+    elif (fdf['_T14 Poverty Percent'] <= 1.33):
+        return "101-133%"
+    elif (fdf['_T14 Poverty Percent'] <= 2.00):
+        return "134-200%"
+    elif (fdf['_T14 Poverty Percent'] <= 3.00):
+        return "201-300%"
+    elif (fdf['_T14 Poverty Percent'] > 3.00):
+        return ">300%"
+    ###########
     ### /// Tableau Calculation:
     ### IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
     ### ELSEIF [_T14 Poverty Percent] <= 1.00 THEN "51-100%"
@@ -2806,8 +3662,36 @@ inspect_col(df4_edits1['_T14 Federal Poverty Categories'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T15_3_History_Welfare_Interaction(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['History Inter Welfare Adult']:
+            case _ if pd.isna(fdf['History Inter Welfare Adult']):
+                return 0
+            case True:
+                return 1 
+            case False:
+                return 0 
+            case _:
+                return 0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Child Welfare']:
+            case _ if pd.isna(fdf['Priority Child Welfare']):
+                return 0 
+            case "Y":
+                return 1 
+            case "N":
+                return 0 
+            case _:
+                return 0 
+    ###########
+    else:
+        return 0 
+    ###########
     ### /// Tableau Calculation:
     ### IF [History Inter Welfare Adult] = True THEN 1 //FW
     ### ELSEIF  [History Inter Welfare Adult] = False THEN 0
@@ -2822,7 +3706,44 @@ inspect_col(df4_edits1['_T15-3 History Welfare Interaction'])
 #%%###################################
 
 def fn_T15_4_MOB_Substance_Abuse(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] != "ll"):
+            match fdf['Mob Substance Abuse']:
+                case _ if pd.isna(fdf['Mob Substance Abuse']):
+                    return "Unknown/Did Not Report"
+                case True:
+                    return "Yes"
+                case False:
+                    return "No"
+                case _:
+                    return "Unknown/Did Not Report"
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            match fdf['Priority Substance Abuse']:
+                case _ if pd.isna(fdf['Priority Substance Abuse']):
+                    return "Unknown/Did Not Report"
+                case "Y":
+                    return "Yes"
+                case "N":
+                    return "No"
+                case _:
+                    return "Unknown/Did Not Report"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE[Mob Substance Abuse] //FW
     ###     WHEN TRUE THEN "Yes"
@@ -2842,7 +3763,44 @@ inspect_col(df4_edits1['_T15-4 MOB Substance Abuse'])
 #%%###################################
 
 def fn_T15_4_FOB_Substance_Abuse(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] != "ll"):
+            match fdf['Fob Substance Abuse']:
+                case _ if pd.isna(fdf['Fob Substance Abuse']):
+                    return "Unknown/Did Not Report"
+                case True:
+                    return "Yes"
+                case False:
+                    return "No"
+                case _:
+                    return "Unknown/Did Not Report"
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['_Agency']):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            match fdf['Priority Substance Abuse']:
+                case _ if pd.isna(fdf['Priority Substance Abuse']):
+                    return "Unknown/Did Not Report"
+                case "Y":
+                    return "Yes"
+                case "N":
+                    return "No"
+                case _:
+                    return "Unknown/Did Not Report"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE[Fob Substance Abuse] //FW
     ###     WHEN TRUE THEN "Yes"
@@ -2858,6 +3816,10 @@ def fn_T15_4_FOB_Substance_Abuse(fdf):
 df4_edits1['_T15-4 FOB Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_FOB_Substance_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T15-4 FOB Substance Abuse']) 
+# #%%
+# inspect_col(df4_edits1['_Agency']) 
+# #%%
+# print(df4_edits1[['source', '_T15-4 MOB Substance Abuse', 'Mob Substance Abuse', '_T15-4 FOB Substance Abuse', 'Fob Substance Abuse', '_Agency', 'Priority Substance Abuse']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -2878,8 +3840,36 @@ inspect_col(df4_edits1['_T15-4 Caregiver Substance Abuse'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T15_5_Tobacco_Use_in_Home(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Tobacco Use In Home']:
+            case _ if pd.isna(fdf['Tobacco Use In Home']):
+                return 0
+            case "Yes":
+                return 1 
+            case "No":
+                return 0 
+            case _:
+                return 0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Tobacco Use']:
+            case _ if pd.isna(fdf['Priority Tobacco Use']):
+                return 0 
+            case "Y":
+                return 1 
+            case "N":
+                return 0 
+            case _:
+                return 0 
+    ###########
+    else:
+        return 0 
+    ###########
     ### /// Tableau Calculation:
     ### IF [Tobacco Use In Home] = "Yes" THEN 1 //FW
     ### ELSEIF [Tobacco Use In Home] = "No" THEN 0
@@ -2893,8 +3883,36 @@ inspect_col(df4_edits1['_T15-5 Tobacco Use in Home'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T15_6_Low_Achievement(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Low Achievement']:
+            case _ if pd.isna(fdf['Low Achievement']):
+                return 0
+            case "Yes":
+                return 1 
+            case "No":
+                return 0 
+            case _:
+                return 0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Low Student']:
+            case _ if pd.isna(fdf['Priority Low Student']):
+                return 0 
+            case "Y":
+                return 1 
+            case "N":
+                return 0 
+            case _:
+                return 0 
+    ###########
+    else:
+        return 0 
+    ###########
     ### /// Tableau Calculation:
     ### IF [Low Achievement] = "Yes" THEN 1 //FW
     ### ELSEIF [Low Achievement] = "No" THEN 0
@@ -2908,8 +3926,36 @@ inspect_col(df4_edits1['_T15-6 Low Achievement'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T15_8_Military(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Military']:
+            case _ if pd.isna(fdf['Military']):
+                return 0
+            case "Y":
+                return 1 
+            case "N":
+                return 0 
+            case _:
+                return 0 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Military']:
+            case _ if pd.isna(fdf['Priority Military']):
+                return 0 
+            case "Y":
+                return 1 
+            case "N":
+                return 0 
+            case _:
+                return 0 
+    ###########
+    else:
+        return 0 
+    ###########
     ### /// Tableau Calculation:
     ### IF [Military]= "Y" THEN 1 //FW
     ### ELSEIF [Military] = "N" THEN 0
@@ -2923,8 +3969,40 @@ inspect_col(df4_edits1['_T15-8 Military'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T17_Discharge_Reason(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if (pd.notna(fdf['Termination Date'])):
+            if pd.isna(fdf['Termination Status']):
+                return "Stopped Services Before Completion" ### TODO: Check if all logic for this var desired.
+            else: 
+                match fdf['Termination Status'].lower():
+                    case "family graduated/met all program goals":
+                        return "Completed Services"
+                    case _:
+                        return "Stopped Services Before Completion"
+        else:
+            return "Currently Receiving Services"
+    ###########
+    ### LLCHD, see full reasons below.
+    elif (fdf['source'] == 'LL'):
+        if (pd.notna(fdf['Discharge Dt'])):
+            if pd.isna(fdf['Discharge Reason']):
+                return "Stopped Services Before Completion" ### TODO: Check if all logic for this var desired.
+            else: 
+                match fdf['Discharge Reason'].lower():
+                    case "1" | "family has met program goals":
+                        return "Completed Services"
+                    case _:
+                        return "Stopped Services Before Completion"
+        else:
+            return "Currently Receiving Services"
+    ###########
+    else:
+        return "Currently Receiving Services"
+    ###########
     ### /// Tableau Calculation:
     ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
     ###     WHEN "1" THEN "Completed Services" 
@@ -3072,10 +4150,10 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
         ### FW.
         case "Medicaid" | "SCHIP":
             return "Medicaid or CHIP"
-        case "Private" | "Other" | "Medicare":
-            return "Private or Other"
         case "Tri-Care":
             return "Tri-Care"
+        case "Private" | "Other" | "Medicare":
+            return "Private or Other"
         case "None":
             return "No Insurance Coverage"
         case "Unknown" | "null":
@@ -3090,12 +4168,12 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
             return "Private or Other"
         case "4":
             return "Unknown/Did Not Report" ### #4 like Form2 but not other Form1's "FamilyChildHealthPlus". ### TODO: standardize.
+        case "FamilyCh":
+            return "FamilyChildHealthPlus"
         case "5" | "Uninsure":
             return "No Insurance Coverage"
         case "6" | "99" | "Unknown":
             return "Unknown/Did Not Report"
-        case "FamilyCh":
-            return "FamilyChildHealthPlus"
         ###########
         case _:
             return "Unrecognized Value"
@@ -3214,10 +4292,10 @@ def fn_T20_CG_Insurance_Status(fdf_column):
         ### FW.
         case "Medicaid" | "SCHIP":
             return "Medicaid or CHIP"
-        case "Private" | "Other" | "Medicare":
-            return "Private or Other"
         case "Tri-Care":
             return "Tri-Care"
+        case "Private" | "Other" | "Medicare":
+            return "Private or Other"
         case "None":
             return "No Insurance Coverage"
         case "Unknown" | "null":
@@ -3234,12 +4312,12 @@ def fn_T20_CG_Insurance_Status(fdf_column):
             return "Private or Other"
         case "4":
             return "FamilyChildHealthPlus" ### Different from Form2's "Unknown/Did Not Report". ### TODO: standardize.
+        case "FamilyCh":
+            return "FamilyChildHealthPlus"
         case "5" | "Uninsure":
             return "No Insurance Coverage"
         case "6" | "99" | "Unknown":
             return "Unknown/Did Not Report"
-        case "FamilyCh":
-            return "FamilyChildHealthPlus"
         ###########
         case _:
             return "Unrecognized Value"
@@ -3381,7 +4459,39 @@ inspect_col(df4_edits1['_T20 CG Insurance 16 Status'])
 #%%###################################
 
 def fn_T20_MOB_Insurance_Status(fdf):
-    return True
+    if pd.notna(fdf['_T20 CG Insurance 16 Status']):
+        return fdf['_T20 CG Insurance 16 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 15 Status']):
+        return fdf['_T20 CG Insurance 16 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 14 Status']):
+        return fdf['_T20 CG Insurance 14 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 13 Status']):
+        return fdf['_T20 CG Insurance 13 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 12 Status']):
+        return fdf['_T20 CG Insurance 12 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 11 Status']):
+        return fdf['_T20 CG Insurance 11 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 10 Status']):
+        return fdf['_T20 CG Insurance 10 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 9 Status']):
+        return fdf['_T20 CG Insurance 9 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 8 Status']):
+        return fdf['_T20 CG Insurance 8 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 7 Status']):
+        return fdf['_T20 CG Insurance 7 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 6 Status']):
+        return fdf['_T20 CG Insurance 6 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 5 Status']):
+        return fdf['_T20 CG Insurance 5 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 4 Status']):
+        return fdf['_T20 CG Insurance 4 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 3 Status']):
+        return fdf['_T20 CG Insurance 3 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 2 Status']):
+        return fdf['_T20 CG Insurance 2 Status']
+    elif pd.notna(fdf['_T20 CG Insurance 1 Status']):
+        return fdf['_T20 CG Insurance 1 Status']
+    ###########
     ### /// Tableau Calculation:
     ### IF NOT ISNULL([_T20 CG Insurance 16 Status]) THEN [_T20 CG Insurance 16 Status]
     ### ELSEIF NOT ISNULL([_T20 CG Insurance 15 Status]) THEN [_T20 CG Insurance 16 Status]
@@ -3406,8 +4516,62 @@ inspect_col(df4_edits1['_T20 MOB Insurance Status'])
 
 #%%###################################
 
+### TODO: Compare options to / standardize with MOB insurance.
 def fn_T20_FOB_Insurance_Status(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['AD2InsPrimary']):
+                return pd.NA ### "Unknown/Did Not Report" ### TODO: Why difference compared to older '_T20 FOB Insurance'?
+            else:
+                match fdf['AD2InsPrimary'].lower():
+                    case "medicaid":
+                        return "Medicaid or CHIP"
+                    case "tri-care":
+                        return "Tri-Care"
+                    case "private" | "other" | "medicare":
+                        return "Private or Other"
+                    case "none":
+                        return "No Insurance Coverage"
+                    case "unknown":
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return pd.NA ### "Unrecognized Value" ### TODO: Why difference compared to older '_T20 FOB Insurance'?
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            if pd.isna(fdf['Hlth Insure Fob']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Hlth Insure Fob']:
+                    case 1:
+                        return "Medicaid or CHIP"
+                    case 2:
+                        return "Tri-Care"
+                    case 3:
+                        return "Private or Other"
+                    case 4:
+                        return "FamilyChildHealthPlus"
+                    case 5:
+                        return "No Insurance Coverage"
+                    case 6 | 99:
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
     ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
@@ -3439,8 +4603,62 @@ inspect_col(df4_edits1['_T20 FOB Insurance Status'])
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Almost Same Tableau Calculation. Python modified.
 def fn_T20_FOB_Insurance(fdf):
-    return True
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['AD2InsPrimary']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['AD2InsPrimary'].lower():
+                    case "medicaid":
+                        return "Medicaid or CHIP"
+                    case "medicare":
+                        return "Other" ### this is what our previous syntax indicated.
+                    case "none":
+                        return "No Insurance Coverage"
+                    case "other" | "private":
+                        return "Private or Other"
+                    case "tri-care":
+                        return "Tri-Care"
+                    case "unknown":
+                        return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == "Y"):
+            if pd.isna(fdf['Hlth Insure Fob']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Hlth Insure Fob']:
+                    case 1:
+                        return "Medicaid or CHIP"
+                    case 2:
+                        return "Tri-Care"
+                    case 3:
+                        return "Private or Other"
+                    case 4 | 99:
+                        return "Unknown/Did Not Report"
+                    case 5:
+                        return "No Insurance Coverage"
+                    case _:
+                        return "Unrecognized Value"
+        else:
+            return pd.NA 
+    ###########
+    else:
+        return pd.NA 
+    ###########
     ### /// Tableau Calculation:
     ### IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
     ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
@@ -3459,7 +4677,7 @@ def fn_T20_FOB_Insurance(fdf):
     ###     WHEN 3 THEN "Private or Other"
     ###     WHEN 4 THEN "Unknown/Did Not Report"
     ###     WHEN 5 THEN "No Insurance Coverage"
-    ###     WHEN 99 THEN "Unknown/Did Not Report"
+    ###     WHEN 99 THEN "Unknown/Did Not Report" ### Only difference between Form2 & Form1 (Adult4) is 99 added.
     ###     WHEN NULL THEN "Unknown/Did Not Report"
     ###     ELSE "Unrecognized Value"
     ###     END
@@ -3468,7 +4686,10 @@ def fn_T20_FOB_Insurance(fdf):
 df4_edits1['_T20 FOB Insurance'] = df4_edits1.apply(func=fn_T20_FOB_Insurance, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T20 FOB Insurance']) 
-### TODO: Is this var old & should be deleted?
+# #%%
+# inspect_col(df4_edits1['Hlth Insure Fob']) ### integer... but Empty. All NA.
+### TODO: Why is 'Hlth Insure Fob' empty?
+### TODO: Is this var old & should be deleted? It looks like '_T20 FOB Insurance Status' is more updated (compare).
 
 #%%###################################
 

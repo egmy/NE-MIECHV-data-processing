@@ -956,7 +956,7 @@ def fn_T06_MOB_Ethnicity(fdf):
                 return "Unknown/Did Not Report"
             case _:
                 return "Unrecognized Value"
-    ### LLCHD?
+    ### LLCHD.
     elif pd.notna(fdf['Mob Ethnicity']):
         match fdf['Mob Ethnicity'].lower():
             case "hispanic/latino", "hispanic":
@@ -1387,7 +1387,7 @@ inspect_col(df3_edits1['_T08 MOB Marital Status'])
 #%%###################################
 
 ### TODO: Fix ERROR: using ['Mob Marital Status'] when should be using ['Fob Marital Status'].
-    ### Go ahead & fix.
+    ### Answer: Go ahead & fix.
 def fn_T08_FOB_Marital_Status(fdf):
     ###########
     ### FW.
@@ -2654,14 +2654,11 @@ inspect_col(df3_edits1['_T12 MOB Housing Status'])
 
 #%%###################################
 
-### TODO: Change to pull from config file.
-### TODO: Update to new year's federal poverty guidelines.
-def fn_T14_Federal_Poverty_Level_update(fdf):
-    ## uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available.
-    return 8870 + (4720 * fdf['Household Size'])
-    # //uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available
-    # 8870 + (4720 * [Household Size])
-df3_edits1['_T14 Federal Poverty Level update'] = df3_edits1.apply(func=fn_T14_Federal_Poverty_Level_update, axis=1) 
+### REMINDER: Update to new year's federal poverty guidelines in RUNME.py.
+df3_edits1['_T14 Federal Poverty Level update'] = Fpg_Base + (Fpg_Increment * df3_edits1['Household Size'])###.astype('Int64'))
+    ### /// Tableau Calculation Q2:
+    ### //uses 2022 federal guidelines, will need to update to 2023 guidelines when they become available
+    ### 8870 + (4720 * [Household Size])
     ### Data Type in Tableau: integer.
 inspect_col(df3_edits1['_T14 Federal Poverty Level update']) 
 # #%%
