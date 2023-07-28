@@ -3574,6 +3574,8 @@ inspect_col(df3_edits1[var_to_compare])
 
 # #%%
 # # df3_comparison_csv[['variable']].compare(df3__final_from_csv[['variable']])
+
+# #%%
 # (
 #     df3_comparison_csv
 #     .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
@@ -3581,6 +3583,7 @@ inspect_col(df3_edits1[var_to_compare])
 #     .dropna(how='all', subset=[('variable', 'self'), ('variable', 'other')])
 #     .loc[(lambda df: df[('variable', 'self')] != df[('variable', 'other')]), :]
 # )
+
 # #%%
 # (
 #     df3_edits1

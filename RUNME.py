@@ -170,10 +170,10 @@ def compare_col(fdf_1, fdf_2, fcol, info_or_value_counts='info'): ### or 'value_
         print(fdf_2[fcol].info())
     elif info_or_value_counts=='value_counts':
         print(f'DataFrame 1:\n')
-        print(fdf_1[fcol].value_counts(dropna=False))
+        print(fdf_1[fcol].value_counts(dropna=False).to_string())
         print('\n')
         print(f'DataFrame 2:\n')
-        print(fdf_2[fcol].value_counts(dropna=False))
+        print(fdf_2[fcol].value_counts(dropna=False).to_string())
 
 def fn_all_value_counts(fdf):
     for column in fdf.columns:

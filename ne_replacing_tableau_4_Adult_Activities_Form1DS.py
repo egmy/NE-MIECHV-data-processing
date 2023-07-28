@@ -40,7 +40,8 @@ from RUNME import fn_all_value_counts
 ### Comparison File ###
 #####################################################
 
-df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
+# df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype='string', keep_default_na=False, na_values=[''])
+df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype='object', keep_default_na=False, na_values=[''])
 df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
 
 #%%##################################################
@@ -185,7 +186,7 @@ df4_3_col_detail = [
     ['Adult1MaritalStatus', 'Adult1MaritalStatus', 'same', 'string'],
     ['MaxOfAD2MSChangeDate', 'MaxOfAD2MSChangeDate', 'same', 'datetime64[ns]'],
     ['Adult2MaritalStatus', 'Adult2MaritalStatus', 'same', 'string'],
-    ['ANNUAL INCOME', 'Annual Income', '', 'Float64'],
+    ['ANNUAL INCOME', 'Annual Income', '', 'Int64'], ### In Tableau set to decimal (& then drops all .0 in output), when really all are integers. Changed from Float to Int.
     ['POVERTY LEVEL', 'Poverty Level', '', 'Float64'],
     ['TYPE HOUSING', 'Type Housing', '', 'string'],
     ['HomelessStatus', 'Homeless Status', '', 'string'],
@@ -274,7 +275,7 @@ df4_4_col_detail = [
     ['p_fundingdate', 'p_fundingdate', 'same', 'string'], ### Probably should be datetime64[ns]'].
     ['primary_id', 'Primary Id', '', 'string'],
     ['primary_relation', 'Primary Relation', '', 'string'],
-    ['mob_id', 'Mob Id', '', 'string'],
+    ['mob_id', 'Mob Id', '', 'string'], ### In Tableau Y12Q2, is integer, but should be string.
     ['mob_dob', 'Mob Dob', '', 'datetime64[ns]'],
     ['mob_gender', 'Mob Gender', '', 'string'],
     ['mob_ethnicity', 'Mob Ethnicity', '', 'string'],
@@ -303,7 +304,7 @@ df4_4_col_detail = [
     ['fob_living_arrangement', 'Fob Living Arrangement', '', 'Int64'],
     ['fob_living_arrangement_dt', 'Fob Living Arrangement Dt', '', 'datetime64[ns]'],
     ['fob_edu_dt', 'Fob Edu Dt', '', 'datetime64[ns]'],
-    ['fob_edu', 'Fob Edu', '', 'Int64'],
+    ['fob_edu', 'Fob Edu', '', 'Int64'], ### In Tableau Y12Q2 is integer, but should be string.
     ['fob_employ_dt', 'Fob Employ Dt', '', 'datetime64[ns]'],
     ['fob_employ', 'Fob Employ', '', 'Int64'],
     ['fob_involved', 'Fob Involved1', '', 'string'],
@@ -976,7 +977,8 @@ inspect_col(df4_edits1['_Zip'])
 # # inspect_col(df4_edits1['Mob Zip'])
 # print(df4_edits1['Mob Zip'].value_counts(dropna=False).to_string()) ### Actually has text "null".
 # #%%
-# print(df4_edits1[['_Zip', 'Mob Zip', 'Zip']].query('`Mob Zip` == "null"').to_string())
+# # print(df4_edits1[['_Zip', 'Mob Zip', 'Zip']].query('`Mob Zip` == "null"').to_string())
+# print(df4_edits1[['_Zip', 'Mob Zip', 'Zip']].to_string())
 
 #%%
 
@@ -1090,6 +1092,7 @@ inspect_col(df4_edits1['__Primary Caregiver ID'])
 
 #%%###################################
 
+### Note: 'MOB or FOB' cannot be NA because of join.
 def fn__F1_Caregiver_ID_for_MOB_or_FOB(fdf):
     match fdf['MOB or FOB']:
         case "MOB":
@@ -1127,9 +1130,9 @@ def fn_FOB_Involved(fdf):
         match fdf['Fob Involved1']:
             case _ if pd.isna(fdf['Fob Involved1']):
                 return 0 
-            case True:
+            case "Y":
                 return 1 
-            case False:
+            case "N":
                 return 0 
             case _:
                 return 0 
@@ -1147,9 +1150,12 @@ def fn_FOB_Involved(fdf):
 df4_edits1['_FOB Involved'] = df4_edits1.apply(func=fn_FOB_Involved, axis=1).astype('Int64') 
     ### Data Type in Tableau: 'int'.
 inspect_col(df4_edits1['_FOB Involved']) 
+# #%%
+# print(df4_edits1[['source', '_FOB Involved', 'Fob Involved', 'Fob Involved1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
+### Note: 'MOB or FOB' cannot be NA because of join.
 def fn_Caregiver_Involved(fdf):
     return (
     fdf['MOB or FOB'] == "MOB"
@@ -1167,6 +1173,9 @@ def fn_Caregiver_Involved(fdf):
 df4_edits1['Caregiver Involved'] = df4_edits1.apply(func=fn_Caregiver_Involved, axis=1).astype('boolean') 
     ### Data Type in Tableau: 'boolean'.
 inspect_col(df4_edits1['Caregiver Involved']) 
+# #%%
+# print(df4_edits1[['MOB or FOB', '_FOB Involved', 'Caregiver Involved', 'source']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+
 
 #%%###################################
 
@@ -1383,10 +1392,12 @@ def fn_FOB_Relation(fdf):
             match fdf['Adult2TGTRelation']:
                 case _ if pd.isna(fdf['Adult2TGTRelation']):
                     return pd.NA 
-                case "MOB" | "Biological mother" | "Grandmother":
+                case "MOB" | "Biological mother":
                     return "MOB"
                 case "FOB" | "Biological father" | "Foster father":
                     return "FOB"
+                case "Grandmother": 
+                    return "Grandmother" ### TODO: Review whether should match MOB version where "Grandmother" is "MOB".
                 case "Guardian":
                     return "Guardian"
                 case "Other":
@@ -2015,27 +2026,27 @@ def fn_T07_FOB_Race(fdf):
             ### multiracial.
             if (
                 (
-                    (0 if pd.isna(fdf['MOB Race Asian']) else (1 if fdf['MOB Race Asian'] else 0)) + 
-                    (0 if pd.isna(fdf['MOB Race Black']) else (1 if fdf['MOB Race Black'] else 0)) + 
-                    (0 if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (1 if fdf['MOB Race Hawaiian Pacific'] else 0)) + 
-                    (0 if pd.isna(fdf['MOB Race Indian Alaskan']) else (1 if fdf['MOB Race Indian Alaskan'] else 0)) + 
-                    (0 if pd.isna(fdf['MOB Race White']) else (1 if fdf['MOB Race White'] else 0)) + 
-                    (0 if pd.isna(fdf['MOB Race Other']) else (1 if fdf['MOB Race Other'] else 0)) 
+                    (0 if pd.isna(fdf['FOB Race Asian']) else (1 if fdf['FOB Race Asian'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Black']) else (1 if fdf['FOB Race Black'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Hawaiian Pacific']) else (1 if fdf['FOB Race Hawaiian Pacific'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Indian Alaskan']) else (1 if fdf['FOB Race Indian Alaskan'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race White']) else (1 if fdf['FOB Race White'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Other']) else (1 if fdf['FOB Race Other'] else 0)) 
                 ) > 1 
             ):
                 return "More than one race"
             ### single race.
-            elif (False if pd.isna(fdf['MOB Race Asian']) else (True if fdf['MOB Race Asian'] else False)):
+            elif (False if pd.isna(fdf['FOB Race Asian']) else (True if fdf['FOB Race Asian'] else False)):
                 return "Asian"
-            elif (False if pd.isna(fdf['MOB Race Black']) else (True if fdf['MOB Race Black'] else False)):
+            elif (False if pd.isna(fdf['FOB Race Black']) else (True if fdf['FOB Race Black'] else False)):
                 return "Black or African American"
-            elif (False if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (True if fdf['MOB Race Hawaiian Pacific'] else False)):
+            elif (False if pd.isna(fdf['FOB Race Hawaiian Pacific']) else (True if fdf['FOB Race Hawaiian Pacific'] else False)):
                 return "Native Hawaiian or Other Pacific Islander"
-            elif (False if pd.isna(fdf['MOB Race Indian Alaskan']) else (True if fdf['MOB Race Indian Alaskan'] else False)):
+            elif (False if pd.isna(fdf['FOB Race Indian Alaskan']) else (True if fdf['FOB Race Indian Alaskan'] else False)):
                 return "American Indian or Alaska Native"
-            elif (False if pd.isna(fdf['MOB Race White']) else (True if fdf['MOB Race White'] else False)):
+            elif (False if pd.isna(fdf['FOB Race White']) else (True if fdf['FOB Race White'] else False)):
                 return "White"
-            elif (False if pd.isna(fdf['MOB Race Other']) else (True if fdf['MOB Race Other'] else False)):
+            elif (False if pd.isna(fdf['FOB Race Other']) else (True if fdf['FOB Race Other'] else False)):
                 return "Other"
             else:
                 return "Unknown/Did Not Report"
@@ -2050,27 +2061,27 @@ def fn_T07_FOB_Race(fdf):
             ### multiracial.
             if (
                 (
-                    (0 if pd.isna(fdf['Mob Race Asian']) else (1 if fdf['Mob Race Asian']=="Y" else 0)) + 
-                    (0 if pd.isna(fdf['Mob Race Black']) else (1 if fdf['Mob Race Black']=="Y" else 0)) + 
-                    (0 if pd.isna(fdf['Mob Race Hawaiian']) else (1 if fdf['Mob Race Hawaiian']=="Y" else 0)) + 
-                    (0 if pd.isna(fdf['Mob Race Indian']) else (1 if fdf['Mob Race Indian']=="Y" else 0)) + 
-                    (0 if pd.isna(fdf['Mob Race White']) else (1 if fdf['Mob Race White']=="Y" else 0)) + 
-                    (0 if pd.isna(fdf['Mob Race Other']) else (1 if fdf['Mob Race Other']=="Y" else 0)) 
+                    (0 if pd.isna(fdf['Fob Race Asian']) else (1 if fdf['Fob Race Asian']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Black']) else (1 if fdf['Fob Race Black']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Hawaiian']) else (1 if fdf['Fob Race Hawaiian']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Indian']) else (1 if fdf['Fob Race Indian']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race White']) else (1 if fdf['Fob Race White']=="Y" else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Other']) else (1 if fdf['Fob Race Other']=="Y" else 0)) 
                 ) > 1 
             ):
                 return "More than one race"
             ### single race.
-            elif (False if pd.isna(fdf['Mob Race Asian']) else (True if fdf['Mob Race Asian']=="Y" else False)):
+            elif (False if pd.isna(fdf['Fob Race Asian']) else (True if fdf['Fob Race Asian']=="Y" else False)):
                 return "Asian"
-            elif (False if pd.isna(fdf['Mob Race Black']) else (True if fdf['Mob Race Black']=="Y" else False)):
+            elif (False if pd.isna(fdf['Fob Race Black']) else (True if fdf['Fob Race Black']=="Y" else False)):
                 return "Black or African American"
-            elif (False if pd.isna(fdf['Mob Race Hawaiian']) else (True if fdf['Mob Race Hawaiian']=="Y" else False)):
+            elif (False if pd.isna(fdf['Fob Race Hawaiian']) else (True if fdf['Fob Race Hawaiian']=="Y" else False)):
                 return "Native Hawaiian or Other Pacific Islander"
-            elif (False if pd.isna(fdf['Mob Race Indian']) else (True if fdf['Mob Race Indian']=="Y" else False)):
+            elif (False if pd.isna(fdf['Fob Race Indian']) else (True if fdf['Fob Race Indian']=="Y" else False)):
                 return "American Indian or Alaska Native"
-            elif (False if pd.isna(fdf['Mob Race White']) else (True if fdf['Mob Race White']=="Y" else False)):
+            elif (False if pd.isna(fdf['Fob Race White']) else (True if fdf['Fob Race White']=="Y" else False)):
                 return "White"
-            elif (False if pd.isna(fdf['Mob Race Other']) else (True if fdf['Mob Race Other']=="Y" else False)):
+            elif (False if pd.isna(fdf['Fob Race Other']) else (True if fdf['Fob Race Other']=="Y" else False)):
                 return "Other"
             else:
                 return "Unknown/Did Not Report"
@@ -2547,6 +2558,7 @@ inspect_col(df4_edits1['_C15 Max Educational Status'])
 
 #%%###################################
 
+### TODO: Fix code because 'Fob Edu' is string & not int as expected.
 def fn_T09_FOB_Education_Status(fdf):
     ###########
     ### FW.
@@ -2601,7 +2613,7 @@ def fn_T09_FOB_Education_Status(fdf):
                 case 0:
                     return "Unknow/Did Not Report" ### TODO: After compare, fix spelling "Unknown".
                 case _:
-                    return pd.NA 
+                    return "Unknown/Did Not Report" ### TODO: Should be pd.NA per Tableau syntax (but that should probably be "Unrecognized Value"); set to "Unknown" because in Tableau 'Fob Edu' read in as all NA.
         else:
             return pd.NA 
     ###########
@@ -2653,6 +2665,10 @@ def fn_T09_FOB_Education_Status(fdf):
 df4_edits1['_T09 FOB Education Status'] = df4_edits1.apply(func=fn_T09_FOB_Education_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T09 FOB Education Status']) 
+# #%%
+# inspect_col(df4_edits1['Fob Edu']) ### Is string NOT integer. TODO: Read in as string & fix this code.
+#%%
+print(df4_edits1[['source', '_T09 FOB Education Status', 'Fob Involved', 'AD2EDLevel', 'Fob Involved1', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -2882,17 +2898,18 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
         if pd.isna(fdf['Fob Involved1']):
             return pd.NA 
         elif (fdf['Fob Involved1'] == "Y"):
-            match fdf['Fob Edu']:
-                case _ if pd.isna(fdf['Fob Edu']):
-                    return "Unknown/Did Not Report"
-                ### case 1 | 9:
-                ###     return "Student/trainee"
-                ### case 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 11:
-                ###     return "Not a student/trainee"
-                ### case 12:
-                ###     return "Unknown/Did Not Report"
-                case _:
-                    return pd.NA 
+            return "Unknown/Did Not Report" ### TODO: Fix after comparison. All "Unknown" bceause 'Fob Edu' reading in as ALL NULL in Tableau.
+            # match fdf['Fob Edu']:
+            #     case _ if pd.isna(fdf['Fob Edu']):
+            #         return "Unknown/Did Not Report"
+            #     ### case 1 | 9:
+            #     ###     return "Student/trainee"
+            #     ### case 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 11:
+            #     ###     return "Not a student/trainee"
+            #     ### case 12:
+            #     ###     return "Unknown/Did Not Report"
+            #     case _:
+            #         return pd.NA 
         else:
             return pd.NA 
     ### TODO: Older note: Need an FOB enrollment prog from LLCHD.
@@ -3062,7 +3079,7 @@ def fn_T11_FOB_Employment(fdf):
                         return "Employed Part Time"
                     case (
                         "permanent disability" |
-                        "temporary disability" |
+                        ### "temporary disability" | ### TODO: Not in Tableau code, but should be. Add back in after comparison.
                         "unemployed - unspecified" |
                         "unemployed not seeking work-barriers" |
                         "unemployed not seeking work-preference" |
@@ -3088,7 +3105,9 @@ def fn_T11_FOB_Employment(fdf):
                 match fdf['Fob Employ']:
                     case 1 | 2:
                         return "Not Employed"
-                    case 3 | 4 | 5:
+                    case 3:
+                        return "Employed Part Time"
+                    case 4 | 5:
                         return "Employed Full Time"
                     case _:
                         return "Unrecognized Value"
@@ -3131,6 +3150,8 @@ def fn_T11_FOB_Employment(fdf):
 df4_edits1['_T11 FOB Employment'] = df4_edits1.apply(func=fn_T11_FOB_Employment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T11 FOB Employment']) 
+#%%
+print(df4_edits1[['source', '_T11 FOB Employment', 'Fob Involved', 'AD2EmployStatus', 'Fob Involved1', 'Fob Employ']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -3622,7 +3643,9 @@ def fn_T14_Poverty_Percent(fdf):
     ### ELSEIF [_Agency] = "ll" THEN [Household Income]/[_T14 Federal Poverty Level update]
     ### ELSEIF [_Agency] <> "ll" THEN [Poverty Level] //FW
     ### END
-df4_edits1['_T14 Poverty Percent'] = df4_edits1.apply(func=fn_T14_Poverty_Percent, axis=1).astype('Float64') 
+#### df4_edits1['_T14 Poverty Percent'] = df4_edits1.apply(func=fn_T14_Poverty_Percent, axis=1).round(2).astype('Float64')
+df4_edits1['_T14 Poverty Percent'] = df4_edits1.apply(func=fn_T14_Poverty_Percent, axis=1).astype('Float64')
+df4_edits1['_T14 Poverty Percent'] = df4_edits1['_T14 Poverty Percent'].round(2)
     ### Data Type in Tableau: 'float'.
 inspect_col(df4_edits1['_T14 Poverty Percent']) 
 # #%%
@@ -3633,7 +3656,7 @@ inspect_col(df4_edits1['_T14 Poverty Percent'])
 ### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T14_Federal_Poverty_Categories(fdf):
     if (pd.isna(fdf['_T14 Poverty Percent'])):
-        return "Unknown/Did Not Report"
+        return pd.NA ### Should be "Unknown/Did Not Report" - Tableau code wrong. ### TODO: Fix after compare.
     elif (fdf['_T14 Poverty Percent'] <= .50):
         return "50% and Under"
     elif (fdf['_T14 Poverty Percent'] <= 1.00):
@@ -3654,7 +3677,7 @@ def fn_T14_Federal_Poverty_Categories(fdf):
     ### ELSEIF [_T14 Poverty Percent] <= 2.00 THEN "134-200%"
     ### ELSEIF [_T14 Poverty Percent] <= 3.00 THEN "201-300%"
     ### ELSEIF [_T14 Poverty Percent] > 3.00  THEN ">300%"
-    ### ELSEIF NULL THEN "Unknown/Did Not Report"
+    ### ELSEIF NULL THEN "Unknown/Did Not Report" /// ERROR: Should be "ELSEIF ISNULL([_T14 Poverty Percent])..." OR just ELSE...
     ### END
 df4_edits1['_T14 Federal Poverty Categories'] = df4_edits1.apply(func=fn_T14_Federal_Poverty_Categories, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
@@ -4785,7 +4808,8 @@ df4__final.to_csv(path_4_output, index=False, date_format="%#m/%#d/%Y")
 
 #%%
 ### Read back in df for comparison.
-df4__final_from_csv = pd.read_csv(path_4_output, dtype=object, keep_default_na=False, na_values=[''])
+# df4__final_from_csv = pd.read_csv(path_4_output, dtype='string', keep_default_na=False, na_values=[''])
+df4__final_from_csv = pd.read_csv(path_4_output, dtype='object', keep_default_na=False, na_values=[''])
 
 
 #%%##################################################
@@ -4855,17 +4879,254 @@ len([*df4_comp_compare]) / 2
 ### Columns:
 [*df4_comp_compare]
 
-###################################
-#### completed
-###################################
+
 
 
 ###################################
-#### need work
+#### No change needed.
 ###################################
+
+###########
+### STILL show on list:
+
+# var_to_compare = '_Zip' ### Var is Integer. Numbers the same. No functional difference. Python output missing initial 0 on a few ZIP Codes (that are probably errors). Tableau preserves first 0 because recognizes var as geographic.
+# var_to_compare = 'Enroll Preg Status' ### Note: All dates functionally identical. TODO: Fix Mixture of date formats earlier in process. TODO: Figure out why python outputting mixture of dates & datetimes.
+# var_to_compare = 'Poverty Level' ### Identical numbers. No functional difference. Tableau's output just removes any ".0" from floats.
+
+###################################
+#### Fixed above.
+###################################
+
+# var_to_compare = 'Annual Income' ### In Tableau set to decimal (& then drops all .0 in output), when really all are integers. Fixed by reading in as Integer.
+
+# var_to_compare = '_FOB Involved' ### Code fixed above.
+
+# var_to_compare = 'Caregiver Involved' ### Dependent on '_FOB Involved',  so now also fixed.
+# var_to_compare = '_T11 Caregiver Employment' ### Dependent on '_T11 FOB Employment',  so now also fixed.
+# var_to_compare = '_T10 Caregiver Educational Enrollment' ### Dependent on '_T10 FOB Educational Enrollment',  so now also fixed.
+# var_to_compare = '_T07 Race' ### Dependent on '_T07 FOB Race',  so now also fixed.
+
+# var_to_compare = '_T07 FOB Race' ### Fixed errors.
+
+# var_to_compare = '_FOB Relation' ### Fixed above to match, but may need review (TODO).
+
+###########
+### STILL show on list:
+
+# var_to_compare = '_T14 Poverty Percent' ### Tableau var rounded to 2 decimals. Fixed Python code to match. ### Even still, Python drops 0's at end of decimals. Functionally, numbers all the same.
+
+
+###################################
+#### TODO: Fix in Tableau / other process.
+###################################
+
+# var_to_compare = 'Fob Edu' ### Tableau only reading in NA (because incorrectly made integer). Python reading in true string values.
+# var_to_compare = 'Mob Id' ### All NA in Tableau version (had been made integer); Python showing string IDs. Should be string.
+
+###########
+### STILL show on list:
+
+# var_to_compare = 'Asq3 Referral 18Mm' ### Tableau reading/outputting as numeric when really is date.
+# var_to_compare = 'Asq3 Referral 24Mm' ### Tableau reading/outputting as numeric when really is date.
+# var_to_compare = 'Asq3 Referral 30Mm' ### Tableau reading/outputting as numeric when really is date.
+
+###
+### TODO: Fix. Seems to be an issue with these 2 Project IDs: 'hs123-1' & 'hs123-2' (each of which have 12 rows...)
+    ### Python reads these in as strings because can't read in as dates. Whereas Tableau coercing to dates & turning strings to NA.
+# var_to_compare = 'AD1InsChangeDate.9' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
+# var_to_compare = 'AD1InsChangeDate.10' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
+# var_to_compare = 'AD1InsChangeDate.11' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
+# var_to_compare = 'AD1InsChangeDate.12' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
+# var_to_compare = 'AD1InsChangeDate.13' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
+# var_to_compare = 'AD1InsChangeDate.14' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
+# var_to_compare = 'AD1InsChangeDate.15' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
+# var_list_for_comparison = [
+#     'Year', 'Quarter', 
+#     'AD1PrimaryIns.8', 'AD1InsChangeDate.8',
+#     'AD1PrimaryIns.9', 'AD1InsChangeDate.9',
+#     'AD1PrimaryIns.10', 'AD1InsChangeDate.10',
+#     'AD1PrimaryIns.11', 'AD1InsChangeDate.11',
+#     'AD1PrimaryIns.12', 'AD1InsChangeDate.12',
+#     'AD1PrimaryIns.13', 'AD1InsChangeDate.13',
+#     'AD1PrimaryIns.14', 'AD1InsChangeDate.14',
+#     'AD1PrimaryIns.15', 'AD1InsChangeDate.15',
+#     'AD1PrimaryIns.16', 'AD1InsChangeDate.16',
+# ]
+
+###################################
+#### TODO: need work in Python.
+###################################
+
+# var_to_compare = '_T10 FOB Educational Enrollment' ### Edited to match comparison. TODO: FIX after comparisons.
+
+# var_to_compare = '_T11 FOB Employment' ### Fixed one error in Python. BUT added error for comparison. ### TODO: fix after comparison (add back in value).
+
+# var_to_compare = '_T14 Federal Poverty Categories' ### Python code actually correct. Reverted back to Tableau error for comparison. TODO: Fix after comparison.
+
+###########
+### STILL show on list:
+
+# var_to_compare = 'p_fundingdate' ### Data actually datetimes with times, but Tableau truncated to only dates. TODO: Need to remove time data.
+
+
+###################################
+### investigation
+###################################
+
+#%%
+### Columns still different:
+[*df4_comp_compare]
+
+# #%%
+# dfTEST = df4_comparison_csv.compare(df4__final_from_csv, keep_equal=True, keep_shape=True)
+# [*dfTEST]
+
+#%%
+### I do not understand why these are not showing up here [*df4_comp_compare] when they use to & should. 
+    ### Is it because of reading in as string not object? Does that affect compare()?
+    ### Yes. When read in as objects, with np.nan, compare finds these T09 vars when it didn't before.
+    ### So, HOW to know these columns are an issue???
+# var_to_compare = '_T09 Caregiver Education Status'
+var_to_compare = '_T09 FOB Education Status'
+### One side all NA.
+
+# var_to_compare = 'www'
+
+#######
+
+var_list_for_comparison = [var_to_compare]
+
+#%%
+
+def fn_filter_with_na(df):
+    if pd.isna(df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]):
+        return True
+    else:
+        return df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]
+
+print(
+(
+    df4_comparison_csv
+    .compare(df4__final_from_csv, keep_equal=True, keep_shape=True)
+    .loc[:, ['Project Id'] + var_list_for_comparison]
+    # .loc[:, ['Project Id', 'Agency'] + var_list_for_comparison]
+    # .loc[:, ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
+    .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
+    .loc[lambda df: df.apply(fn_filter_with_na, axis=1), :]
+    # .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
+    # .loc[(lambda df: pd.isna(df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')])), :]
+    ##########
+    ### Testing numeric vars:
+    # .apply(lambda df: df[(var_to_compare, 'self')] == df[(var_to_compare, 'other')], axis=1) ### Outputs a Series.
+    # .apply(lambda df: float(df[(var_to_compare, 'self')]) == float(df[(var_to_compare, 'other')]), axis=1)
+    # .all()
+    ##########
+    ### Testing date vars:
+    # .apply(lambda df: pd.to_datetime(df[(var_to_compare, 'self')]) == pd.to_datetime(df[(var_to_compare, 'other')]), axis=1)
+    # .all()
+# )) ### When using .all().
+).to_string())
+
+
+##########
+#%%
+# compare_col(df4_comparison_csv, df4__final_from_csv, var_to_compare, info_or_value_counts='info')
+compare_col(df4_comparison_csv, df4__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
+#%%
+inspect_col(df4__final_from_csv[var_to_compare]) 
+#%%
+inspect_col(df4_comparison_csv[var_to_compare]) 
+#%%
+inspect_col(df4_edits1[var_to_compare]) 
+#%%
+print(df4_comp_compare[[var_to_compare]].to_string())
+
+###################################
+### templates
+###################################
+
+# %%
+# df4_comparison_csv[['Project Id', 'www']].compare(df4__final_from_csv[['Project Id', 'www']], keep_equal=True).loc[(lambda df: df[('www', 'self')] != df[('www', 'other')]), :]
+# df4_comparison_csv[['www']].compare(df4__final_from_csv[['www']])
+
+# #%%
+# # df4_comparison_csv[['variable']].compare(df4__final_from_csv[['variable']])
+
+# #%%
+# (
+#     df4_comparison_csv
+#     .compare(df4__final_from_csv, keep_equal=True, keep_shape=True)
+#     .loc[:, ['Project Id', 'Agency', 'variable']]
+#     .dropna(how='all', subset=[('variable', 'self'), ('variable', 'other')])
+#     .loc[(lambda df: df[('variable', 'self')] != df[('variable', 'other')]), :]
+# )
+
+# #%%
+# (
+#     df4_edits1
+#     .sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+#     .loc[(lambda df: pd.isna(df['Agency'])), ['Project Id', 'Agency', 'variable']]
+# )
+
+
+###################################
+### investigation
+###################################
+
+#%%
+### Columns still different:
+[*df4_comp_compare]
+
+# print(df4_comp_compare.to_string())
+
+# #%%
+# df4_comp_compare.columns.get_level_values(0)
+
+#%%
+df4__final_from_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0))) == df4_comparison_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0)))
+
+#%%
+def fn_check_if_same(df1value, df2value):
+    if pd.isna(df1value) and pd.isna(df2value):
+        return True 
+    elif (pd.isna(df1value) and pd.notna(df2value)) or (pd.notna(df1value) and pd.isna(df2value)):
+        return False
+    else:
+        df1value == df2value 
+
+# df4__final_from_csv.applymap(fn_check_if_same(df4__final_from_csv, df4_comparison_csv))
+# df4__final_from_csv.applymap(lambda x, y=df4_comparison_csv: fn_check_if_same(x, y))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### TODO: Compare all columns like above but considering NA's (maybe applymap).☺
+### TODO: Check for "Unrecognized Value"s.
+
+
+#%%
+### Testing using output as Tableau Form 1 data source.
+### These variables are broken:
+# [_HomeVisitTypeAll]
+# [_HomeVisitTypeIP]
+# [_HomeVisitTypeV]
+# [_T16 Number of In Person Home Visits by Primary Caregiver (unduplicated)]
+# [_T16 Number of Virtual Home Visits by Primary Caregiver (unduplicated)]
+# [_T16 Number of Visits by Primary Caregiver (unduplicated)]
+### I believe the first 3 are renamed other variables & then turned from string to numeric.
+    ### TODO: can I just create new versions with those names as Ints?
 
 
 
 
 #%%
-
