@@ -13,7 +13,7 @@
 
 ### import RUNME ### This does not run the code.
 
-exec(open('RUNME.py').read())
+# exec(open('RUNME.py').read())
 
 #%%##################################################
 ### PACKAGES ###
@@ -21,20 +21,20 @@ exec(open('RUNME.py').read())
 
 ### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
 
-import pandas as pd
-import numpy as np
-import sys
-import collections
-import re
+# import pandas as pd
+# import numpy as np
+# import sys
+# import collections
+# import re
 
-print('Version Of Python: ' + sys.version)
-print('Version Of Pandas: ' + pd.__version__)
-print('Version Of Numpy: ' + np.version.version)
+# print('Version Of Python: ' + sys.version)
+# print('Version Of Pandas: ' + pd.__version__)
+# print('Version Of Numpy: ' + np.version.version)
 
-from RUNME import inspect_df
-from RUNME import inspect_col
-from RUNME import compare_col
-from RUNME import fn_all_value_counts
+# from RUNME import inspect_df
+# from RUNME import inspect_col
+# from RUNME import compare_col
+# from RUNME import fn_all_value_counts
 
 #%%##################################################
 ### Comparison File ###
@@ -434,7 +434,7 @@ print(collections.Counter(list(df4_5_col_dtypes.values())))
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx = pd.ExcelFile(path_4_data_source_file)
+xlsx_df4 = pd.ExcelFile(path_4_data_source_file)
 
 #%% 
 ### CHECK that all path_4_data_source_sheets same as xlsx.sheet_names (different order ok):
@@ -5130,3 +5130,4 @@ def fn_check_if_same(df1value, df2value):
 
 
 #%%
+### END Adult4! SUCCESS!

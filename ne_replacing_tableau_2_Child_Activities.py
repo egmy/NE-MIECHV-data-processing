@@ -13,7 +13,7 @@
 
 ### import RUNME ### This does not run the code.
 
-exec(open('RUNME.py').read())
+# exec(open('RUNME.py').read())
 
 #%%##################################################
 ### PACKAGES ###
@@ -21,20 +21,20 @@ exec(open('RUNME.py').read())
 
 ### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
 
-import pandas as pd
-import numpy as np
-import sys
-import collections
-import re
+# import pandas as pd
+# import numpy as np
+# import sys
+# import collections
+# import re
 
-print('Version Of Python: ' + sys.version)
-print('Version Of Pandas: ' + pd.__version__)
-print('Version Of Numpy: ' + np.version.version)
+# print('Version Of Python: ' + sys.version)
+# print('Version Of Pandas: ' + pd.__version__)
+# print('Version Of Numpy: ' + np.version.version)
 
-from RUNME import inspect_df
-from RUNME import inspect_col
-from RUNME import compare_col
-from RUNME import fn_all_value_counts
+# from RUNME import inspect_df
+# from RUNME import inspect_col
+# from RUNME import compare_col
+# from RUNME import fn_all_value_counts
 
 #%%##################################################
 ### Comparison File ###
@@ -138,8 +138,8 @@ df2_3_col_detail = [
     ,['ReadTellStorySing', 'Read Tell Story Sing', '', 'string'] ### 'string' in Tableau & needs to be read in as such.
     ,['BehaviorDenom', 'Behavior Denom', '', 'Int64']
     ,['BehaviorNumer', 'Behavior Numer', '', 'Int64']
-    ,['HomeVisitsPrental', 'Home Visits Prental', '', 'Int64']
-    ,['HomeVisitsTotal', 'Home Visits Total', '', 'Int64']
+    ### ,['HomeVisitsPrental', 'Home Visits Prental', '', 'Int64'] ### Variable in Y12Q1&Q2, but missing from Y12Q3. TODO: Why?
+    ### ,['HomeVisitsTotal', 'Home Visits Total', '', 'Int64'] ### Variable in Y12Q1&Q2, but missing from Y12Q3. TODO: Why?
     ,['TGTInsureChangeDate', 'TGT Insure Change Date', '', 'datetime64[ns]']
     ,['CHINSPrimaryIns', 'CHINS Primary Ins', '', 'string']
     ,['MOB LANGUAGE', 'Mob Language', '', 'string']
@@ -416,7 +416,7 @@ df2_5_col_dtypes
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx = pd.ExcelFile(path_2_data_source_file)
+xlsx_df2 = pd.ExcelFile(path_2_data_source_file)
 
 #%% 
 ### CHECK that all path_2_data_source_sheets same as xlsx.sheet_names (different order ok):
@@ -871,16 +871,19 @@ df2_edits1['_C13 Behavioral Concerns Visits'] = df2_edits1['Behavior Denom'].com
     ### IFNULL([Behavior Denom],[Home Visits Post])
     ### Data Type in Tableau: integer.
 
-df2_edits1['_T16 Total Home Visits'] = df2_edits1['Home Visits Total'].combine_first(df2_edits1['Home Visits Num'])
-    ### IFNULL([Home Visits Total],[Home Visits Num])
-    ### Data Type in Tableau: integer.
-
 df2_edits1['_TGT Number'] = df2_edits1['Tgt Id'].combine_first(df2_edits1['Child Number'])
     ### IFNULL([Tgt Id],[Child Number])
     ### Data Type in Tableau: integer.
 
 df2_edits1['_Zip'] = df2_edits1['zip'].combine_first(df2_edits1['ZIP Code'])
     ### IFNULL([zip],[ZIP Code])
+    ### Data Type in Tableau: integer.
+
+#%%###################################
+
+### In Y12Q3 this variable is broken. ### TODO: Why did 'Home Visits Total' disappear? Is '_T16' not needed in Form 1? What to do?
+# df2_edits1['_T16 Total Home Visits'] = df2_edits1['Home Visits Total'].combine_first(df2_edits1['Home Visits Num'])
+    ### IFNULL([Home Visits Total],[Home Visits Num])
     ### Data Type in Tableau: integer.
 
 #%%###################################
@@ -1002,35 +1005,36 @@ print(df2_edits1[['_TGT DOB', 'Tgt Dob', 'Tgt Dob-Cr']].query('`Tgt Dob` == "190
 
 #%%###################################
 
-def fn_C7_Safe_Sleep_Yes_Date(fdf):
-    if ( 
-        fdf['Sleep On Back'] == "Yes" ### FW.
-        and fdf['Co Sleeping'] == "No"
-        and fdf['Soft Bedding'] == "No"
-    ):
-        return fdf['Safe Sleep Date']
-    else:
-        return fdf['Safe Sleep Yes Dt'] ### LLCHD.
-    ### IF [Sleep On Back] = "Yes" //FW
-    ### AND [Co Sleeping] = "No"
-    ### AND [Soft Bedding] = "No"
-    ### THEN [Safe Sleep Date]
-    ### ELSE [Safe Sleep Yes Dt] //LLCHD
-    ### END
-df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
-    ### Data Type in Tableau: 'date'.
-inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
-#%%
-inspect_col(df2_edits1['Sleep On Back']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
-#%%
-inspect_col(df2_edits1['Co Sleeping']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
-#%%
-inspect_col(df2_edits1['Soft Bedding']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
-#%%
-inspect_col(df2_edits1['Safe Sleep Date'])
-#%%
-inspect_col(df2_edits1['Safe Sleep Yes Dt'])
-### TODO: Investigate why all 3 FW safe sleep variable all empty.
+# def fn_C7_Safe_Sleep_Yes_Date(fdf):
+#     if ( 
+#         fdf['Sleep On Back'] == "Yes" ### FW.
+#         and fdf['Co Sleeping'] == "No"
+#         and fdf['Soft Bedding'] == "No"
+#     ):
+#         return fdf['Safe Sleep Date']
+#     else:
+#         return fdf['Safe Sleep Yes Dt'] ### LLCHD.
+#     ### IF [Sleep On Back] = "Yes" //FW
+#     ### AND [Co Sleeping] = "No"
+#     ### AND [Soft Bedding] = "No"
+#     ### THEN [Safe Sleep Date]
+#     ### ELSE [Safe Sleep Yes Dt] //LLCHD
+#     ### END
+# df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
+#     ### Data Type in Tableau: 'date'.
+# inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
+# #%%
+# inspect_col(df2_edits1['Sleep On Back']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+# #%%
+# inspect_col(df2_edits1['Co Sleeping']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+# #%%
+# inspect_col(df2_edits1['Soft Bedding']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+# #%%
+# inspect_col(df2_edits1['Safe Sleep Date'])
+# #%%
+# inspect_col(df2_edits1['Safe Sleep Yes Dt'])
+# ### TODO: Investigate why all 3 FW safe sleep variable all empty. ### Y12Q3: Investigate why all 3 disappeared?
+# ### TODO: Fix var: Only use date now or what?
 
 #%%###################################
 
@@ -2179,7 +2183,7 @@ df2_edits1['Number of Records'] = 1
 
 #%%################################
 ### REMOVE extra COLUMNS
- 
+
 ### Remove columns created in merge.
 df2_edits2 = df2_edits1.drop(columns=['LJ_df2_2ER', 'LJ_df2_3FW', 'LJ_df2_4LL', 'LJ_df2_5WC'])
 
@@ -2388,5 +2392,6 @@ print(df2_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_str
 ### Consolidate long match-case statements with "|" (or) case statements.
 
 
-
+#%%
+### END Child2! SUCCESS!
 

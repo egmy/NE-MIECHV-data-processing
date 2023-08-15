@@ -13,7 +13,7 @@
 
 ### import RUNME ### This does not run the code.
 
-exec(open('RUNME.py').read())
+# exec(open('RUNME.py').read())
 
 #%%##################################################
 ### PACKAGES ###
@@ -21,20 +21,20 @@ exec(open('RUNME.py').read())
 
 ### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
 
-import pandas as pd
-import numpy as np
-import sys
-import collections
-import re
+# import pandas as pd
+# import numpy as np
+# import sys
+# import collections
+# import re
 
-print('Version Of Python: ' + sys.version)
-print('Version Of Pandas: ' + pd.__version__)
-print('Version Of Numpy: ' + np.version.version)
+# print('Version Of Python: ' + sys.version)
+# print('Version Of Pandas: ' + pd.__version__)
+# print('Version Of Numpy: ' + np.version.version)
 
-from RUNME import inspect_df
-from RUNME import inspect_col
-from RUNME import compare_col
-from RUNME import fn_all_value_counts
+# from RUNME import inspect_df
+# from RUNME import inspect_col
+# from RUNME import compare_col
+# from RUNME import fn_all_value_counts
 
 #%%##################################################
 ### Comparison File ###
@@ -148,7 +148,7 @@ df3_3_col_detail = [
     ['MaxEduDate', 'Max Edu Date', '', 'datetime64[ns]'],
     ['AD1MaxEdu', 'AD1MaxEdu', 'same', 'string'],
     ['MaxEduEnroll', 'Max Edu Enroll', '', 'string'],
-    ['DATEUNCOPE', 'Dateuncope', '', 'datetime64[ns]'],
+    ['DATEUNCOPE', 'Dateuncope', '', 'datetime64[ns]'], ### Y12Q3: Read in as object not datetime, probably because of 28 "00:00:00" values.
     ['U', 'U', 'same', 'string'],
     ['N', 'N', 'same', 'string'],
     ['C', 'C', 'same', 'string'],
@@ -413,7 +413,7 @@ df3_4_col_dtypes
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx = pd.ExcelFile(path_3_data_source_file)
+xlsx_df3 = pd.ExcelFile(path_3_data_source_file)
 
 #%% 
 ### CHECK that all path_3_data_source_sheets same as xlsx.sheet_names (different order ok):
@@ -699,9 +699,7 @@ df3_edits1['_TGT ID'] = df3_edits1['Tgt Id'].combine_first(df3_edits1['Child Num
     ### IFNULL([Tgt Id],[Child Number]) 
     ### Data Type in Tableau: string.
 
-df3_edits1['_UNCOPE Date'] = df3_edits1['Uncope Dt'].combine_first(df3_edits1['Dateuncope'])
-    ### IFNULL([Uncope Dt],[Dateuncope]) 
-    ### Data Type in Tableau: date.
+#%%###################################
 
 df3_edits1['_UNCOPE Referral'] = df3_edits1['Substance Abuse Ref Dt'].combine_first(df3_edits1['UNCOPE Ref Date'])
     ### IFNULL([Substance Abuse Ref Dt], [UNCOPE Ref Date]) 
@@ -725,16 +723,40 @@ df3_edits1['_T16 Number of Home Visits'] = df3_edits1['HomeVisitsTotal'].combine
     ### IFNULL([HomeVisitsTotal],[Home Visits Num]) 
     ### Data Type in Tableau: int.
 
-#%%
+#%%###################################
+
+### TODO: Fix 'Dateuncope' earlier in data sourcing process so does not have bad values.
+df3_edits1['_UNCOPE Date'] = df3_edits1['Uncope Dt'].combine_first(
+    pd.to_datetime(df3_edits1['Dateuncope'].replace('00:00:00', np.nan).astype('string'))
+)
+    ### IFNULL([Uncope Dt],[Dateuncope]) 
+    ### Data Type in Tableau: date.
+inspect_col(df3_edits1['_UNCOPE Date'])
+# #%%
+# inspect_col(df3_edits1['Uncope Dt'])
+# #%%
+# inspect_col(df3_edits1['Dateuncope']) ### Y12Q3: Read in as object not datetime, probably because of 28 "00:00:00" values.
+# #%%
+# print(
+# pd.to_datetime(
+#     df3_edits1['Dateuncope']
+#     .replace('00:00:00', np.nan)
+#     .astype('string')
+#     # .astype('datetime64[ns]')
+# )
+#     .to_string())
+
+#%%###################################
+
 ### In Child2 & Adult3.
 df3_edits1['_Zip'] = df3_edits1['Zip'].combine_first(df3_edits1['Mob Zip'])
     ### IFNULL([Zip],[Mob Zip]) 
     ### Data Type in Tableau: string.
 inspect_col(df3_edits1['_Zip'])
-#%%
-inspect_col(df3_edits1['Zip'])
-#%%
-inspect_col(df3_edits1['Mob Zip'])
+# #%%
+# inspect_col(df3_edits1['Zip'])
+# #%%
+# inspect_col(df3_edits1['Mob Zip'])
 
 #%%###################################
 
@@ -3595,3 +3617,8 @@ inspect_col(df3_edits1[var_to_compare])
 ### GENERAL:
 ### TODO: Every column function should build in what to do if any NA present in any var.
 
+
+# %%
+
+#%%
+### END Adult3! SUCCESS!

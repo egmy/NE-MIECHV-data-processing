@@ -44,20 +44,22 @@ print('Version Of Numpy: ' + np.version.version)
 #####################################################
 
 # nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
-nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
+# nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
+nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
 
 ###########################
 ### Federal Poverty Guidelines
     ### https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines 
     ### https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines/prior-hhs-poverty-guidelines-federal-register-references 
 
-### 2023: https://www.federalregister.gov/documents/2023/01/19/2023-00885/annual-update-of-the-hhs-poverty-guidelines 
+### 2022: https://www.federalregister.gov/documents/2022/01/21/2022-01166/annual-update-of-the-hhs-poverty-guidelines 
 if (nehv_quarter == 'Y12Q1 (Oct 2022 - Dec 2023)'):
     ### 8870 + (4720 * [household size])
     Fpg_Base = 8870 
     Fpg_Increment = 4720 
-### 2022: https://www.federalregister.gov/documents/2022/01/21/2022-01166/annual-update-of-the-hhs-poverty-guidelines 
-elif (nehv_quarter == 'Y12Q2 (Oct 2022 - Mar 2023)'):
+
+### 2023: https://www.federalregister.gov/documents/2023/01/19/2023-00885/annual-update-of-the-hhs-poverty-guidelines 
+elif (nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 2023)')):
     ### 9440 + (5140 * [household size])
     Fpg_Base = 9440 
     Fpg_Increment = 5140 
@@ -198,11 +200,14 @@ print('end setup')
 # runpy.run_path('ne_replacing_tableau_4_Adult_Activities_Form1DS.py')
 # runpy.run_path('ne_replacing_tableau_5_Child_CPS_Agg_Data.py')
 
+### THIS seems to work best:
+
 # exec(open('ne_replacing_tableau_1_CPS_ID_File.py').read())
-# exec(open('ne_replacing_tableau_2_Child_Activities.py').read())
-# exec(open('ne_replacing_tableau_3_Adult_Activities_Form2DS.py').read())
-# exec(open('ne_replacing_tableau_4_Adult_Activities_Form1DS.py').read())
 # exec(open('ne_replacing_tableau_5_Child_CPS_Agg_Data.py').read())
+
+exec(open('ne_replacing_tableau_2_Child_Activities.py').read())
+exec(open('ne_replacing_tableau_3_Adult_Activities_Form2DS.py').read())
+exec(open('ne_replacing_tableau_4_Adult_Activities_Form1DS.py').read())
 
 
 #%%##################################################
