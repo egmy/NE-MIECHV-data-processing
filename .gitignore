@@ -13,3 +13,6 @@ renv/staging/
 local_gitignore/*
 ### …except this file:
 !local_gitignore/.gitkeep 
+
+### Python
+### add "pycache"
