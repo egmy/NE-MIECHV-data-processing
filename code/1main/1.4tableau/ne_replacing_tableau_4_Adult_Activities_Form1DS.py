@@ -8,33 +8,39 @@
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
-### SETUP ###
-#####################################################
-
-### import RUNME ### This does not run the code.
-
-# exec(open('RUNME.py').read())
-
-#%%##################################################
 ### PACKAGES ###
 #####################################################
 
 ### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
 
-# import pandas as pd
-# import numpy as np
-# import sys
-# import collections
-# import re
+from pathlib import Path
+import pandas as pd
+import numpy as np
+import sys
+import collections
+import re
 
-# print('Version Of Python: ' + sys.version)
-# print('Version Of Pandas: ' + pd.__version__)
-# print('Version Of Numpy: ' + np.version.version)
+print('Version Of Python: ' + sys.version)
+print('Version Of Pandas: ' + pd.__version__)
+print('Version Of Numpy: ' + np.version.version)
 
-# from RUNME import inspect_df
-# from RUNME import inspect_col
-# from RUNME import compare_col
-# from RUNME import fn_all_value_counts
+from RUNME import inspect_df
+from RUNME import inspect_col
+from RUNME import compare_col
+from RUNME import fn_all_value_counts
+from RUNME import fn_find_unrecognized_value
+
+#%%##################################################
+### SETUP ###
+#####################################################
+
+### import RUNME ### This does not run the code.
+
+path_code_base = Path('U:\\Working\\nehv_ds_code_repository\\code\\1main\\1.4tableau')
+exec(open(Path(path_code_base, 'RUNME.py')).read())
+
+#%%
+deduplicate_df4 = False
 
 #%%##################################################
 ### Comparison File ###
@@ -42,6 +48,13 @@
 
 # df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype='string', keep_default_na=False, na_values=[''])
 df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype='object', keep_default_na=False, na_values=[''])
+print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
+
+#%%
+### Y12Q4 deduplicated rows to ___ rows vs. original comparison of ___.
+if deduplicate_df4:
+    df4_comparison_csv = df4_comparison_csv.drop_duplicates(ignore_index=True) 
+print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
 df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
 
 #%%##################################################
@@ -144,6 +157,8 @@ df4_3_col_detail = [
     ['BehaviorDenom', 'BehaviorDenom', 'same', 'Int64'],
     ['HomeVisitsPrenatal', 'HomeVisitsPrenatal', 'same', 'Int64'],
     ['HomeVisitsTotal', 'HomeVisitsTotal', 'same', 'Int64'],
+    ['HomeVisitTypeAll', 'HomeVisitTypeAll', 'same', 'Int64'], ### New Y12Q4.
+    ['HomeVisitTypeIP', 'HomeVisitTypeIP', 'same', 'Int64'], ### New Y12Q4.
     ['MOBDOB', 'Mobdob', '', 'datetime64[ns]'],
     ['FOBDOB', 'Fobdob', '', 'datetime64[ns]'],
     ['MinEducationDate', 'Min Education Date', '', 'datetime64[ns]'],
@@ -439,45 +454,45 @@ xlsx_df4 = pd.ExcelFile(path_4_data_source_file)
 #%% 
 ### CHECK that all path_4_data_source_sheets same as xlsx.sheet_names (different order ok):
 print(sorted(path_4_data_source_sheets))
-print(sorted(xlsx.sheet_names))
-sorted(path_4_data_source_sheets) == sorted(xlsx.sheet_names)
+print(sorted(xlsx_df4.sheet_names))
+sorted(path_4_data_source_sheets) == sorted(xlsx_df4.sheet_names)
 
 #%%###################################
 ### READ all sheets:
 
-# df4_1 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype=df4_1_col_dtypes)
+# df4_1 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype=df4_1_col_dtypes)
 
 # #%%
-# df4_2 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype=df4_2_col_dtypes)
+# df4_2 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype=df4_2_col_dtypes)
 # ### ValueError: Unable to convert column AD1InsChangeDate.9 to type datetime64[ns].
 
 # #%%
-# df4_3 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype=df4_3_col_dtypes)
+# df4_3 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype=df4_3_col_dtypes)
 # ### ValueError: False cannot be cast to bool.
 
 # #%%
-# df4_4 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype=df4_4_col_dtypes)
+# df4_4 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype=df4_4_col_dtypes)
 # ### ValueError: Unable to parse string "HS Grad" at position 0.
 
 # #%%
-# df4_5 = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype=df4_5_col_dtypes)
+# df4_5 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype=df4_5_col_dtypes)
 
 #%%###################################
 ### READ in all sheets as strings.
 
 ### To read in EVERYTHING as a string with NO NA:
-### df4_1_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[0], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_1_col_dtypes)
-### df4_2_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[1], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_2_col_dtypes)
-### df4_3_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[2], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_3_col_dtypes)
-### df4_4_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[3], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_4_col_dtypes)
-### df4_5_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[4], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_5_col_dtypes)
+### df4_1_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[0], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_1_col_dtypes)
+### df4_2_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[1], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_2_col_dtypes)
+### df4_3_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[2], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_3_col_dtypes)
+### df4_4_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[3], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_4_col_dtypes)
+### df4_5_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[4], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_5_col_dtypes)
 
 ### To read in EVERYTHING as a string WITH NA:
-df4_1_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_1_col_dtypes)
-df4_2_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_2_col_dtypes)
-df4_3_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_3_col_dtypes)
-df4_4_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_4_col_dtypes)
-df4_5_allstring = pd.read_excel(xlsx, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_5_col_dtypes)
+df4_1_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_1_col_dtypes)
+df4_2_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_2_col_dtypes)
+df4_3_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_3_col_dtypes)
+df4_4_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_4_col_dtypes)
+df4_5_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_5_col_dtypes)
 
 df4_1 = df4_1_allstring.copy()
 df4_2 = df4_2_allstring.copy()
@@ -619,6 +634,17 @@ df4_3 = (
     .pipe(fn_apply_dtypes, df4_3_col_dtypes)
 ) 
 inspect_df(df4_3)
+
+#%%
+### Y12Q4: KeyError: 'HomeVisitTypeIP'
+
+#%%
+### Y12Q4:
+[x[0] for x in df4_3_col_detail] == [*df4_3]
+#%%
+set([x[0] for x in df4_3_col_detail]).symmetric_difference([*df4_3])
+### Y12Q4: {'HomeVisitTypeAll', 'HomeVisitTypeIP'} ## new vars.
+
 #%%
 ### Test:
 # (
@@ -655,7 +681,7 @@ inspect_df(df4_5)
 #%%###################################
 
 ### TODO:
-    ### Review conversions & see if anything lost.
+    ### Review dtype conversions & see if anything lost.
     ### Compare old to new cols & see if any new NA. Write function to compare.
 
 
@@ -735,124 +761,152 @@ df4_5 = df4_5.rename(columns=df4_5_colnames)
 ### Prep for JOIN ###
 #####################################################
 
-# ### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
-# ### TO DO: Actually run section to deduplicate.
+### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
 
-# #%%### Restart deduplication
-# ### df4_1 = df4_1_bf_ddup.copy()
-# ### df4_2 = df4_2_bf_ddup.copy()
-# ### df4_3 = df4_3_bf_ddup.copy()
-# ### df4_4 = df4_4_bf_ddup.copy()
-# ### df4_5 = df4_5_bf_ddup.copy()
+#%%### Restart deduplication
+### df4_1 = df4_1_bf_ddup.copy()
+### df4_2 = df4_2_bf_ddup.copy()
+### df4_3 = df4_3_bf_ddup.copy()
+### df4_4 = df4_4_bf_ddup.copy()
+### df4_5 = df4_5_bf_ddup.copy()
 
-# #######################
-# ### NOTE: 24 duplicate rows. TO DO: Fix in Master File creation.
-# #%%### df4_1: 'Project ID'. 
-# ### Backup:
-# df4_1_bf_ddup = df4_1.copy()
-# #%%### df4_1: 'Project ID'. 
-# ### Duplicate rows:
-# df4_1[df4_1.duplicated()]
-# #%%### df4_1: 'Project ID'. 
-# ### Dropping duplicate rows:
-# df4_1 = df4_1.drop_duplicates(ignore_index=True)
-# df4_1
-# #%%### df4_1: 'Project ID'. 
-# ### Test
-# len(df4_1_bf_ddup) - len(df4_1) == len(df4_1_bf_ddup[df4_1_bf_ddup.duplicated()])
-# #%%### df4_1: 'Project ID'. 
-# if (len(df4_1_bf_ddup) != len(df4_1)):
-#     print(f'{len(df4_1_bf_ddup) - len(df4_1)} duplicate rows dropped.')
-# elif (len(df4_1_bf_ddup) == len(df4_1)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: 24 duplicate rows. TO DO: Fix in Master File creation.
+#%%### df4_1: 'Project ID'. 
+### Backup:
+df4_1_bf_ddup = df4_1.copy()
+#%%### df4_1: 'Project ID'. 
+### Duplicate rows:
+df4_1[df4_1.duplicated()]
+#%%### df4_1: 'Project ID'. 
+### Dropping duplicate rows:
+if deduplicate_df4:
+    df4_1 = df4_1.drop_duplicates(ignore_index=True)
+df4_1
+#%%### df4_1: 'Project ID'. 
+### Test
+len(df4_1_bf_ddup) - len(df4_1) == len(df4_1_bf_ddup[df4_1_bf_ddup.duplicated()])
+#%%### df4_1: 'Project ID'. 
+if (len(df4_1_bf_ddup) != len(df4_1)):
+    print(f'{len(df4_1_bf_ddup) - len(df4_1)} duplicate rows dropped.')
+elif (len(df4_1_bf_ddup) == len(df4_1)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df4_1: 'Project ID'. 
+### join columns: ['Project Id','Year','Quarter']
+### Show rows where join columns are same BUT some other columns are not:
+df4_1[df4_1[['Project Id','Year','Quarter']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: NO duplicate rows.
-# #%%### df4_2: 'Caregiver Insurance'.
-# df4_2_bf_ddup = df4_2.copy()
-# #%%### df4_2: 'Caregiver Insurance'.
-# df4_2[df4_2.duplicated()]
-# # df4_2[df4_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
-# #%%### df4_2: 'Caregiver Insurance'.
-# df4_2 = df4_2.drop_duplicates(ignore_index=True)
-# df4_2
-# #%%### df4_2: 'Caregiver Insurance'.
-# len(df4_2_bf_ddup) - len(df4_2) == len(df4_2_bf_ddup[df4_2_bf_ddup.duplicated()])
-# #%%### df4_2: 'Caregiver Insurance'.
-# if (len(df4_2_bf_ddup) != len(df4_2)):
-#     print(f'{len(df4_2_bf_ddup) - len(df4_2)} duplicate rows dropped.')
-# elif (len(df4_2_bf_ddup) == len(df4_2)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: NO duplicate rows.
+#%%### df4_2: 'Caregiver Insurance'.
+df4_2_bf_ddup = df4_2.copy()
+#%%### df4_2: 'Caregiver Insurance'.
+df4_2[df4_2.duplicated()]
+# df4_2[df4_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
+#%%### df4_2: 'Caregiver Insurance'.
+if deduplicate_df4:
+    df4_2 = df4_2.drop_duplicates(ignore_index=True)
+df4_2
+#%%### df4_2: 'Caregiver Insurance'.
+len(df4_2_bf_ddup) - len(df4_2) == len(df4_2_bf_ddup[df4_2_bf_ddup.duplicated()])
+#%%### df4_2: 'Caregiver Insurance'.
+if (len(df4_2_bf_ddup) != len(df4_2)):
+    print(f'{len(df4_2_bf_ddup) - len(df4_2)} duplicate rows dropped.')
+elif (len(df4_2_bf_ddup) == len(df4_2)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df4_2: 'Caregiver Insurance'.
+### join columns: ['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']
+### Show rows where join columns are same BUT some other columns are not:
+df4_2[df4_2[['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: 3 duplicate rows. TO DO: Fix in Master File creation.
-# #%%### df4_3: 'Family Wise'.
-# df4_3_bf_ddup = df4_3.copy()
-# #%%### df4_3: 'Family Wise'.
-# df4_3[df4_3.duplicated()]
-# # df4_3[df4_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
-# #%%### df4_3: 'Family Wise'.
-# df4_3 = df4_3.drop_duplicates(ignore_index=True)
-# df4_3
-# #%%### df4_3: 'Family Wise'.
-# len(df4_3_bf_ddup) - len(df4_3) == len(df4_3_bf_ddup[df4_3_bf_ddup.duplicated()])
-# #%%### df4_3: 'Family Wise'.
-# if (len(df4_3_bf_ddup) != len(df4_3)):
-#     print(f'{len(df4_3_bf_ddup) - len(df4_3)} duplicate rows dropped.')
-# elif (len(df4_3_bf_ddup) == len(df4_3)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: 3 duplicate rows. TO DO: Fix in Master File creation.
+#%%### df4_3: 'Family Wise'.
+df4_3_bf_ddup = df4_3.copy()
+#%%### df4_3: 'Family Wise'.
+df4_3[df4_3.duplicated()]
+# df4_3[df4_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
+#%%### df4_3: 'Family Wise'.
+if deduplicate_df4:
+    df4_3 = df4_3.drop_duplicates(ignore_index=True)
+df4_3
+#%%### df4_3: 'Family Wise'.
+len(df4_3_bf_ddup) - len(df4_3) == len(df4_3_bf_ddup[df4_3_bf_ddup.duplicated()])
+#%%### df4_3: 'Family Wise'.
+if (len(df4_3_bf_ddup) != len(df4_3)):
+    print(f'{len(df4_3_bf_ddup) - len(df4_3)} duplicate rows dropped.')
+elif (len(df4_3_bf_ddup) == len(df4_3)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df4_3: 'Family Wise'.
+### join columns: ['Project ID1','year (Family Wise)','quarter (Family Wise)']
+### Show rows where join columns are same BUT some other columns are not:
+df4_3[df4_3[['Project ID1','year (Family Wise)','quarter (Family Wise)']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: NO duplicate rows.
-# #%%### df4_4: 'LLCHD'.
-# df4_4_bf_ddup = df4_4.copy()
-# #%%### df4_4: 'LLCHD'.
-# df4_4[df4_4.duplicated()]
-# # df4_4[df4_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
-# #%%### df4_4: 'LLCHD'.
-# df4_4 = df4_4.drop_duplicates(ignore_index=True)
-# df4_4
-# #%%### df4_4: 'LLCHD'.
-# len(df4_4_bf_ddup) - len(df4_4) == len(df4_4_bf_ddup[df4_4_bf_ddup.duplicated()])
-# #%%### df4_4: 'LLCHD'.
-# if (len(df4_4_bf_ddup) != len(df4_4)):
-#     print(f'{len(df4_4_bf_ddup) - len(df4_4)} duplicate rows dropped.')
-# elif (len(df4_4_bf_ddup) == len(df4_4)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: NO duplicate rows.
+#%%### df4_4: 'LLCHD'.
+df4_4_bf_ddup = df4_4.copy()
+#%%### df4_4: 'LLCHD'.
+df4_4[df4_4.duplicated()]
+# df4_4[df4_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
+#%%### df4_4: 'LLCHD'.
+if deduplicate_df4:
+    df4_4 = df4_4.drop_duplicates(ignore_index=True)
+df4_4
+#%%### df4_4: 'LLCHD'.
+len(df4_4_bf_ddup) - len(df4_4) == len(df4_4_bf_ddup[df4_4_bf_ddup.duplicated()])
+#%%### df4_4: 'LLCHD'.
+if (len(df4_4_bf_ddup) != len(df4_4)):
+    print(f'{len(df4_4_bf_ddup) - len(df4_4)} duplicate rows dropped.')
+elif (len(df4_4_bf_ddup) == len(df4_4)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df4_4: 'LLCHD'.
+### join columns: ['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
+### Show rows where join columns are same BUT some other columns are not:
+df4_4[df4_4[['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: NO duplicate rows.
-# #%%### df4_5: 'MOB or FOB'.
-# df4_5_bf_ddup = df4_5.copy()
-# #%%### df4_5: 'MOB or FOB'.
-# df4_5[df4_5.duplicated()]
-# # df4_5[df4_5.duplicated(keep=False, subset=[...])]
-# #%%### df4_5: 'MOB or FOB'.
-# df4_5 = df4_5.drop_duplicates(ignore_index=True)
-# df4_5
-# #%%### df4_5: 'MOB or FOB'.
-# len(df4_5_bf_ddup) - len(df4_5) == len(df4_5_bf_ddup[df4_5_bf_ddup.duplicated()])
-# #%%### df4_5: 'MOB or FOB'.
-# if (len(df4_5_bf_ddup) != len(df4_5)):
-#     print(f'{len(df4_5_bf_ddup) - len(df4_5)} duplicate rows dropped.')
-# elif (len(df4_5_bf_ddup) == len(df4_5)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: NO duplicate rows.
+#%%### df4_5: 'MOB or FOB'.
+df4_5_bf_ddup = df4_5.copy()
+#%%### df4_5: 'MOB or FOB'.
+df4_5[df4_5.duplicated()]
+# df4_5[df4_5.duplicated(keep=False, subset=[...])]
+#%%### df4_5: 'MOB or FOB'.
+if deduplicate_df4:
+    df4_5 = df4_5.drop_duplicates(ignore_index=True)
+df4_5
+#%%### df4_5: 'MOB or FOB'.
+len(df4_5_bf_ddup) - len(df4_5) == len(df4_5_bf_ddup[df4_5_bf_ddup.duplicated()])
+#%%### df4_5: 'MOB or FOB'.
+if (len(df4_5_bf_ddup) != len(df4_5)):
+    print(f'{len(df4_5_bf_ddup) - len(df4_5)} duplicate rows dropped.')
+elif (len(df4_5_bf_ddup) == len(df4_5)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df4_5: 'MOB or FOB'.
+### join columns: ['join id (MOB or FOB)']
+### Show rows where join columns are same BUT some other columns are not:
+df4_5[df4_5[['join id (MOB or FOB)']].duplicated(keep=False)]
 
 #%%##################################################
 ### JOIN ###
 #####################################################
 
-### TO DO: Turn on validation once deduplication turned on.
 ### TO DO: Address "PerformanceWarning: DataFrame is highly fragmented." from running merge.
 
 #%%
@@ -1216,7 +1270,8 @@ def fn_MOB_Gender(fdf):
             case "Non-Binary":
                 return "Non-Binary" 
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                # return pd.NA ### DONE: After comparison, Maybe change to "Unrecognized Value"?
+                return "Unrecognized Value" ### Y12Q4.
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1227,13 +1282,15 @@ def fn_MOB_Gender(fdf):
                 return "Female"
             case "M":
                 return "Male" 
-            ### case "Non-Binary":
-            ###     return "Non-Binary" ### Don't have this value yet - Confirm.
+            case "N":
+                return "Non-Binary" ### Don't have this value yet - Confirm.
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                # return pd.NA ### DONE: After comparison, Maybe change to "Unrecognized Value"?
+                return "Unrecognized Value" ### Y12Q4.
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        # return pd.NA ### DONE: After comparison, Maybe change to "Unrecognized Value"?
+        return "Unrecognized Value" ### Y12Q4.
     ###########
     ### /// Tableau Calculation:
     ### IF [Adult1Gender] = "Female" THEN "Female" //FW
@@ -1259,7 +1316,7 @@ def fn_FOB_Gender(fdf):
         elif (fdf['Fob Involved'] == True):
             return fdf['Adult2Gender'] 
         else:
-            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return pd.NA ### probably MOB.
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1276,13 +1333,14 @@ def fn_FOB_Gender(fdf):
                 case "Non-Binary":
                     return "Non-Binary" ### Don't have this value yet - Confirm.
                 case _:
-                    return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                    return "Unrecognized Value" ### DONE: After comparison, Maybe change to "Unrecognized Value"?
         else:
-            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return pd.NA ### probably MOB.
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
-    ###########    ### /// Tableau Calculation:
+        return "Unrecognized Value" ### if not FW or LL.
+    ###########    
+    ### /// Tableau Calculation:
     ### //should we incorporate involved status into the fob variables?
     ### IF [Fob Involved1] = "Y" THEN CASE[Fob Gender]
     ###     WHEN "M" THEN "Male" //LLCHD
@@ -2666,7 +2724,7 @@ df4_edits1['_T09 FOB Education Status'] = df4_edits1.apply(func=fn_T09_FOB_Educa
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T09 FOB Education Status']) 
 # #%%
-# inspect_col(df4_edits1['Fob Edu']) ### Is string NOT integer. TODO: Read in as string & fix this code.
+# inspect_col(df4_edits1['Fob Edu']) ### Is string NOT integer. #TODO: Read in as string & fix this code.
 #%%
 print(df4_edits1[['source', '_T09 FOB Education Status', 'Fob Involved', 'AD2EDLevel', 'Fob Involved1', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
@@ -4092,7 +4150,7 @@ def fn_C16_CG_Insurance_Status(fdf_column):
         case "3" | "Private":
             return "Private or Other"
         case "4":
-            return "FamilyChildHealthPlus" ### Different from Form2's "Unknown/Did Not Report". ### TODO: standardize.
+            return "FamilyChildHealthPlus" ### Different from Form2's "Unknown/Did Not Report". ### DONE: standardize. Fixed F2.
         case "5" | "Uninsure":
             return "No Insurance Coverage"
         case "6" | "99" | "Unknown":
@@ -4134,7 +4192,6 @@ def fn_C16_CG_Insurance_Status(fdf_column):
 ### Only Form1 difference:
 ### ['_C16 CG Insurance 4 Status']: WHEN "4" THEN "Unknown/Did Not Report"
 ###     NOTE: this different version is the same as ALL of the Form2 versions.
-### TODO: standardize.
 
 #%%###################################
 
@@ -4145,6 +4202,12 @@ inspect_col(df4_edits1['_C16 CG Insurance 1 Status'])
 # compare_col(df4_comparison_csv, df4_edits1, '_C16 CG Insurance 1 Status')
 # #%%
 # compare_col(df4_comparison_csv, df4_edits1, '_C16 CG Insurance 1 Status', info_or_value_counts='value_counts')
+#%%
+print(df4_edits1[['_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
+### See "df4_unrecognized_values". Rows with "Unrecognized Value":
+df4_edits1[['Project Id','Year','Quarter', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_C16 CG Insurance 1 Status` == "Unrecognized Value"')
 
 #%%###################################
 
@@ -4183,6 +4246,8 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
             return "Unknown/Did Not Report"
         ###########
         ### LLCHD.
+        case "0":
+            return "No Insurance Coverage" ### Added from fn_T20_CG_Insurance_Status.
         case "1" | "Medicaid":
             return "Medicaid or CHIP"
         case "2":
@@ -4232,6 +4297,7 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
 df4_edits1['_C16 CG Insurance 4 Status'] = df4_edits1['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_4_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_C16 CG Insurance 4 Status']) 
+### TODO: standardize. FIX!
 
 #%%###################################
 
@@ -4307,6 +4373,9 @@ inspect_col(df4_edits1['_C16 CG Insurance 16 Status'])
 
 #%%###################################
 
+### TODO: Need to check logic in F1 & F2 to see which values (NA vs Unknown) are wanted by report logic. 
+### For now leave difference between fn_C16_CG_Insurance_Status & fn_T20_CG_Insurance_Status.
+
 def fn_T20_CG_Insurance_Status(fdf_column):
     match fdf_column:
         case _ if pd.isna(fdf_column):
@@ -4326,7 +4395,7 @@ def fn_T20_CG_Insurance_Status(fdf_column):
         ###########
         ### LLCHD.
         case "0":
-            return "No Insurance Coverage" ### New option not in fn_C16_CG_Insurance_Status variables. ### TODO: Add to fn_C16_CG_Insurance_Status?
+            return "No Insurance Coverage" ### New option not in fn_C16_CG_Insurance_Status variables. ### DONE: Add to fn_C16_CG_Insurance_Status.
         case "1" | "Medicaid":
             return "Medicaid or CHIP"
         case "2":
@@ -4334,7 +4403,7 @@ def fn_T20_CG_Insurance_Status(fdf_column):
         case "3" | "Private":
             return "Private or Other"
         case "4":
-            return "FamilyChildHealthPlus" ### Different from Form2's "Unknown/Did Not Report". ### TODO: standardize.
+            return "FamilyChildHealthPlus" ### Different from Form2's "Unknown/Did Not Report". ### DONE: standardize. Fixed in F2.
         case "FamilyCh":
             return "FamilyChildHealthPlus"
         case "5" | "Uninsure":
@@ -4388,6 +4457,12 @@ inspect_col(df4_edits1['_T20 CG Insurance 1 Status'])
 # compare_col(df4_comparison_csv, df4_edits1, '_T20 CG Insurance 1 Status')
 # #%%
 # compare_col(df4_comparison_csv, df4_edits1, '_T20 CG Insurance 1 Status', info_or_value_counts='value_counts')
+#%%
+print(df4_edits1[['_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
+### See "df4_unrecognized_values". Rows with "Unrecognized Value":
+df4_edits1[['Project Id','Year','Quarter', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance 1 Status` == "Unrecognized Value"')
 
 #%%###################################
 
@@ -4536,6 +4611,35 @@ def fn_T20_MOB_Insurance_Status(fdf):
 df4_edits1['_T20 MOB Insurance Status'] = df4_edits1.apply(func=fn_T20_MOB_Insurance_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T20 MOB Insurance Status']) 
+#%%
+print(df4_edits1[['_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
+### See "df4_unrecognized_values". Rows with "Unrecognized Value":
+df4_edits1[['Project Id','Year','Quarter', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 MOB Insurance Status` == "Unrecognized Value"')
+#%%
+print(df4_edits1[[
+        'Project Id','Year','Quarter'
+        ,'_T20 MOB Insurance Status'
+        ,'_T20 CG Insurance 16 Status'
+        ,'_T20 CG Insurance 15 Status'
+        ,'_T20 CG Insurance 14 Status'
+        ,'_T20 CG Insurance 13 Status'
+        ,'_T20 CG Insurance 12 Status'
+        ,'_T20 CG Insurance 11 Status'
+        ,'_T20 CG Insurance 10 Status'
+        ,'_T20 CG Insurance 9 Status'
+        ,'_T20 CG Insurance 8 Status'
+        ,'_T20 CG Insurance 7 Status'
+        ,'_T20 CG Insurance 6 Status'
+        ,'_T20 CG Insurance 5 Status'
+        ,'_T20 CG Insurance 4 Status'
+        ,'_T20 CG Insurance 3 Status'
+        ,'_T20 CG Insurance 2 Status'
+        ,'_T20 CG Insurance 1 Status'
+        ,'AD1PrimaryIns.1'
+    ]].query(f'`_T20 MOB Insurance Status` == "Unrecognized Value"').to_string())
+### Only 6 rows are Y12Q4; rest are Q1.
 
 #%%###################################
 
@@ -4730,7 +4834,13 @@ def fn_T20_CG_Insurance_Status(fdf):
 df4_edits1['_T20 CG Insurance Status'] = df4_edits1.apply(func=fn_T20_CG_Insurance_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['_T20 CG Insurance Status']) 
-
+#%%
+print(df4_edits1[['_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code?
+    ### Half as many Y12Q4 rows as other 3 vars -- half of original 6. Other rows from Q1.
+### See "df4_unrecognized_values". Rows with "Unrecognized Value":
+df4_edits1[['Project Id','Year','Quarter', 'MOB or FOB', '_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance Status` == "Unrecognized Value"')
 
 ##################################################################################################
 ##################################################################################################
@@ -4749,6 +4859,26 @@ inspect_col(df4_edits1['_T20 CG Insurance Status'])
 
 ### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
 ### Across many variables.
+
+#%%
+# df4_unrecognized_values = fn_find_unrecognized_value(df4_edits1)
+df4_unrecognized_values = fn_find_unrecognized_value(df4_edits1.query(f'`Year` == 12 & `Quarter` == 4'))
+
+#%%
+len(df4_unrecognized_values)
+#%%
+### Columns that have "Unrecognized Value":
+[x['col'] for x in df4_unrecognized_values]
+
+#%%
+### Look at one column:
+# df4_unrecognized_values[0]
+
+### New values Y12Q4: All 4 vars tied back to "AD1PrimaryIns.1" & 2 new values. ### TODO: code new values.
+# [x for x in df4_unrecognized_values if x["col"] == '_C16 CG Insurance 1 Status'] 
+# [x for x in df4_unrecognized_values if x["col"] == '_T20 CG Insurance 1 Status'] 
+# [x for x in df4_unrecognized_values if x["col"] == '_T20 MOB Insurance Status'] 
+# [x for x in df4_unrecognized_values if x["col"] == '_T20 CG Insurance Status'] 
 
 
 
@@ -5120,6 +5250,11 @@ def fn_check_if_same(df1value, df2value):
 # [_HomeVisitTypeAll]
 # [_HomeVisitTypeIP]
 # [_HomeVisitTypeV]
+    ### TODO: Create these 3 after Joe brings the FW vars through.
+### Y12Q4: seeing [_HomeVisitTypeAll] & [_HomeVisitTypeIP] come through FW. 
+
+# #TODO: not seeing [_HomeVisitTypeV] yet. 2023-10-17.
+
 # [_T16 Number of In Person Home Visits by Primary Caregiver (unduplicated)]
 # [_T16 Number of Virtual Home Visits by Primary Caregiver (unduplicated)]
 # [_T16 Number of Visits by Primary Caregiver (unduplicated)]

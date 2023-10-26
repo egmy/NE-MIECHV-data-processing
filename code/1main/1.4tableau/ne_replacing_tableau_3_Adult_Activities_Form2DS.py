@@ -8,39 +8,52 @@
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
-### SETUP ###
-#####################################################
-
-### import RUNME ### This does not run the code.
-
-# exec(open('RUNME.py').read())
-
-#%%##################################################
 ### PACKAGES ###
 #####################################################
 
 ### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
 
-# import pandas as pd
-# import numpy as np
-# import sys
-# import collections
-# import re
+from pathlib import Path
+import pandas as pd
+import numpy as np
+import sys
+import collections
+import re
 
-# print('Version Of Python: ' + sys.version)
-# print('Version Of Pandas: ' + pd.__version__)
-# print('Version Of Numpy: ' + np.version.version)
+print('Version Of Python: ' + sys.version)
+print('Version Of Pandas: ' + pd.__version__)
+print('Version Of Numpy: ' + np.version.version)
 
-# from RUNME import inspect_df
-# from RUNME import inspect_col
-# from RUNME import compare_col
-# from RUNME import fn_all_value_counts
+from RUNME import inspect_df
+from RUNME import inspect_col
+from RUNME import compare_col
+from RUNME import fn_all_value_counts
+from RUNME import fn_find_unrecognized_value
+
+#%%##################################################
+### SETUP ###
+#####################################################
+
+### import RUNME ### This does not run the code.
+
+path_code_base = Path('U:\\Working\\nehv_ds_code_repository\\code\\1main\\1.4tableau')
+exec(open(Path(path_code_base, 'RUNME.py')).read())
+
+#%%
+deduplicate_df3 = False
 
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
 df3_comparison_csv = pd.read_csv(path_3_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
+print(f'df3_comparison_csv Rows: {len(df3_comparison_csv)}')
+
+#%%
+### Y12Q4 deduplicated rows to 3189 rows (but should be 3192?) vs. original comparison of 3581.
+if deduplicate_df3:
+    df3_comparison_csv = df3_comparison_csv.drop_duplicates(ignore_index=True) 
+print(f'df3_comparison_csv Rows: {len(df3_comparison_csv)}')
 df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 #%%##################################################
@@ -299,7 +312,7 @@ df3_4_col_detail = [
     ['fob_living_arrangement', 'Fob Living Arrangement', '', 'Int64'],
     ['fob_living_arrangement_dt', 'Fob Living Arrangement Dt', '', 'datetime64[ns]'],
     ['fob_edu_dt', 'Fob Edu Dt', '', 'datetime64[ns]'],
-    ['fob_edu', 'Fob Edu', '', 'Int64'],
+    ['fob_edu', 'Fob Edu', '', 'string'], ### Tableau wb coerces to int -- but really is string data. Fixed Y12Q4.
     ['fob_employ_dt', 'Fob Employ Dt', '', 'datetime64[ns]'],
     ['fob_employ', 'Fob Employ', '', 'Int64'],
     ['fob_involved', 'Fob Involved1', '', 'string'],
@@ -418,15 +431,15 @@ xlsx_df3 = pd.ExcelFile(path_3_data_source_file)
 #%% 
 ### CHECK that all path_3_data_source_sheets same as xlsx.sheet_names (different order ok):
 print(sorted(path_3_data_source_sheets))
-print([x for x in sorted(xlsx.sheet_names) if x != 'MOB or FOB'])
-sorted(path_3_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x != 'MOB or FOB']
+print([x for x in sorted(xlsx_df3.sheet_names) if x != 'MOB or FOB'])
+sorted(path_3_data_source_sheets) == [x for x in sorted(xlsx_df3.sheet_names) if x != 'MOB or FOB']
 
 #%%
 ### READ all sheets:
-df3_1 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df3_1_col_dtypes)
-df3_2 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df3_2_col_dtypes)
-df3_3 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[2], keep_default_na=False, na_values=[''])#, dtype={'FOBRaceAsian': 'boolean', 'FOBRaceBlack': 'boolean', 'FOBRaceHawaiianPacific': 'boolean', 'FOBRaceIndianAlaskan': 'boolean', 'FOBRaceOther': 'boolean', 'FOBRaceWhite': 'boolean'})#, dtype=df3_3_col_dtypes)
-df3_4 = pd.read_excel(xlsx, sheet_name=path_3_data_source_sheets[3], keep_default_na=False, na_values=[''])#, dtype=df3_4_col_dtypes)
+df3_1 = pd.read_excel(xlsx_df3, sheet_name=path_3_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df3_1_col_dtypes)
+df3_2 = pd.read_excel(xlsx_df3, sheet_name=path_3_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df3_2_col_dtypes)
+df3_3 = pd.read_excel(xlsx_df3, sheet_name=path_3_data_source_sheets[2], keep_default_na=False, na_values=[''])#, dtype={'FOBRaceAsian': 'boolean', 'FOBRaceBlack': 'boolean', 'FOBRaceHawaiianPacific': 'boolean', 'FOBRaceIndianAlaskan': 'boolean', 'FOBRaceOther': 'boolean', 'FOBRaceWhite': 'boolean'})#, dtype=df3_3_col_dtypes)
+df3_4 = pd.read_excel(xlsx_df3, sheet_name=path_3_data_source_sheets[3], keep_default_na=False, na_values=[''])#, dtype=df3_4_col_dtypes)
 
 ### TODO: Problem: Boolean's cannot have NA.
 
@@ -486,114 +499,216 @@ df3_4 = df3_4.rename(columns=df3_4_colnames)
 ### Prep for JOIN ###
 #####################################################
 
-# ### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
-# ### TODO: Actually run section to deduplicate.
+### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
 
-# #%%### Restart deduplication
-# ### df3_1 = df3_1_bf_ddup.copy()
-# ### df3_2 = df3_2_bf_ddup.copy()
-# ### df3_3 = df3_3_bf_ddup.copy()
-# ### df3_4 = df3_4_bf_ddup.copy()
+#%%### Restart deduplication
+### df3_1 = df3_1_bf_ddup.copy()
+### df3_2 = df3_2_bf_ddup.copy()
+### df3_3 = df3_3_bf_ddup.copy()
+### df3_4 = df3_4_bf_ddup.copy()
 
-# #######################
-# ### NOTE: 24 duplicate rows. TODO: Fix in Master File creation.
-# #%%### df3_1: 'Project ID'. 
-# ### Backup:
-# df3_1_bf_ddup = df3_1.copy()
-# #%%### df3_1: 'Project ID'. 
-# ### Duplicate rows:
-# df3_1[df3_1.duplicated()]
-# #%%### df3_1: 'Project ID'. 
-# ### Dropping duplicate rows:
-# df3_1 = df3_1.drop_duplicates(ignore_index=True)
-# df3_1
-# #%%### df3_1: 'Project ID'. 
-# ### Test
-# len(df3_1_bf_ddup) - len(df3_1) == len(df3_1_bf_ddup[df3_1_bf_ddup.duplicated()])
-# #%%### df3_1: 'Project ID'. 
-# if (len(df3_1_bf_ddup) != len(df3_1)):
-#     print(f'{len(df3_1_bf_ddup) - len(df3_1)} duplicate rows dropped.')
-# elif (len(df3_1_bf_ddup) == len(df3_1)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: 24 duplicate rows. TODO: Fix in Master File creation.
+#%%### df3_1: 'Project ID'. 
+### Backup:
+df3_1_bf_ddup = df3_1.copy()
+#%%### df3_1: 'Project ID'. 
+### Duplicate rows:
+df3_1[df3_1.duplicated()]
+#%%### df3_1: 'Project ID'. 
+### Dropping duplicate rows:
+if deduplicate_df3:
+    df3_1 = df3_1.drop_duplicates(ignore_index=True)
+df3_1
+#%%### df3_1: 'Project ID'. 
+### Test
+len(df3_1_bf_ddup) - len(df3_1) == len(df3_1_bf_ddup[df3_1_bf_ddup.duplicated()])
+#%%### df3_1: 'Project ID'. 
+if (len(df3_1_bf_ddup) != len(df3_1)):
+    print(f'{len(df3_1_bf_ddup) - len(df3_1)} duplicate rows dropped.')
+elif (len(df3_1_bf_ddup) == len(df3_1)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df3_1: 'Project ID'. 
+### join columns: ['Project Id','Year','Quarter']
+### Show rows where join columns are same BUT some other columns are not:
+df3_1[df3_1[['Project Id','Year','Quarter']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: NO duplicate rows.
-# #%%### df3_2: 'Caregiver Insurance'.
-# df3_2_bf_ddup = df3_2.copy()
-# #%%### df3_2: 'Caregiver Insurance'.
-# df3_2[df3_2.duplicated()]
-# # df3_2[df3_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
-# #%%### df3_2: 'Caregiver Insurance'.
-# df3_2 = df3_2.drop_duplicates(ignore_index=True)
-# df3_2
-# #%%### df3_2: 'Caregiver Insurance'.
-# len(df3_2_bf_ddup) - len(df3_2) == len(df3_2_bf_ddup[df3_2_bf_ddup.duplicated()])
-# #%%### df3_2: 'Caregiver Insurance'.
-# if (len(df3_2_bf_ddup) != len(df3_2)):
-#     print(f'{len(df3_2_bf_ddup) - len(df3_2)} duplicate rows dropped.')
-# elif (len(df3_2_bf_ddup) == len(df3_2)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: NO duplicate rows.
+#%%### df3_2: 'Caregiver Insurance'.
+df3_2_bf_ddup = df3_2.copy()
+#%%### df3_2: 'Caregiver Insurance'.
+df3_2[df3_2.duplicated()]
+# df3_2[df3_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
+#%%### df3_2: 'Caregiver Insurance'.
+if deduplicate_df3:
+    df3_2 = df3_2.drop_duplicates(ignore_index=True)
+df3_2
+#%%### df3_2: 'Caregiver Insurance'.
+len(df3_2_bf_ddup) - len(df3_2) == len(df3_2_bf_ddup[df3_2_bf_ddup.duplicated()])
+#%%### df3_2: 'Caregiver Insurance'.
+if (len(df3_2_bf_ddup) != len(df3_2)):
+    print(f'{len(df3_2_bf_ddup) - len(df3_2)} duplicate rows dropped.')
+elif (len(df3_2_bf_ddup) == len(df3_2)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df3_2: 'Caregiver Insurance'.
+### join columns: ['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']
+### Show rows where join columns are same BUT some other columns are not:
+df3_2[df3_2[['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: 3 duplicate rows. TODO: Fix in Master File creation.
-# #%%### df3_3: 'Family Wise'.
-# df3_3_bf_ddup = df3_3.copy()
-# #%%### df3_3: 'Family Wise'.
-# df3_3[df3_3.duplicated()]
-# # df3_3[df3_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
-# #%%### df3_3: 'Family Wise'.
-# df3_3 = df3_3.drop_duplicates(ignore_index=True)
-# df3_3
-# #%%### df3_3: 'Family Wise'.
-# len(df3_3_bf_ddup) - len(df3_3) == len(df3_3_bf_ddup[df3_3_bf_ddup.duplicated()])
-# #%%### df3_3: 'Family Wise'.
-# if (len(df3_3_bf_ddup) != len(df3_3)):
-#     print(f'{len(df3_3_bf_ddup) - len(df3_3)} duplicate rows dropped.')
-# elif (len(df3_3_bf_ddup) == len(df3_3)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: 3 duplicate rows. TODO: Fix in Master File creation.
+#%%### df3_3: 'Family Wise'.
+df3_3_bf_ddup = df3_3.copy()
+#%%### df3_3: 'Family Wise'.
+df3_3[df3_3.duplicated()]
+# df3_3[df3_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
+#%%### df3_3: 'Family Wise'.
+if deduplicate_df3:
+    df3_3 = df3_3.drop_duplicates(ignore_index=True)
+df3_3
+#%%### df3_3: 'Family Wise'.
+len(df3_3_bf_ddup) - len(df3_3) == len(df3_3_bf_ddup[df3_3_bf_ddup.duplicated()])
+#%%### df3_3: 'Family Wise'.
+if (len(df3_3_bf_ddup) != len(df3_3)):
+    print(f'{len(df3_3_bf_ddup) - len(df3_3)} duplicate rows dropped.')
+elif (len(df3_3_bf_ddup) == len(df3_3)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df3_3: 'Family Wise'.
+### join columns: ['Project ID1','year (Family Wise)','quarter (Family Wise)']
+### Show rows where join columns are same BUT some other columns are not:
+### TODO: make lists for each group of join columns.
+join_vars_df3_3 = ['Project ID1','year (Family Wise)','quarter (Family Wise)']
+# print(df3_3[df3_3[join_vars_df3_3].duplicated(keep=False)].to_string())
+# print(df3_3[df3_3[join_vars_df3_3].duplicated(keep=False)].sort_values(by=join_vars_df3_3, ignore_index=True).to_string())
+print(df3_3[df3_3[join_vars_df3_3].duplicated(keep=False)].query('`quarter (Family Wise)` == 4').sort_values(by=join_vars_df3_3, ignore_index=True).to_string())
 
-# #######################
-# ### NOTE: NO duplicate rows.
-# #%%### df3_4: 'LLCHD'.
-# df3_4_bf_ddup = df3_4.copy()
-# #%%### df3_4: 'LLCHD'.
-# df3_4[df3_4.duplicated()]
-# # df3_4[df3_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
-# #%%### df3_4: 'LLCHD'.
-# df3_4 = df3_4.drop_duplicates(ignore_index=True)
-# df3_4
-# #%%### df3_4: 'LLCHD'.
-# len(df3_4_bf_ddup) - len(df3_4) == len(df3_4_bf_ddup[df3_4_bf_ddup.duplicated()])
-# #%%### df3_4: 'LLCHD'.
-# if (len(df3_4_bf_ddup) != len(df3_4)):
-#     print(f'{len(df3_4_bf_ddup) - len(df3_4)} duplicate rows dropped.')
-# elif (len(df3_4_bf_ddup) == len(df3_4)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+### Y12Q4: FULL: mostly groups of 4 rows. Some groups of 2 rows: ph535-1, ph548-1.
+### Y12Q4: after filter to Y12Q4, only 28 rows.
+
+#%%
+# TESTdf3_3 = df3_3[df3_3[join_vars_df3_3].duplicated(keep=False)]
+# TESTdf3_3 = df3_3[df3_3[join_vars_df3_3].duplicated(keep=False)].sort_values(by=join_vars_df3_3, ignore_index=True)
+TESTdf3_3 = df3_3[df3_3[join_vars_df3_3].duplicated(keep=False)].query('`quarter (Family Wise)` == 4').sort_values(by=join_vars_df3_3, ignore_index=True)
+
+# print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[0:4], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[4:6], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[6:10], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[0:6], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[6:12], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
+
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[0:2], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[2:4], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[4:8], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[8:12], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[16:20], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[20:24], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[24:28], col].value_counts(dropna=False)) != 1)])
+
+# #%%### Change row indicies in 2 places:
+# TESTdf3_3.loc[TESTdf3_3.index[0:4], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[0:4], col].value_counts(dropna=False)) != 1)]]
+# TESTdf3_3.loc[TESTdf3_3.index[4:6], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[4:6], col].value_counts(dropna=False)) != 1)]]
+# TESTdf3_3.loc[TESTdf3_3.index[0:6], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[0:6], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[0:2], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[0:2], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[2:4], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[2:4], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[4:8], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[4:8], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[8:12], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[8:12], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[12:16], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[12:16], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[16:20], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[16:20], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[20:24], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[20:24], col].value_counts(dropna=False)) != 1)]]
+#%%### Change row indicies in 2 places:
+TESTdf3_3.loc[TESTdf3_3.index[24:28], join_vars_df3_3 + [col for col in [col for col in [*TESTdf3_3] if col not in join_vars_df3_3] if (len(TESTdf3_3.loc[TESTdf3_3.index[24:28], col].value_counts(dropna=False)) != 1)]]
+
+### TODO: fix duplicates in Excel.
+
+#######################
+### NOTE: NO duplicate rows.
+#%%### df3_4: 'LLCHD'.
+df3_4_bf_ddup = df3_4.copy()
+#%%### df3_4: 'LLCHD'.
+df3_4[df3_4.duplicated()]
+# df3_4[df3_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
+#%%### df3_4: 'LLCHD'.
+if deduplicate_df3:
+    df3_4 = df3_4.drop_duplicates(ignore_index=True)
+df3_4
+#%%### df3_4: 'LLCHD'.
+len(df3_4_bf_ddup) - len(df3_4) == len(df3_4_bf_ddup[df3_4_bf_ddup.duplicated()])
+#%%### df3_4: 'LLCHD'.
+if (len(df3_4_bf_ddup) != len(df3_4)):
+    print(f'{len(df3_4_bf_ddup) - len(df3_4)} duplicate rows dropped.')
+elif (len(df3_4_bf_ddup) == len(df3_4)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df3_4: 'LLCHD'.
+### join columns: ['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
+### Show rows where join columns are same BUT some other columns are not:
+df3_4[df3_4[['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']].duplicated(keep=False)]
+
 
 #%%##################################################
 ### JOIN ###
 #####################################################
 
-### TODO: Turn on validation once deduplication turned on.
 ### TODO: Address "PerformanceWarning: DataFrame is highly fragmented." from running merge.
 
+# #%%
+# df3 = (
+#     pd.merge(
+#         df3_1 ### 'Project ID'.
+#         ,df3_2 ### 'Caregiver Insurance'.
+#         ,how='left'
+#         ,left_on=['Project Id','Year','Quarter']
+#         ,right_on=['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']
+#         ,indicator='LJ_df3_2CI'
+#         ,validate='one_to_one'
+#     ).merge(
+#         df3_3 ### 'Family Wise'.
+#         ,how='left'
+#         ,left_on=['Project Id','Year','Quarter']
+#         ,right_on=['Project ID1','year (Family Wise)','quarter (Family Wise)']
+#         ,indicator='LJ_df3_3FW'
+#         # ,validate='one_to_one'
+#     ).merge(
+#         df3_4 ### 'LLCHD'.
+#         ,how='left'
+#         ,left_on=['Project Id','Year','Quarter']
+#         ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
+#         ,indicator='LJ_df3_4LL'
+#         # ,validate='one_to_one'
+#     )
+# ) 
+
 #%%
+### New join: issues: (1) df3_3FW has has _ pairs of kind-of duplicate rows.
 df3 = (
     pd.merge(
-        df3_1 ### 'Project ID'.
-        ,df3_2 ### 'Caregiver Insurance'.
+        df3_1, ### 'Project ID'.
+        df3_4 ### 'LLCHD'.
         ,how='left'
         ,left_on=['Project Id','Year','Quarter']
-        ,right_on=['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']
-        ,indicator='LJ_df3_2CI'
+        ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
+        ,indicator='LJ_df3_4LL'
         # ,validate='one_to_one'
     ).merge(
         df3_3 ### 'Family Wise'.
@@ -601,17 +716,19 @@ df3 = (
         ,left_on=['Project Id','Year','Quarter']
         ,right_on=['Project ID1','year (Family Wise)','quarter (Family Wise)']
         ,indicator='LJ_df3_3FW'
-        # ,validate='one_to_one'
+        # ,validate='one_to_one' ### TODO: fix
     ).merge(
-        df3_4 ### 'LLCHD'.
+        df3_2 ### 'Caregiver Insurance'.
         ,how='left'
         ,left_on=['Project Id','Year','Quarter']
-        ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
-        ,indicator='LJ_df3_4LL'
-        # ,validate='one_to_one'
+        ,right_on=['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']
+        ,indicator='LJ_df3_2CI'
+        # ,validate='one_to_one' ### works for only LL... but does does it apply to LL?
     )
 ) 
 
+print(f'df3 Rows: {len(df3)}')
+### Y12Q4: if NOT deduplicated = . If deduplicated = .
 
 ##################################################################################################
 ##################################################################################################
@@ -895,8 +1012,8 @@ inspect_col(df3_edits1['_T04 FOB Age'])
 
 #%%###################################
 
-### TODO: Confirm that LLCHD not using "Non-Binary" yet.
-### TODO: Add "unrecognized value"
+### DONE: Confirm that LLCHD not using "Non-Binary" yet. If we get a new value, we can't assume what it means. Flag as "Unrecognized Value".
+### DONE: Add "unrecognized value"
 def fn_MOB_Gender(fdf):
     ### FW.
     if (fdf['Adult1Gender'] == "Female"):
@@ -910,8 +1027,13 @@ def fn_MOB_Gender(fdf):
         return "Female" 
     elif (fdf['Mob Gender'] == "M"):
         return "Male"
-    ### elif (fdf['Mob Gender'] == "N"):
-    ###     return "Non-Binary" ### Don't have this value yet - Confirm.
+    ## elif (fdf['Mob Gender'] == "N"):
+    ##     return "Non-Binary" ### Don't have this value yet - Confirm what means if comes through.
+    ###
+    elif pd.notna(fdf['Adult1Gender']) | pd.notna(fdf['Mob Gender']):
+        return "Unrecognized Value"
+    else: 
+        return np.nan
     ###
     # IF [Adult1Gender] = "Female" THEN "Female" //FW
     # ELSEIF [Adult1Gender] = "Male" THEN "Male"
@@ -923,28 +1045,35 @@ def fn_MOB_Gender(fdf):
 df3_edits1['_MOB Gender'] = df3_edits1.apply(func=fn_MOB_Gender, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_MOB Gender']) 
+#%%
+inspect_col(df3_edits1['Mob Gender']) 
+
 
 #%%###################################
 
-### TODO: Question: Should we incorporate involved status into the fob variables?
-### TODO: Confirm that LLCHD not using "Non-Binary" yet.
-### TODO: Add "unrecognized value"
+### TODO: Question: Should we incorporate involved status into the fob variables? Answer: yes, should be checking Fob involvement first.
+### DONE: Confirm that LLCHD not using "Non-Binary" yet. If we get a new value, we can't assume what it means. Flag as "Unrecognized Value".
+### DONE: Add "unrecognized value"
 def fn_FOB_Gender(fdf):
     ### LLCHD.
     if (fdf['Fob Involved1'] == "Y"):
         match fdf['Fob Gender']:
+            case _ if pd.isna(fdf['Fob Gender']):
+                return np.nan 
             case "M":
                 return "Male" 
             case "F":
                 return "Female"
-            ### case "N":
-            ###     return "Non-Binary" ### No values yet - confirm.
+            ## case "N":
+            ##     return "Non-Binary" ### No values yet - confirm.
+            case _:
+                return "Unrecognized Value"
     ### FW.
     elif (fdf['Fob Involved'] == True):
         return fdf['Adult2Gender'] 
     ###
     else:
-        return np.nan
+        return np.nan ### Likely MOB.
     # //should we incorporate involved status into the fob variables?
     # IF [Fob Involved1] = "Y" THEN CASE[Fob Gender]
     #     WHEN "M" THEN "Male" //LLCHD
@@ -957,17 +1086,16 @@ def fn_FOB_Gender(fdf):
 df3_edits1['_FOB Gender'] = df3_edits1.apply(func=fn_FOB_Gender, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_FOB Gender']) 
-# #%%
+#%%
 # inspect_col(df3_edits1['Fob Involved1']) 
 # inspect_col(df3_edits1['Fob Gender']) 
 # inspect_col(df3_edits1['Fob Involved']) 
 # inspect_col(df3_edits1['Adult2Gender']) 
 
-
 #%%###################################
 
 def fn_T06_MOB_Ethnicity(fdf):
-    ### FW?
+    ### FW.
     if pd.notna(fdf['Mob Ethnic']):
         match fdf['Mob Ethnic'].lower():
             case "non hispanic/latino":
@@ -981,9 +1109,9 @@ def fn_T06_MOB_Ethnicity(fdf):
     ### LLCHD.
     elif pd.notna(fdf['Mob Ethnicity']):
         match fdf['Mob Ethnicity'].lower():
-            case "hispanic/latino", "hispanic":
+            case "hispanic" | "hispanic/latino":
                 return "Hispanic or Latino"
-            case "not hispanic/latino", "non-hispanic":
+            case "non-hispanic" | "not hispanic/latino":
                 return "Not Hispanic or Latino"
             case _:
                 return "Unrecognized Value"
@@ -1007,7 +1135,13 @@ def fn_T06_MOB_Ethnicity(fdf):
     # END
 df3_edits1['_T06 MOB Ethnicity'] = df3_edits1.apply(func=fn_T06_MOB_Ethnicity, axis=1) 
     ### Data Type in Tableau: 'string'.
-inspect_col(df3_edits1['_T06 MOB Ethnicity']) 
+inspect_col(df3_edits1['_T06 MOB Ethnicity'])
+# #%% ### Run df3_unrecognized_values code below first:
+# ### DONE ### [x for x in df3_unrecognized_values if x["col"] == '_T06 MOB Ethnicity'] 
+# #%%
+# inspect_col(df3_edits1['Mob Ethnic'])
+# #%%
+# inspect_col(df3_edits1['Mob Ethnicity'])
 
 #%%###################################
 
@@ -1037,7 +1171,7 @@ def fn_T06_FOB_Ethnicity(fdf):
             match fdf['Fob Ethnicity1'].lower():
                 case "hispanic/latino":
                     return "Hispanic or Latino" 
-                case "not hispanic/latino", "non-hispanic":
+                case "not hispanic/latino" | "non-hispanic":
                     return "Not Hispanic or Latino"
                 case "unreported/refused to report":
                     return "Unknown/Did Not Report"
@@ -1078,6 +1212,9 @@ inspect_col(df3_edits1['_T06 FOB Ethnicity'])
 # inspect_col(df3_edits1['Fob Involved1']) 
 # #%%
 # inspect_col(df3_edits1['Fob Ethnicity1']) 
+# #%% ### Run df3_unrecognized_values code below first:
+# ### DONE ### [x for x in df3_unrecognized_values if x["col"] == '_T06 FOB Ethnicity']
+
 
 #%%###################################
 
@@ -1109,7 +1246,7 @@ def fn_T06_FOB_Ethnicity_1(fdf):
             match fdf['Fob Ethnicity1'].lower():
                 case "hispanic/latino":
                     return "Hispanic or Latino" 
-                case "not hispanic/latino", "non-hispanic":
+                case "not hispanic/latino" | "non-hispanic":
                     return "Not Hispanic or Latino"
                 case "unreported/refused to report":
                     return "Unknown/Did Not Report"
@@ -1408,8 +1545,7 @@ inspect_col(df3_edits1['_T08 MOB Marital Status'])
 
 #%%###################################
 
-### TODO: Fix ERROR: using ['Mob Marital Status'] when should be using ['Fob Marital Status'].
-    ### Answer: Go ahead & fix.
+### DONE: Fix ERROR: using ['Mob Marital Status'] when should be using ['Fob Marital Status']. ### Answer: Go ahead & fix.
 def fn_T08_FOB_Marital_Status(fdf):
     ###########
     ### FW.
@@ -1428,17 +1564,15 @@ def fn_T08_FOB_Marital_Status(fdf):
                     return "Never Married"
                 case "unknown" | "null":
                     return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
                 case _:
                     return "Unrecognized Value"
     ###########
     ### LLCHD.
     elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Mob Marital Status']):
+        if pd.isna(fdf['Fob Marital Status']):
             return "Unknown/Did Not Report"
         else:
-            match fdf['Mob Marital Status'].lower():
+            match fdf['Fob Marital Status'].lower():
                 case "married":
                     return "Married"
                 case "life partner":
@@ -1449,13 +1583,11 @@ def fn_T08_FOB_Marital_Status(fdf):
                     return "Never Married"
                 case "unknown":
                     return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
                 case _:
                     return "Unrecognized Value"
     ###########
     else:
-        return np.nan 
+        return np.nan ### likely MOB.
     # //FW
     # IF [Fob Involved] = True THEN CASE [Adult2MaritalStatus]
     #     WHEN "Divorced" THEN "Separated, Divorced, or Widowed"
@@ -1644,32 +1776,41 @@ inspect_col(df3_edits1['_T11 FOB Employment'])
 
 #%%###################################
 
-### TODO: Ask about significant difference from '_C15 Max Educational Enrollment'.
+### TODO: Clarify with LL team -- on all education variables.
+    ### TODO: mimic new logic.
+### DONE: Ask about significant difference from '_C15 Max Educational Enrollment'.
+    ### Answer: In Form 2, max-min is checked to see change over time.
 def fn_C15_Min_Educational_Enrollment(fdf):
     ###########
     ### FW.
-    if (fdf['Min Edu Enroll'] == "College 2 Year"):
+    if (fdf['Min Edu Enroll'] == "High/Middle School"):
+        return "Student/trainee HS/GED"
+    elif (fdf['Min Edu Enroll'] == "GED Program"):
+        return "Student/trainee HS/GED"
+    ##
+    elif (fdf['Min Edu Enroll'] == "College 2 Year"):
         return "Student/trainee" 
     elif (fdf['Min Edu Enroll'] == "College 4 Year"):
         return "Student/trainee"
     elif (fdf['Min Edu Enroll'] == "ESL"):
         return "Student/trainee"
-    elif (fdf['Min Edu Enroll'] == "GED Program"):
-        return "Student/trainee HS/GED"
     elif (fdf['Min Edu Enroll'] == "Graduate School"):
         return "Student/trainee"
-    elif (fdf['Min Edu Enroll'] == "High/Middle School"):
-        return "Student/trainee HS/GED"
-    elif (fdf['Min Edu Enroll'] == "Not Enrolled in School"):
-        return "Not a student/trainee"
-    elif (fdf['Min Edu Enroll'] == "Unknown"):
-        return "Unknown/Did not Report"
     elif (fdf['Min Edu Enroll'] == "Vocational College"):
         return "Student/trainee"
+    ##
+    elif (fdf['Min Edu Enroll'] == "Not Enrolled in School"):
+        return "Not a student/trainee"
+    ##
+    elif (fdf['Min Edu Enroll'] == "Unknown"):
+        return "Unknown/Did not Report"
+    ##
+    elif (pd.notna(fdf['Min Edu Enroll'])):
+        return "Unrecognized Value"
     ###########
     ### LLCHD.
     elif (
-        fdf['mcafss_edu1_enroll'] == "YES" ### Enrolled.
+        fdf['mcafss_edu1_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
         and
         (
             fdf['mcafss_edu1_prog'] == 1 ### Enrolled in Middle School.
@@ -1680,11 +1821,29 @@ def fn_C15_Min_Educational_Enrollment(fdf):
         )
     ):
         return "Student/trainee HS/GED" 
-    elif (fdf['mcafss_edu1_enroll'] == "NO"):
-        return "Student/trainee" ### Only significant difference from '_C15 Max Educational Enrollment'.
+    ### Added Y12Q4.
+    elif (
+        fdf['mcafss_edu1_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
+        and
+        (
+            fdf['mcafss_edu1_prog'] == 4 ### ESL.
+            or
+            fdf['mcafss_edu1_prog'] == 5 ### Adult education in basic reading or math.
+            or
+            fdf['mcafss_edu1_prog'] == 6 ### College.
+            or
+            fdf['mcafss_edu1_prog'] == 7 ### Vocational training, technical or trade school (excluding training received during HS).
+        )
+    ):
+        return "Student/trainee" 
+    elif (fdf['mcafss_edu1_enroll'] == "N" or (pd.notna(fdf['mcafss_edu1_prog']) and fdf['mcafss_edu1_prog'] not in [1,2,3,4,5,6,7])): ### Y12Q4 changed from "NO".
+        return "Not a student/trainee" ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
+    ###########
+    ### TODO: Not sure what to put for "Unrecognized Value" for LL.
     ###########
     else:
         return "Unknown/Did not Report"
+    ###########
     # IF [Min Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
     # ELSEIF [Min Edu Enroll] = "College 4 Year" THEN "Student/trainee"
     # ELSEIF [Min Edu Enroll] = "ESL" THEN "Student/trainee"
@@ -1720,34 +1879,43 @@ def fn_C15_Min_Educational_Enrollment(fdf):
 df3_edits1['_C15 Min Educational Enrollment'] = df3_edits1.apply(func=fn_C15_Min_Educational_Enrollment, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_C15 Min Educational Enrollment']) 
+#%%
+# inspect_col(df3_edits1['mcafss_edu1_prog']) 
+print(df3_edits1[['_C15 Min Educational Enrollment', 'Min Edu Enroll', 'mcafss_edu1_enroll', 'mcafss_edu1_prog']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 
 #%%###################################
 
 def fn_C15_Max_Educational_Enrollment(fdf):
     ###########
     ### FW.
-    if (fdf['Max Edu Enroll'] == "College 2 Year"):
+    if (fdf['Max Edu Enroll'] == "High/Middle School"):
+        return "Student/trainee HS/GED"
+    elif (fdf['Max Edu Enroll'] == "GED Program"):
+        return "Student/trainee HS/GED"
+    ##
+    elif (fdf['Max Edu Enroll'] == "College 2 Year"):
         return "Student/trainee" 
     elif (fdf['Max Edu Enroll'] == "College 4 Year"):
         return "Student/trainee"
     elif (fdf['Max Edu Enroll'] == "ESL"):
         return "Student/trainee"
-    elif (fdf['Max Edu Enroll'] == "GED Program"):
-        return "Student/trainee HS/GED"
     elif (fdf['Max Edu Enroll'] == "Graduate School"):
         return "Student/trainee"
-    elif (fdf['Max Edu Enroll'] == "High/Middle School"):
-        return "Student/trainee HS/GED"
-    elif (fdf['Max Edu Enroll'] == "Not Enrolled in School"):
-        return "Not a student/trainee"
-    elif (fdf['Max Edu Enroll'] == "Unknown"):
-        return "Unknown/Did not Report"
     elif (fdf['Max Edu Enroll'] == "Vocational College"):
         return "Student/trainee"
+    ##
+    elif (fdf['Max Edu Enroll'] == "Not Enrolled in School"):
+        return "Not a student/trainee"
+    ##
+    elif (fdf['Max Edu Enroll'] == "Unknown"):
+        return "Unknown/Did not Report"
+    ##
+    elif (pd.notna(fdf['Max Edu Enroll'])):
+        return "Unrecognized Value"
     ###########
     ### LLCHD.
     elif (
-        fdf['mcafss_edu2_enroll'] == "YES" ### Enrolled.
+        fdf['mcafss_edu2_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
         and
         (
             fdf['mcafss_edu2_prog'] == 1 ### Enrolled in Middle School.
@@ -1758,11 +1926,29 @@ def fn_C15_Max_Educational_Enrollment(fdf):
         )
     ):
         return "Student/trainee HS/GED" 
-    elif (fdf['mcafss_edu2_enroll'] == "NO"):
-        return "Not a student/trainee" ### Only significant difference from '_C15 Min Educational Enrollment'.
+    ### Added Y12Q4.
+    elif (
+        fdf['mcafss_edu2_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
+        and
+        (
+            fdf['mcafss_edu2_prog'] == 4 ### ESL.
+            or
+            fdf['mcafss_edu2_prog'] == 5 ### Adult education in basic reading or math.
+            or
+            fdf['mcafss_edu2_prog'] == 6 ### College.
+            or
+            fdf['mcafss_edu2_prog'] == 7 ### Vocational training, technical or trade school (excluding training received during HS).
+        )
+    ):
+        return "Student/trainee" 
+    elif (fdf['mcafss_edu2_enroll'] == "N" or (pd.notna(fdf['mcafss_edu2_prog']) and fdf['mcafss_edu2_prog'] not in [1,2,3,4,5,6,7])): ### Y12Q4 changed from "NO".
+        return "Not a student/trainee"
+    ###########
+    ### TODO: Not sure what to put for "Unrecognized Value" for LL.
     ###########
     else:
         return "Unknown/Did not Report"
+    ###########
     # IF [Max Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
     # ELSEIF [Max Edu Enroll] = "College 4 Year" THEN "Student/trainee"
     # ELSEIF [Max Edu Enroll] = "ESL" THEN "Student/trainee"
@@ -1798,6 +1984,8 @@ def fn_C15_Max_Educational_Enrollment(fdf):
 df3_edits1['_C15 Max Educational Enrollment'] = df3_edits1.apply(func=fn_C15_Max_Educational_Enrollment, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_C15 Max Educational Enrollment']) 
+#%%
+print(df3_edits1[['_C15 Max Educational Enrollment', 'Max Edu Enroll', 'mcafss_edu2_enroll', 'mcafss_edu2_prog']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 
 #%%###################################
 
@@ -1842,6 +2030,30 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
                 ### case np.nan:
                 ###     return "Unknown/Did Not Report"
     ###########
+            # ### TODO: this copied from var below. How to recode the above?
+            # match fdf['Fob Edu']:
+            #     # case 1 | 2:
+            #     case "Less than 8" | "8-11":
+            #         return "Less than HS diploma"
+            #     # case 3 | 4:
+            #     case "HS Grad" | "GED":
+            #         return "HS diploma/GED"
+            #     # case 5:
+            #     case "Vocational school after HS":
+            #         return "Vocational School after High School"
+            #     # case 6:
+            #     case "Some college":
+            #         return "Some college/training"
+            #     # case 7:
+            #     case "Associates degree":
+            #         return "Associates Degree" 
+            #     # case 8:
+            #     case "Bachelor’s degree or higher":
+            #         return "Bachelor's Degree or Higher"
+            #     # case 0:
+            #     case _:
+            #         return "Unrecognized Value"
+    ###########
     else:
         return np.nan 
     # //max
@@ -1877,6 +2089,10 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
 df3_edits1['_T10 FOB Educational Enrollment'] = df3_edits1.apply(func=fn_T10_FOB_Educational_Enrollment, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_T10 FOB Educational Enrollment']) 
+#%%
+# inspect_col(df3_edits1['Fob Edu']) 
+print(df3_edits1[['Fob Involved', 'Fob Involved1', '_T10 FOB Educational Enrollment', 'AD2InSchool', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+
 
 #%%###################################
 
@@ -1909,6 +2125,7 @@ def fn_C15_Min_Educational_Status(fdf):
     ###     return "Unknown/Did Not Report" ### unknown/did not report.
     elif (fdf['Mcafss Edu1'] == 0):
         return "Unknown/Did Not Report" ### unknown/did not report (missing data).
+    ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment.
     elif (fdf['Mcafss Edu1'] >= 9):
         return "Unknown/Did Not Report"
     ###########
@@ -1987,6 +2204,8 @@ def fn_C15_Min_Educational_Status(fdf):
 df3_edits1['_C15 Min Educational Status'] = df3_edits1.apply(func=fn_C15_Min_Educational_Status, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_C15 Min Educational Status']) 
+#%%
+print(df3_edits1[['_C15 Min Educational Status', 'Mcafss Edu1', 'AD1MinEdu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 
 #%%###################################
 
@@ -2099,6 +2318,8 @@ def fn_C15_Max_Educational_Status(fdf):
 df3_edits1['_C15 Max Educational Status'] = df3_edits1.apply(func=fn_C15_Max_Educational_Status, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_C15 Max Educational Status']) 
+#%%
+print(df3_edits1[['_C15 Max Educational Status', 'Mcafss Edu2', 'AD1MaxEdu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 
 #%%###################################
 
@@ -2118,14 +2339,15 @@ def fn_T09_FOB_Education_Status(fdf):
                     return "Some college/training" ### is this the right category?.
                 case "some college":
                     return "Some college/training"
-                case "associates or two year technical degree":
+                case "associates or two year technical degree" | "certificate program" | "two year degree":
+                    ### FY12Q4: DONE: Kind of copying '_C15 Min/Max Educational Status' coding for "Certificate Program" & "Two Year Degree" (but not exactly).
                     return "Technical Training or Associates Degree" ### these are two serparate categories on F1.
                 case "four year college degree" | "graduate school":
                     return "Bachelor's Degree or Higher"
                 case "unknown":
                     return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report"
+                case _:
+                    return "Unrecognized Value"
     ###########
     ### LLCHD.
     elif (fdf['Fob Involved1'] == "Y"):
@@ -2133,31 +2355,30 @@ def fn_T09_FOB_Education_Status(fdf):
             return "Unknown/Did Not Report"
         else:
             match fdf['Fob Edu']:
-                case 1 | 2:
+                # case 1 | 2:
+                case "Less than 8" | "8-11":
                     return "Less than HS diploma"
-                case 3 | 4:
+                # case 3 | 4:
+                case "HS Grad" | "GED":
                     return "HS diploma/GED"
-                case 5:
+                # case 5:
+                case "Vocational school after HS":
                     return "Vocational School after High School"
-                case 6:
+                # case 6:
+                case "Some college":
                     return "Some college/training"
-                case 7:
-                    return "Associates Degree" ### these are two serparate categories on F1.
-                case 8:
+                # case 7:
+                case "Associates degree":
+                    return "Associates Degree" 
+                # case 8:
+                case "Bachelor’s degree or higher":
                     return "Bachelor's Degree or Higher"
-                case 0:
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report"
-                ##################
-                ### Adding new option to adjust for bad code. 
-                    ### Problem is 'Fob Edu' is string, so many options NOT numbers OR NA,
-                    ### but in Tableau var was made integer so all NA.
+                # case 0:
                 case _:
-                    return "Unknown/Did Not Report"
+                    return "Unrecognized Value"
     ###########
     else:
-        return np.nan 
+        return np.nan ### likely MOB.
     # IF [Fob Involved]= True THEN CASE[AD2EDLevel] //FW
     #     WHEN "8th Grade or less" THEN "Less than HS diploma"
     #     WHEN "Some High School" THEN "Less than HS diploma"
@@ -2188,14 +2409,15 @@ def fn_T09_FOB_Education_Status(fdf):
 df3_edits1['_T09 FOB Education Status'] = df3_edits1.apply(func=fn_T09_FOB_Education_Status, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_T09 FOB Education Status']) 
-# #%%
+#%%
 # compare_col(df3_comparison_csv, df3_edits1, '_T09 FOB Education Status', info_or_value_counts='value_counts')
 # compare_col(df3_comparison_csv, df3_edits1, 'Fob Edu', info_or_value_counts='value_counts')
 inspect_col(df3_edits1['Fob Edu']) 
-### TODO: FIX this variable's logic: 'Fob Edu' should NOT be an integer; it is a string with multiple string values.
+### DONE: FIX this variable's logic: 'Fob Edu' should NOT be an integer; it is a string with multiple string values.
     ### Fix after comparison, because Tableau logic also broken.
     ### Go ahead & fix, but probably not used in Form 1 anyway.
-
+#%%
+print(df3_edits1[['Fob Involved', 'Fob Involved1', '_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 
 #%%###################################
 
@@ -2217,6 +2439,8 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "Unknown/Did Not Report"
         ###########
         ### LLCHD.
+        case "0":
+            return "No Insurance Coverage" ### Added from fn_T20_CG_Insurance_Status.
         case "1" | "Medicaid":
             return "Medicaid or CHIP"
         case "2":
@@ -2224,7 +2448,7 @@ def fn_C16_CG_Insurance_Status(fdf_column):
         case "3" | "Private":
             return "Private or Other"
         case "4":
-            return "Unknown/Did Not Report" ### Different from Form 1's "FamilyChildHealthPlus". ### TODO: standardize.
+            return "FamilyChildHealthPlus" ###  Was "Unknown/Did Not Report". Different from Form 1's "FamilyChildHealthPlus". ### DONE Y12Q4: standardize. Answer: match F1! 
         case "5" | "Uninsure":
             return "No Insurance Coverage"
         case "6" | "99" | "Unknown":
@@ -2267,6 +2491,14 @@ def fn_C16_CG_Insurance_Status(fdf_column):
 df3_edits1['_C16 CG Insurance 1 Status'] = df3_edits1['AD1PrimaryIns.1'].apply(func=fn_C16_CG_Insurance_Status) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_C16 CG Insurance 1 Status']) 
+#%%
+print(df3_edits1[['_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code?
+### See "df3_unrecognized_values". Rows with "Unrecognized Value":
+df3_edits1[['Project Id','Year','Quarter', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_C16 CG Insurance 1 Status` == "Unrecognized Value"')
+# #%% ### Run df3_unrecognized_values code below first:
+# ### [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 1 Status']
 # #%%
 # compare_col(df3_comparison_csv, df3_edits1, '_C16 CG Insurance 1 Status')
 # #%%
@@ -2495,38 +2727,48 @@ inspect_col(df3_edits1['_FOB Involved'])
 def fn_MOB_TGT_Relation(fdf):
     ###########
     ### FW.
-    if (fdf['Adult1TGTRelation'] == "Biological mother"):
-        return "MOB" 
-    elif (fdf['Adult1TGTRelation'] == "Biological father"):
+    if (
+        (fdf['Adult1TGTRelation'] == "Adoptive mother")
+        or (fdf['Adult1TGTRelation'] == "Aunt") ### Added Y12Q4.
+        or (fdf['Adult1TGTRelation'] == "Biological mother")
+        or (fdf['Adult1TGTRelation'] == "Foster mother")
+        or (fdf['Adult1TGTRelation'] == "Grandmother")
+        or (fdf['Adult1TGTRelation'] == "Guardian")
+        or (fdf['Adult1TGTRelation'] == "MOB")
+        or (fdf['Adult1TGTRelation'] == "Mother") ### Added Y12Q4.
+    ):
+        return "MOB"
+    elif (
+        (fdf['Adult1TGTRelation'] == "Adoptive father")
+        or (fdf['Adult1TGTRelation'] == "Biological father")
+        or (fdf['Adult1TGTRelation'] == "FOB")
+    ):
         return "FOB"
-    elif (fdf['Adult1TGTRelation'] == "FOB"):
-        return "FOB"
-    elif (fdf['Adult1TGTRelation'] == "MOB"):
-        return "MOB"
-    elif (fdf['Adult1TGTRelation'] == "Adoptive father"):
-        return "FOB"
-    elif (fdf['Adult1TGTRelation'] == "Adoptive mother"):
-        return "MOB"
-    elif (fdf['Adult1TGTRelation'] == "Foster mother"):
-        return "MOB"
-    elif (fdf['Adult1TGTRelation'] == "Grandmother"):
-        return "MOB"
-    elif (fdf['Adult1TGTRelation'] == "Guardian"):
-        return "MOB"
     elif (pd.notna(fdf['Adult1TGTRelation'])):
         return "Unrecognized Value"
     ###########
     ### LLCHD.
-    elif (fdf['Primary Relation'] == "FATHER OF CHILD"):
-        return "FOB" 
-    elif (fdf['Primary Relation'] == "MOTHER OF CHILD"):
+    elif (
+        (fdf['Primary Relation'] == "MOTHER OF CHILD")
+        or (fdf['Primary Relation'] == "PRIMARY CAREGIVER" and fdf['Mob Gender'] == "F")
+        or (fdf['Primary Relation'] == "Bio parent" and fdf['Mob Gender'] == "F") ### Added Y12Q4.
+        or (fdf['Primary Relation'] == "Grandparent" and fdf['Mob Gender'] == "F") ### Added Y12Q4.
+        or (fdf['Primary Relation'] == "Other" and fdf['Mob Gender'] == "F") ### Added Y12Q4.
+    ):
         return "MOB"
-    elif (fdf['Primary Relation'] == "PRIMARY CAREGIVER" and fdf['Mob Gender'] == "F"):
-        return "MOB"
-    elif (fdf['Primary Relation'] == "PRIMARY CAREGIVER" and fdf['Mob Gender'] == "M"):
+    elif (
+        (fdf['Primary Relation'] == "FATHER OF CHILD")
+        or (fdf['Primary Relation'] == "PRIMARY CAREGIVER" and fdf['Mob Gender'] == "M")
+        or (fdf['Primary Relation'] == "Bio parent" and fdf['Mob Gender'] == "M") ### Added Y12Q4.
+        or (fdf['Primary Relation'] == "Grandparent" and fdf['Mob Gender'] == "M") ### Added Y12Q4.
+    ):
         return "FOB"
     elif (pd.notna(fdf['Primary Relation'])):
         return "Unrecognized Value"
+    ###########
+    else:
+        return np.nan
+    ###########
     # IF [Adult1TGTRelation] = "Biological mother" THEN "MOB" //FW
     # ELSEIF  [Adult1TGTRelation] = "Biological father" THEN "FOB"
     # ELSEIF  [Adult1TGTRelation] = "FOB" THEN "FOB"
@@ -2546,6 +2788,20 @@ def fn_MOB_TGT_Relation(fdf):
 df3_edits1['_MOB TGT Relation'] = df3_edits1.apply(func=fn_MOB_TGT_Relation, axis=1) 
     ### Data Type in Tableau: 'string'.
 inspect_col(df3_edits1['_MOB TGT Relation']) 
+#%%
+print(df3_edits1[['_MOB TGT Relation', 'Adult1TGTRelation', 'Primary Relation', 'Mob Gender']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### TODO: UV when LL & 'Primary Relation' is "Bio parent" but 'Mob Gender' is NA. How to assign? Default to "MOB"?
+### See "df3_unrecognized_values". Rows with "Unrecognized Value":
+df3_edits1[['Project Id','Year','Quarter', '_MOB TGT Relation', 'Adult1TGTRelation', 'Primary Relation', 'Mob Gender']].query(f'`_MOB TGT Relation` == "Unrecognized Value"')
+# #%% ### Run df3_unrecognized_values code below first:
+# ### [x for x in df3_unrecognized_values if x["col"] == '_MOB TGT Relation']
+#%%
+inspect_col(df3_edits1['Adult1TGTRelation']) 
+#%%
+inspect_col(df3_edits1['Primary Relation']) 
+#%%
+inspect_col(df3_edits1['Mob Gender']) 
 
 #%%###################################
 
@@ -3260,7 +3516,40 @@ df3_edits1_sorted = df3_edits1.sort_values(by=['Project Id','Year','Quarter'], i
 ### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
 ### Across many variables.
 
+# df3_edits1[df3_edits1 == 'Unrecognized Value'].query('@df3_edits1 == "Unrecognized Value"')
+# df3_edits1.query('@df3_edits1 == "Unrecognized Value"')
 
+#%%
+# df3_unrecognized_values = fn_find_unrecognized_value(df3_edits1)
+df3_unrecognized_values = fn_find_unrecognized_value(df3_edits1.query(f'`Year` == 12 & `Quarter` == 4'))
+
+#%%
+len(df3_unrecognized_values)
+#%%
+### Columns that have "Unrecognized Value":
+[x['col'] for x in df3_unrecognized_values]
+
+#%%
+### Look at one column:
+# df3_unrecognized_values[0]
+
+# ### New values Y12Q4.
+# [x for x in df3_unrecognized_values if x["col"] == '_MOB TGT Relation'] ### New situation. How to code?
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 1 Status'] ### New values. How to code?
+
+# ### ONLY Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 9 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 10 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 11 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 12 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 13 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 14 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 15 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] == '_C16 CG Insurance 16 Status'] ### Only Y12Q1.
+# [x for x in df3_unrecognized_values if x["col"] in ['_C16 CG Insurance 9 Status', '_C16 CG Insurance 10 Status', '_C16 CG Insurance 11 Status', '_C16 CG Insurance 12 Status', '_C16 CG Insurance 13 Status', '_C16 CG Insurance 14 Status', '_C16 CG Insurance 15 Status', '_C16 CG Insurance 16 Status']] ### Only Y12Q1.
+
+
+#!HERE
 
 #%%##################################################
 ### Prepare CSV ###
@@ -3379,6 +3668,12 @@ print(f'df3_comparison_csv Rows: {len(df3_comparison_csv)}')
 
 print(f'df3__final_from_csv Columns: {len(df3__final_from_csv.columns)}')
 print(f'df3_comparison_csv Columns: {len(df3_comparison_csv.columns)}')
+
+#%%
+#!HERE #TODO
+### When deduplicated: Identify which rows are not coming through. Problem is that multiple columns are not aligned, so can't tell.
+# df3_comparison_csv[['Project Id','Year','Quarter']].merge(df3__final_from_csv[['Project Id','Year','Quarter']], indicator=True, how='left').loc[lambda x : x['_merge']!='both']
+
 
 #%%
 df3__final_from_csv == df3_comparison_csv
@@ -3506,10 +3801,10 @@ var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Ref
 ###################################
 
 #%%
-# var_to_compare = 'Fob Edu' ### TODO: Fix: NOT supposed to be an int, but is int in Tableau.
+# var_to_compare = 'Fob Edu' ### DONE: Fix: NOT supposed to be an int, but is int in Tableau.
 # var_to_compare = '_T09 FOB Education Status' ### Temporarily fixed, but need to actually fix for 'Fob Edu'.
 # var_list_for_comparison = ['_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']
-### TODO: Fix code above after comparisons are done.
+### DONE: Fix code above after comparisons are done.
 
 ###################################
 

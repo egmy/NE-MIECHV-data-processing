@@ -45,7 +45,8 @@ print('Version Of Numpy: ' + np.version.version)
 
 # nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
 # nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
-nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
+# nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
+nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
 
 ###########################
 ### Federal Poverty Guidelines
@@ -59,7 +60,7 @@ if (nehv_quarter == 'Y12Q1 (Oct 2022 - Dec 2023)'):
     Fpg_Increment = 4720 
 
 ### 2023: https://www.federalregister.gov/documents/2023/01/19/2023-00885/annual-update-of-the-hhs-poverty-guidelines 
-elif (nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 2023)')):
+elif (nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 2023)', 'Y12Q4 (Oct 2022 - Sep 2023)')):
     ### 9440 + (5140 * [household size])
     Fpg_Base = 9440 
     Fpg_Increment = 5140 
@@ -68,9 +69,13 @@ elif (nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 202
 ### PATHS ###
 #####################################################
 
-path_dir_input = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\01_input', nehv_quarter)
-### path_dir_mid = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\02_mid_process', nehv_quarter)
-path_dir_output = Path('U:\\Working\\nebraska_miechv_coded_data_source\\data\\03_output', nehv_quarter)
+path_code_base = Path('U:\\Working\\nehv_ds_code_repository\\code\\1main\\1.4tableau')
+
+path_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau')
+
+path_dir_input = Path(path_files_base, '0in', nehv_quarter)
+### path_dir_mid = Path(path_files_base, '02_mid_process', nehv_quarter)
+path_dir_output = Path(path_files_base, '9out', nehv_quarter)
 
 ###########################
 ### Data Source for 2nd Tableau file:
@@ -131,7 +136,7 @@ path_4_output = Path(path_dir_output, 'Adult Activity Master File for Form 1 fro
 ### Comparison Files ###
 ### Files created for selected quarter by the old data sourcing process with Tableau.
 
-path_dir_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output', nehv_quarter)
+path_dir_comparison_csv = Path(path_files_base, 'previous/output', nehv_quarter)
 
 path_2_comparison_csv = Path(path_dir_comparison_csv, 'Child Activity Master File from Excel on NE Server.csv')
 path_3_comparison_csv = Path(path_dir_comparison_csv, 'Adult Activity Master File from Excel on NE Server.csv')
@@ -182,6 +187,19 @@ def fn_all_value_counts(fdf):
         print('Column: ', column)
         print(fdf[column].value_counts(dropna=False).to_string(), '\n')
 
+def fn_find_unrecognized_value(fdf):
+    fn_list = []
+    for col_index, col in enumerate(fdf.columns):
+        if (fdf[col].isin(['Unrecognized Value']).any()):
+            fn_list.append({
+                'col': col
+                ,'col_index': col_index
+                ,'col_row_indices': fdf[['Project Id','Year','Quarter', col]].query(f'`{col}` == "Unrecognized Value"').index.tolist()
+                ,'col_row_ids': fdf.query(f'`{col}` == "Unrecognized Value"')['Project Id'].tolist()
+                ,'col_df': fdf[['Project Id','Year','Quarter', col]].query(f'`{col}` == "Unrecognized Value"')
+            })
+    print(fn_list)
+    return fn_list 
 
 #%%##################################################
 ### END of Setup ###
@@ -194,20 +212,15 @@ print('end setup')
 ### RUN CODE FILES ###
 #####################################################
 
-# runpy.run_path('ne_replacing_tableau_1_CPS_ID_File.py')
-# runpy.run_path('ne_replacing_tableau_2_Child_Activities.py')
-# runpy.run_path('ne_replacing_tableau_3_Adult_Activities_Form2DS.py')
-# runpy.run_path('ne_replacing_tableau_4_Adult_Activities_Form1DS.py')
-# runpy.run_path('ne_replacing_tableau_5_Child_CPS_Agg_Data.py')
+# runpy.run_path(Path(path_code_base, 'ne_replacing_tableau_2_Child_Activities.py'))
+# runpy.run_path(Path(path_code_base, 'ne_replacing_tableau_3_Adult_Activities_Form2DS.py'))
+# runpy.run_path(Path(path_code_base, 'ne_replacing_tableau_4_Adult_Activities_Form1DS.py'))
 
 ### THIS seems to work best:
 
-# exec(open('ne_replacing_tableau_1_CPS_ID_File.py').read())
-# exec(open('ne_replacing_tableau_5_Child_CPS_Agg_Data.py').read())
-
-exec(open('ne_replacing_tableau_2_Child_Activities.py').read())
-exec(open('ne_replacing_tableau_3_Adult_Activities_Form2DS.py').read())
-exec(open('ne_replacing_tableau_4_Adult_Activities_Form1DS.py').read())
+# exec(open(Path(path_code_base, 'ne_replacing_tableau_2_Child_Activities.py')).read())
+# exec(open(Path(path_code_base, 'ne_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
+# exec(open(Path(path_code_base, 'ne_replacing_tableau_4_Adult_Activities_Form1DS.py')).read())
 
 
 #%%##################################################

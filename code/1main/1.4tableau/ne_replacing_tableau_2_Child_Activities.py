@@ -8,39 +8,52 @@
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
-### SETUP ###
-#####################################################
-
-### import RUNME ### This does not run the code.
-
-# exec(open('RUNME.py').read())
-
-#%%##################################################
 ### PACKAGES ###
 #####################################################
 
 ### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
 
-# import pandas as pd
-# import numpy as np
-# import sys
-# import collections
-# import re
+from pathlib import Path
+import pandas as pd
+import numpy as np
+import sys
+import collections
+import re
 
-# print('Version Of Python: ' + sys.version)
-# print('Version Of Pandas: ' + pd.__version__)
-# print('Version Of Numpy: ' + np.version.version)
+print('Version Of Python: ' + sys.version)
+print('Version Of Pandas: ' + pd.__version__)
+print('Version Of Numpy: ' + np.version.version)
 
-# from RUNME import inspect_df
-# from RUNME import inspect_col
-# from RUNME import compare_col
-# from RUNME import fn_all_value_counts
+from RUNME import inspect_df
+from RUNME import inspect_col
+from RUNME import compare_col
+from RUNME import fn_all_value_counts
+from RUNME import fn_find_unrecognized_value
+
+#%%##################################################
+### SETUP ###
+#####################################################
+
+### import RUNME ### This does not run the code.
+
+path_code_base = Path('U:\\Working\\nehv_ds_code_repository\\code\\1main\\1.4tableau')
+exec(open(Path(path_code_base, 'RUNME.py')).read())
+
+#%%
+deduplicate_df2 = False
 
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
 df2_comparison_csv = pd.read_csv(path_2_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
+print(f'df2_comparison_csv Rows: {len(df2_comparison_csv)}')
+
+#%%
+### Y12Q4 deduplicated rows to 3109 rows vs. original comparison of 3155.
+if deduplicate_df2:
+    df2_comparison_csv = df2_comparison_csv.drop_duplicates(ignore_index=True) 
+print(f'df2_comparison_csv Rows: {len(df2_comparison_csv)}')
 df2_comparison_csv = df2_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 #%%##################################################
@@ -138,8 +151,8 @@ df2_3_col_detail = [
     ,['ReadTellStorySing', 'Read Tell Story Sing', '', 'string'] ### 'string' in Tableau & needs to be read in as such.
     ,['BehaviorDenom', 'Behavior Denom', '', 'Int64']
     ,['BehaviorNumer', 'Behavior Numer', '', 'Int64']
-    ### ,['HomeVisitsPrental', 'Home Visits Prental', '', 'Int64'] ### Variable in Y12Q1&Q2, but missing from Y12Q3. TODO: Why?
-    ### ,['HomeVisitsTotal', 'Home Visits Total', '', 'Int64'] ### Variable in Y12Q1&Q2, but missing from Y12Q3. TODO: Why?
+    ### ,['HomeVisitsPrental', 'Home Visits Prental', '', 'Int64'] ### Variable in Y12Q1&Q2, but missing from Y12Q3. RESOLVED: Why? Answer: HV should be calculated from Adult data, so removed.
+    ### ,['HomeVisitsTotal', 'Home Visits Total', '', 'Int64'] ### Variable in Y12Q1&Q2, but missing from Y12Q3. RESOLVED: Why? Answer: HV should be calculated from Adult data, so removed.
     ,['TGTInsureChangeDate', 'TGT Insure Change Date', '', 'datetime64[ns]']
     ,['CHINSPrimaryIns', 'CHINS Primary Ins', '', 'string']
     ,['MOB LANGUAGE', 'Mob Language', '', 'string']
@@ -421,16 +434,16 @@ xlsx_df2 = pd.ExcelFile(path_2_data_source_file)
 #%% 
 ### CHECK that all path_2_data_source_sheets same as xlsx.sheet_names (different order ok):
 print(sorted(path_2_data_source_sheets))
-print([x for x in sorted(xlsx.sheet_names) if x != 'Birth File'])
-sorted(path_2_data_source_sheets) == [x for x in sorted(xlsx.sheet_names) if x != 'Birth File']
+print([x for x in sorted(xlsx_df2.sheet_names) if x != 'Birth File'])
+sorted(path_2_data_source_sheets) == [x for x in sorted(xlsx_df2.sheet_names) if x != 'Birth File']
 
 #%%
 ### READ all sheets:
-df2_1 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df2_1_col_dtypes)
-df2_2 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df2_2_col_dtypes)
-df2_3 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=df2_3_col_dtypes) ### object not string because code can't handle NA's until end.
-df2_4 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
-df2_5 = pd.read_excel(xlsx, sheet_name=path_2_data_source_sheets[4], keep_default_na=False, na_values=[''])#, dtype=df2_5_col_dtypes)
+df2_1 = pd.read_excel(xlsx_df2, sheet_name=path_2_data_source_sheets[0], keep_default_na=False, na_values=[''])#, dtype=df2_1_col_dtypes)
+df2_2 = pd.read_excel(xlsx_df2, sheet_name=path_2_data_source_sheets[1], keep_default_na=False, na_values=[''])#, dtype=df2_2_col_dtypes)
+df2_3 = pd.read_excel(xlsx_df2, sheet_name=path_2_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=df2_3_col_dtypes) ### object not string because code can't handle NA's until end.
+df2_4 = pd.read_excel(xlsx_df2, sheet_name=path_2_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=df2_4_col_dtypes)
+df2_5 = pd.read_excel(xlsx_df2, sheet_name=path_2_data_source_sheets[4], keep_default_na=False, na_values=[''])#, dtype=df2_5_col_dtypes)
 
 ### Review each sheet:
 ### Note: Even empty DFs merge fine below.
@@ -499,157 +512,238 @@ df2_5 = df2_5.rename(columns=df2_5_colnames)
 ### Prep for JOIN ###
 #####################################################
 
-# ### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
-# ### TO DO: Actually run section to deduplicate.
+### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
 
-# #%%### Restart deduplication
-# ### df2_1 = df2_1_bf_ddup.copy()
-# ### df2_2 = df2_2_bf_ddup.copy()
-# ### df2_3 = df2_3_bf_ddup.copy()
-# ### df2_4 = df2_4_bf_ddup.copy()
-# ### df2_5 = df2_5_bf_ddup.copy()
+#%%### Restart deduplication
+### df2_1 = df2_1_bf_ddup.copy()
+### df2_2 = df2_2_bf_ddup.copy()
+### df2_3 = df2_3_bf_ddup.copy()
+### df2_4 = df2_4_bf_ddup.copy()
+### df2_5 = df2_5_bf_ddup.copy()
 
-# #######################
-# ### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
-# #%%### df2_1: 'Project ID'. 
-# ### Backup:
-# df2_1_bf_ddup = df2_1.copy()
-# #%%### df2_1: 'Project ID'. 
-# ### Duplicate rows:
-# df2_1[df2_1.duplicated()]
-# #%%### df2_1: 'Project ID'. 
-# ### Dropping duplicate rows:
-# df2_1 = df2_1.drop_duplicates(ignore_index=True)
-# df2_1
-# #%%### df2_1: 'Project ID'. 
-# ### Test
-# len(df2_1_bf_ddup) - len(df2_1) == len(df2_1_bf_ddup[df2_1_bf_ddup.duplicated()])
-# #%%### df2_1: 'Project ID'. 
-# if (len(df2_1_bf_ddup) != len(df2_1)):
-#     print(f'{len(df2_1_bf_ddup) - len(df2_1)} duplicate rows dropped.')
-# elif (len(df2_1_bf_ddup) == len(df2_1)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: Q1?Q2?: 6 duplicate rows. #TODO: Fix in Master File creation.
+### NOTE: Y12Q4: 12 duplicate rows. #TODO: Fix in Master File creation.
+#%%### df2_1: 'Project ID'. 
+### Backup:
+df2_1_bf_ddup = df2_1.copy()
+#%%### df2_1: 'Project ID'. 
+### Duplicate rows:
+df2_1[df2_1.duplicated()]
+#%%### df2_1: 'Project ID'. 
+### Dropping duplicate rows:
+if deduplicate_df2:
+    df2_1 = df2_1.drop_duplicates(ignore_index=True)
+df2_1
+#%%### df2_1: 'Project ID'. 
+### Test
+len(df2_1_bf_ddup) - len(df2_1) == len(df2_1_bf_ddup[df2_1_bf_ddup.duplicated()])
+#%%### df2_1: 'Project ID'. 
+if (len(df2_1_bf_ddup) != len(df2_1)):
+    print(f'{len(df2_1_bf_ddup) - len(df2_1)} duplicate rows dropped.')
+elif (len(df2_1_bf_ddup) == len(df2_1)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df2_1: 'Project ID'. 
+### join columns: ['Project Id','Year','Quarter']
+### Show rows where join columns are same BUT some other columns are not:
+df2_1[df2_1[['Project Id','Year','Quarter']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: NO ROWS.
-# #%%### df2_2: 'ER Injury'.
-# df2_2_bf_ddup = df2_2.copy()
-# #%%### df2_2: 'ER Injury'.
-# df2_2[df2_2.duplicated()]
-# # df2_2[df2_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
-# #%%### df2_2: 'ER Injury'.
-# df2_2 = df2_2.drop_duplicates(ignore_index=True)
-# df2_2
-# #%%### df2_2: 'ER Injury'.
-# len(df2_2_bf_ddup) - len(df2_2) == len(df2_2_bf_ddup[df2_2_bf_ddup.duplicated()])
-# #%%### df2_2: 'ER Injury'.
-# if (len(df2_2_bf_ddup) != len(df2_2)):
-#     print(f'{len(df2_2_bf_ddup) - len(df2_2)} duplicate rows dropped.')
-# elif (len(df2_2_bf_ddup) == len(df2_2)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: Q1?Q2?: NO ROWS.
+### NOTE: Y12Q4: No duplicate rows.
+#%%### df2_2: 'ER Injury'.
+df2_2_bf_ddup = df2_2.copy()
+#%%### df2_2: 'ER Injury'.
+df2_2[df2_2.duplicated()]
+# df2_2[df2_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
+#%%### df2_2: 'ER Injury'.
+if deduplicate_df2:
+    df2_2 = df2_2.drop_duplicates(ignore_index=True)
+df2_2
+#%%### df2_2: 'ER Injury'.
+len(df2_2_bf_ddup) - len(df2_2) == len(df2_2_bf_ddup[df2_2_bf_ddup.duplicated()])
+#%%### df2_2: 'ER Injury'.
+if (len(df2_2_bf_ddup) != len(df2_2)):
+    print(f'{len(df2_2_bf_ddup) - len(df2_2)} duplicate rows dropped.')
+elif (len(df2_2_bf_ddup) == len(df2_2)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df2_2: 'ER Injury'.
+### join columns: ['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)']
+### Show rows where join columns are same BUT some other columns are not:
+df2_2[df2_2[['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)']].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: 6 duplicate rows. TO DO: Fix in Master File creation.
-# #%%### df2_3: 'Family Wise'.
-# df2_3_bf_ddup = df2_3.copy()
-# #%%### df2_3: 'Family Wise'.
-# df2_3[df2_3.duplicated()]
-# # df2_3[df2_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
-# #%%### df2_3: 'Family Wise'.
-# df2_3 = df2_3.drop_duplicates(ignore_index=True)
-# df2_3
-# #%%### df2_3: 'Family Wise'.
-# len(df2_3_bf_ddup) - len(df2_3) == len(df2_3_bf_ddup[df2_3_bf_ddup.duplicated()])
-# #%%### df2_3: 'Family Wise'.
-# if (len(df2_3_bf_ddup) != len(df2_3)):
-#     print(f'{len(df2_3_bf_ddup) - len(df2_3)} duplicate rows dropped.')
-# elif (len(df2_3_bf_ddup) == len(df2_3)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#######################
+### NOTE: Q1?Q2?: 6 duplicate rows. #TODO: Fix in Master File creation.
+### NOTE: Y12Q4: 22 duplicate rows. #TODO: Fix in Master File creation.
+#%%### df2_3: 'Family Wise'.
+df2_3_bf_ddup = df2_3.copy()
+#%%### df2_3: 'Family Wise'.
+df2_3[df2_3.duplicated()]
+# df2_3[df2_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
+#%%### df2_3: 'Family Wise'.
+if deduplicate_df2:
+    df2_3 = df2_3.drop_duplicates(ignore_index=True)
+df2_3
+#%%### df2_3: 'Family Wise'.
+len(df2_3_bf_ddup) - len(df2_3) == len(df2_3_bf_ddup[df2_3_bf_ddup.duplicated()])
+#%%### df2_3: 'Family Wise'.
+if (len(df2_3_bf_ddup) != len(df2_3)):
+    print(f'{len(df2_3_bf_ddup) - len(df2_3)} duplicate rows dropped.')
+elif (len(df2_3_bf_ddup) == len(df2_3)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df2_3: 'Family Wise'.
+### join columns: ['Project ID','year (Family Wise)','quarter (Family Wise)']
+### Show rows where join columns are same BUT some other columns are not:
+### TODO: make lists for each group of join columns.
+join_vars_df2_3 = ['Project ID','year (Family Wise)','quarter (Family Wise)']
+df2_3[df2_3[join_vars_df2_3].duplicated(keep=False)]
 
-# #######################
-# ### NOTE: NO duplicate rows.
-# #%%### df2_4: 'LLCHD'.
-# df2_4_bf_ddup = df2_4.copy()
-# #%%### df2_4: 'LLCHD'.
-# df2_4[df2_4.duplicated()]
-# # df2_4[df2_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
-# #%%### df2_4: 'LLCHD'.
-# df2_4 = df2_4.drop_duplicates(ignore_index=True)
-# df2_4
-# #%%### df2_4: 'LLCHD'.
-# len(df2_4_bf_ddup) - len(df2_4) == len(df2_4_bf_ddup[df2_4_bf_ddup.duplicated()])
-# #%%### df2_4: 'LLCHD'.
-# if (len(df2_4_bf_ddup) != len(df2_4)):
-#     print(f'{len(df2_4_bf_ddup) - len(df2_4)} duplicate rows dropped.')
-# elif (len(df2_4_bf_ddup) == len(df2_4)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#%%
+TESTdf2_3 = df2_3[df2_3[join_vars_df2_3].duplicated(keep=False)]
+print([col for col in [col for col in [*TESTdf2_3] if col not in join_vars_df2_3] if (len(TESTdf2_3.loc[TESTdf2_3.index[0:2], col].value_counts(dropna=False)) != 1)])
+print([col for col in [col for col in [*TESTdf2_3] if col not in join_vars_df2_3] if (len(TESTdf2_3.loc[TESTdf2_3.index[2:4], col].value_counts(dropna=False)) != 1)])
 
-# #######################
-# ### NOTE: NO duplicate rows.
-# #%%### df2_5: 'Well Child'.
-# df2_5_bf_ddup = df2_5.copy()
-# #%%### df2_5: 'Well Child'.
-# df2_5[df2_5.duplicated()]
-# # df2_5[df2_5.duplicated(keep=False, subset=['Project ID1','year (Well Child)','quarter (Well Child)'])]
-# #%%### df2_5: 'Well Child'.
-# df2_5 = df2_5.drop_duplicates(ignore_index=True)
-# df2_5
-# #%%### df2_5: 'Well Child'.
-# len(df2_5_bf_ddup) - len(df2_5) == len(df2_5_bf_ddup[df2_5_bf_ddup.duplicated()])
-# #%%### df2_5: 'Well Child'.
-# if (len(df2_5_bf_ddup) != len(df2_5)):
-#     print(f'{len(df2_5_bf_ddup) - len(df2_5)} duplicate rows dropped.')
-# elif (len(df2_5_bf_ddup) == len(df2_5)):
-#     print('No duplicate rows.')
-# else:
-#     print("Don't know what's going on here!")
+#%%
+TESTdf2_3.loc[TESTdf2_3.index[0:2], join_vars_df2_3 + [col for col in [col for col in [*TESTdf2_3] if col not in join_vars_df2_3] if (len(TESTdf2_3.loc[TESTdf2_3.index[0:2], col].value_counts(dropna=False)) != 1)]]
+#%%
+TESTdf2_3.loc[TESTdf2_3.index[2:4], join_vars_df2_3 + [col for col in [col for col in [*TESTdf2_3] if col not in join_vars_df2_3] if (len(TESTdf2_3.loc[TESTdf2_3.index[2:4], col].value_counts(dropna=False)) != 1)]]
+### TODO: fix duplicates in Excel.
+
+#######################
+### NOTE: NO duplicate rows.
+#%%### df2_4: 'LLCHD'.
+df2_4_bf_ddup = df2_4.copy()
+#%%### df2_4: 'LLCHD'.
+df2_4[df2_4.duplicated()]
+# df2_4[df2_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
+#%%### df2_4: 'LLCHD'.
+if deduplicate_df2:
+    df2_4 = df2_4.drop_duplicates(ignore_index=True)
+df2_4
+#%%### df2_4: 'LLCHD'.
+len(df2_4_bf_ddup) - len(df2_4) == len(df2_4_bf_ddup[df2_4_bf_ddup.duplicated()])
+#%%### df2_4: 'LLCHD'.
+if (len(df2_4_bf_ddup) != len(df2_4)):
+    print(f'{len(df2_4_bf_ddup) - len(df2_4)} duplicate rows dropped.')
+elif (len(df2_4_bf_ddup) == len(df2_4)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df2_4: 'LLCHD'.
+### join columns: ['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'] 
+### Show rows where join columns are same BUT some other columns are not:
+df2_4[df2_4[['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']].duplicated(keep=False)]
+
+#######################
+### NOTE: NO duplicate rows.
+#%%### df2_5: 'Well Child'.
+df2_5_bf_ddup = df2_5.copy()
+#%%### df2_5: 'Well Child'.
+df2_5[df2_5.duplicated()]
+# df2_5[df2_5.duplicated(keep=False, subset=['Project ID1','year (Well Child)','quarter (Well Child)'])]
+#%%### df2_5: 'Well Child'.
+if deduplicate_df2:
+    df2_5 = df2_5.drop_duplicates(ignore_index=True)
+df2_5
+#%%### df2_5: 'Well Child'.
+len(df2_5_bf_ddup) - len(df2_5) == len(df2_5_bf_ddup[df2_5_bf_ddup.duplicated()])
+#%%### df2_5: 'Well Child'.
+if (len(df2_5_bf_ddup) != len(df2_5)):
+    print(f'{len(df2_5_bf_ddup) - len(df2_5)} duplicate rows dropped.')
+elif (len(df2_5_bf_ddup) == len(df2_5)):
+    print('No duplicate rows.')
+else:
+    print("Don't know what's going on here!")
+#######################
+#%%### df2_5: 'Well Child'.
+### join columns: ['Project ID1','year (Well Child)','quarter (Well Child)'] 
+### Show rows where join columns are same BUT some other columns are not:
+df2_5[df2_5[['Project ID1','year (Well Child)','quarter (Well Child)']].duplicated(keep=False)]
 
 #%%##################################################
 ### JOIN ###
 #####################################################
 
-### TO DO: Turn on validation once deduplication turned on.
+# #%%
+# df2 = (
+#     pd.merge(
+#         df2_1 ### 'Project ID'.
+#         ,df2_2 ### 'ER Injury'.
+#         ,how='left' 
+#         ,left_on=['Project Id','Year','Quarter'] 
+#         ,right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'] 
+#         ,indicator='LJ_df2_2ER'
+#         ,validate='one_to_one'
+#     ).merge(
+#         df2_3 ### 'Family Wise'.
+#         ,how='left' 
+#         ,left_on=['Project Id','Year','Quarter'] 
+#         ,right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'] 
+#         ,indicator='LJ_df2_3FW'
+#         # ,validate='one_to_one'
+#     ).merge(
+#         df2_4 ### 'LLCHD'.
+#         ,how='left' 
+#         ,left_on=['Project Id','Year','Quarter'] 
+#         ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'] 
+#         ,indicator='LJ_df2_4LL'
+#         # ,validate='one_to_one'
+#     ).merge(
+#         df2_5 ### 'Well Child'.
+#         ,how='left' 
+#         ,left_on=['Project Id','Year','Quarter'] 
+#         ,right_on=['Project ID1','year (Well Child)','quarter (Well Child)'] 
+#         ,indicator='LJ_df2_5WC'
+#         # ,validate='one_to_one'
+#         ### ,validate='one_to_many'
+#     ) 
+# )
 
 #%%
+### New join: issues: (1) df2_2_ER is one_to_many, (2) df2_3_FW has 2 pairs of kind-of duplicate rows.
 df2 = (
     pd.merge(
-        df2_1 ### 'Project ID'.
-        ,df2_2 ### 'ER Injury'.
-        ,how='left' 
-        ,left_on=['Project Id','Year','Quarter'] 
-        ,right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'] 
-        ,indicator='LJ_df2_2ER'
-        # ,validate='one_to_one'
-    ).merge(
-        df2_3 ### 'Family Wise'.
-        ,how='left' 
-        ,left_on=['Project Id','Year','Quarter'] 
-        ,right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'] 
-        ,indicator='LJ_df2_3FW'
-        # ,validate='one_to_one'
-    ).merge(
+        df2_1, ### 'Project ID'.
         df2_4 ### 'LLCHD'.
         ,how='left' 
         ,left_on=['Project Id','Year','Quarter'] 
         ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'] 
         ,indicator='LJ_df2_4LL'
-        # ,validate='one_to_one'
+        # ,validate='one_to_one' ### Y12Q4: Works for LL.
+    ).merge(
+        df2_3 ### 'Family Wise'.
+        ###,df2_3[remove duplicate rows #TODO] ### 'Family Wise'.
+        ,how='left' 
+        ,left_on=['Project Id','Year','Quarter'] 
+        ,right_on=['Project ID','year (Family Wise)','quarter (Family Wise)'] 
+        ,indicator='LJ_df2_3FW'
+        #,validate='one_to_one'
     ).merge(
         df2_5 ### 'Well Child'.
         ,how='left' 
         ,left_on=['Project Id','Year','Quarter'] 
         ,right_on=['Project ID1','year (Well Child)','quarter (Well Child)'] 
         ,indicator='LJ_df2_5WC'
-        # ,validate='one_to_one'
-    ) 
+        # ,validate='one_to_one' ### works for only LL... but does does it apply to LL?
+    ).merge(
+        df2_2 ### 'ER Injury'.
+        ,how='left' 
+        ,left_on=['Project Id','Year','Quarter'] 
+        ,right_on=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'] 
+        ,indicator='LJ_df2_2ER'
+        # ,validate='one_to_one' ### works for only LL.
+        ### ,validate='one_to_many'
+    )
 )
 
 ### Note: FW & LLCHD are created first.
@@ -881,10 +975,13 @@ df2_edits1['_Zip'] = df2_edits1['zip'].combine_first(df2_edits1['ZIP Code'])
 
 #%%###################################
 
-### In Y12Q3 this variable is broken. ### TODO: Why did 'Home Visits Total' disappear? Is '_T16' not needed in Form 1? What to do?
-# df2_edits1['_T16 Total Home Visits'] = df2_edits1['Home Visits Total'].combine_first(df2_edits1['Home Visits Num'])
+### In Y12Q3 this variable is broken. 
+### df2_edits1['_T16 Total Home Visits'] = df2_edits1['Home Visits Total'].combine_first(df2_edits1['Home Visits Num'])
     ### IFNULL([Home Visits Total],[Home Visits Num])
     ### Data Type in Tableau: integer.
+### RESOLVED: Why did 'Home Visits Total' disappear? Is '_T16' not needed in Form 1? 
+### Answer: HV should be calculated from Adult data, so removed. / change to TRUE in Tableau.
+df2_edits1['_T16 Total Home Visits'] = True 
 
 #%%###################################
 ### If variables are already dtypes "datetime64", then this should be a date too:
@@ -1005,41 +1102,47 @@ print(df2_edits1[['_TGT DOB', 'Tgt Dob', 'Tgt Dob-Cr']].query('`Tgt Dob` == "190
 
 #%%###################################
 
-# def fn_C7_Safe_Sleep_Yes_Date(fdf):
-#     if ( 
-#         fdf['Sleep On Back'] == "Yes" ### FW.
-#         and fdf['Co Sleeping'] == "No"
-#         and fdf['Soft Bedding'] == "No"
-#     ):
-#         return fdf['Safe Sleep Date']
-#     else:
-#         return fdf['Safe Sleep Yes Dt'] ### LLCHD.
-#     ### IF [Sleep On Back] = "Yes" //FW
-#     ### AND [Co Sleeping] = "No"
-#     ### AND [Soft Bedding] = "No"
-#     ### THEN [Safe Sleep Date]
-#     ### ELSE [Safe Sleep Yes Dt] //LLCHD
-#     ### END
-# df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
-#     ### Data Type in Tableau: 'date'.
-# inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
+### updated Y12Q3-Q4:
+df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1['Safe Sleep Date'].combine_first(df2_edits1['Safe Sleep Yes Dt'])
+    ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
+#############################################
+### def fn_C7_Safe_Sleep_Yes_Date(fdf):
+#     ### if ( 
+#     ###     fdf['Sleep On Back'] == "Yes" ### FW.
+#     ###     and fdf['Co Sleeping'] == "No"
+#     ###     and fdf['Soft Bedding'] == "No"
+#     ### ):
+#     ###     return fdf['Safe Sleep Date']
+#     ### else:
+#     ###     return fdf['Safe Sleep Yes Dt'] ### LLCHD.
+#     ### ### IF [Sleep On Back] = "Yes" //FW
+#     ### ### AND [Co Sleeping] = "No"
+#     ### ### AND [Soft Bedding] = "No"
+#     ### ### THEN [Safe Sleep Date]
+#     ### ### ELSE [Safe Sleep Yes Dt] //LLCHD
+#     ### ### END
+### df2_edits1['_C7 Safe Sleep Yes Date'] = df2_edits1.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
+#############################################
+    ### Data Type in Tableau: 'date'.
+inspect_col(df2_edits1['_C7 Safe Sleep Yes Date'])
 # #%%
-# inspect_col(df2_edits1['Sleep On Back']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+# inspect_col(df2_edits1['Sleep On Back']) ### OLD: ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
 # #%%
-# inspect_col(df2_edits1['Co Sleeping']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+# inspect_col(df2_edits1['Co Sleeping']) ### OLD: ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
 # #%%
-# inspect_col(df2_edits1['Soft Bedding']) ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
-# #%%
-# inspect_col(df2_edits1['Safe Sleep Date'])
-# #%%
-# inspect_col(df2_edits1['Safe Sleep Yes Dt'])
-# ### TODO: Investigate why all 3 FW safe sleep variable all empty. ### Y12Q3: Investigate why all 3 disappeared?
-# ### TODO: Fix var: Only use date now or what?
+# inspect_col(df2_edits1['Soft Bedding']) ### OLD: ### Supposed to be string in Tableau. BUT Empty, so read in as float np.nan.
+#%%
+inspect_col(df2_edits1['Safe Sleep Date'])
+#%%
+inspect_col(df2_edits1['Safe Sleep Yes Dt'])
+### TODO: Investigate why all 3 FW safe sleep variable all empty. ### Y12Q3: Investigate why all 3 disappeared?
+### TODO: Fix var: Only use date now or what? ### Answer: yes, see new "IFNULL" logic.
+### Answer 2023-10-24: Should be comparing dates now instead of T/F. See updated Tableau variable.
 
 #%%###################################
 
-### TO DO: Ask Joe why ALL values are the same.
-### TO DO: need to check values for FW reasons.
+### RESOLVED: Ask Joe why ALL values are the same. Fixed: no longer.
+### RESOLVED: need to check values for FW reasons. Fixed: now accepting strings.
 def fn_Discharge_Reason(fdf):
     ### LLCHD, see full reasons below.
     if (fdf['Discharge Dt'] is not pd.NaT):
@@ -1089,7 +1192,11 @@ df2_edits1['_Discharge Reason'] = df2_edits1.apply(func=fn_Discharge_Reason, axi
     ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_Discharge Reason'])
 # #%%
-# inspect_col(df2_edits1['Discharge Reason']) ### Is a string, but no examples of "1" or 1.
+# inspect_col(df2_edits1['Discharge Dt']) 
+# #%%
+# inspect_col(df2_edits1['Discharge Reason']) ### Is a string, but no examples of "1" or 1. NOTE: Notably, most are "Other".
+# #%%
+# inspect_col(df2_edits1['Termination Date']) 
 # #%%
 # inspect_col(df2_edits1['Termination Status'])
 
@@ -1193,7 +1300,9 @@ inspect_col(df2_edits1['_FW Gestation Age Recode'])
 #%%
 inspect_col(df2_edits1['Gestational Age'])
 ### TODO: Check with Joe -- but need to add in values for "22/24/27/28/30/32 weeks".
-    ### OR change to check if follows patter, then pull first 2 chars, & then turn to int.
+    ### OR change to check if follows pattern, then pull first 2 chars, & then turn to int.
+#%%
+inspect_col(df2_edits1['Gestational Age'])
 
 #%%###################################
 
@@ -1230,6 +1339,13 @@ def fn_Funding(fdf):
 df2_edits1['_Funding'] = df2_edits1.apply(func=fn_Funding, axis=1)
     ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_Funding'])
+#%%
+# print(df2_edits1[['_Funding', '_Agency', 'Funding']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+print(df2_edits1[['_Agency', '_Funding', 'Funding']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### Rows with "Unrecognized Value" (See "df2_unrecognized_values".):
+df2_edits1[['Project Id','Year','Quarter', '_Funding', '_Agency', 'Funding']].query(f'`_Funding` == "Unrecognized Value"')
+### TODO: How to code "lb" & "wb"?
 
 #%%###################################
 
@@ -1249,7 +1365,7 @@ inspect_col(df2_edits1['_Need Exclusion 4 - Dev Delay'])
 
 #%%###################################
 
-### TO DO: Add option for "null" string currently marked as "Unregonized".
+### DONE: Add option for "null" string currently marked as "Unrecognized".
 ### NOTE: Tableau doesn't seem to care about Case Sensitivity for this logic.
     ### In Tableau "Hispanic" data for [Tgt Ethnicity1] is caught by "HISPANIC", but Python doesn't because it's case sensitive.
     ### Adjusting Python to be case insensitive.
@@ -1261,20 +1377,16 @@ def fn_T06_TGT_Ethnicity(fdf):
                 return "Not Hispanic or Latino"
             case "hispanic/latino":
                 return "Hispanic or Latino"
-            case "unknown":
+            case "unknown" | "null": ### Y12Q4 "null" option added.
                 return "Unknown/Did Not Report"
             case _:
                 return "Unrecognized Value"
     ### LLCDH.
     elif (pd.notna(fdf['Tgt Ethnicity1'])):
         match fdf['Tgt Ethnicity1'].lower():
-            case "hispanic/latino":
-                return "Hispanic or Latino" 
-            case "hispanic":
+            case "hispanic/latino" | "hispanic":
                 return "Hispanic or Latino"
-            case "not hispanic/latino":
-                return "Not Hispanic or Latino"
-            case "non-hispanic":
+            case "not hispanic/latino" | "non-hispanic":
                 return "Not Hispanic or Latino"
             case "unreported/refused to report":
                 return "Unknown/Did Not Report"
@@ -1305,28 +1417,29 @@ df2_edits1['_T06 TGT Ethnicity'] = df2_edits1.apply(func=fn_T06_TGT_Ethnicity, a
 inspect_col(df2_edits1['_T06 TGT Ethnicity'])
 # #%%
 # inspect_col(df2_edits1['Tgt Ethnicity']) ### FW.
-# ### TO DO: need to bring in 3 rows that have text "null" in them. Python reads those in as NaN. Need to check how written out.
+# ### DONE: need to bring in 3 rows that have text "null" in them. Python reads those in as NaN. Need to check how written out.
 # #%%
 # inspect_col(df2_edits1['Tgt Ethnicity1'])
+#%%
+print(df2_edits1[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+# ### Rows with "Unrecognized Value" (See "df2_unrecognized_values".):
+# df2_edits1[['Project Id','Year','Quarter', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']].query(f'`_T06 TGT Ethnicity` == "Unrecognized Value"')
+### DONE: resolved Y12Q4.
 
 #%%###################################
 
-### TO DO: Confirm value.
 def fn_T1_Tgt_Gender(fdf):
     ### FW.
     if (pd.notna(fdf['TGT Gender'])):
-        match fdf['TGT Gender']:
-            case "Female":
+        match fdf['TGT Gender'].lower():
+            case "female":
                 return "Female"
-            case "Male":
+            case "male":
                 return "Male"
-            case "Non-Binary":
+            case "non-binary":
                 return "Non-Binary"
-            case "Unknown":
-                return "Unknown/Did Not Report"
-            case "Null":
-                return "Unknown/Did Not Report"
-            case "null":
+            case "unknown" | "null" | "unknown/did not" | "unknown/did not repo": ### FY12Q4 added new values "Unknown/Did Not" & "Unknown/Did Not Repo".
                 return "Unknown/Did Not Report"
             case _:
                 return "Unrecognized Value"
@@ -1337,7 +1450,7 @@ def fn_T1_Tgt_Gender(fdf):
                 return "Female"
             case "M":
                 return "Male"
-            ### case "N": return "Non-Binary" ### Don't have this value yet - confirm.
+            ### case "N": return "Non-Binary" ### Don't have this value yet - confirm what it means if seen.
             case "Unknown":
                 return "Unknown/Did Not Report"
             case _:
@@ -1375,6 +1488,12 @@ inspect_col(df2_edits1['_T1 Tgt Gender'])
 # ### Crosstabs not giving expected results.
 # # pd.crosstab(df2_edits1['TGT Gender'], df2_edits1['Tgt Gender'], dropna=False)
 # # pd.crosstab(df2_edits1['_T1 Tgt Gender'], df2_edits1['Tgt Gender'], dropna=False, margins=True)
+#%%
+print(df2_edits1[['_T1 Tgt Gender', 'TGT Gender', 'Tgt Gender']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### Rows with "Unrecognized Value" (See "df2_unrecognized_values".):
+# df2_edits1[['Project Id','Year','Quarter', '_T1 Tgt Gender', 'TGT Gender', 'Tgt Gender']].query(f'`_T1 Tgt Gender` == "Unrecognized Value"')
+### DONE: resolved Y12Q4.
 
 #%%###################################
 
@@ -1457,27 +1576,19 @@ def fn_T20_TGT_Insurance_Status(fdf):
         match fdf['CHINS Primary Ins']:
             case "Medicaid":
                 return "Medicaid or CHIP"
-            case "Medicare":
-                return "Private or Other"
             case "None":
                 return "No Insurance Coverage"
-            case "Other":
-                return "Private or Other"
-            case "Private":
+            case "Medicare" | "Other" | "Private":
                 return "Private or Other"
             case "Tri-Care":
                 return "Tri-Care"
-            case "Unknown":
-                return "Unknown/Did Not Report"
-            case "null":
+            case "Unknown" | "null":
                 return "Unknown/Did Not Report"
             case _:
                 return "Unrecognized Value"
     ### LLCHD.
     elif (pd.notna(fdf['Hlth Insure Tgt'])):
         match fdf['Hlth Insure Tgt']:
-            case 0:
-                return "No Insurance Coverage"
             case 1:
                 return "Medicaid or CHIP" ### 1=Medicaid.
             case 2:
@@ -1486,11 +1597,9 @@ def fn_T20_TGT_Insurance_Status(fdf):
                 return "Private or Other" ### 3=Private/Other.
             case 4:
                 return "FamilyChildHealthPlus" ### 4=Unknown/Did Not Report.
-            case 5:
+            case 5 | 0:
                 return "No Insurance Coverage" ### 5=None.
-            case 6:
-                return "Unknown/Did Not Report"
-            case 99:
+            case 6 | 99:
                 return "Unknown/Did Not Report"
             case _:
                 return "Unrecognized Value"
@@ -1523,6 +1632,16 @@ def fn_T20_TGT_Insurance_Status(fdf):
 df2_edits1['_T20 TGT Insurance Status'] = df2_edits1.apply(func=fn_T20_TGT_Insurance_Status, axis=1)
     ### Data Type in Tableau: 'string'.
 inspect_col(df2_edits1['_T20 TGT Insurance Status'])
+# #%%
+# inspect_col(df2_edits1['CHINS Primary Ins'])
+# #%%
+# inspect_col(df2_edits1['Hlth Insure Tgt'])
+#%%
+print(df2_edits1[['_T20 TGT Insurance Status', 'CHINS Primary Ins', 'Hlth Insure Tgt']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%% 
+### Rows with "Unrecognized Value" (See "df2_unrecognized_values".):
+df2_edits1[['Project Id','Year','Quarter', '_T20 TGT Insurance Status', 'CHINS Primary Ins', 'Hlth Insure Tgt']].query(f'`_T20 TGT Insurance Status` == "Unrecognized Value"')
+### TODO: How to code new Y12Q4 values?: "Aetna", "Blue Cross Blue Shield", "Medicare/Medicaid".
 
 #%%###################################
 
@@ -1961,7 +2080,7 @@ df2_edits1['_TGT 4 Week Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(weeks=4)
     ### DATE(DATEADD('week',4,[_TGT DOB])) 
     ### Data Type in Tableau: date.
 
-### TO DO: Fix Space in variable name! (but not yet.)
+### TODO: Fix Space in variable name! (but not yet.)
 df2_edits1['_TGT 10 Month Date '] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=10) 
     ### DATE(DATEADD('month',10,[_TGT DOB])) 
     ### Data Type in Tableau: date.
@@ -1986,7 +2105,7 @@ df2_edits1['_TGT 5 Month Date'] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=
     ### DATE(DATEADD('month',5,[_TGT DOB])) 
     ### Data Type in Tableau: date.
 
-### TO DO: Fix Space in variable name! (but not yet.)
+### TODO: Fix Space in variable name! (but not yet.)
 df2_edits1['_TGT 6 Month Date '] = df2_edits1['_TGT DOB'] + pd.DateOffset(months=6) 
     ### DATE(DATEADD('month',6,[_TGT DOB])) 
     ### Data Type in Tableau: date.
@@ -2047,10 +2166,10 @@ inspect_col(df2_edits1['_Family Number'])
 
 ### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
 ### Testing in Tableau on DATEDIFF shows that it rounds to an integer, so implemented here.
-### TO DO: FIX: first if clause.
-### TO DO: Ask Joe purpose of IF clause. WHY!?!?!?!?
+### TODO: FIX: first if clause.
+### TODO: Ask Joe purpose of IF clause. WHY!?!?!?!?
 ### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
-### TO DO: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
+### TODO: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
 # now = pd.Timestamp('now')
 # date_for_age_calcs = now
 
@@ -2111,7 +2230,7 @@ inspect_col(df2_edits1['_T05 TGT Age in Months'])
 
 #%%###################################
 
-### TO DO: Adjust to deal with "-1" months old.
+### TODO: Adjust to deal with "-1" months old.
 def fn_T05_Age_Categories(fdf):
     if (fdf['_T05 TGT Age in Months'] < 12):
         return "< 1 year"
@@ -2159,22 +2278,26 @@ df2_edits1['Number of Records'] = 1
 ### FLAG any "Unrecognized Value" --- new value & needs to be edited earlier in the Data Source process.
 ### Across many variables.
 
-# def nameoffunction (df.columns):
-#     if pd.dtypes == string:
-#         look for U.R.
-#     if not sting
-        
+#%%
+# df2_unrecognized_values = fn_find_unrecognized_value(df2_edits1)
+df2_unrecognized_values = fn_find_unrecognized_value(df2_edits1.query(f'`Year` == 12 & `Quarter` == 4'))
 
+#%%
+len(df2_unrecognized_values)
+#%%
+### Columns that have "Unrecognized Value":
+[x['col'] for x in df2_unrecognized_values]
 
-# df.loc[df['column']]
+#%%
+### Look at one column:
+# df2_unrecognized_values[0]
 
+# ### New values Y12Q4.
 
-# Identify 
-
-# df2_edits1.applymap((lambda x: x == 'Unrecognized Value'))
-# !!!!!!!!!!!!!!!!!!!!!!!!
-
-# TO DO.
+# [x for x in df2_unrecognized_values if x["col"] == '_Funding'] 
+# [x for x in df2_unrecognized_values if x["col"] == '_T06 TGT Ethnicity'] 
+# [x for x in df2_unrecognized_values if x["col"] == '_T1 Tgt Gender'] 
+# [x for x in df2_unrecognized_values if x["col"] == '_T20 TGT Insurance Status'] 
 
 
 #%%##################################################
@@ -2344,7 +2467,7 @@ print(df2_comp_compare[['Discharge Reason']].to_string())
 # print(df2_comp_compare[['_T05 TGT Age in Months']].to_string())
 print(df2_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_string())
 ### Age in Month calculation is off by 1 many times. Is it exactly what number is used in the division? Something else?
-### TO DO: Recommend moving both of these variables to the Form 1&2 Tableau Workbooks.
+### TODO: Recommend moving both of these variables to the Form 1&2 Tableau Workbooks.
 
 #%%
 # print(df2_comp_compare[['_Family Number']].to_string())
