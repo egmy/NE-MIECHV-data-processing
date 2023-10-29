@@ -29,6 +29,7 @@ from RUNME import inspect_col
 from RUNME import compare_col
 from RUNME import fn_all_value_counts
 from RUNME import fn_find_unrecognized_value
+from RUNME import fn_keep_row_differences
 
 #%%##################################################
 ### SETUP ###
@@ -1199,6 +1200,15 @@ inspect_col(df2_edits1['_Discharge Reason'])
 # inspect_col(df2_edits1['Termination Date']) 
 # #%%
 # inspect_col(df2_edits1['Termination Status'])
+#%%
+# print(df2_edits1[['_Discharge Reason', 'Discharge Dt', 'Discharge Reason', 'Termination Date', 'Termination Status']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+print(df2_edits1[['_Discharge Reason', 'Discharge Reason', 'Termination Status']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%%
+### COMPARISON (Note: "df2_comp_compare" created at end):
+print(df2_comp_compare[['_Discharge Reason', 'Discharge Reason']].to_string()) ### 'Termination Status' & 'Discharge Dt' & 'Termination Date' had no differences.
+# print(df2_comp_compare[['Discharge Reason']].to_string())
+### Where are these extra values coming from?? ### Fixed code in Tableau was wrong (wasn't expecting stings). So now won't match until Tableau CSV created again.
+
 
 #%%###################################
 
@@ -2293,11 +2303,14 @@ len(df2_unrecognized_values)
 # df2_unrecognized_values[0]
 
 # ### New values Y12Q4.
-
 # [x for x in df2_unrecognized_values if x["col"] == '_Funding'] 
+# [x for x in df2_unrecognized_values if x["col"] == '_T20 TGT Insurance Status'] 
+
+### Fixed:
 # [x for x in df2_unrecognized_values if x["col"] == '_T06 TGT Ethnicity'] 
 # [x for x in df2_unrecognized_values if x["col"] == '_T1 Tgt Gender'] 
-# [x for x in df2_unrecognized_values if x["col"] == '_T20 TGT Insurance Status'] 
+
+### !TESTRUNHERE!
 
 
 #%%##################################################
@@ -2425,7 +2438,8 @@ df2_comp_compare
 
 #%%
 ### Now comparing ALL columns. DF created shows all differences:
-df2_comp_compare = df2_comparison_csv.compare(df2__final_from_csv)
+# df2_comp_compare = df2_comparison_csv.compare(df2__final_from_csv)
+df2_comp_compare = df2_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df2__final_from_csv.query(f'Year=="12" & Quarter=="4"'))
 df2_comp_compare
 
 #%%
@@ -2440,6 +2454,9 @@ len([*df2_comp_compare]) / 2
 #%%
 ### Columns:
 [*df2_comp_compare]
+
+### !TESTRUNHERE!
+
 
 ### Columns with different values after fixing dates & integers:
 # ['_C18 ASQ 9 Mo Referral Date', ### Fixed: Made sure both needed variables read in as dates (one wasn't).
@@ -2459,8 +2476,8 @@ len([*df2_comp_compare]) / 2
     ### Then a few columns might actually have calculation issues.
 
 #%%
-# print(df2_comp_compare[['_Discharge Reason', 'Discharge Reason']].to_string())
-print(df2_comp_compare[['Discharge Reason']].to_string())
+print(df2_comp_compare[['_Discharge Reason', 'Discharge Reason']].to_string())
+# print(df2_comp_compare[['Discharge Reason']].to_string())
 ### Where are these extra values coming from?? ### Fixed code in Tableau was wrong (wasn't expecting stings). So now won't match until Tableau CSV created again.
 
 #%%
@@ -2506,6 +2523,68 @@ print(df2_comp_compare[['_T05 TGT Age in Months', '_T05 Age Categories']].to_str
 
 ### Comparision:
 # df2_comparison_csv.compare(df2__final_from_csv)[['Project Id', 'www', 'www']]
+
+
+
+#%%################################
+### Column Comparisons
+###################################
+
+#!HERE
+
+var_to_compare = 'www'
+
+var_list_for_comparison = [var_to_compare]
+
+# var_list_keys_or_ids = ['Project Id']
+var_list_keys_or_ids = ['Project Id','Year','Quarter']
+# var_list_keys_or_ids = ['Project Id', 'Agency']
+# var_list_keys_or_ids = ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1']
+
+print((
+    # df2_comparison_csv.compare(df2__final_from_csv, keep_shape=True, keep_equal=True) 
+    df2_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df2__final_from_csv.query(f'Year=="12" & Quarter=="4"'), keep_shape=True, keep_equal=True) 
+    .loc[:, var_list_keys_or_ids + var_list_for_comparison]
+    .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
+    ##########
+    ### Testing numeric vars:
+    # .apply(lambda df: df[(var_to_compare, 'self')] == df[(var_to_compare, 'other')], axis=1) ### Outputs a Series.
+    # .apply(lambda df: float(df[(var_to_compare, 'self')]) == float(df[(var_to_compare, 'other')]), axis=1)
+    # .all()
+    ##########
+    ### Testing date vars:
+    # .apply(lambda df: pd.to_datetime(df[(var_to_compare, 'self')]) == pd.to_datetime(df[(var_to_compare, 'other')]), axis=1)
+    # .all()
+).to_string())
+
+
+##########
+#%%
+# compare_col(df2_comparison_csv, df2__final_from_csv, var_to_compare, info_or_value_counts='info')
+compare_col(df2_comparison_csv, df2__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
+#%%
+inspect_col(df2__final_from_csv[var_to_compare]) 
+#%%
+inspect_col(df2_comparison_csv[var_to_compare]) 
+#%%
+inspect_col(df2_edits1[var_to_compare]) 
+#%%
+# print(df2_comp_compare[[var_to_compare]].to_string())
+
+
+#%%################################
+
+
+
+
+
+
+
+
+
+
+
+
 
 #%%##################################################
 ### Things to CHANGE when part of a fully-coded data pipeline ###

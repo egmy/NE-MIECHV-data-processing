@@ -29,6 +29,7 @@ from RUNME import inspect_col
 from RUNME import compare_col
 from RUNME import fn_all_value_counts
 from RUNME import fn_find_unrecognized_value
+from RUNME import fn_keep_row_differences
 
 #%%##################################################
 ### SETUP ###
@@ -3549,7 +3550,18 @@ len(df3_unrecognized_values)
 # [x for x in df3_unrecognized_values if x["col"] in ['_C16 CG Insurance 9 Status', '_C16 CG Insurance 10 Status', '_C16 CG Insurance 11 Status', '_C16 CG Insurance 12 Status', '_C16 CG Insurance 13 Status', '_C16 CG Insurance 14 Status', '_C16 CG Insurance 15 Status', '_C16 CG Insurance 16 Status']] ### Only Y12Q1.
 
 
-#!HERE
+### !TESTRUNHERE!
+
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+##################################################################################################
+
 
 #%%##################################################
 ### Prepare CSV ###
@@ -3598,6 +3610,12 @@ print(df3_edits2.dtypes.to_string())
 ### Columns that should be boolean: 
 cols_boolean_df3 = ['FOB Race Asian', 'FOB Race Black', 'FOB Race Hawaiian Pacific', 'FOB Race Indian Alaskan', 'FOB Race Other', 'FOB Race White']
 df3_edits2[cols_boolean_df3] = df3_edits2[cols_boolean_df3].astype('boolean')
+
+#######
+#%%
+### Columns that should be dates:
+
+
 
 
 #%%##################################################
@@ -3689,8 +3707,20 @@ df3_comp_compare
 
 #%%
 ### Now comparing ALL columns. DF created shows all differences:
-df3_comp_compare = df3_comparison_csv.compare(df3__final_from_csv)
-df3_comp_compare
+# df3_comp_compare = df3_comparison_csv.compare(df3__final_from_csv)
+# df3_comp_compare = df3_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df3__final_from_csv.query(f'Year=="12" & Quarter=="4"'))
+
+df3_comp_compare = (
+        df3_comparison_csv.query(f'Year=="12" & Quarter=="4"')
+        ### To remove these vars that should be fixed earlier in the DS process:
+        .assign(**{
+            'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+            ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+            ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+        })
+    ).compare(df3__final_from_csv.query(f'Year=="12" & Quarter=="4"'))
+
+# df3_comp_compare
 
 #%%
 ### Number of columns with different values/types:
@@ -3700,6 +3730,10 @@ len([*df3_comp_compare]) / 2
 #%%
 ### Columns:
 [*df3_comp_compare]
+
+
+#%% !TESTRUNHERE!
+
 
 ###################################
 #### completed
@@ -3745,10 +3779,16 @@ len([*df3_comp_compare]) / 2
 #     ### Change earlier in pipeline so Excel has True/Fasle instead of 1/0. (Needed?)
 
 ###################################
-#### need work
-###################################
 
 #%%
+# var_to_compare = 'AD1InsChangeDate.1'
+# var_to_compare = 'AD1InsChangeDate.2'
+# var_to_compare = 'AD1InsChangeDate.3'
+# var_to_compare = 'AD1InsChangeDate.4'
+# var_to_compare = 'AD1InsChangeDate.5'
+# var_to_compare = 'AD1InsChangeDate.6'
+# var_to_compare = 'AD1InsChangeDate.7'
+# var_to_compare = 'AD1InsChangeDate.8'
 # var_to_compare = 'AD1InsChangeDate.9'
 # var_to_compare = 'AD1InsChangeDate.10'
 # var_to_compare = 'AD1InsChangeDate.11'
@@ -3756,18 +3796,27 @@ len([*df3_comp_compare]) / 2
 # var_to_compare = 'AD1InsChangeDate.13'
 # var_to_compare = 'AD1InsChangeDate.14'
 # var_to_compare = 'AD1InsChangeDate.15'
-(
-    df3_comparison_csv
-    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
-    .loc[:, ['Project Id', 'Agency', '_C16 CG Insurance 9 Status', 'AD1PrimaryIns.9', 'AD1InsChangeDate.9', 'AD1PrimaryIns.10', 'AD1InsChangeDate.10']]
-    .dropna(how='all', subset=[('AD1InsChangeDate.9', 'self'), ('AD1InsChangeDate.9', 'other')])
-    .loc[(lambda df: df[('AD1InsChangeDate.9', 'self')] != df[('AD1InsChangeDate.9', 'other')]), :]
-)
-### TODO: Fix Tab "Caregiver Insurance":
+# var_to_compare = 'AD1InsChangeDate.16'
+
+# (
+#     df3_comparison_csv
+#     .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+#     .loc[:, ['Project Id', 'Agency', '_C16 CG Insurance 9 Status', 'AD1PrimaryIns.9', 'AD1InsChangeDate.9', 'AD1PrimaryIns.10', 'AD1InsChangeDate.10']]
+#     .dropna(how='all', subset=[('AD1InsChangeDate.9', 'self'), ('AD1InsChangeDate.9', 'other')])
+#     .loc[(lambda df: df[('AD1InsChangeDate.9', 'self')] != df[('AD1InsChangeDate.9', 'other')]), :]
+# )
+
+### DONE (but not for historical data): Fix Tab "Caregiver Insurance":
     ### Found that for 'Project Id's "hs123-1" & "hs123-2", from column "AD1PrimaryIns.9" to "AD1PrimaryIns.16" the dates & strings are switched. 
     ### "AD1InsChangeDate.16" is blank, so maybe everything got shifted to the left?
     ### It seems that for every person with ".9" & higher, the same pattern of incorrect entry exists.
 ### Answer: Corrected for Q2!
+
+### Y12Q4: When filting to Y12Q4, no longer any differences.
+
+###################################
+#### need work
+###################################
 
 ###################################
 
@@ -3776,35 +3825,65 @@ len([*df3_comp_compare]) / 2
 # inspect_col(df3_comparison_csv['Asq3 Referral 18Mm'])
 # inspect_col(df3_comparison_csv['Asq3 Referral 24Mm'])
 # inspect_col(df3_comparison_csv['Asq3 Referral 30Mm'])
+
 #%%
 # var_to_compare = 'Asq3 Referral 18Mm'
 # var_to_compare = 'Asq3 Referral 24Mm'
-var_to_compare = 'Asq3 Referral 30Mm'
-var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Referral 30Mm', 'Asq3 Referral 9Mm']
-(
-    df3_comparison_csv
-    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
-    .loc[:, ['Project Id'] + var_list_for_comparison]
-    .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
-    .assign(**{
-        'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df[('Asq3 Referral 18Mm', 'self')].astype('float64'), unit='D', origin='1899-12-30'))
-        ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df[('Asq3 Referral 24Mm', 'self')].astype('float64'), unit='D', origin='1899-12-30'))
-        ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df[('Asq3 Referral 30Mm', 'self')].astype('float64'), unit='D', origin='1899-12-30'))
-    }) ### When before the last .loc, no rows returned because all self/other dates match when 5-digit numbers turned to dates.
-    .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
-)
+
+# var_to_compare = 'Asq3 Referral 30Mm'
+# var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Referral 30Mm', 'Asq3 Referral 9Mm']
+
+#%%
+# compare_col(df3_comparison_csv, df3__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
+
+#%%
+# print(( df3_comparison_csv[var_list_for_comparison]
+#     .assign(**{
+#         # 'Asq3 Referral 18Mm': (lambda df: df['Asq3 Referral 18Mm'].astype('float64'))
+#         # ,'Asq3 Referral 24Mm': (lambda df: df['Asq3 Referral 24Mm'].astype('float64'))
+#         # ,'Asq3 Referral 30Mm': (lambda df: df['Asq3 Referral 30Mm'].astype('float64'))
+#         ###
+#         'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30'))
+#         ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30'))
+#         ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30'))
+#     }) 
+#     .dropna(how='all', subset=[var_to_compare])
+# ).to_string())
+
+#%%
+# print((
+#     df3_comparison_csv
+#     .assign(**{
+#         'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+#         ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+#         ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+#     }) ### After this no rows returned because all self/other dates match when 5-digit numbers turned to dates.
+#     .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
+#     .loc[:, ['Project Id'] + var_list_for_comparison]
+#     .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
+# ).to_string())
+### Now shows NO differences after columns edited.
+
 ### In Tableau, these 3 "Asq3 Referral" vars are Integers & [Asq3 Referral 9Mm] is a String (completely empty for Q1).
 ### None of these 3 "Asq3 Referral" vars are used in calculations in this code.
 ### For these 3 "Asq3 Referral" vars, the output should be in Date format, BUT the original output is an Int.
-### TODO: Check that this output is read in the same in the Report Tableau Workbooks.
+
+### Status: Nothing to do in this code. #TODO: should fix earlier in DS process.
+### TODO: Check that this output is read in correctly in the Report Tableau Workbooks.
 
 ###################################
 
 #%%
 # var_to_compare = 'Fob Edu' ### DONE: Fix: NOT supposed to be an int, but is int in Tableau.
-# var_to_compare = '_T09 FOB Education Status' ### Temporarily fixed, but need to actually fix for 'Fob Edu'.
-# var_list_for_comparison = ['_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']
-### DONE: Fix code above after comparisons are done.
+
+var_to_compare = '_T09 FOB Education Status' ### Temporarily fixed, but need to actually fix for 'Fob Edu'.
+var_list_for_comparison = ['_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']
+
+#%%
+# compare_col(df3_comparison_csv, df3__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
+
+
+### DONE: Fixed code above: Reading in 'Fob Edu' as string instead of int (which was making it all NA).
 
 ###################################
 
@@ -3846,29 +3925,47 @@ var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Ref
 # var_to_compare = '_T11 MOB Employment'
 # var_to_compare = '_T14 Federal Poverty Categories'
 # var_to_compare = '_T14 Poverty Percent'
-
-###
-
-var_to_compare = '_Zip'
+# var_to_compare = '_Zip'
 
 
 #######
 
-var_list_for_comparison = [var_to_compare]
 
-#%%
-print(
-(
-    df3_comparison_csv
-    .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
-    .loc[:, ['Project Id'] + var_list_for_comparison]
-    # .loc[:, ['Project Id', 'Agency'] + var_list_for_comparison]
-    # .loc[:, ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
-    .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
-    .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
-# )
+
+
+#%%################################
+### Column Comparisons
+###################################
+
+#!HERE
+
+# var_to_compare = 'www'
+
+# var_list_for_comparison = [var_to_compare]
+
+# var_list_keys_or_ids = ['Project Id']
+var_list_keys_or_ids = ['Project Id','Year','Quarter']
+# var_list_keys_or_ids = ['Project Id', 'Agency']
+# var_list_keys_or_ids = ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1']
+
+print((
+    # df3_comparison_csv.compare(df3__final_from_csv, keep_shape=True, keep_equal=True) 
+    df3_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df3__final_from_csv.query(f'Year=="12" & Quarter=="4"'), keep_shape=True, keep_equal=True) 
+    .loc[:, var_list_keys_or_ids + var_list_for_comparison]
+    .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
+    ##########
+    ### Testing numeric vars:
+    # .apply(lambda df: df[(var_to_compare, 'self')] == df[(var_to_compare, 'other')], axis=1) ### Outputs a Series.
+    # .apply(lambda df: float(df[(var_to_compare, 'self')]) == float(df[(var_to_compare, 'other')]), axis=1)
+    # .all()
+    ##########
+    ### Testing date vars:
+    # .apply(lambda df: pd.to_datetime(df[(var_to_compare, 'self')]) == pd.to_datetime(df[(var_to_compare, 'other')]), axis=1)
+    # .all()
 ).to_string())
 
+
+##########
 #%%
 # compare_col(df3_comparison_csv, df3__final_from_csv, var_to_compare, info_or_value_counts='info')
 compare_col(df3_comparison_csv, df3__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
@@ -3878,35 +3975,14 @@ inspect_col(df3__final_from_csv[var_to_compare])
 inspect_col(df3_comparison_csv[var_to_compare]) 
 #%%
 inspect_col(df3_edits1[var_to_compare]) 
-# #%%
+#%%
 # print(df3_comp_compare[[var_to_compare]].to_string())
 
-###################################
-### templates
-###################################
 
-# %%
-# df3_comparison_csv[['Project Id', 'www']].compare(df3__final_from_csv[['Project Id', 'www']], keep_equal=True).loc[(lambda df: df[('www', 'self')] != df[('www', 'other')]), :]
-# df3_comparison_csv[['www']].compare(df3__final_from_csv[['www']])
+#%%################################
 
-# #%%
-# # df3_comparison_csv[['variable']].compare(df3__final_from_csv[['variable']])
 
-# #%%
-# (
-#     df3_comparison_csv
-#     .compare(df3__final_from_csv, keep_equal=True, keep_shape=True)
-#     .loc[:, ['Project Id', 'Agency', 'variable']]
-#     .dropna(how='all', subset=[('variable', 'self'), ('variable', 'other')])
-#     .loc[(lambda df: df[('variable', 'self')] != df[('variable', 'other')]), :]
-# )
 
-# #%%
-# (
-#     df3_edits1
-#     .sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
-#     .loc[(lambda df: pd.isna(df['Agency'])), ['Project Id', 'Agency', 'variable']]
-# )
 
 
 ### GENERAL:

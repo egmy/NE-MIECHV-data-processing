@@ -29,6 +29,7 @@ from RUNME import inspect_col
 from RUNME import compare_col
 from RUNME import fn_all_value_counts
 from RUNME import fn_find_unrecognized_value
+from RUNME import fn_keep_row_differences
 
 #%%##################################################
 ### SETUP ###
@@ -55,7 +56,8 @@ print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
 if deduplicate_df4:
     df4_comparison_csv = df4_comparison_csv.drop_duplicates(ignore_index=True) 
 print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
-df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
+df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','MOB or FOB'], ignore_index=True)
+# df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -159,6 +161,7 @@ df4_3_col_detail = [
     ['HomeVisitsTotal', 'HomeVisitsTotal', 'same', 'Int64'],
     ['HomeVisitTypeAll', 'HomeVisitTypeAll', 'same', 'Int64'], ### New Y12Q4.
     ['HomeVisitTypeIP', 'HomeVisitTypeIP', 'same', 'Int64'], ### New Y12Q4.
+    ['HomeVisitTypeV', 'HomeVisitTypeV', 'same', 'Int64'], ### New Y12Q4.
     ['MOBDOB', 'Mobdob', '', 'datetime64[ns]'],
     ['FOBDOB', 'Fobdob', '', 'datetime64[ns]'],
     ['MinEducationDate', 'Min Education Date', '', 'datetime64[ns]'],
@@ -555,30 +558,30 @@ def fn_apply_dtypes(fdf, dict_col_dtypes):
 #%%###################################
 ### Testing
 
-# inspect_col(df4_2['AD1InsChangeDate.1'])
-### In df4_2 tab "Caregiver Insurance", dates columns have 2 conflicting formats.
+# # inspect_col(df4_2['AD1InsChangeDate.1'])
+# ### In df4_2 tab "Caregiver Insurance", dates columns have 2 conflicting formats.
 
-#%%
-# print(df4_2.dtypes.to_string())
-#%%
-# fn_try_astype(df4_2, df4_2_col_dtypes)
-# fn_apply_dtypes(df4_2, df4_2_col_dtypes)
-#%%
-# print(df4_2.dtypes.to_string())
+# #%%
+# # print(df4_2.dtypes.to_string())
+# #%%
+# # fn_try_astype(df4_2, df4_2_col_dtypes)
+# # fn_apply_dtypes(df4_2, df4_2_col_dtypes)
+# #%%
+# # print(df4_2.dtypes.to_string())
 
-#%%
-# fn_try_astype(df4_3, df4_3_col_dtypes)
-# fn_apply_dtypes(df4_3, df4_3_col_dtypes)
-#%%
-# print(df4_3.dtypes.to_string())
-#%%
-# inspect_df(df4_3)
+# #%%
+# # fn_try_astype(df4_3, df4_3_col_dtypes)
+# # fn_apply_dtypes(df4_3, df4_3_col_dtypes)
+# #%%
+# # print(df4_3.dtypes.to_string())
+# #%%
+# # inspect_df(df4_3)
 
-#%%
-# fn_try_astype(df4_4, df4_4_col_dtypes)
-# fn_apply_dtypes(df4_4, df4_4_col_dtypes)
-#%%
-# print(df4_4.dtypes.to_string())
+# #%%
+# # fn_try_astype(df4_4, df4_4_col_dtypes)
+# # fn_apply_dtypes(df4_4, df4_4_col_dtypes)
+# #%%
+# # print(df4_4.dtypes.to_string())
 
 #%%###################################
 ### df4_1: 'Project ID'.
@@ -636,7 +639,8 @@ df4_3 = (
 inspect_df(df4_3)
 
 #%%
-### Y12Q4: KeyError: 'HomeVisitTypeIP'
+### Y12Q4: KeyError: 'HomeVisitTypeIP' ### FIXED, DONE: Checked Tableau wb & added above. New variablea Y12Q4.
+### Y12Q4: KeyError: 'HomeVisitTypeV' ### FIXED, DONE: Checked Tableau wb & added above. New variablea Y12Q4.
 
 #%%
 ### Y12Q4:
@@ -1139,10 +1143,10 @@ def fn__Primary_Caregiver_ID(fdf):
 df4_edits1['__Primary Caregiver ID'] = df4_edits1.apply(func=fn__Primary_Caregiver_ID, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['__Primary Caregiver ID']) 
-# #%%
+#%%
 # re.findall(r'(^.*)(?=-)', df4_edits1['Project Id'])[0]
 # re.findall(r'.*', df4_edits1['Project Id'])#[0]
-# re.findall(r'^.*(?=-)', 'llSF77010001416-562')[0]
+re.findall(r'^.*(?=-)', 'llSF77010001416-562')[0]
 
 #%%###################################
 
@@ -1161,6 +1165,10 @@ def fn__F1_Caregiver_ID_for_MOB_or_FOB(fdf):
 df4_edits1['__F1 Caregiver ID for MOB or FOB'] = df4_edits1.apply(func=fn__F1_Caregiver_ID_for_MOB_or_FOB, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df4_edits1['__F1 Caregiver ID for MOB or FOB']) 
+#%%
+print(df4_edits1[['Project Id','Year','Quarter', '__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB']].query(f'`__F1 Caregiver ID for MOB or FOB` in ["ps187FOB", "ps187MOB"]').to_string())
+
+#!HERE
 
 #%%###################################
 
@@ -4880,6 +4888,8 @@ len(df4_unrecognized_values)
 # [x for x in df4_unrecognized_values if x["col"] == '_T20 MOB Insurance Status'] 
 # [x for x in df4_unrecognized_values if x["col"] == '_T20 CG Insurance Status'] 
 
+### !TESTRUNHERE!
+
 
 
 #%%##################################################
@@ -4908,8 +4918,8 @@ df4_edits2 = df4_edits2[[*df4_comparison_csv]]
 #%%################################
 ### SORT ROWS
 
-df4_edits2 = df4_edits2.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
-
+df4_edits2 = df4_edits2.sort_values(by=['Project Id','Year','Quarter','MOB or FOB'], ignore_index=True)
+# df4_edits2 = df4_edits2.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
 
 
 #%%##################################################
@@ -4995,9 +5005,13 @@ df4_comp_compare
 ###################################
 ###################################
 
+### !TESTRUNHERE!
+
+
 #%%
 ### Now comparing ALL columns. DF created shows all differences:
-df4_comp_compare = df4_comparison_csv.compare(df4__final_from_csv)
+# df4_comp_compare = df4_comparison_csv.compare(df4__final_from_csv)
+df4_comp_compare = df4_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df4__final_from_csv.query(f'Year=="12" & Quarter=="4"'))
 df4_comp_compare
 
 #%%
@@ -5117,34 +5131,50 @@ len([*df4_comp_compare]) / 2
     ### Yes. When read in as objects, with np.nan, compare finds these T09 vars when it didn't before.
     ### So, HOW to know these columns are an issue???
 # var_to_compare = '_T09 Caregiver Education Status'
-var_to_compare = '_T09 FOB Education Status'
+# var_to_compare = '_T09 FOB Education Status'
 ### One side all NA.
+
+
+#######
+#%%
+
+
+
+var_to_compare = 'AD2EDLevel'
+# var_to_compare = 'Termination Date'
+# var_to_compare = '_T15-3 History Welfare Interaction'
+# var_to_compare = 'Pregnancystatus'
+# var_to_compare = 'Poverty Level'
+
+# print(df4_edits1[['Project Id','Year','Quarter', '__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB']].query(f'`__F1 Caregiver ID for MOB or FOB` in ["ps187FOB", "ps187MOB"]').to_string())
+
+
+
+
+
+# var_to_compare = 'IPV Assess Date' ### Answered: Why not in df4_comp_compare when self/other are different? Because CSVs read in as 'string' instead of 'object.'
+# var_list_for_comparison = ['__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB', var_to_compare]
+
+#%%################################
+### Column Comparisons
+###################################
+
+#!HERE
 
 # var_to_compare = 'www'
 
-#######
-
 var_list_for_comparison = [var_to_compare]
 
-#%%
+# var_list_keys_or_ids = ['Project Id']
+var_list_keys_or_ids = ['Project Id','Year','Quarter']
+# var_list_keys_or_ids = ['Project Id', 'Agency']
+# var_list_keys_or_ids = ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1']
 
-def fn_filter_with_na(df):
-    if pd.isna(df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]):
-        return True
-    else:
-        return df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]
-
-print(
-(
-    df4_comparison_csv
-    .compare(df4__final_from_csv, keep_equal=True, keep_shape=True)
-    .loc[:, ['Project Id'] + var_list_for_comparison]
-    # .loc[:, ['Project Id', 'Agency'] + var_list_for_comparison]
-    # .loc[:, ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
-    .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
-    .loc[lambda df: df.apply(fn_filter_with_na, axis=1), :]
-    # .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
-    # .loc[(lambda df: pd.isna(df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')])), :]
+print((
+    # df4_comparison_csv.compare(df4__final_from_csv, keep_shape=True, keep_equal=True) 
+    df4_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df4__final_from_csv.query(f'Year=="12" & Quarter=="4"'), keep_shape=True, keep_equal=True) 
+    .loc[:, var_list_keys_or_ids + var_list_for_comparison]
+    .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
     ##########
     ### Testing numeric vars:
     # .apply(lambda df: df[(var_to_compare, 'self')] == df[(var_to_compare, 'other')], axis=1) ### Outputs a Series.
@@ -5154,7 +5184,6 @@ print(
     ### Testing date vars:
     # .apply(lambda df: pd.to_datetime(df[(var_to_compare, 'self')]) == pd.to_datetime(df[(var_to_compare, 'other')]), axis=1)
     # .all()
-# )) ### When using .all().
 ).to_string())
 
 
@@ -5169,7 +5198,9 @@ inspect_col(df4_comparison_csv[var_to_compare])
 #%%
 inspect_col(df4_edits1[var_to_compare]) 
 #%%
-print(df4_comp_compare[[var_to_compare]].to_string())
+# print(df4_comp_compare[[var_to_compare]].to_string())
+
+
 
 ###################################
 ### templates
@@ -5180,16 +5211,12 @@ print(df4_comp_compare[[var_to_compare]].to_string())
 # df4_comparison_csv[['www']].compare(df4__final_from_csv[['www']])
 
 # #%%
-# # df4_comparison_csv[['variable']].compare(df4__final_from_csv[['variable']])
-
-# #%%
-# (
+# print((
 #     df4_comparison_csv
-#     .compare(df4__final_from_csv, keep_equal=True, keep_shape=True)
-#     .loc[:, ['Project Id', 'Agency', 'variable']]
-#     .dropna(how='all', subset=[('variable', 'self'), ('variable', 'other')])
-#     .loc[(lambda df: df[('variable', 'self')] != df[('variable', 'other')]), :]
-# )
+#     .compare(df4__final_from_csv, keep_shape=True, keep_equal=True) 
+#     .loc[:, var_list_keys_or_ids + var_list_for_comparison]
+#     .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
+# ).to_string())
 
 # #%%
 # (
@@ -5213,19 +5240,8 @@ print(df4_comp_compare[[var_to_compare]].to_string())
 # df4_comp_compare.columns.get_level_values(0)
 
 #%%
-df4__final_from_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0))) == df4_comparison_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0)))
-
-#%%
-def fn_check_if_same(df1value, df2value):
-    if pd.isna(df1value) and pd.isna(df2value):
-        return True 
-    elif (pd.isna(df1value) and pd.notna(df2value)) or (pd.notna(df1value) and pd.isna(df2value)):
-        return False
-    else:
-        df1value == df2value 
-
-# df4__final_from_csv.applymap(fn_check_if_same(df4__final_from_csv, df4_comparison_csv))
-# df4__final_from_csv.applymap(lambda x, y=df4_comparison_csv: fn_check_if_same(x, y))
+### Trying to check if all other columns (other than those with differences) are the same. Results weird, but probably an issue with NA.
+( df4__final_from_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0))) == df4_comparison_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0))) ).all()
 
 
 
@@ -5233,15 +5249,6 @@ def fn_check_if_same(df1value, df2value):
 
 
 
-
-
-
-
-
-
-
-### TODO: Compare all columns like above but considering NA's (maybe applymap).☺
-### TODO: Check for "Unrecognized Value"s.
 
 
 #%%
@@ -5250,10 +5257,9 @@ def fn_check_if_same(df1value, df2value):
 # [_HomeVisitTypeAll]
 # [_HomeVisitTypeIP]
 # [_HomeVisitTypeV]
-    ### TODO: Create these 3 after Joe brings the FW vars through.
+    ### DONE: Create these 3 after Joe brings the FW vars through.
 ### Y12Q4: seeing [_HomeVisitTypeAll] & [_HomeVisitTypeIP] come through FW. 
-
-# #TODO: not seeing [_HomeVisitTypeV] yet. 2023-10-17.
+# #DONE: not seeing [_HomeVisitTypeV] yet. 2023-10-17. ### Seeing now 2023-10-26.
 
 # [_T16 Number of In Person Home Visits by Primary Caregiver (unduplicated)]
 # [_T16 Number of Virtual Home Visits by Primary Caregiver (unduplicated)]

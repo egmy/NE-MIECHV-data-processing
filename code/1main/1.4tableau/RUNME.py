@@ -201,6 +201,16 @@ def fn_find_unrecognized_value(fdf):
     print(fn_list)
     return fn_list 
 
+### Function to keep rows where comparison column values are different. 
+    ### For use on ".compare" pandas DataFrames with multi-index column names broken into "self" & "other".
+def fn_keep_row_differences(fdf, variable2compare):
+    if pd.isna(fdf[(variable2compare, 'self')]) and pd.isna(fdf[(variable2compare, 'other')]):
+        return False 
+    elif pd.isna(fdf[(variable2compare, 'self')] != fdf[(variable2compare, 'other')]):
+        return True 
+    else:
+        return fdf[(variable2compare, 'self')] != fdf[(variable2compare, 'other')] 
+
 #%%##################################################
 ### END of Setup ###
 #####################################################
