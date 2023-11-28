@@ -19,7 +19,7 @@
     ### U:\Working\nebraska_miechv_coded_data_source\previous\previous_output 
     ### U:\Working\nebraska_miechv_coded_data_source\previous\previous_tableau 
     ### U:\Working\nebraska_miechv_coded_data_source\data\03_output 
-### ... and then copy over the associated files for the first 3 locations (no this code's output).
+### ... and then copy over the associated files for the first 3 locations (not this code's output).
     ### In old folders see "source....txt" files to see where to copy from.
 
 #%%##################################################

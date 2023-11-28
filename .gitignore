@@ -15,4 +15,4 @@ local_gitignore/*
 !local_gitignore/.gitkeep 
 
 ### Python
-### add "pycache"
+__pycache__/
