@@ -49,7 +49,7 @@ df12LL_1_col_detail = [
     ['site_id', 'string']
     ,['worker_id', 'string']
     ,['family_id', 'string']
-    ,['tgt_id', 'string'] ### Maybe 'Int64'.
+    ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_identifier', 'string']
     ,['tgt_dob', 'datetime64[ns]']
     ,['tgt_first_name', 'string']
@@ -84,7 +84,7 @@ df12LL_1_col_detail = [
     ,['c_fundingdate', 'datetime64[ns]']
     ,['p_funding', 'string']
     ,['p_fundingdate', 'datetime64[ns]']
-    ,['primary_id', 'string'] ### Maybe 'Int64'.
+    ,['primary_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['primary_relation', 'string']
     ,['mob_id', 'string']
     ,['mob_first_name', 'string']
@@ -103,7 +103,7 @@ df12LL_1_col_detail = [
     ,['mob_marital_status', 'string']
     ,['mob_living_arrangement', 'Int64']
     ,['mob_living_arrangement_dt', 'datetime64[ns]']
-    ,['fob_id', 'string'] ### Maybe 'Int64'.
+    ,['fob_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['fob_first_name', 'string']
     ,['fob_last_name', 'string']
     ,['fob_dob', 'datetime64[ns]']
@@ -233,7 +233,7 @@ print(collections.Counter(list(df12LL_1_col_dtypes.values())))
 #%%### df12LL_2: 'KU_CHILDERINJ'.
 df12LL_2_col_detail = [
     ['family_id', 'string']
-    ,['tgt_id', 'string'] ### Maybe 'Int64'.
+    ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['reason', 'string']
     ,['date', 'datetime64[ns]']
@@ -247,7 +247,7 @@ print(collections.Counter(list(df12LL_2_col_dtypes.values())))
 #%%### df12LL_3: 'KU_MATERNALINS'.
 df12LL_3_col_detail = [
     ['family_id', 'string']
-    ,['tgt_id', 'string'] ### Maybe 'Int64'.
+    ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['insurance', 'Int64']
     ,['date', 'datetime64[ns]']
@@ -261,7 +261,7 @@ print(collections.Counter(list(df12LL_3_col_dtypes.values())))
 #%%### df12LL_4: 'KU_WELLCHILDVISITS'.
 df12LL_4_col_detail = [
     ['family_id', 'string']
-    ,['tgt_id', 'string'] ### Maybe 'Int64'.
+    ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['date', 'datetime64[ns]']
 ]
@@ -306,42 +306,50 @@ df12LL_4 = df12LL_4_allstring.copy()
 
 #%%###################################
 ### df12LL_1: 'KU_BASETABLE'.
-df12LL_1 = (
-    df12LL_1
-    ###.astype(df12LL_1_col_dtypes)
+df12LL_BaseTable_2023Oct = (
+    df12LL_1_allstring
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
     .pipe(fn_apply_dtypes, df12LL_1_col_dtypes)
 )
-inspect_df(df12LL_1)
 
 #%%###################################
 ### df12LL_2: 'KU_CHILDERINJ'.
-df12LL_2 = (
-    df12LL_2
-    ###.astype(df12LL_2_col_dtypes)
+df12LL_ChildERInj_2023Oct = (
+    df12LL_2_allstring
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
     .pipe(fn_apply_dtypes, df12LL_2_col_dtypes)
 )
-inspect_df(df12LL_2)
 
 #%%###################################
 ### df12LL_3: 'KU_MATERNALINS'.
-df12LL_3 = (
-    df12LL_3
-    ###.astype(df12LL_3_col_dtypes)
+df12LL_MaternalIns_2023Oct = (
+    df12LL_3_allstring
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
     .pipe(fn_apply_dtypes, df12LL_3_col_dtypes)
 )
-inspect_df(df12LL_3)
 
 #%%###################################
 ### df12LL_4: 'KU_WELLCHILDVISITS'.
-df12LL_4 = (
-    df12LL_4
-    ###.astype(df12LL_4_col_dtypes)
+df12LL_WellChildVisits_2023Oct = (
+    df12LL_4_allstring
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
     .pipe(fn_apply_dtypes, df12LL_4_col_dtypes)
 )
+
+#%%###################################
+
+#%%
+inspect_df(df12LL_1)
+#%%
+inspect_df(df12LL_2)
+#%%
+inspect_df(df12LL_3)
+#%%
 inspect_df(df12LL_4)
-
-
-
 
 
 

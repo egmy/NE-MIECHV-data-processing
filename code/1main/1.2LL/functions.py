@@ -77,20 +77,6 @@ def fn_keep_row_differences(fdf, variable2compare):
 ### Project Functions ###
 #####################################################
 
-def fn_find_unrecognized_value(fdf):
-    fn_list = []
-    for col_index, col in enumerate(fdf.columns):
-        if (fdf[col].isin(['Unrecognized Value']).any()):
-            fn_list.append({
-                'col': col
-                ,'col_index': col_index
-                ,'col_row_indices': fdf[['Project Id','Year','Quarter', col]].query(f'`{col}` == "Unrecognized Value"').index.tolist()
-                ,'col_row_ids': fdf.query(f'`{col}` == "Unrecognized Value"')['Project Id'].tolist()
-                ,'col_df': fdf[['Project Id','Year','Quarter', col]].query(f'`{col}` == "Unrecognized Value"')
-            })
-    print(fn_list)
-    return fn_list 
-
 ### Function designed to turn a Pandas DataFrame whose columns are all dtype 'string' into dtypes specified in a dictionary.
 def fn_apply_dtypes(fdf, dict_col_dtypes):
     for column in fdf.columns:
@@ -129,6 +115,64 @@ def fn_apply_dtypes(fdf, dict_col_dtypes):
                 print('Attempted dtype: ', dict_col_dtypes[column])
                 print(e, '\n')
     return fdf 
+
+def fn_find_unrecognized_value(fdf):
+    fn_list = []
+    for col_index, col in enumerate(fdf.columns):
+        if (fdf[col].isin(['Unrecognized Value']).any()):
+            fn_list.append({
+                'col': col
+                ,'col_index': col_index
+                ,'col_row_indices': fdf[['Project Id','Year','Quarter', col]].query(f'`{col}` == "Unrecognized Value"').index.tolist()
+                ,'col_row_ids': fdf.query(f'`{col}` == "Unrecognized Value"')['Project Id'].tolist()
+                ,'col_df': fdf[['Project Id','Year','Quarter', col]].query(f'`{col}` == "Unrecognized Value"')
+            })
+    print(fn_list)
+    return fn_list 
+
+def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='mandatory', list_of_other_vars=[None]):
+    if (list_of_other_vars[0] is None):
+        vars_to_select = [one_id_var]
+    else:
+        vars_to_select = [one_id_var] + list_of_other_vars
+    ####
+    fn_list = []
+    for col_index, col in enumerate(fdf.columns):
+        if (fdf[col].isin([value_to_find]).any()):
+            fn_list.append({
+                'col': col
+                ,'col_index': col_index
+                ,'col_row_indices': fdf[vars_to_select + [col]].query(f'`{col}` == @value_to_find').index.tolist() 
+                ,'col_row_ids': fdf.query(f'`{col}` == @value_to_find')[one_id_var].tolist() 
+                ,'col_df': fdf[vars_to_select + [col]].query(f'`{col}` == @value_to_find') 
+            }) 
+    print(fn_list)
+    return fn_list 
+
+def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_to_find=['Unrecognized Value'], replacement_value=pd.NA):
+    list_of_values_to_find = [str(x).lower() for x in list_of_values_to_find]
+    ####
+    string_of_values_to_find = list_of_values_to_find
+    if (len(list_of_values_to_find) > 1):
+        string_of_values_to_find = '|'.join(list_of_values_to_find)
+    print(string_of_values_to_find)
+    ####
+    fn_list = []
+    for col_index, col in enumerate(fdf.columns):
+        if (fdf[col].astype('string').str.lower().isin(list_of_values_to_find).any()):
+            fn_list.append({
+                'col': col
+                ,'col_index': col_index
+                ,'row_indices': fdf.loc[fdf[col].astype('string').str.lower().isin(list_of_values_to_find)][col].index.tolist() 
+                ,'values': fdf.loc[fdf[col].astype('string').str.lower().isin(list_of_values_to_find)][col].tolist()
+                ,'replaced_with': replacement_value
+                ,'ids': fdf.loc[fdf[col].astype('string').str.lower().isin(list_of_values_to_find)][one_id_var].tolist() 
+            }) 
+    print(fn_list)
+    ###
+    fdf = fdf.replace(fr'(?i)^({string_of_values_to_find})$', replacement_value, regex=True)
+    return fdf
+
 
 
 #%%##################################################
