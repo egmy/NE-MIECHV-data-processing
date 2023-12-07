@@ -39,7 +39,11 @@ from functions import *
 # nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
 nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
 
-###########################
+fy_start_date = pd.Timestamp("2022-10-01")
+
+fy_end_date = pd.Timestamp("2023-09-30")
+
+#%%########################
 ### Federal Poverty Guidelines
     ### https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines 
     ### https://aspe.hhs.gov/topics/poverty-economic-mobility/poverty-guidelines/prior-hhs-poverty-guidelines-federal-register-references 

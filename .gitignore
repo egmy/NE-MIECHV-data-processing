@@ -1,6 +1,7 @@
 ### Files/data
 data/
 previous*/
+temp.txt
 
 ### Project
 *.html

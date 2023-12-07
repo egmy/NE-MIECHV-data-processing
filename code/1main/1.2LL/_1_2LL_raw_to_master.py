@@ -305,15 +305,6 @@ df12LL_4 = df12LL_4_allstring.copy()
 #####################################################
 
 #%%###################################
-### df12LL_1: 'KU_BASETABLE'.
-df12LL_BaseTable_2023Oct = (
-    df12LL_1_allstring
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    .pipe(fn_apply_dtypes, df12LL_1_col_dtypes)
-)
-
-#%%###################################
 ### df12LL_2: 'KU_CHILDERINJ'.
 df12LL_ChildERInj_2023Oct = (
     df12LL_2_allstring
@@ -341,15 +332,85 @@ df12LL_WellChildVisits_2023Oct = (
 )
 
 #%%###################################
+### df12LL_1: 'KU_BASETABLE'.
+df12LL_BaseTable_2023Oct = (
+    ### Raw table all read in as strings:
+    df12LL_1_allstring
+    ### Strip surrounding whitespace:
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    ### Find & replace values:
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    ### Set data types:
+    .pipe(fn_apply_dtypes, df12LL_1_col_dtypes)
+    ### Edit columns:
+    # .assign(
+    #     site_id = 'll'
+    #     ,tgt_id = lambda df: df['tgt_id'].fillna('0')
+    #     ,project_id = lambda df: df['site_id'] + df['family_id'] + '-' + df['tgt_id']
+    # )
+    ####
+    .assign(site_id = 'll')
+    .pipe(fn_print_col_and_return, 'site_id', '-----\nColumn edited:\n')
+    ####
+    .pipe(fn_print_expression_and_return_df, (lambda df: df.loc[(lambda df: pd.isna(df['tgt_id'])), 'tgt_id'].index.tolist()), '-----\nColumn tgt_id before: Rows with NA that will be changed to "0":\n')
+    .assign(tgt_id = lambda df: df['tgt_id'].fillna('0'))
+    .pipe(fn_print_expression_and_return_df, (lambda df: df.loc[(df['tgt_id'] == "0"), 'tgt_id'].index.tolist()), 'Column tgt_id after: Rows with "0":\n')
+    ####
+    .assign(project_id = lambda df: df['site_id'] + df['family_id'] + '-' + df['tgt_id'])
+    .pipe(fn_print_col_and_return, 'project_id', '-----\nNew column:\n')
+    ####
+    .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), '-----\nRemoving families discharged before current reporting year:\nDF Rows Before: ')
+    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min Before: ')
+    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max Before: ')
+    .query(f'discharge_dt >= @fy_start_date')
+    .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), 'DF Rows After:  ')
+    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min After:  ')
+    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max After:  ')
+    ###
+)
+
+    # .pipe(fn_print_expression_and_return_df, (lambda df: df), '')
+
+
+
+
+
+#%%###################################
+
 
 #%%
-inspect_df(df12LL_1)
+# df12LL_BaseTable_2023Oct.project_id
+
+
+# #%%
+# print(df12LL_1_allstring['tgt_id'].value_counts(dropna=False).to_string())
+# #%%
+# print(df12LL_BaseTable_2023Oct['tgt_id'].value_counts(dropna=False).to_string())
 #%%
-inspect_df(df12LL_2)
+col_to_review = 'tgt_id'
+compare_col(
+    (df12LL_1_allstring
+        .loc[lambda df: pd.isna(df[col_to_review])]
+    )
+    ,(df12LL_BaseTable_2023Oct
+        .query(f'`{col_to_review}` == "0"')
+    )
+    ,col_to_review ,'value_counts'
+)
+
+#%%###################################
+
 #%%
-inspect_df(df12LL_3)
+# inspect_df(df12LL_BaseTable_2023Oct)
+
 #%%
-inspect_df(df12LL_4)
+# inspect_df(df12LL_ChildERInj_2023Oct)
+
+#%%
+# inspect_df(df12LL_MaternalIns_2023Oct)
+
+#%%
+# inspect_df(df12LL_WellChildVisits_2023Oct)
 
 
 
