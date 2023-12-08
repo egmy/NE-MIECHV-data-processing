@@ -8,88 +8,63 @@
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
-### PACKAGES ###
-#####################################################
-
-### Only importing here so that VSC doesn't show lots of warnings for things not defined. Can comment out in production.
-
-from pathlib import Path
-import pandas as pd
-import numpy as np
-import sys
-import collections
-import re
-
-print('Version Of Python: ' + sys.version)
-print('Version Of Pandas: ' + pd.__version__)
-print('Version Of Numpy: ' + np.version.version)
-
-from RUNME import inspect_df
-from RUNME import inspect_col
-from RUNME import compare_col
-from RUNME import fn_all_value_counts
-from RUNME import fn_find_unrecognized_value
-from RUNME import fn_keep_row_differences
-
-#%%##################################################
 ### SETUP ###
 #####################################################
 
-### import RUNME ### This does not run the code.
-
-path_code_base = Path('U:\\Working\\nehv_ds_code_repository\\code\\1main\\1.4tableau')
-exec(open(Path(path_code_base, 'RUNME.py')).read())
+if __name__ == "__main__":
+    from _1_4tab_RUNME import * 
+    print('Imported "_1_4tab_RUNME"')
 
 #%%
-deduplicate_df4 = False
+bool_14t_deduplicate_tb4 = False
 
 #%%##################################################
 ### Comparison File ###
 #####################################################
 
-# df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype='string', keep_default_na=False, na_values=[''])
-df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype='object', keep_default_na=False, na_values=[''])
-print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
+# df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='string', keep_default_na=False, na_values=[''])
+df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='object', keep_default_na=False, na_values=[''])
+print(f'df_14t_comparison_csv_tb4 Rows: {len(df_14t_comparison_csv_tb4)}')
 
 #%%
 ### Y12Q4 deduplicated rows to ___ rows vs. original comparison of ___.
-if deduplicate_df4:
-    df4_comparison_csv = df4_comparison_csv.drop_duplicates(ignore_index=True) 
-print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
-df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','MOB or FOB'], ignore_index=True)
-# df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
+if bool_14t_deduplicate_tb4:
+    df_14t_comparison_csv_tb4 = df_14t_comparison_csv_tb4.drop_duplicates(ignore_index=True) 
+print(f'df_14t_comparison_csv_tb4 Rows: {len(df_14t_comparison_csv_tb4)}')
+df_14t_comparison_csv_tb4 = df_14t_comparison_csv_tb4.sort_values(by=['Project Id','Year','Quarter','MOB or FOB'], ignore_index=True)
+# df_14t_comparison_csv_tb4 = df_14t_comparison_csv_tb4.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
 #####################################################
 
-#%%### df4_1: 'Project ID'.
-#%%### df4_2: 'Caregiver Insurance'.
-#%%### df4_3: 'Family Wise'.
-#%%### df4_4: 'LLCHD'.
-#%%### df4_5: 'MOB or FOB'.
+#%%### df_14t_piece_tb4_1: 'Project ID'.
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
 
 #######################
-#%%### df4_1: 'Project ID'.
-df4_1_col_detail = [
+#%%### df_14t_piece_tb4_1: 'Project ID'.
+list_14t_col_detail_tb4_1 = [
     ['join_id', 'Join Id', '', 'Int64'],
     ['project_id', 'Project Id', '', 'string'], 
     ['year', 'Year', '', 'Int64'], 
     ['quarter', 'Quarter', '', 'Int64']
 ]
-#%%### df4_1: 'Project ID'.
+#%%### df_14t_piece_tb4_1: 'Project ID'.
 ### For Renaming, we only need a dictionary of the columns with names changing.
 ### If x[2] == 'same' or x[0] == x[1] then that column is not included in df_colnames.
-df4_1_colnames = {x[0]:x[1] for x in df4_1_col_detail if x[2] != 'same' and x[0] != x[1]}
-df4_1_colnames
-#%%### df4_1: 'Project ID'.
-df4_1_col_dtypes = {x[0]:x[3] for x in df4_1_col_detail}
-print(df4_1_col_dtypes)
-print(collections.Counter(list(df4_1_col_dtypes.values())))
+dict_14t_colnames_tb4_1 = {x[0]:x[1] for x in list_14t_col_detail_tb4_1 if x[2] != 'same' and x[0] != x[1]}
+dict_14t_colnames_tb4_1
+#%%### df_14t_piece_tb4_1: 'Project ID'.
+dict_14t_col_dtypes_tb4_1 = {x[0]:x[3] for x in list_14t_col_detail_tb4_1}
+print(dict_14t_col_dtypes_tb4_1)
+print(collections.Counter(list(dict_14t_col_dtypes_tb4_1.values())))
 
 #######################
-#%%### df4_2: 'Caregiver Insurance'.
-df4_2_col_detail = [
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+list_14t_col_detail_tb4_2 = [
     ['ProjectID', 'Project ID', '', 'string'],
     ['year', 'year (Caregiver Insurance)', '', 'Int64'],
     ['quarter', 'quarter (Caregiver Insurance)', '', 'Int64'],
@@ -130,17 +105,17 @@ df4_2_col_detail = [
     ['AD1PrimaryIns.16', 'AD1PrimaryIns.16', 'same', 'string'],
     ['AD1InsChangeDate.16', 'AD1InsChangeDate.16', 'same', 'datetime64[ns]']
 ]
-#%%### df4_2: 'Caregiver Insurance'.
-df4_2_colnames = {x[0]:x[1] for x in df4_2_col_detail if x[2] != 'same' and x[0] != x[1]}
-df4_2_colnames
-#%%### df4_2: 'Caregiver Insurance'.
-df4_2_col_dtypes = {x[0]:x[3] for x in df4_2_col_detail}
-print(df4_2_col_dtypes)
-print(collections.Counter(list(df4_2_col_dtypes.values())))
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+dict_14t_colnames_tb4_2 = {x[0]:x[1] for x in list_14t_col_detail_tb4_2 if x[2] != 'same' and x[0] != x[1]}
+dict_14t_colnames_tb4_2
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+dict_14t_col_dtypes_tb4_2 = {x[0]:x[3] for x in list_14t_col_detail_tb4_2}
+print(dict_14t_col_dtypes_tb4_2)
+print(collections.Counter(list(dict_14t_col_dtypes_tb4_2.values())))
 
 #######################
-#%%### df4_3: 'Family Wise'.
-df4_3_col_detail = [
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+list_14t_col_detail_tb4_3 = [
     ['Project ID', 'Project ID1', '', 'string'],
     ['year', 'year (Family Wise)', '', 'Int64'],
     ['quarter', 'quarter (Family Wise)', '', 'Int64'],
@@ -244,17 +219,17 @@ df4_3_col_detail = [
     ['need_exclusion5', 'Need Exclusion5', '', 'string'],
     ['need_exclusion6', 'need_exclusion6 (Family Wise)', '', 'string'] ### Different from Adult3 Form2: 'Need Exclusion6'.
 ]
-#%%### df4_3: 'Family Wise'.
-df4_3_colnames = {x[0]:x[1] for x in df4_3_col_detail if x[2] != 'same' and x[0] != x[1]}
-df4_3_colnames
-#%%### df4_3: 'Family Wise'.
-df4_3_col_dtypes = {x[0]:x[3] for x in df4_3_col_detail}
-print(df4_3_col_dtypes)
-print(collections.Counter(list(df4_3_col_dtypes.values())))
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+dict_14t_colnames_tb4_3 = {x[0]:x[1] for x in list_14t_col_detail_tb4_3 if x[2] != 'same' and x[0] != x[1]}
+dict_14t_colnames_tb4_3
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+dict_14t_col_dtypes_tb4_3 = {x[0]:x[3] for x in list_14t_col_detail_tb4_3}
+print(dict_14t_col_dtypes_tb4_3)
+print(collections.Counter(list(dict_14t_col_dtypes_tb4_3.values())))
 
 #######################
-#%%### df4_4: 'LLCHD'.
-df4_4_col_detail = [
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+list_14t_col_detail_tb4_4 = [
     ['project_id', 'project id (LLCHD)', '', 'string'],
     ['year', 'year (LLCHD)', '', 'Int64'],
     ['quarter', 'quarter (LLCHD)', '', 'Int64'],
@@ -423,27 +398,27 @@ df4_4_col_detail = [
     ['need_exclusion6', 'need_exclusion6', 'same', 'string'],
     ['Has_ChildWelfareAdaptation', 'Has_ChildWelfareAdaptation', 'same', 'string']
 ]
-#%%### df4_4: 'LLCHD'.
-df4_4_colnames = {x[0]:x[1] for x in df4_4_col_detail if x[2] != 'same' and x[0] != x[1]}
-df4_4_colnames
-#%%### df4_4: 'LLCHD'.
-df4_4_col_dtypes = {x[0]:x[3] for x in df4_4_col_detail}
-print(df4_4_col_dtypes)
-print(collections.Counter(list(df4_4_col_dtypes.values())))
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+dict_14t_colnames_tb4_4 = {x[0]:x[1] for x in list_14t_col_detail_tb4_4 if x[2] != 'same' and x[0] != x[1]}
+dict_14t_colnames_tb4_4
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+dict_14t_col_dtypes_tb4_4 = {x[0]:x[3] for x in list_14t_col_detail_tb4_4}
+print(dict_14t_col_dtypes_tb4_4)
+print(collections.Counter(list(dict_14t_col_dtypes_tb4_4.values())))
 
 #######################
-#%%### df4_5: 'MOB or FOB'.
-df4_5_col_detail = [
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+list_14t_col_detail_tb4_5 = [
     ['join_id', 'join id (MOB or FOB)', '', 'Int64'],
     ['MOB_or_FOB', 'MOB or FOB', '', 'string'] 
 ]
-#%%### df4_5: 'MOB or FOB'.
-df4_5_colnames = {x[0]:x[1] for x in df4_5_col_detail if x[2] != 'same' and x[0] != x[1]}
-df4_5_colnames
-#%%### df4_5: 'MOB or FOB'.
-df4_5_col_dtypes = {x[0]:x[3] for x in df4_5_col_detail}
-print(df4_5_col_dtypes)
-print(collections.Counter(list(df4_5_col_dtypes.values())))
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+dict_14t_colnames_tb4_5 = {x[0]:x[1] for x in list_14t_col_detail_tb4_5 if x[2] != 'same' and x[0] != x[1]}
+dict_14t_colnames_tb4_5
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+dict_14t_col_dtypes_tb4_5 = {x[0]:x[3] for x in list_14t_col_detail_tb4_5}
+print(dict_14t_col_dtypes_tb4_5)
+print(collections.Counter(list(dict_14t_col_dtypes_tb4_5.values())))
 
 
 #%%##################################################
@@ -452,56 +427,56 @@ print(collections.Counter(list(df4_5_col_dtypes.values())))
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx_df4 = pd.ExcelFile(path_4_data_source_file)
+xlsx_14t_tb4 = pd.ExcelFile(path_14t_data_source_file_tb4)
 
 #%% 
-### CHECK that all path_4_data_source_sheets same as xlsx.sheet_names (different order ok):
-print(sorted(path_4_data_source_sheets))
-print(sorted(xlsx_df4.sheet_names))
-sorted(path_4_data_source_sheets) == sorted(xlsx_df4.sheet_names)
+### CHECK that all list_path_14t_data_source_sheets_tb4 same as xlsx.sheet_names (different order ok):
+print(sorted(list_path_14t_data_source_sheets_tb4))
+print(sorted(xlsx_14t_tb4.sheet_names))
+sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)
 
 #%%###################################
 ### READ all sheets:
 
-# df4_1 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype=df4_1_col_dtypes)
+# df_14t_piece_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_1)
 
 # #%%
-# df4_2 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype=df4_2_col_dtypes)
+# df_14t_piece_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_2)
 # ### ValueError: Unable to convert column AD1InsChangeDate.9 to type datetime64[ns].
 
 # #%%
-# df4_3 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype=df4_3_col_dtypes)
+# df_14t_piece_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_3)
 # ### ValueError: False cannot be cast to bool.
 
 # #%%
-# df4_4 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype=df4_4_col_dtypes)
+# df_14t_piece_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_4)
 # ### ValueError: Unable to parse string "HS Grad" at position 0.
 
 # #%%
-# df4_5 = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype=df4_5_col_dtypes)
+# df_14t_piece_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_5)
 
 #%%###################################
 ### READ in all sheets as strings.
 
 ### To read in EVERYTHING as a string with NO NA:
-### df4_1_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[0], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_1_col_dtypes)
-### df4_2_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[1], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_2_col_dtypes)
-### df4_3_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[2], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_3_col_dtypes)
-### df4_4_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[3], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_4_col_dtypes)
-### df4_5_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[4], na_filter=False, keep_default_na=False, dtype='string')# dtype=df4_5_col_dtypes)
+### df_14t_allstring_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], na_filter=False, keep_default_na=False, dtype='string')# dtype=dict_14t_col_dtypes_tb4_1)
+### df_14t_allstring_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], na_filter=False, keep_default_na=False, dtype='string')# dtype=dict_14t_col_dtypes_tb4_2)
+### df_14t_allstring_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], na_filter=False, keep_default_na=False, dtype='string')# dtype=dict_14t_col_dtypes_tb4_3)
+### df_14t_allstring_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], na_filter=False, keep_default_na=False, dtype='string')# dtype=dict_14t_col_dtypes_tb4_4)
+### df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], na_filter=False, keep_default_na=False, dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
 
 ### To read in EVERYTHING as a string WITH NA:
-df4_1_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_1_col_dtypes)
-df4_2_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_2_col_dtypes)
-df4_3_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_3_col_dtypes)
-df4_4_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_4_col_dtypes)
-df4_5_allstring = pd.read_excel(xlsx_df4, sheet_name=path_4_data_source_sheets[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=df4_5_col_dtypes)
+df_14t_allstring_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_1)
+df_14t_allstring_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_2)
+df_14t_allstring_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_3)
+df_14t_allstring_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_4)
+df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
 
-df4_1 = df4_1_allstring.copy()
-df4_2 = df4_2_allstring.copy()
-df4_3 = df4_3_allstring.copy()
-df4_4 = df4_4_allstring.copy()
-df4_5 = df4_5_allstring.copy()
+df_14t_piece_tb4_1 = df_14t_allstring_tb4_1.copy()
+df_14t_piece_tb4_2 = df_14t_allstring_tb4_2.copy()
+df_14t_piece_tb4_3 = df_14t_allstring_tb4_3.copy()
+df_14t_piece_tb4_4 = df_14t_allstring_tb4_4.copy()
+df_14t_piece_tb4_5 = df_14t_allstring_tb4_5.copy()
 
 #%%##################################################
 ### CLEAN ###
@@ -558,48 +533,48 @@ def fn_apply_dtypes(fdf, dict_col_dtypes):
 #%%###################################
 ### Testing
 
-# # inspect_col(df4_2['AD1InsChangeDate.1'])
-# ### In df4_2 tab "Caregiver Insurance", dates columns have 2 conflicting formats.
+# # inspect_col(df_14t_piece_tb4_2['AD1InsChangeDate.1'])
+# ### In df_14t_piece_tb4_2 tab "Caregiver Insurance", dates columns have 2 conflicting formats.
 
 # #%%
-# # print(df4_2.dtypes.to_string())
+# # print(df_14t_piece_tb4_2.dtypes.to_string())
 # #%%
-# # fn_try_astype(df4_2, df4_2_col_dtypes)
-# # fn_apply_dtypes(df4_2, df4_2_col_dtypes)
+# # fn_try_astype(df_14t_piece_tb4_2, dict_14t_col_dtypes_tb4_2)
+# # fn_apply_dtypes(df_14t_piece_tb4_2, dict_14t_col_dtypes_tb4_2)
 # #%%
-# # print(df4_2.dtypes.to_string())
+# # print(df_14t_piece_tb4_2.dtypes.to_string())
 
 # #%%
-# # fn_try_astype(df4_3, df4_3_col_dtypes)
-# # fn_apply_dtypes(df4_3, df4_3_col_dtypes)
+# # fn_try_astype(df_14t_piece_tb4_3, dict_14t_col_dtypes_tb4_3)
+# # fn_apply_dtypes(df_14t_piece_tb4_3, dict_14t_col_dtypes_tb4_3)
 # #%%
-# # print(df4_3.dtypes.to_string())
+# # print(df_14t_piece_tb4_3.dtypes.to_string())
 # #%%
-# # inspect_df(df4_3)
+# # inspect_df(df_14t_piece_tb4_3)
 
 # #%%
-# # fn_try_astype(df4_4, df4_4_col_dtypes)
-# # fn_apply_dtypes(df4_4, df4_4_col_dtypes)
+# # fn_try_astype(df_14t_piece_tb4_4, dict_14t_col_dtypes_tb4_4)
+# # fn_apply_dtypes(df_14t_piece_tb4_4, dict_14t_col_dtypes_tb4_4)
 # #%%
-# # print(df4_4.dtypes.to_string())
-
-#%%###################################
-### df4_1: 'Project ID'.
-df4_1 = (
-    df4_1
-    ###.astype(df4_1_col_dtypes)
-    .pipe(fn_apply_dtypes, df4_1_col_dtypes)
-)
-inspect_df(df4_1)
+# # print(df_14t_piece_tb4_4.dtypes.to_string())
 
 #%%###################################
-### df4_2: 'Caregiver Insurance'.
-df4_2 = (
-    df4_2
-    ###.astype(df4_2_col_dtypes)
-    .pipe(fn_apply_dtypes, df4_2_col_dtypes)
+### df_14t_piece_tb4_1: 'Project ID'.
+df_14t_piece_tb4_1 = (
+    df_14t_piece_tb4_1
+    ###.astype(dict_14t_col_dtypes_tb4_1)
+    .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_1)
 )
-inspect_df(df4_2)
+inspect_df(df_14t_piece_tb4_1)
+
+#%%###################################
+### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+df_14t_piece_tb4_2 = (
+    df_14t_piece_tb4_2
+    ###.astype(dict_14t_col_dtypes_tb4_2)
+    .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_2)
+)
+inspect_df(df_14t_piece_tb4_2)
 
 # Error for column:  AD1InsChangeDate.9
 # Attempted dtype:  datetime64[ns]
@@ -630,13 +605,13 @@ inspect_df(df4_2)
 # Unknown string format: Medicaid present at position 1 
 
 #%%###################################
-### df4_3: 'Family Wise'.
-df4_3 = (
-    df4_3
-    ###.astype(df4_3_col_dtypes)
-    .pipe(fn_apply_dtypes, df4_3_col_dtypes)
+### df_14t_piece_tb4_3: 'Family Wise'.
+df_14t_piece_tb4_3 = (
+    df_14t_piece_tb4_3
+    ###.astype(dict_14t_col_dtypes_tb4_3)
+    .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_3)
 ) 
-inspect_df(df4_3)
+inspect_df(df_14t_piece_tb4_3)
 
 #%%
 ### Y12Q4: KeyError: 'HomeVisitTypeIP' ### FIXED, DONE: Checked Tableau wb & added above. New variablea Y12Q4.
@@ -644,42 +619,42 @@ inspect_df(df4_3)
 
 #%%
 ### Y12Q4:
-[x[0] for x in df4_3_col_detail] == [*df4_3]
+[x[0] for x in list_14t_col_detail_tb4_3] == [*df_14t_piece_tb4_3]
 #%%
-set([x[0] for x in df4_3_col_detail]).symmetric_difference([*df4_3])
+set([x[0] for x in list_14t_col_detail_tb4_3]).symmetric_difference([*df_14t_piece_tb4_3])
 ### Y12Q4: {'HomeVisitTypeAll', 'HomeVisitTypeIP'} ## new vars.
 
 #%%
 ### Test:
 # (
-#     df4_3
-#     ###.astype(df4_3_col_dtypes)
-#     .pipe(fn_apply_dtypes, df4_3_col_dtypes)
-#     .loc[:, [k for k, v in df4_3_col_dtypes.items() if v == 'boolean']]
+#     df_14t_piece_tb4_3
+#     ###.astype(dict_14t_col_dtypes_tb4_3)
+#     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_3)
+#     .loc[:, [k for k, v in dict_14t_col_dtypes_tb4_3.items() if v == 'boolean']]
 #     .pipe(fn_all_value_counts)
 # ) 
 
 #%%###################################
-### df4_4: 'LLCHD'.
-df4_4 = (
-    df4_4
-    ###.astype(df4_4_col_dtypes)
-    .pipe(fn_apply_dtypes, df4_4_col_dtypes)
+### df_14t_piece_tb4_4: 'LLCHD'.
+df_14t_piece_tb4_4 = (
+    df_14t_piece_tb4_4
+    ###.astype(dict_14t_col_dtypes_tb4_4)
+    .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_4)
 )
-inspect_df(df4_4)
+inspect_df(df_14t_piece_tb4_4)
 
 # Error for column:  fob_edu
 # Attempted dtype:  Int64
 # could not convert string to float: 'HS Grad' 
 
 #%%###################################
-### df4_5: 'MOB or FOB'.
-df4_5 = (
-    df4_5
-    ###.astype(df4_5_col_dtypes)
-    .pipe(fn_apply_dtypes, df4_5_col_dtypes)
+### df_14t_piece_tb4_5: 'MOB or FOB'.
+df_14t_piece_tb4_5 = (
+    df_14t_piece_tb4_5
+    ###.astype(dict_14t_col_dtypes_tb4_5)
+    .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_5)
 )
-inspect_df(df4_5)
+inspect_df(df_14t_piece_tb4_5)
 
 
 #%%###################################
@@ -699,16 +674,16 @@ inspect_df(df4_5)
 ### Review each sheet:
 ### Note: Even empty DFs merge fine below.
 
-#%%### df4_1: 'Project ID'.
-inspect_df(df4_1)
-#%%### df4_2: 'Caregiver Insurance'.
-inspect_df(df4_2)
-#%%### df4_3: 'Family Wise'.
-inspect_df(df4_3)
-#%%### df4_4: 'LLCHD'.
-inspect_df(df4_4)
-#%%### df4_5: 'MOB or FOB'.
-inspect_df(df4_5)
+#%%### df_14t_piece_tb4_1: 'Project ID'.
+inspect_df(df_14t_piece_tb4_1)
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+inspect_df(df_14t_piece_tb4_2)
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+inspect_df(df_14t_piece_tb4_3)
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+inspect_df(df_14t_piece_tb4_4)
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+inspect_df(df_14t_piece_tb4_5)
 
 ### TODO: Ask how cross-joining (exploding) ALL rows with "MOB" & "FOB" helps anything.
 
@@ -717,49 +692,49 @@ inspect_df(df4_5)
 #####################################################
 
 #######################
-#%%### df4_1: 'Project ID'.
-[*df4_1]
-#%%### df4_1: 'Project ID'.
-df4_1_colnames
-#%%### df4_1: 'Project ID'.
-df4_1 = df4_1.rename(columns=df4_1_colnames)
-[*df4_1]
+#%%### df_14t_piece_tb4_1: 'Project ID'.
+[*df_14t_piece_tb4_1]
+#%%### df_14t_piece_tb4_1: 'Project ID'.
+dict_14t_colnames_tb4_1
+#%%### df_14t_piece_tb4_1: 'Project ID'.
+df_14t_piece_tb4_1 = df_14t_piece_tb4_1.rename(columns=dict_14t_colnames_tb4_1)
+[*df_14t_piece_tb4_1]
 
 #######################
-#%%### df4_2: 'Caregiver Insurance'.
-[*df4_2]
-#%%### df4_2: 'Caregiver Insurance'.
-df4_2_colnames
-#%%### df4_2: 'Caregiver Insurance'.
-df4_2 = df4_2.rename(columns=df4_2_colnames)
-[*df4_2]
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+[*df_14t_piece_tb4_2]
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+dict_14t_colnames_tb4_2
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+df_14t_piece_tb4_2 = df_14t_piece_tb4_2.rename(columns=dict_14t_colnames_tb4_2)
+[*df_14t_piece_tb4_2]
 
 #######################
-#%%### df4_3: 'Family Wise'.
-[*df4_3]
-#%%### df4_3: 'Family Wise'.
-df4_3_colnames
-#%%### df4_3: 'Family Wise'.
-df4_3 = df4_3.rename(columns=df4_3_colnames)
-[*df4_3]
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+[*df_14t_piece_tb4_3]
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+dict_14t_colnames_tb4_3
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+df_14t_piece_tb4_3 = df_14t_piece_tb4_3.rename(columns=dict_14t_colnames_tb4_3)
+[*df_14t_piece_tb4_3]
 
 #######################
-#%%### df4_4: 'LLCHD'.
-[*df4_4]
-#%%### df4_4: 'LLCHD'.
-df4_4_colnames
-#%%### df4_4: 'LLCHD'.
-df4_4 = df4_4.rename(columns=df4_4_colnames)
-[*df4_4]
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+[*df_14t_piece_tb4_4]
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+dict_14t_colnames_tb4_4
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+df_14t_piece_tb4_4 = df_14t_piece_tb4_4.rename(columns=dict_14t_colnames_tb4_4)
+[*df_14t_piece_tb4_4]
 
 #######################
-#%%### df4_5: 'MOB or FOB'.
-[*df4_5]
-#%%### df4_5: 'MOB or FOB'.
-df4_5_colnames
-#%%### df4_5: 'MOB or FOB'.
-df4_5 = df4_5.rename(columns=df4_5_colnames)
-[*df4_5]
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+[*df_14t_piece_tb4_5]
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+dict_14t_colnames_tb4_5
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+df_14t_piece_tb4_5 = df_14t_piece_tb4_5.rename(columns=dict_14t_colnames_tb4_5)
+[*df_14t_piece_tb4_5]
 
 #%%##################################################
 ### Prep for JOIN ###
@@ -768,144 +743,144 @@ df4_5 = df4_5.rename(columns=df4_5_colnames)
 ### Each row SHOULD be unique on these sheets, especially the 'Project ID' sheet.
 
 #%%### Restart deduplication
-### df4_1 = df4_1_bf_ddup.copy()
-### df4_2 = df4_2_bf_ddup.copy()
-### df4_3 = df4_3_bf_ddup.copy()
-### df4_4 = df4_4_bf_ddup.copy()
-### df4_5 = df4_5_bf_ddup.copy()
+### df_14t_piece_tb4_1 = df_14t_bf_ddup_tb4_1.copy()
+### df_14t_piece_tb4_2 = df_14t_bf_ddup_tb4_2.copy()
+### df_14t_piece_tb4_3 = df_14t_bf_ddup_tb4_3.copy()
+### df_14t_piece_tb4_4 = df_14t_bf_ddup_tb4_4.copy()
+### df_14t_piece_tb4_5 = df_14t_bf_ddup_tb4_5.copy()
 
 #######################
 ### NOTE: 24 duplicate rows. TO DO: Fix in Master File creation.
-#%%### df4_1: 'Project ID'. 
+#%%### df_14t_piece_tb4_1: 'Project ID'. 
 ### Backup:
-df4_1_bf_ddup = df4_1.copy()
-#%%### df4_1: 'Project ID'. 
+df_14t_bf_ddup_tb4_1 = df_14t_piece_tb4_1.copy()
+#%%### df_14t_piece_tb4_1: 'Project ID'. 
 ### Duplicate rows:
-df4_1[df4_1.duplicated()]
-#%%### df4_1: 'Project ID'. 
+df_14t_piece_tb4_1[df_14t_piece_tb4_1.duplicated()]
+#%%### df_14t_piece_tb4_1: 'Project ID'. 
 ### Dropping duplicate rows:
-if deduplicate_df4:
-    df4_1 = df4_1.drop_duplicates(ignore_index=True)
-df4_1
-#%%### df4_1: 'Project ID'. 
+if bool_14t_deduplicate_tb4:
+    df_14t_piece_tb4_1 = df_14t_piece_tb4_1.drop_duplicates(ignore_index=True)
+df_14t_piece_tb4_1
+#%%### df_14t_piece_tb4_1: 'Project ID'. 
 ### Test
-len(df4_1_bf_ddup) - len(df4_1) == len(df4_1_bf_ddup[df4_1_bf_ddup.duplicated()])
-#%%### df4_1: 'Project ID'. 
-if (len(df4_1_bf_ddup) != len(df4_1)):
-    print(f'{len(df4_1_bf_ddup) - len(df4_1)} duplicate rows dropped.')
-elif (len(df4_1_bf_ddup) == len(df4_1)):
+len(df_14t_bf_ddup_tb4_1) - len(df_14t_piece_tb4_1) == len(df_14t_bf_ddup_tb4_1[df_14t_bf_ddup_tb4_1.duplicated()])
+#%%### df_14t_piece_tb4_1: 'Project ID'. 
+if (len(df_14t_bf_ddup_tb4_1) != len(df_14t_piece_tb4_1)):
+    print(f'{len(df_14t_bf_ddup_tb4_1) - len(df_14t_piece_tb4_1)} duplicate rows dropped.')
+elif (len(df_14t_bf_ddup_tb4_1) == len(df_14t_piece_tb4_1)):
     print('No duplicate rows.')
 else:
     print("Don't know what's going on here!")
 #######################
-#%%### df4_1: 'Project ID'. 
+#%%### df_14t_piece_tb4_1: 'Project ID'. 
 ### join columns: ['Project Id','Year','Quarter']
 ### Show rows where join columns are same BUT some other columns are not:
-df4_1[df4_1[['Project Id','Year','Quarter']].duplicated(keep=False)]
+df_14t_piece_tb4_1[df_14t_piece_tb4_1[['Project Id','Year','Quarter']].duplicated(keep=False)]
 
 #######################
 ### NOTE: NO duplicate rows.
-#%%### df4_2: 'Caregiver Insurance'.
-df4_2_bf_ddup = df4_2.copy()
-#%%### df4_2: 'Caregiver Insurance'.
-df4_2[df4_2.duplicated()]
-# df4_2[df4_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
-#%%### df4_2: 'Caregiver Insurance'.
-if deduplicate_df4:
-    df4_2 = df4_2.drop_duplicates(ignore_index=True)
-df4_2
-#%%### df4_2: 'Caregiver Insurance'.
-len(df4_2_bf_ddup) - len(df4_2) == len(df4_2_bf_ddup[df4_2_bf_ddup.duplicated()])
-#%%### df4_2: 'Caregiver Insurance'.
-if (len(df4_2_bf_ddup) != len(df4_2)):
-    print(f'{len(df4_2_bf_ddup) - len(df4_2)} duplicate rows dropped.')
-elif (len(df4_2_bf_ddup) == len(df4_2)):
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+df_14t_bf_ddup_tb4_2 = df_14t_piece_tb4_2.copy()
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+df_14t_piece_tb4_2[df_14t_piece_tb4_2.duplicated()]
+# df_14t_piece_tb4_2[df_14t_piece_tb4_2.duplicated(keep=False, subset=['Project ID (ER Injury)','year (ER Injury)','quarter (ER Injury)'])]
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+if bool_14t_deduplicate_tb4:
+    df_14t_piece_tb4_2 = df_14t_piece_tb4_2.drop_duplicates(ignore_index=True)
+df_14t_piece_tb4_2
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+len(df_14t_bf_ddup_tb4_2) - len(df_14t_piece_tb4_2) == len(df_14t_bf_ddup_tb4_2[df_14t_bf_ddup_tb4_2.duplicated()])
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+if (len(df_14t_bf_ddup_tb4_2) != len(df_14t_piece_tb4_2)):
+    print(f'{len(df_14t_bf_ddup_tb4_2) - len(df_14t_piece_tb4_2)} duplicate rows dropped.')
+elif (len(df_14t_bf_ddup_tb4_2) == len(df_14t_piece_tb4_2)):
     print('No duplicate rows.')
 else:
     print("Don't know what's going on here!")
 #######################
-#%%### df4_2: 'Caregiver Insurance'.
+#%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
 ### join columns: ['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']
 ### Show rows where join columns are same BUT some other columns are not:
-df4_2[df4_2[['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']].duplicated(keep=False)]
+df_14t_piece_tb4_2[df_14t_piece_tb4_2[['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']].duplicated(keep=False)]
 
 #######################
 ### NOTE: 3 duplicate rows. TO DO: Fix in Master File creation.
-#%%### df4_3: 'Family Wise'.
-df4_3_bf_ddup = df4_3.copy()
-#%%### df4_3: 'Family Wise'.
-df4_3[df4_3.duplicated()]
-# df4_3[df4_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
-#%%### df4_3: 'Family Wise'.
-if deduplicate_df4:
-    df4_3 = df4_3.drop_duplicates(ignore_index=True)
-df4_3
-#%%### df4_3: 'Family Wise'.
-len(df4_3_bf_ddup) - len(df4_3) == len(df4_3_bf_ddup[df4_3_bf_ddup.duplicated()])
-#%%### df4_3: 'Family Wise'.
-if (len(df4_3_bf_ddup) != len(df4_3)):
-    print(f'{len(df4_3_bf_ddup) - len(df4_3)} duplicate rows dropped.')
-elif (len(df4_3_bf_ddup) == len(df4_3)):
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+df_14t_bf_ddup_tb4_3 = df_14t_piece_tb4_3.copy()
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+df_14t_piece_tb4_3[df_14t_piece_tb4_3.duplicated()]
+# df_14t_piece_tb4_3[df_14t_piece_tb4_3.duplicated(keep=False, subset=['Project ID','year (Family Wise)','quarter (Family Wise)'])]
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+if bool_14t_deduplicate_tb4:
+    df_14t_piece_tb4_3 = df_14t_piece_tb4_3.drop_duplicates(ignore_index=True)
+df_14t_piece_tb4_3
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+len(df_14t_bf_ddup_tb4_3) - len(df_14t_piece_tb4_3) == len(df_14t_bf_ddup_tb4_3[df_14t_bf_ddup_tb4_3.duplicated()])
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
+if (len(df_14t_bf_ddup_tb4_3) != len(df_14t_piece_tb4_3)):
+    print(f'{len(df_14t_bf_ddup_tb4_3) - len(df_14t_piece_tb4_3)} duplicate rows dropped.')
+elif (len(df_14t_bf_ddup_tb4_3) == len(df_14t_piece_tb4_3)):
     print('No duplicate rows.')
 else:
     print("Don't know what's going on here!")
 #######################
-#%%### df4_3: 'Family Wise'.
+#%%### df_14t_piece_tb4_3: 'Family Wise'.
 ### join columns: ['Project ID1','year (Family Wise)','quarter (Family Wise)']
 ### Show rows where join columns are same BUT some other columns are not:
-df4_3[df4_3[['Project ID1','year (Family Wise)','quarter (Family Wise)']].duplicated(keep=False)]
+df_14t_piece_tb4_3[df_14t_piece_tb4_3[['Project ID1','year (Family Wise)','quarter (Family Wise)']].duplicated(keep=False)]
 
 #######################
 ### NOTE: NO duplicate rows.
-#%%### df4_4: 'LLCHD'.
-df4_4_bf_ddup = df4_4.copy()
-#%%### df4_4: 'LLCHD'.
-df4_4[df4_4.duplicated()]
-# df4_4[df4_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
-#%%### df4_4: 'LLCHD'.
-if deduplicate_df4:
-    df4_4 = df4_4.drop_duplicates(ignore_index=True)
-df4_4
-#%%### df4_4: 'LLCHD'.
-len(df4_4_bf_ddup) - len(df4_4) == len(df4_4_bf_ddup[df4_4_bf_ddup.duplicated()])
-#%%### df4_4: 'LLCHD'.
-if (len(df4_4_bf_ddup) != len(df4_4)):
-    print(f'{len(df4_4_bf_ddup) - len(df4_4)} duplicate rows dropped.')
-elif (len(df4_4_bf_ddup) == len(df4_4)):
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+df_14t_bf_ddup_tb4_4 = df_14t_piece_tb4_4.copy()
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+df_14t_piece_tb4_4[df_14t_piece_tb4_4.duplicated()]
+# df_14t_piece_tb4_4[df_14t_piece_tb4_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+if bool_14t_deduplicate_tb4:
+    df_14t_piece_tb4_4 = df_14t_piece_tb4_4.drop_duplicates(ignore_index=True)
+df_14t_piece_tb4_4
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+len(df_14t_bf_ddup_tb4_4) - len(df_14t_piece_tb4_4) == len(df_14t_bf_ddup_tb4_4[df_14t_bf_ddup_tb4_4.duplicated()])
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
+if (len(df_14t_bf_ddup_tb4_4) != len(df_14t_piece_tb4_4)):
+    print(f'{len(df_14t_bf_ddup_tb4_4) - len(df_14t_piece_tb4_4)} duplicate rows dropped.')
+elif (len(df_14t_bf_ddup_tb4_4) == len(df_14t_piece_tb4_4)):
     print('No duplicate rows.')
 else:
     print("Don't know what's going on here!")
 #######################
-#%%### df4_4: 'LLCHD'.
+#%%### df_14t_piece_tb4_4: 'LLCHD'.
 ### join columns: ['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
 ### Show rows where join columns are same BUT some other columns are not:
-df4_4[df4_4[['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']].duplicated(keep=False)]
+df_14t_piece_tb4_4[df_14t_piece_tb4_4[['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']].duplicated(keep=False)]
 
 #######################
 ### NOTE: NO duplicate rows.
-#%%### df4_5: 'MOB or FOB'.
-df4_5_bf_ddup = df4_5.copy()
-#%%### df4_5: 'MOB or FOB'.
-df4_5[df4_5.duplicated()]
-# df4_5[df4_5.duplicated(keep=False, subset=[...])]
-#%%### df4_5: 'MOB or FOB'.
-if deduplicate_df4:
-    df4_5 = df4_5.drop_duplicates(ignore_index=True)
-df4_5
-#%%### df4_5: 'MOB or FOB'.
-len(df4_5_bf_ddup) - len(df4_5) == len(df4_5_bf_ddup[df4_5_bf_ddup.duplicated()])
-#%%### df4_5: 'MOB or FOB'.
-if (len(df4_5_bf_ddup) != len(df4_5)):
-    print(f'{len(df4_5_bf_ddup) - len(df4_5)} duplicate rows dropped.')
-elif (len(df4_5_bf_ddup) == len(df4_5)):
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+df_14t_bf_ddup_tb4_5 = df_14t_piece_tb4_5.copy()
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+df_14t_piece_tb4_5[df_14t_piece_tb4_5.duplicated()]
+# df_14t_piece_tb4_5[df_14t_piece_tb4_5.duplicated(keep=False, subset=[...])]
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+if bool_14t_deduplicate_tb4:
+    df_14t_piece_tb4_5 = df_14t_piece_tb4_5.drop_duplicates(ignore_index=True)
+df_14t_piece_tb4_5
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+len(df_14t_bf_ddup_tb4_5) - len(df_14t_piece_tb4_5) == len(df_14t_bf_ddup_tb4_5[df_14t_bf_ddup_tb4_5.duplicated()])
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+if (len(df_14t_bf_ddup_tb4_5) != len(df_14t_piece_tb4_5)):
+    print(f'{len(df_14t_bf_ddup_tb4_5) - len(df_14t_piece_tb4_5)} duplicate rows dropped.')
+elif (len(df_14t_bf_ddup_tb4_5) == len(df_14t_piece_tb4_5)):
     print('No duplicate rows.')
 else:
     print("Don't know what's going on here!")
 #######################
-#%%### df4_5: 'MOB or FOB'.
+#%%### df_14t_piece_tb4_5: 'MOB or FOB'.
 ### join columns: ['join id (MOB or FOB)']
 ### Show rows where join columns are same BUT some other columns are not:
-df4_5[df4_5[['join id (MOB or FOB)']].duplicated(keep=False)]
+df_14t_piece_tb4_5[df_14t_piece_tb4_5[['join id (MOB or FOB)']].duplicated(keep=False)]
 
 #%%##################################################
 ### JOIN ###
@@ -914,35 +889,35 @@ df4_5[df4_5[['join id (MOB or FOB)']].duplicated(keep=False)]
 ### TO DO: Address "PerformanceWarning: DataFrame is highly fragmented." from running merge.
 
 #%%
-df4 = (
+df_14t_base_tb4= (
     pd.merge(
-        df4_1 ### 'Project ID'.
-        ,df4_2 ### 'Caregiver Insurance'.
+        df_14t_piece_tb4_1 ### 'Project ID'.
+        ,df_14t_piece_tb4_2 ### 'Caregiver Insurance'.
         ,how='left'
         ,left_on=['Project Id','Year','Quarter']
         ,right_on=['Project ID','year (Caregiver Insurance)','quarter (Caregiver Insurance)']
-        ,indicator='LJ_df4_2CI'
+        ,indicator='LJ_tb4_2CI'
         # ,validate='one_to_one'
     ).merge(
-        df4_3 ### 'Family Wise'.
+        df_14t_piece_tb4_3 ### 'Family Wise'.
         ,how='left'
         ,left_on=['Project Id','Year','Quarter']
         ,right_on=['Project ID1','year (Family Wise)','quarter (Family Wise)']
-        ,indicator='LJ_df4_3FW'
+        ,indicator='LJ_tb4_3FW'
         # ,validate='one_to_one'
     ).merge(
-        df4_4 ### 'LLCHD'.
+        df_14t_piece_tb4_4 ### 'LLCHD'.
         ,how='left'
         ,left_on=['Project Id','Year','Quarter']
         ,right_on=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
-        ,indicator='LJ_df4_4LL'
+        ,indicator='LJ_tb4_4LL'
         # ,validate='one_to_one'
     ).merge(
-        df4_5 ### 'MOB or FOB'.
+        df_14t_piece_tb4_5 ### 'MOB or FOB'.
         ,how='left'
         ,left_on=['Join Id']
         ,right_on=['join id (MOB or FOB)']
-        ,indicator='LJ_df4_5MoF'
+        ,indicator='LJ_tb4_5MoF'
         # ,validate='one_to_one'
     )
 ) 
@@ -964,7 +939,7 @@ df4 = (
 #####################################################
 
 #%%
-df4_edits1 = df4.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT copy embedded mutable objects.
+df_14t_edits1_tb4 = df_14t_base_tb4.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT copy embedded mutable objects.
 
 
 #####################################################
@@ -972,18 +947,18 @@ df4_edits1 = df4.copy()  ### Make a deep-ish copy of the DF's Data. Does NOT cop
 #####################################################
 #%%##################################################
 
-df4_edits1['Number of Records'] = 1 
-inspect_col(df4_edits1['Number of Records'])
+df_14t_edits1_tb4['Number of Records'] = 1 
+inspect_col(df_14t_edits1_tb4['Number of Records'])
 
 #%%
-df4_edits1['source'] = (
-    df4_edits1
+df_14t_edits1_tb4['source'] = (
+    df_14t_edits1_tb4
     .apply(func=(
         lambda df: 'FW' if pd.notna(df['Project ID1']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
     ), axis=1)
     .astype('string') 
 )
-inspect_col(df4_edits1['source'])
+inspect_col(df_14t_edits1_tb4['source'])
 
 
 #####################################################
@@ -999,78 +974,78 @@ inspect_col(df4_edits1['source'])
 #%%##################################################
 ### COALESCING 
 
-df4_edits1['_Agency'] = df4_edits1['agency (Family Wise)'].combine_first(df4_edits1['Site Id']).astype('string') 
+df_14t_edits1_tb4['_Agency'] = df_14t_edits1_tb4['agency (Family Wise)'].combine_first(df_14t_edits1_tb4['Site Id']).astype('string') 
     ### IFNULL([agency (Family Wise)],[Site Id])
     ### Data Type in Tableau: string.
-inspect_col(df4_edits1['_Agency'])
+inspect_col(df_14t_edits1_tb4['_Agency'])
 
-df4_edits1['_Family ID'] = df4_edits1['Family Id'].combine_first(df4_edits1['Family Number']).astype('string') 
+df_14t_edits1_tb4['_Family ID'] = df_14t_edits1_tb4['Family Id'].combine_first(df_14t_edits1_tb4['Family Number']).astype('string') 
     ### IFNULL([Family Id], [Family Number])
     ### Data Type in Tableau: string.
-inspect_col(df4_edits1['_Family ID'])
+inspect_col(df_14t_edits1_tb4['_Family ID'])
 
-df4_edits1['_TGT ID'] = df4_edits1['Tgt Id'].combine_first(df4_edits1['Child Number']).astype('string') 
+df_14t_edits1_tb4['_TGT ID'] = df_14t_edits1_tb4['Tgt Id'].combine_first(df_14t_edits1_tb4['Child Number']).astype('string') 
     ### STR(IFNULL([Tgt Id],[Child Number]))
     ### Data Type in Tableau: string.
-inspect_col(df4_edits1['_TGT ID'])
+inspect_col(df_14t_edits1_tb4['_TGT ID'])
 
 #%%###################################
 
 ### 'Mob Zip' has the string value "null" that needs to be recoded.
 ### TODO: limit ZIP codes to first five -- have some with the extra 4.
-df4_edits1['_Zip'] = (
-    df4_edits1['Zip'].combine_first(df4_edits1['Mob Zip'])
+df_14t_edits1_tb4['_Zip'] = (
+    df_14t_edits1_tb4['Zip'].combine_first(df_14t_edits1_tb4['Mob Zip'])
     .replace('null', pd.NA)
     .astype('Int64') 
 )
     ### IFNULL([Zip], INT([Mob Zip]))
     ### Data Type in Tableau: integer.
-inspect_col(df4_edits1['_Zip'])
+inspect_col(df_14t_edits1_tb4['_Zip'])
 # #%%
-# print(df4_edits1['_Zip'].value_counts(dropna=False).to_string())
+# print(df_14t_edits1_tb4['_Zip'].value_counts(dropna=False).to_string())
 # #%%
-# # inspect_col(df4_edits1['Zip'])
-# print(df4_edits1['Zip'].value_counts(dropna=False).to_string())
+# # inspect_col(df_14t_edits1_tb4['Zip'])
+# print(df_14t_edits1_tb4['Zip'].value_counts(dropna=False).to_string())
 # #%%
-# # inspect_col(df4_edits1['Mob Zip'])
-# print(df4_edits1['Mob Zip'].value_counts(dropna=False).to_string()) ### Actually has text "null".
+# # inspect_col(df_14t_edits1_tb4['Mob Zip'])
+# print(df_14t_edits1_tb4['Mob Zip'].value_counts(dropna=False).to_string()) ### Actually has text "null".
 # #%%
-# # print(df4_edits1[['_Zip', 'Mob Zip', 'Zip']].query('`Mob Zip` == "null"').to_string())
-# print(df4_edits1[['_Zip', 'Mob Zip', 'Zip']].to_string())
+# # print(df_14t_edits1_tb4[['_Zip', 'Mob Zip', 'Zip']].query('`Mob Zip` == "null"').to_string())
+# print(df_14t_edits1_tb4[['_Zip', 'Mob Zip', 'Zip']].to_string())
 
 #%%
 
-df4_edits1['_T16 Number of Home Visits'] = df4_edits1['HomeVisitsTotal'].combine_first(df4_edits1['Home Visits Num']).astype('Float64').astype('Int64') 
+df_14t_edits1_tb4['_T16 Number of Home Visits'] = df_14t_edits1_tb4['HomeVisitsTotal'].combine_first(df_14t_edits1_tb4['Home Visits Num']).astype('Float64').astype('Int64') 
     ### IFNULL([HomeVisitsTotal],[Home Visits Num])
     ### Data Type in Tableau: integer.
-inspect_col(df4_edits1['_T16 Number of Home Visits'])
+inspect_col(df_14t_edits1_tb4['_T16 Number of Home Visits'])
 
 #%%###################################
 
-df4_edits1['_C15 Max Education Date'] = df4_edits1['Mcafss Edu Dt2'].combine_first(df4_edits1['Max Edu Date']).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_C15 Max Education Date'] = df_14t_edits1_tb4['Mcafss Edu Dt2'].combine_first(df_14t_edits1_tb4['Max Edu Date']).astype('datetime64[ns]') 
     ### IFNULL([Mcafss Edu Dt2],[Max Edu Date])
     ### Data Type in Tableau: date.
-inspect_col(df4_edits1['_C15 Max Education Date'])
+inspect_col(df_14t_edits1_tb4['_C15 Max Education Date'])
 
-df4_edits1['_C15 Min Education Date'] = df4_edits1['Mcafss Edu Dt1'].combine_first(df4_edits1['Min Education Date']).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_C15 Min Education Date'] = df_14t_edits1_tb4['Mcafss Edu Dt1'].combine_first(df_14t_edits1_tb4['Min Education Date']).astype('datetime64[ns]') 
     ### IFNULL([Mcafss Edu Dt1],[Min Education Date])
     ### Data Type in Tableau: date.
-inspect_col(df4_edits1['_C15 Min Education Date'])
+inspect_col(df_14t_edits1_tb4['_C15 Min Education Date'])
 
-df4_edits1['_Discharge Date'] = df4_edits1['Termination Date'].combine_first(df4_edits1['Discharge Dt']).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_Discharge Date'] = df_14t_edits1_tb4['Termination Date'].combine_first(df_14t_edits1_tb4['Discharge Dt']).astype('datetime64[ns]') 
     ### IFNULL([Termination Date],[Discharge Dt])
     ### Data Type in Tableau: date.
-inspect_col(df4_edits1['_Discharge Date'])
+inspect_col(df_14t_edits1_tb4['_Discharge Date'])
 
-df4_edits1['_Enrollment Date'] = df4_edits1['Min Of HV Date'].combine_first(df4_edits1['Enroll Dt']).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_Enrollment Date'] = df_14t_edits1_tb4['Min Of HV Date'].combine_first(df_14t_edits1_tb4['Enroll Dt']).astype('datetime64[ns]') 
     ### IFNULL([Min Of HV Date],[Enroll Dt])
     ### Data Type in Tableau: date.
-inspect_col(df4_edits1['_Enrollment Date'])
+inspect_col(df_14t_edits1_tb4['_Enrollment Date'])
 
-df4_edits1['_Max HV Date'] = df4_edits1['Max Of HV Date'].combine_first(df4_edits1['Last Home Visit']).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_Max HV Date'] = df_14t_edits1_tb4['Max Of HV Date'].combine_first(df_14t_edits1_tb4['Last Home Visit']).astype('datetime64[ns]') 
     ### IFNULL([Max Of HV Date],[Last Home Visit])
     ### Data Type in Tableau: date.
-inspect_col(df4_edits1['_Max HV Date'])
+inspect_col(df_14t_edits1_tb4['_Max HV Date'])
 
 
 #####################################################
@@ -1096,13 +1071,13 @@ def fn_TGT_DOB(fdf):
     ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
     ### END
-df4_edits1['_TGT DOB'] = df4_edits1.apply(func=fn_TGT_DOB, axis=1).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_TGT DOB'] = df_14t_edits1_tb4.apply(func=fn_TGT_DOB, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_TGT DOB'])
+inspect_col(df_14t_edits1_tb4['_TGT DOB'])
 # #%%
-# inspect_col(df4_edits1['Tgt Dob'])
+# inspect_col(df_14t_edits1_tb4['Tgt Dob'])
 # #%%
-# inspect_col(df4_edits1['Tgt Dob-Cr'])
+# inspect_col(df_14t_edits1_tb4['Tgt Dob-Cr'])
 
 
 #####################################################
@@ -1113,15 +1088,15 @@ inspect_col(df4_edits1['_TGT DOB'])
 
 ### These calculations assume all date variables are dtype "datetime64".
 
-df4_edits1['_Enroll 3 Month Date'] = df4_edits1['_Enrollment Date'].astype('datetime64[ns]') + pd.DateOffset(months=3) 
+df_14t_edits1_tb4['_Enroll 3 Month Date'] = df_14t_edits1_tb4['_Enrollment Date'].astype('datetime64[ns]') + pd.DateOffset(months=3) 
     ### DATE(DATEADD('month',3,[_Enrollment Date]))
     ### Data Type in Tableau: date.
-inspect_col(df4_edits1['_Enroll 3 Month Date'])
+inspect_col(df_14t_edits1_tb4['_Enroll 3 Month Date'])
 
-df4_edits1['_TGT 3 Month Date'] = df4_edits1['_TGT DOB'].astype('datetime64[ns]') + pd.DateOffset(months=3) 
+df_14t_edits1_tb4['_TGT 3 Month Date'] = df_14t_edits1_tb4['_TGT DOB'].astype('datetime64[ns]') + pd.DateOffset(months=3) 
     ### DATE(DATEADD('month',3,[_TGT DOB]))
     ### Data Type in Tableau: date.
-inspect_col(df4_edits1['_TGT 3 Month Date'])
+inspect_col(df_14t_edits1_tb4['_TGT 3 Month Date'])
 
 
 #####################################################
@@ -1140,12 +1115,12 @@ def fn__Primary_Caregiver_ID(fdf):
     return re.findall(r'^.*(?=-)', fdf['Project Id'])[0]
     ### /// Tableau Calculation:
     ### MID([Project Id], 1, FIND([Project Id], '-') - 1) 
-df4_edits1['__Primary Caregiver ID'] = df4_edits1.apply(func=fn__Primary_Caregiver_ID, axis=1).astype('string') 
+df_14t_edits1_tb4['__Primary Caregiver ID'] = df_14t_edits1_tb4.apply(func=fn__Primary_Caregiver_ID, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['__Primary Caregiver ID']) 
+inspect_col(df_14t_edits1_tb4['__Primary Caregiver ID']) 
 #%%
-# re.findall(r'(^.*)(?=-)', df4_edits1['Project Id'])[0]
-# re.findall(r'.*', df4_edits1['Project Id'])#[0]
+# re.findall(r'(^.*)(?=-)', df_14t_edits1_tb4['Project Id'])[0]
+# re.findall(r'.*', df_14t_edits1_tb4['Project Id'])#[0]
 re.findall(r'^.*(?=-)', 'llSF77010001416-562')[0]
 
 #%%###################################
@@ -1162,11 +1137,11 @@ def fn__F1_Caregiver_ID_for_MOB_or_FOB(fdf):
     ###     WHEN "MOB" THEN STR([__Primary Caregiver ID]) + "MOB"
     ###     WHEN "FOB" THEN STR([__Primary Caregiver ID]) + "FOB"
     ### END
-df4_edits1['__F1 Caregiver ID for MOB or FOB'] = df4_edits1.apply(func=fn__F1_Caregiver_ID_for_MOB_or_FOB, axis=1).astype('string') 
+df_14t_edits1_tb4['__F1 Caregiver ID for MOB or FOB'] = df_14t_edits1_tb4.apply(func=fn__F1_Caregiver_ID_for_MOB_or_FOB, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['__F1 Caregiver ID for MOB or FOB']) 
+inspect_col(df_14t_edits1_tb4['__F1 Caregiver ID for MOB or FOB']) 
 #%%
-print(df4_edits1[['Project Id','Year','Quarter', '__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB']].query(f'`__F1 Caregiver ID for MOB or FOB` in ["ps187FOB", "ps187MOB"]').to_string())
+print(df_14t_edits1_tb4[['Project Id','Year','Quarter', '__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB']].query(f'`__F1 Caregiver ID for MOB or FOB` in ["ps187FOB", "ps187MOB"]').to_string())
 
 #!HERE
 
@@ -1209,11 +1184,11 @@ def fn_FOB_Involved(fdf):
     ### ELSEIF [Fob Involved1] = "N" THEN 0
     ### ELSE 0
     ### END
-df4_edits1['_FOB Involved'] = df4_edits1.apply(func=fn_FOB_Involved, axis=1).astype('Int64') 
+df_14t_edits1_tb4['_FOB Involved'] = df_14t_edits1_tb4.apply(func=fn_FOB_Involved, axis=1).astype('Int64') 
     ### Data Type in Tableau: 'int'.
-inspect_col(df4_edits1['_FOB Involved']) 
+inspect_col(df_14t_edits1_tb4['_FOB Involved']) 
 # #%%
-# print(df4_edits1[['source', '_FOB Involved', 'Fob Involved', 'Fob Involved1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+# print(df_14t_edits1_tb4[['source', '_FOB Involved', 'Fob Involved', 'Fob Involved1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -1232,11 +1207,11 @@ def fn_Caregiver_Involved(fdf):
     ###     ([MOB or FOB] = "FOB"
     ###     AND
     ###     [_FOB Involved] = 1)
-df4_edits1['Caregiver Involved'] = df4_edits1.apply(func=fn_Caregiver_Involved, axis=1).astype('boolean') 
+df_14t_edits1_tb4['Caregiver Involved'] = df_14t_edits1_tb4.apply(func=fn_Caregiver_Involved, axis=1).astype('boolean') 
     ### Data Type in Tableau: 'boolean'.
-inspect_col(df4_edits1['Caregiver Involved']) 
+inspect_col(df_14t_edits1_tb4['Caregiver Involved']) 
 # #%%
-# print(df4_edits1[['MOB or FOB', '_FOB Involved', 'Caregiver Involved', 'source']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+# print(df_14t_edits1_tb4[['MOB or FOB', '_FOB Involved', 'Caregiver Involved', 'source']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 
 #%%###################################
@@ -1258,9 +1233,9 @@ def fn_TGT_EDC_Date(fdf):
     ### ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Dt Edc],[EDC Date])
     ### END
-df4_edits1['_TGT EDC Date'] = df4_edits1.apply(func=fn_TGT_EDC_Date, axis=1).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_TGT EDC Date'] = df_14t_edits1_tb4.apply(func=fn_TGT_EDC_Date, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_TGT EDC Date']) 
+inspect_col(df_14t_edits1_tb4['_TGT EDC Date']) 
 
 #%%###################################
 
@@ -1308,9 +1283,9 @@ def fn_MOB_Gender(fdf):
     ### ELSEIF [Mob Gender] = "M" THEN "Male"
     ### // ELSEIF [Mob Gender] = "N" THEN "Non-Binary" // Don't have this value yet - Confirm
     ### END
-df4_edits1['_MOB Gender'] = df4_edits1.apply(func=fn_MOB_Gender, axis=1).astype('string') 
+df_14t_edits1_tb4['_MOB Gender'] = df_14t_edits1_tb4.apply(func=fn_MOB_Gender, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_MOB Gender']) 
+inspect_col(df_14t_edits1_tb4['_MOB Gender']) 
 ### TODO:Confirm that we don't have/are not expecting "N" from LL.
 
 #%%###################################
@@ -1358,9 +1333,9 @@ def fn_FOB_Gender(fdf):
     ### ELSEIF [Fob Involved] = True THEN [Adult2Gender] //FW
     ### ELSE NULL
     ### END
-df4_edits1['_FOB Gender'] = df4_edits1.apply(func=fn_FOB_Gender, axis=1).astype('string') 
+df_14t_edits1_tb4['_FOB Gender'] = df_14t_edits1_tb4.apply(func=fn_FOB_Gender, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_FOB Gender']) 
+inspect_col(df_14t_edits1_tb4['_FOB Gender']) 
 ### TODO:Confirm that we don't have/are not expecting "N" from LL.
 ### TODO: Ask old question: //should we incorporate involved status into the fob variables?
 
@@ -1377,9 +1352,9 @@ def fn_F1_Caregiver_Gender(fdf):
     ###     WHEN "MOB" THEN [_MOB Gender]
     ###     WHEN "FOB" THEN [_FOB Gender]
     ### END
-df4_edits1['_F1 Caregiver Gender'] = df4_edits1.apply(func=fn_F1_Caregiver_Gender, axis=1).astype('string') 
+df_14t_edits1_tb4['_F1 Caregiver Gender'] = df_14t_edits1_tb4.apply(func=fn_F1_Caregiver_Gender, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_F1 Caregiver Gender']) 
+inspect_col(df_14t_edits1_tb4['_F1 Caregiver Gender']) 
 
 #%%###################################
 
@@ -1440,9 +1415,9 @@ def fn_MOB_TGT_Relation(fdf):
     ### ELSEIF [Primary Relation] = "PRIMARY CAREGIVER" AND [Mob Gender] = "M" THEN "FOB"
     ### //alternatively we could just leave PCs as that
     ### END
-df4_edits1['_MOB TGT Relation'] = df4_edits1.apply(func=fn_MOB_TGT_Relation, axis=1).astype('string') 
+df_14t_edits1_tb4['_MOB TGT Relation'] = df_14t_edits1_tb4.apply(func=fn_MOB_TGT_Relation, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_MOB TGT Relation']) 
+inspect_col(df_14t_edits1_tb4['_MOB TGT Relation']) 
 ### TODO: Ask old question: //should we call this primary relation??
 ### TODO: Ask: What is this referring to?: //alternatively we could just leave PCs as that.
 
@@ -1501,9 +1476,9 @@ def fn_FOB_Relation(fdf):
     ###     END
     ### ELSE NULL
     ### END
-df4_edits1['_FOB Relation'] = df4_edits1.apply(func=fn_FOB_Relation, axis=1).astype('string') 
+df_14t_edits1_tb4['_FOB Relation'] = df_14t_edits1_tb4.apply(func=fn_FOB_Relation, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_FOB Relation']) 
+inspect_col(df_14t_edits1_tb4['_FOB Relation']) 
 
 #%%###################################
 
@@ -1543,18 +1518,18 @@ def fn_Enroll_Preg_Status(fdf):
     ### ELSEIF [Enroll Preg Status] = "Pregnant" THEN "Pregnant"
     ### ELSE NULL
     ### END
-df4_edits1['_Enroll Preg Status'] = df4_edits1.apply(func=fn_Enroll_Preg_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_Enroll Preg Status'] = df_14t_edits1_tb4.apply(func=fn_Enroll_Preg_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_Enroll Preg Status']) 
+inspect_col(df_14t_edits1_tb4['_Enroll Preg Status']) 
 
 #%%###################################
 
 ### ### Test whether code works with NAs:
-### df4_edits1['Assess Afraid'] = df4_edits1['Assess Afraid'].sample(frac=0.8)
-### df4_edits1['Assess IPV'] = df4_edits1['Assess IPV'].sample(frac=0.8)
-### df4_edits1['Assess Police'] = df4_edits1['Assess Police'].sample(frac=0.8)
+### df_14t_edits1_tb4['Assess Afraid'] = df_14t_edits1_tb4['Assess Afraid'].sample(frac=0.8)
+### df_14t_edits1_tb4['Assess IPV'] = df_14t_edits1_tb4['Assess IPV'].sample(frac=0.8)
+### df_14t_edits1_tb4['Assess Police'] = df_14t_edits1_tb4['Assess Police'].sample(frac=0.8)
 
-### TODO: Is 'Agency' from df4_2 ('Caregiver Insurance') wanted? Or 'agency (Family Wise)'? Or '_Agency'?
+### TODO: Is 'Agency' from df_14t_piece_tb4_2 ('Caregiver Insurance') wanted? Or 'agency (Family Wise)'? Or '_Agency'?
 ### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_IPV_Score_FW(fdf):
     ###########
@@ -1586,12 +1561,12 @@ def fn_IPV_Score_FW(fdf):
     ###     OR [Assess Police] = TRUE
     ###     THEN "P" ELSE "N" END)
     ### END
-df4_edits1['_IPV Score FW'] = df4_edits1.apply(func=fn_IPV_Score_FW, axis=1).astype('string') 
+df_14t_edits1_tb4['_IPV Score FW'] = df_14t_edits1_tb4.apply(func=fn_IPV_Score_FW, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_IPV Score FW']) 
+inspect_col(df_14t_edits1_tb4['_IPV Score FW']) 
 #%%
-# print(df4_edits1[['source', '_IPV Score FW', 'Agency', 'Assess Afraid', 'Assess IPV', 'Assess Police']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
-# print(df4_edits1[['source', '_IPV Score FW', 'Assess Afraid', 'Assess IPV', 'Assess Police']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+# print(df_14t_edits1_tb4[['source', '_IPV Score FW', 'Agency', 'Assess Afraid', 'Assess IPV', 'Assess Police']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+# print(df_14t_edits1_tb4[['source', '_IPV Score FW', 'Assess Afraid', 'Assess IPV', 'Assess Police']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -1626,9 +1601,9 @@ def fn_Need_Exclusion_1_Sub_Abuse(fdf):
     ###     ELSEIF [Need Exclusion1] = "Alcohol Abuse" THEN "Alcohol/Drug Abuse"
     ### ELSEIF [need exclusion1 (LLCHD)] = "Y" THEN "Alcohol/Drug Abuse" //LLCHD
     ### END
-df4_edits1['_Need Exclusion 1 - Sub Abuse'] = df4_edits1.apply(func=fn_Need_Exclusion_1_Sub_Abuse, axis=1).astype('string') 
+df_14t_edits1_tb4['_Need Exclusion 1 - Sub Abuse'] = df_14t_edits1_tb4.apply(func=fn_Need_Exclusion_1_Sub_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_Need Exclusion 1 - Sub Abuse']) 
+inspect_col(df_14t_edits1_tb4['_Need Exclusion 1 - Sub Abuse']) 
 
 #%%###################################
 
@@ -1661,9 +1636,9 @@ def fn_Need_Exclusion_2_Fam_Plan(fdf):
     ### IF [Need Exclusion2] = "Family Planning" THEN "Family Planning" //FW
     ### ELSEIF [need exclusion2 (LLCHD)] = "Y" THEN "Family Planning" //LLCHD
     ### END
-df4_edits1['_Need Exclusion 2 - Fam Plan'] = df4_edits1.apply(func=fn_Need_Exclusion_2_Fam_Plan, axis=1).astype('string') 
+df_14t_edits1_tb4['_Need Exclusion 2 - Fam Plan'] = df_14t_edits1_tb4.apply(func=fn_Need_Exclusion_2_Fam_Plan, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_Need Exclusion 2 - Fam Plan']) 
+inspect_col(df_14t_edits1_tb4['_Need Exclusion 2 - Fam Plan']) 
 
 #%%###################################
 
@@ -1696,9 +1671,9 @@ def fn_Need_Exclusion_3_Mental_Health(fdf):
     ### IF [Need Exclusion3] = "Mental Health" THEN "Mental Health" //FW
     ### ELSEIF [need exclusion3 (LLCHD)] = "Y" THEN "Mental Health" //LLCHD
     ### END
-df4_edits1['_Need Exclusion 3 - Mental Health'] = df4_edits1.apply(func=fn_Need_Exclusion_3_Mental_Health, axis=1).astype('string') 
+df_14t_edits1_tb4['_Need Exclusion 3 - Mental Health'] = df_14t_edits1_tb4.apply(func=fn_Need_Exclusion_3_Mental_Health, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_Need Exclusion 3 - Mental Health']) 
+inspect_col(df_14t_edits1_tb4['_Need Exclusion 3 - Mental Health']) 
 
 #%%###################################
 
@@ -1731,9 +1706,9 @@ def fn_Need_Exclusion_5_IPV(fdf):
     ### IF [Need Exclusion5] = "IPV Services" THEN "IPV Services" //FW
     ### ELSEIF [need exclusion5 (LLCHD)] = "Y" THEN "IPV Services" //LLCHD
     ### END
-df4_edits1['_Need Exclusion 5 - IPV'] = df4_edits1.apply(func=fn_Need_Exclusion_5_IPV, axis=1).astype('string') 
+df_14t_edits1_tb4['_Need Exclusion 5 - IPV'] = df_14t_edits1_tb4.apply(func=fn_Need_Exclusion_5_IPV, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_Need Exclusion 5 - IPV']) 
+inspect_col(df_14t_edits1_tb4['_Need Exclusion 5 - IPV']) 
 
 #%%###################################
 
@@ -1766,9 +1741,9 @@ def fn_Need_Exclusion_6_Tobacco(fdf):
     ### IF [need_exclusion6 (Family Wise)] = "Tobacco Cessation" THEN "Tobacco Cessation" //FW
     ### ELSEIF [need_exclusion6] = "Y" THEN "Tobacco Cessation" //LLCHD
     ### END
-df4_edits1['_Need Exclusion 6 - Tobacco'] = df4_edits1.apply(func=fn_Need_Exclusion_6_Tobacco, axis=1).astype('string') 
+df_14t_edits1_tb4['_Need Exclusion 6 - Tobacco'] = df_14t_edits1_tb4.apply(func=fn_Need_Exclusion_6_Tobacco, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_Need Exclusion 6 - Tobacco']) 
+inspect_col(df_14t_edits1_tb4['_Need Exclusion 6 - Tobacco']) 
 
 #%%###################################
 
@@ -1789,9 +1764,9 @@ def fn_MOB_DOB(fdf):
     ### ELSEIF [Mobdob] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Mob Dob],[Mobdob])
     ### END
-df4_edits1['_MOB DOB'] = df4_edits1.apply(func=fn_MOB_DOB, axis=1).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_MOB DOB'] = df_14t_edits1_tb4.apply(func=fn_MOB_DOB, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_MOB DOB']) 
+inspect_col(df_14t_edits1_tb4['_MOB DOB']) 
 
 #%%###################################
 
@@ -1812,9 +1787,9 @@ def fn_FOB_DOB(fdf):
     ### ELSEIF [Fobdob] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Fob Dob],[Fobdob])
     ### END
-df4_edits1['_FOB DOB'] = df4_edits1.apply(func=fn_FOB_DOB, axis=1).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_FOB DOB'] = df_14t_edits1_tb4.apply(func=fn_FOB_DOB, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_FOB DOB']) 
+inspect_col(df_14t_edits1_tb4['_FOB DOB']) 
 
 #%%###################################
 
@@ -1829,9 +1804,9 @@ def fn_T04_Caregiver_DOB(fdf):
     ###     WHEN "MOB" THEN [_MOB DOB]
     ###     WHEN "FOB" THEN [_FOB DOB]
     ### END
-df4_edits1['_T04 Caregiver DOB'] = df4_edits1.apply(func=fn_T04_Caregiver_DOB, axis=1).astype('datetime64[ns]') 
+df_14t_edits1_tb4['_T04 Caregiver DOB'] = df_14t_edits1_tb4.apply(func=fn_T04_Caregiver_DOB, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: 'date'.
-inspect_col(df4_edits1['_T04 Caregiver DOB']) 
+inspect_col(df_14t_edits1_tb4['_T04 Caregiver DOB']) 
 
 #%%###################################
 
@@ -1886,9 +1861,9 @@ def fn_T06_MOB_Ethnicity(fdf):
     ###     END
     ### ELSE "Unknown/Did Not Report"
     ### END
-df4_edits1['_T06 MOB Ethnicity'] = df4_edits1.apply(func=fn_T06_MOB_Ethnicity, axis=1).astype('string') 
+df_14t_edits1_tb4['_T06 MOB Ethnicity'] = df_14t_edits1_tb4.apply(func=fn_T06_MOB_Ethnicity, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T06 MOB Ethnicity']) 
+inspect_col(df_14t_edits1_tb4['_T06 MOB Ethnicity']) 
 
 #%%###################################
 
@@ -1958,9 +1933,9 @@ def fn_T06_FOB_Ethnicity(fdf):
     ###     END
     ### ELSE NULL
     ### END
-df4_edits1['_T06 FOB Ethnicity'] = df4_edits1.apply(func=fn_T06_FOB_Ethnicity, axis=1).astype('string') 
+df_14t_edits1_tb4['_T06 FOB Ethnicity'] = df_14t_edits1_tb4.apply(func=fn_T06_FOB_Ethnicity, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T06 FOB Ethnicity']) 
+inspect_col(df_14t_edits1_tb4['_T06 FOB Ethnicity']) 
 
 #%%###################################
 
@@ -1975,9 +1950,9 @@ def fn_T06_Ethnicity(fdf):
     ###     WHEN "MOB" THEN [_T06 MOB Ethnicity]
     ###     WHEN "FOB" THEN [_T06 FOB Ethnicity]
     ### END
-df4_edits1['_T06 Ethnicity'] = df4_edits1.apply(func=fn_T06_Ethnicity, axis=1).astype('string') 
+df_14t_edits1_tb4['_T06 Ethnicity'] = df_14t_edits1_tb4.apply(func=fn_T06_Ethnicity, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T06 Ethnicity']) 
+inspect_col(df_14t_edits1_tb4['_T06 Ethnicity']) 
 
 #%%###################################
 
@@ -2075,9 +2050,9 @@ def fn_T07_MOB_Race(fdf):
     ### ////
     ### ELSE "Unknown/Did Not Report"
     ### END
-df4_edits1['_T07 MOB Race'] = df4_edits1.apply(func=fn_T07_MOB_Race, axis=1).astype('string') 
+df_14t_edits1_tb4['_T07 MOB Race'] = df_14t_edits1_tb4.apply(func=fn_T07_MOB_Race, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T07 MOB Race']) 
+inspect_col(df_14t_edits1_tb4['_T07 MOB Race']) 
 
 #%%###################################
 
@@ -2188,9 +2163,9 @@ def fn_T07_FOB_Race(fdf):
     ###     END)
     ### ELSE NULL
     ### END
-df4_edits1['_T07 FOB Race'] = df4_edits1.apply(func=fn_T07_FOB_Race, axis=1).astype('string') 
+df_14t_edits1_tb4['_T07 FOB Race'] = df_14t_edits1_tb4.apply(func=fn_T07_FOB_Race, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T07 FOB Race']) 
+inspect_col(df_14t_edits1_tb4['_T07 FOB Race']) 
 
 #%%###################################
 
@@ -2205,9 +2180,9 @@ def fn_T07_Race(fdf):
     ###     WHEN "MOB" THEN [_T07 MOB Race]
     ###     WHEN "FOB" THEN [_T07 FOB Race]
     ### END
-df4_edits1['_T07 Race'] = df4_edits1.apply(func=fn_T07_Race, axis=1).astype('string') 
+df_14t_edits1_tb4['_T07 Race'] = df_14t_edits1_tb4.apply(func=fn_T07_Race, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T07 Race']) 
+inspect_col(df_14t_edits1_tb4['_T07 Race']) 
 
 #%%###################################
 
@@ -2284,9 +2259,9 @@ def fn_T08_MOB_Marital_Status(fdf):
     ###     END
     ### ELSE "Unknown/Did Not Report"
     ### END
-df4_edits1['_T08 MOB Marital Status'] = df4_edits1.apply(func=fn_T08_MOB_Marital_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T08 MOB Marital Status'] = df_14t_edits1_tb4.apply(func=fn_T08_MOB_Marital_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T08 MOB Marital Status']) 
+inspect_col(df_14t_edits1_tb4['_T08 MOB Marital Status']) 
 
 #%%###################################
 
@@ -2378,9 +2353,9 @@ def fn_T08_FOB_Marital_Status(fdf):
     ###     END
     ### ELSE NULL
     ### END
-df4_edits1['_T08 FOB Marital Status'] = df4_edits1.apply(func=fn_T08_FOB_Marital_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T08 FOB Marital Status'] = df_14t_edits1_tb4.apply(func=fn_T08_FOB_Marital_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T08 FOB Marital Status']) 
+inspect_col(df_14t_edits1_tb4['_T08 FOB Marital Status']) 
 
 #%%###################################
 
@@ -2395,9 +2370,9 @@ def fn_T08_Caregiver_Marital_Status(fdf):
     ###     WHEN "MOB" THEN [_T08 MOB Marital Status]
     ###     WHEN "FOB" THEN [_T08 FOB Marital Status]
     ### END
-df4_edits1['_T08 Caregiver Marital Status'] = df4_edits1.apply(func=fn_T08_Caregiver_Marital_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T08 Caregiver Marital Status'] = df_14t_edits1_tb4.apply(func=fn_T08_Caregiver_Marital_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T08 Caregiver Marital Status']) 
+inspect_col(df_14t_edits1_tb4['_T08 Caregiver Marital Status']) 
 
 #%%###################################
 
@@ -2507,9 +2482,9 @@ def fn_C15_Min_Educational_Status(fdf):
     ### //7 – Associates Degree 
     ### //8 - Bachelors Degree or Higher
     ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
-df4_edits1['_C15 Min Educational Status'] = df4_edits1.apply(func=fn_C15_Min_Educational_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_C15 Min Educational Status'] = df_14t_edits1_tb4.apply(func=fn_C15_Min_Educational_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Min Educational Status']) 
+inspect_col(df_14t_edits1_tb4['_C15 Min Educational Status']) 
 
 #%%###################################
 
@@ -2618,9 +2593,9 @@ def fn_C15_Max_Educational_Status(fdf):
     ### //7 – Associates Degree 
     ### //8 - Bachelors Degree or Higher
     ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment
-df4_edits1['_C15 Max Educational Status'] = df4_edits1.apply(func=fn_C15_Max_Educational_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_C15 Max Educational Status'] = df_14t_edits1_tb4.apply(func=fn_C15_Max_Educational_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Max Educational Status']) 
+inspect_col(df_14t_edits1_tb4['_C15 Max Educational Status']) 
 
 #%%###################################
 
@@ -2728,13 +2703,13 @@ def fn_T09_FOB_Education_Status(fdf):
     ### //6 – Some College
     ### //7 – Associates Degree 
     ### //8 - Bachelors Degree or Higher
-df4_edits1['_T09 FOB Education Status'] = df4_edits1.apply(func=fn_T09_FOB_Education_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T09 FOB Education Status'] = df_14t_edits1_tb4.apply(func=fn_T09_FOB_Education_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T09 FOB Education Status']) 
+inspect_col(df_14t_edits1_tb4['_T09 FOB Education Status']) 
 # #%%
-# inspect_col(df4_edits1['Fob Edu']) ### Is string NOT integer. #TODO: Read in as string & fix this code.
+# inspect_col(df_14t_edits1_tb4['Fob Edu']) ### Is string NOT integer. #TODO: Read in as string & fix this code.
 #%%
-print(df4_edits1[['source', '_T09 FOB Education Status', 'Fob Involved', 'AD2EDLevel', 'Fob Involved1', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+print(df_14t_edits1_tb4[['source', '_T09 FOB Education Status', 'Fob Involved', 'AD2EDLevel', 'Fob Involved1', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -2749,9 +2724,9 @@ def fn_T09_Caregiver_Education_Status(fdf):
     ###     WHEN "MOB" THEN [_C15 Max Educational Status]
     ###     WHEN "FOB" THEN [_T09 FOB Education Status]
     ### END
-df4_edits1['_T09 Caregiver Education Status'] = df4_edits1.apply(func=fn_T09_Caregiver_Education_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T09 Caregiver Education Status'] = df_14t_edits1_tb4.apply(func=fn_T09_Caregiver_Education_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T09 Caregiver Education Status']) 
+inspect_col(df_14t_edits1_tb4['_T09 Caregiver Education Status']) 
 ### TODO: standardize "Educational Status" & "Education Status" variable names.
 
 #%%###################################
@@ -2837,9 +2812,9 @@ def fn_C15_Min_Educational_Enrollment(fdf):
     ### //08 = Job search or job placement
     ### //09 = Work experience
     ### //10 = Other (Specify)
-df4_edits1['_C15 Min Educational Enrollment'] = df4_edits1.apply(func=fn_C15_Min_Educational_Enrollment, axis=1).astype('string') 
+df_14t_edits1_tb4['_C15 Min Educational Enrollment'] = df_14t_edits1_tb4.apply(func=fn_C15_Min_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Min Educational Enrollment']) 
+inspect_col(df_14t_edits1_tb4['_C15 Min Educational Enrollment']) 
 
 #%%###################################
 
@@ -2923,17 +2898,17 @@ def fn_C15_Max_Educational_Enrollment(fdf):
     ### //08 = Job search or job placement
     ### //09 = Work experience
     ### //10 = Other (Specify)
-df4_edits1['_C15 Max Educational Enrollment'] = df4_edits1.apply(func=fn_C15_Max_Educational_Enrollment, axis=1).astype('string') 
+df_14t_edits1_tb4['_C15 Max Educational Enrollment'] = df_14t_edits1_tb4.apply(func=fn_C15_Max_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C15 Max Educational Enrollment']) 
+inspect_col(df_14t_edits1_tb4['_C15 Max Educational Enrollment']) 
 # #%%
-# inspect_col(df4_edits1['Max Edu Enroll']) 
+# inspect_col(df_14t_edits1_tb4['Max Edu Enroll']) 
 # #%%
-# inspect_col(df4_edits1['mcafss_edu2_enroll']) 
+# inspect_col(df_14t_edits1_tb4['mcafss_edu2_enroll']) 
 # #%%
-# inspect_col(df4_edits1['mcafss_edu2_prog']) 
+# inspect_col(df_14t_edits1_tb4['mcafss_edu2_prog']) 
 #%%
-df4_edits1[['source', '_C15 Max Educational Enrollment', 'Max Edu Enroll', 'mcafss_edu2_enroll', 'mcafss_edu2_prog']].drop_duplicates(ignore_index=True)
+df_14t_edits1_tb4[['source', '_C15 Max Educational Enrollment', 'Max Edu Enroll', 'mcafss_edu2_enroll', 'mcafss_edu2_prog']].drop_duplicates(ignore_index=True)
 
 #%%###################################
 
@@ -3020,11 +2995,11 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
     ### ELSE NULL
     ### END
     ### //Need an FOB enrollment prog from LLCHD
-df4_edits1['_T10 FOB Educational Enrollment'] = df4_edits1.apply(func=fn_T10_FOB_Educational_Enrollment, axis=1).astype('string') 
+df_14t_edits1_tb4['_T10 FOB Educational Enrollment'] = df_14t_edits1_tb4.apply(func=fn_T10_FOB_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T10 FOB Educational Enrollment']) 
+inspect_col(df_14t_edits1_tb4['_T10 FOB Educational Enrollment']) 
 #%%
-print(df4_edits1[['source', '_T10 FOB Educational Enrollment', 'Fob Involved', 'AD2InSchool', 'Fob Involved1', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+print(df_14t_edits1_tb4[['source', '_T10 FOB Educational Enrollment', 'Fob Involved', 'AD2InSchool', 'Fob Involved1', 'Fob Edu']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -3039,9 +3014,9 @@ def fn_T10_Caregiver_Educational_Enrollment(fdf):
     ###     WHEN "MOB" THEN [_C15 Max Educational Enrollment]
     ###     WHEN "FOB" THEN [_T10 FOB Educational Enrollment]
     ### END
-df4_edits1['_T10 Caregiver Educational Enrollment'] = df4_edits1.apply(func=fn_T10_Caregiver_Educational_Enrollment, axis=1).astype('string') 
+df_14t_edits1_tb4['_T10 Caregiver Educational Enrollment'] = df_14t_edits1_tb4.apply(func=fn_T10_Caregiver_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T10 Caregiver Educational Enrollment']) 
+inspect_col(df_14t_edits1_tb4['_T10 Caregiver Educational Enrollment']) 
 ### TODO: Standardize "Unknown/Did not Report" vs "Unknown/Did Not Report".
 
 #%%###################################
@@ -3121,9 +3096,9 @@ def fn_T11_MOB_Employment(fdf):
     ###     END
     ### ELSE "Unknown/Did Not Report"
     ### END
-df4_edits1['_T11 MOB Employment'] = df4_edits1.apply(func=fn_T11_MOB_Employment, axis=1).astype('string') 
+df_14t_edits1_tb4['_T11 MOB Employment'] = df_14t_edits1_tb4.apply(func=fn_T11_MOB_Employment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T11 MOB Employment']) 
+inspect_col(df_14t_edits1_tb4['_T11 MOB Employment']) 
 
 #%%###################################
 
@@ -3213,11 +3188,11 @@ def fn_T11_FOB_Employment(fdf):
     ###     END
     ### ELSE NULL
     ### END
-df4_edits1['_T11 FOB Employment'] = df4_edits1.apply(func=fn_T11_FOB_Employment, axis=1).astype('string') 
+df_14t_edits1_tb4['_T11 FOB Employment'] = df_14t_edits1_tb4.apply(func=fn_T11_FOB_Employment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T11 FOB Employment']) 
+inspect_col(df_14t_edits1_tb4['_T11 FOB Employment']) 
 #%%
-print(df4_edits1[['source', '_T11 FOB Employment', 'Fob Involved', 'AD2EmployStatus', 'Fob Involved1', 'Fob Employ']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+print(df_14t_edits1_tb4[['source', '_T11 FOB Employment', 'Fob Involved', 'AD2EmployStatus', 'Fob Involved1', 'Fob Employ']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -3232,9 +3207,9 @@ def fn_T11_Caregiver_Employment(fdf):
     ###     WHEN "MOB" THEN [_T11 MOB Employment]
     ###     WHEN "FOB" THEN [_T11 FOB Employment]
     ### END
-df4_edits1['_T11 Caregiver Employment'] = df4_edits1.apply(func=fn_T11_Caregiver_Employment, axis=1).astype('string') 
+df_14t_edits1_tb4['_T11 Caregiver Employment'] = df_14t_edits1_tb4.apply(func=fn_T11_Caregiver_Employment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T11 Caregiver Employment']) 
+inspect_col(df_14t_edits1_tb4['_T11 Caregiver Employment']) 
 
 #%%###################################
 
@@ -3333,11 +3308,11 @@ def fn_T12_MOB_Housing_Status(fdf):
     ###     ELSE "Unrecognized Value"
     ###     END
     ### END
-df4_edits1['_T12 MOB Housing Status'] = df4_edits1.apply(func=fn_T12_MOB_Housing_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T12 MOB Housing Status'] = df_14t_edits1_tb4.apply(func=fn_T12_MOB_Housing_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 MOB Housing Status']) 
+inspect_col(df_14t_edits1_tb4['_T12 MOB Housing Status']) 
 # #%%
-# inspect_col(df4_edits1['Mob Living Arrangement']) ### Integer.
+# inspect_col(df_14t_edits1_tb4['Mob Living Arrangement']) ### Integer.
 
 #%%###################################
 
@@ -3438,9 +3413,9 @@ def fn_T12_FOB_Housing_Status(fdf):
     ###     ELSE "Unrecognized Value"
     ###     END
     ### END
-df4_edits1['_T12 FOB Housing Status'] = df4_edits1.apply(func=fn_T12_FOB_Housing_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T12 FOB Housing Status'] = df_14t_edits1_tb4.apply(func=fn_T12_FOB_Housing_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 FOB Housing Status']) 
+inspect_col(df_14t_edits1_tb4['_T12 FOB Housing Status']) 
 
 #%%###################################
 
@@ -3455,9 +3430,9 @@ def fn_T12_Caregiver_Housing_Status(fdf):
     ###     WHEN "MOB" THEN [_T12 MOB Housing Status]
     ###     WHEN "FOB" THEN [_T12 FOB Housing Status]
     ### END
-df4_edits1['_T12 Caregiver Housing Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Housing_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T12 Caregiver Housing Status'] = df_14t_edits1_tb4.apply(func=fn_T12_Caregiver_Housing_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 Caregiver Housing Status']) 
+inspect_col(df_14t_edits1_tb4['_T12 Caregiver Housing Status']) 
 
 #%%###################################
 
@@ -3547,9 +3522,9 @@ def fn_T12_MOB_Homeless_Status(fdf):
     ###     ELSE "Unrecognized Value"
     ###     END
     ### END
-df4_edits1['_T12 MOB Homeless Status'] = df4_edits1.apply(func=fn_T12_MOB_Homeless_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T12 MOB Homeless Status'] = df_14t_edits1_tb4.apply(func=fn_T12_MOB_Homeless_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 MOB Homeless Status']) 
+inspect_col(df_14t_edits1_tb4['_T12 MOB Homeless Status']) 
 
 #%%###################################
 
@@ -3642,9 +3617,9 @@ def fn_T12_FOB_Homeless_Status(fdf):
     ###     ELSE "Unrecognized Value"
     ###     END
     ### END
-df4_edits1['_T12 FOB Homeless Status'] = df4_edits1.apply(func=fn_T12_FOB_Homeless_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T12 FOB Homeless Status'] = df_14t_edits1_tb4.apply(func=fn_T12_FOB_Homeless_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 FOB Homeless Status']) 
+inspect_col(df_14t_edits1_tb4['_T12 FOB Homeless Status']) 
 
 #%%###################################
 
@@ -3659,20 +3634,20 @@ def fn_T12_Caregiver_Homeless_Status(fdf):
     ###     WHEN "MOB" THEN [_T12 MOB Homeless Status]
     ###     WHEN "FOB" THEN [_T12 FOB Homeless Status]
     ### END
-df4_edits1['_T12 Caregiver Homeless Status'] = df4_edits1.apply(func=fn_T12_Caregiver_Homeless_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T12 Caregiver Homeless Status'] = df_14t_edits1_tb4.apply(func=fn_T12_Caregiver_Homeless_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T12 Caregiver Homeless Status']) 
+inspect_col(df_14t_edits1_tb4['_T12 Caregiver Homeless Status']) 
 
 #%%##################################################
 
 ### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 ### REMINDER: Update to new year's federal poverty guidelines in RUNME.py.
-df4_edits1['_T14 Federal Poverty Level update'] = Fpg_Base + (Fpg_Increment * df4_edits1['Household Size'].astype('Int64'))
+df_14t_edits1_tb4['_T14 Federal Poverty Level update'] = int_fpg_base + (int_fpg_increment * df_14t_edits1_tb4['Household Size'].astype('Int64'))
     ### /// Tableau Calculation Q2:
     ### //uses 2023 federal guidelines, will need to update to 2024 guidelines when they become available
     ### 9440 + (5140 * [Household Size])
     ### Data Type in Tableau: integer.
-inspect_col(df4_edits1['_T14 Federal Poverty Level update'])
+inspect_col(df_14t_edits1_tb4['_T14 Federal Poverty Level update'])
 
 #%%###################################
 
@@ -3709,13 +3684,13 @@ def fn_T14_Poverty_Percent(fdf):
     ### ELSEIF [_Agency] = "ll" THEN [Household Income]/[_T14 Federal Poverty Level update]
     ### ELSEIF [_Agency] <> "ll" THEN [Poverty Level] //FW
     ### END
-#### df4_edits1['_T14 Poverty Percent'] = df4_edits1.apply(func=fn_T14_Poverty_Percent, axis=1).round(2).astype('Float64')
-df4_edits1['_T14 Poverty Percent'] = df4_edits1.apply(func=fn_T14_Poverty_Percent, axis=1).astype('Float64')
-df4_edits1['_T14 Poverty Percent'] = df4_edits1['_T14 Poverty Percent'].round(2)
+#### df_14t_edits1_tb4['_T14 Poverty Percent'] = df_14t_edits1_tb4.apply(func=fn_T14_Poverty_Percent, axis=1).round(2).astype('Float64')
+df_14t_edits1_tb4['_T14 Poverty Percent'] = df_14t_edits1_tb4.apply(func=fn_T14_Poverty_Percent, axis=1).astype('Float64')
+df_14t_edits1_tb4['_T14 Poverty Percent'] = df_14t_edits1_tb4['_T14 Poverty Percent'].round(2)
     ### Data Type in Tableau: 'float'.
-inspect_col(df4_edits1['_T14 Poverty Percent']) 
+inspect_col(df_14t_edits1_tb4['_T14 Poverty Percent']) 
 # #%%
-# inspect_col(df4_edits1['Poverty Level']) ### float.
+# inspect_col(df_14t_edits1_tb4['Poverty Level']) ### float.
 
 #%%###################################
 
@@ -3745,9 +3720,9 @@ def fn_T14_Federal_Poverty_Categories(fdf):
     ### ELSEIF [_T14 Poverty Percent] > 3.00  THEN ">300%"
     ### ELSEIF NULL THEN "Unknown/Did Not Report" /// ERROR: Should be "ELSEIF ISNULL([_T14 Poverty Percent])..." OR just ELSE...
     ### END
-df4_edits1['_T14 Federal Poverty Categories'] = df4_edits1.apply(func=fn_T14_Federal_Poverty_Categories, axis=1).astype('string') 
+df_14t_edits1_tb4['_T14 Federal Poverty Categories'] = df_14t_edits1_tb4.apply(func=fn_T14_Federal_Poverty_Categories, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T14 Federal Poverty Categories']) 
+inspect_col(df_14t_edits1_tb4['_T14 Federal Poverty Categories']) 
 
 #%%###################################
 
@@ -3788,9 +3763,9 @@ def fn_T15_3_History_Welfare_Interaction(fdf):
     ### ELSEIF [Priority Child Welfare] = "N" THEN 0
     ### ELSE 0
     ### END
-df4_edits1['_T15-3 History Welfare Interaction'] = df4_edits1.apply(func=fn_T15_3_History_Welfare_Interaction, axis=1).astype('Int64') 
+df_14t_edits1_tb4['_T15-3 History Welfare Interaction'] = df_14t_edits1_tb4.apply(func=fn_T15_3_History_Welfare_Interaction, axis=1).astype('Int64') 
     ### Data Type in Tableau: 'integer'.
-inspect_col(df4_edits1['_T15-3 History Welfare Interaction']) 
+inspect_col(df_14t_edits1_tb4['_T15-3 History Welfare Interaction']) 
 
 #%%###################################
 
@@ -3845,9 +3820,9 @@ def fn_T15_4_MOB_Substance_Abuse(fdf):
     ###     ELSE "Unknown/Did Not Report"
     ###     END
     ### END
-df4_edits1['_T15-4 MOB Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_MOB_Substance_Abuse, axis=1).astype('string') 
+df_14t_edits1_tb4['_T15-4 MOB Substance Abuse'] = df_14t_edits1_tb4.apply(func=fn_T15_4_MOB_Substance_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T15-4 MOB Substance Abuse']) 
+inspect_col(df_14t_edits1_tb4['_T15-4 MOB Substance Abuse']) 
 
 #%%###################################
 
@@ -3902,13 +3877,13 @@ def fn_T15_4_FOB_Substance_Abuse(fdf):
     ###     ELSE "Unknown/Did Not Report"
     ###     END
     ### END
-df4_edits1['_T15-4 FOB Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_FOB_Substance_Abuse, axis=1).astype('string') 
+df_14t_edits1_tb4['_T15-4 FOB Substance Abuse'] = df_14t_edits1_tb4.apply(func=fn_T15_4_FOB_Substance_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T15-4 FOB Substance Abuse']) 
+inspect_col(df_14t_edits1_tb4['_T15-4 FOB Substance Abuse']) 
 # #%%
-# inspect_col(df4_edits1['_Agency']) 
+# inspect_col(df_14t_edits1_tb4['_Agency']) 
 # #%%
-# print(df4_edits1[['source', '_T15-4 MOB Substance Abuse', 'Mob Substance Abuse', '_T15-4 FOB Substance Abuse', 'Fob Substance Abuse', '_Agency', 'Priority Substance Abuse']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
+# print(df_14t_edits1_tb4[['source', '_T15-4 MOB Substance Abuse', 'Mob Substance Abuse', '_T15-4 FOB Substance Abuse', 'Fob Substance Abuse', '_Agency', 'Priority Substance Abuse']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()) 
 
 #%%###################################
 
@@ -3923,9 +3898,9 @@ def fn_T15_4_Caregiver_Substance_Abuse(fdf):
     ###     WHEN "MOB" THEN [_T15-4 MOB Substance Abuse]
     ###     WHEN "FOB" THEN [_T15-4 FOB Substance Abuse]
     ### END
-df4_edits1['_T15-4 Caregiver Substance Abuse'] = df4_edits1.apply(func=fn_T15_4_Caregiver_Substance_Abuse, axis=1).astype('string') 
+df_14t_edits1_tb4['_T15-4 Caregiver Substance Abuse'] = df_14t_edits1_tb4.apply(func=fn_T15_4_Caregiver_Substance_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T15-4 Caregiver Substance Abuse']) 
+inspect_col(df_14t_edits1_tb4['_T15-4 Caregiver Substance Abuse']) 
 
 #%%###################################
 
@@ -3966,9 +3941,9 @@ def fn_T15_5_Tobacco_Use_in_Home(fdf):
     ### ELSEIF [Priority Tobacco Use] = "N" THEN 0
     ### ELSE 0
     ### END
-df4_edits1['_T15-5 Tobacco Use in Home'] = df4_edits1.apply(func=fn_T15_5_Tobacco_Use_in_Home, axis=1).astype('Int64') 
+df_14t_edits1_tb4['_T15-5 Tobacco Use in Home'] = df_14t_edits1_tb4.apply(func=fn_T15_5_Tobacco_Use_in_Home, axis=1).astype('Int64') 
     ### Data Type in Tableau: 'integer'.
-inspect_col(df4_edits1['_T15-5 Tobacco Use in Home']) 
+inspect_col(df_14t_edits1_tb4['_T15-5 Tobacco Use in Home']) 
 
 #%%###################################
 
@@ -4009,9 +3984,9 @@ def fn_T15_6_Low_Achievement(fdf):
     ### ELSEIF [Priority Low Student] = "N" THEN 0
     ### ELSE 0
     ### END
-df4_edits1['_T15-6 Low Achievement'] = df4_edits1.apply(func=fn_T15_6_Low_Achievement, axis=1).astype('Int64') 
+df_14t_edits1_tb4['_T15-6 Low Achievement'] = df_14t_edits1_tb4.apply(func=fn_T15_6_Low_Achievement, axis=1).astype('Int64') 
     ### Data Type in Tableau: 'integer'.
-inspect_col(df4_edits1['_T15-6 Low Achievement']) 
+inspect_col(df_14t_edits1_tb4['_T15-6 Low Achievement']) 
 
 #%%###################################
 
@@ -4052,9 +4027,9 @@ def fn_T15_8_Military(fdf):
     ### ELSEIF [Priority Military] = "N" THEN 0
     ### ELSE 0
     ### END
-df4_edits1['_T15-8 Military'] = df4_edits1.apply(func=fn_T15_8_Military, axis=1).astype('Int64') 
+df_14t_edits1_tb4['_T15-8 Military'] = df_14t_edits1_tb4.apply(func=fn_T15_8_Military, axis=1).astype('Int64') 
     ### Data Type in Tableau: 'integer'.
-inspect_col(df4_edits1['_T15-8 Military']) 
+inspect_col(df_14t_edits1_tb4['_T15-8 Military']) 
 
 #%%###################################
 
@@ -4127,9 +4102,9 @@ def fn_T17_Discharge_Reason(fdf):
     ### //Participant Unavailable Due to School or Employment
     ### //Program Unable to Locate or Make Contact
     ### //Transferred/Referred/Involved in Other Program
-df4_edits1['_T17 Discharge Reason'] = df4_edits1.apply(func=fn_T17_Discharge_Reason, axis=1).astype('string') 
+df_14t_edits1_tb4['_T17 Discharge Reason'] = df_14t_edits1_tb4.apply(func=fn_T17_Discharge_Reason, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T17 Discharge Reason']) 
+inspect_col(df_14t_edits1_tb4['_T17 Discharge Reason']) 
 
 #%%###################################
 
@@ -4203,37 +4178,37 @@ def fn_C16_CG_Insurance_Status(fdf_column):
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 1 Status'] = df4_edits1['AD1PrimaryIns.1'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 1 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.1'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 1 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 1 Status']) 
 # #%%
-# compare_col(df4_comparison_csv, df4_edits1, '_C16 CG Insurance 1 Status')
+# compare_col(df_14t_comparison_csv_tb4, df_14t_edits1_tb4, '_C16 CG Insurance 1 Status')
 # #%%
-# compare_col(df4_comparison_csv, df4_edits1, '_C16 CG Insurance 1 Status', info_or_value_counts='value_counts')
+# compare_col(df_14t_comparison_csv_tb4, df_14t_edits1_tb4, '_C16 CG Insurance 1 Status', info_or_value_counts='value_counts')
 #%%
-print(df4_edits1[['_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+print(df_14t_edits1_tb4[['_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
 ### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
-### See "df4_unrecognized_values". Rows with "Unrecognized Value":
-df4_edits1[['Project Id','Year','Quarter', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_C16 CG Insurance 1 Status` == "Unrecognized Value"')
+### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
+df_14t_edits1_tb4[['Project Id','Year','Quarter', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_C16 CG Insurance 1 Status` == "Unrecognized Value"')
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 2 Status'] = df4_edits1['AD1PrimaryIns.2'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 2 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.2'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 2 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 2 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 3 Status'] = df4_edits1['AD1PrimaryIns.3'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 3 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.3'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 3 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 3 Status']) 
 
 #%%###################################
 
-### df4_edits1['_C16 CG Insurance 4 Status'] = df4_edits1['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+### df_14t_edits1_tb4['_C16 CG Insurance 4 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
 ###     ### Data Type in Tableau: 'string'.
-### inspect_col(df4_edits1['_C16 CG Insurance 4 Status']) 
+### inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 4 Status']) 
 
 ### Alternative because of one difference:
 def fn_C16_CG_Insurance_4_Status(fdf_column):
@@ -4302,82 +4277,82 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
     ###     WHEN NULL THEN "Unknown/Did Not Report"
     ### ELSE "Unrecognized Value"
     ### END
-df4_edits1['_C16 CG Insurance 4 Status'] = df4_edits1['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_4_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 4 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_4_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 4 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 4 Status']) 
 ### TODO: standardize. FIX!
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 5 Status'] = df4_edits1['AD1PrimaryIns.5'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 5 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.5'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 5 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 5 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 6 Status'] = df4_edits1['AD1PrimaryIns.6'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 6 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.6'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 6 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 6 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 7 Status'] = df4_edits1['AD1PrimaryIns.7'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 7 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.7'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 7 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 7 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 8 Status'] = df4_edits1['AD1PrimaryIns.8'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 8 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.8'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 8 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 8 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 9 Status'] = df4_edits1['AD1PrimaryIns.9'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 9 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.9'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 9 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 9 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 10 Status'] = df4_edits1['AD1PrimaryIns.10'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 10 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.10'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 10 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 10 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 11 Status'] = df4_edits1['AD1PrimaryIns.11'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 11 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.11'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 11 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 11 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 12 Status'] = df4_edits1['AD1PrimaryIns.12'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 12 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.12'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 12 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 12 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 13 Status'] = df4_edits1['AD1PrimaryIns.13'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 13 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.13'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 13 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 13 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 14 Status'] = df4_edits1['AD1PrimaryIns.14'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 14 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.14'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 14 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 14 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 15 Status'] = df4_edits1['AD1PrimaryIns.15'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 15 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.15'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 15 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 15 Status']) 
 
 #%%###################################
 
-df4_edits1['_C16 CG Insurance 16 Status'] = df4_edits1['AD1PrimaryIns.16'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_C16 CG Insurance 16 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.16'].apply(func=fn_C16_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_C16 CG Insurance 16 Status']) 
+inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 16 Status']) 
 
 #%%###################################
 
@@ -4458,109 +4433,109 @@ def fn_T20_CG_Insurance_Status(fdf_column):
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 1 Status'] = df4_edits1['AD1PrimaryIns.1'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 1 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.1'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 1 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 1 Status']) 
 # #%%
-# compare_col(df4_comparison_csv, df4_edits1, '_T20 CG Insurance 1 Status')
+# compare_col(df_14t_comparison_csv_tb4, df_14t_edits1_tb4, '_T20 CG Insurance 1 Status')
 # #%%
-# compare_col(df4_comparison_csv, df4_edits1, '_T20 CG Insurance 1 Status', info_or_value_counts='value_counts')
+# compare_col(df_14t_comparison_csv_tb4, df_14t_edits1_tb4, '_T20 CG Insurance 1 Status', info_or_value_counts='value_counts')
 #%%
-print(df4_edits1[['_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+print(df_14t_edits1_tb4[['_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
 ### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
-### See "df4_unrecognized_values". Rows with "Unrecognized Value":
-df4_edits1[['Project Id','Year','Quarter', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance 1 Status` == "Unrecognized Value"')
+### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
+df_14t_edits1_tb4[['Project Id','Year','Quarter', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance 1 Status` == "Unrecognized Value"')
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 2 Status'] = df4_edits1['AD1PrimaryIns.2'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 2 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.2'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 2 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 2 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 3 Status'] = df4_edits1['AD1PrimaryIns.3'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 3 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.3'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 3 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 3 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 4 Status'] = df4_edits1['AD1PrimaryIns.4'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 4 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.4'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 4 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 4 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 5 Status'] = df4_edits1['AD1PrimaryIns.5'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 5 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.5'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 5 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 5 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 6 Status'] = df4_edits1['AD1PrimaryIns.6'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 6 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.6'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 6 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 6 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 7 Status'] = df4_edits1['AD1PrimaryIns.7'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 7 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.7'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 7 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 7 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 8 Status'] = df4_edits1['AD1PrimaryIns.8'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 8 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.8'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 8 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 8 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 9 Status'] = df4_edits1['AD1PrimaryIns.9'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 9 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.9'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 9 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 9 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 10 Status'] = df4_edits1['AD1PrimaryIns.10'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 10 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.10'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 10 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 10 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 11 Status'] = df4_edits1['AD1PrimaryIns.11'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 11 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.11'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 11 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 11 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 12 Status'] = df4_edits1['AD1PrimaryIns.12'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 12 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.12'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 12 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 12 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 13 Status'] = df4_edits1['AD1PrimaryIns.13'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 13 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.13'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 13 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 13 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 14 Status'] = df4_edits1['AD1PrimaryIns.14'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 14 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.14'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 14 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 14 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 15 Status'] = df4_edits1['AD1PrimaryIns.15'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 15 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.15'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 15 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 15 Status']) 
 
 #%%###################################
 
-df4_edits1['_T20 CG Insurance 16 Status'] = df4_edits1['AD1PrimaryIns.16'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance 16 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.16'].apply(func=fn_T20_CG_Insurance_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance 16 Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 16 Status']) 
 
 #%%###################################
 
@@ -4616,17 +4591,17 @@ def fn_T20_MOB_Insurance_Status(fdf):
     ### ELSEIF NOT ISNULL([_T20 CG Insurance 2 Status]) THEN [_T20 CG Insurance 2 Status]
     ### ELSEIF NOT ISNULL([_T20 CG Insurance 1 Status]) THEN [_T20 CG Insurance 1 Status]
     ### END
-df4_edits1['_T20 MOB Insurance Status'] = df4_edits1.apply(func=fn_T20_MOB_Insurance_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T20 MOB Insurance Status'] = df_14t_edits1_tb4.apply(func=fn_T20_MOB_Insurance_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 MOB Insurance Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 MOB Insurance Status']) 
 #%%
-print(df4_edits1[['_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+print(df_14t_edits1_tb4[['_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
 ### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
-### See "df4_unrecognized_values". Rows with "Unrecognized Value":
-df4_edits1[['Project Id','Year','Quarter', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 MOB Insurance Status` == "Unrecognized Value"')
+### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
+df_14t_edits1_tb4[['Project Id','Year','Quarter', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 MOB Insurance Status` == "Unrecognized Value"')
 #%%
-print(df4_edits1[[
+print(df_14t_edits1_tb4[[
         'Project Id','Year','Quarter'
         ,'_T20 MOB Insurance Status'
         ,'_T20 CG Insurance 16 Status'
@@ -4732,9 +4707,9 @@ def fn_T20_FOB_Insurance_Status(fdf):
     ###     END
     ### ELSE NULL
     ### END
-df4_edits1['_T20 FOB Insurance Status'] = df4_edits1.apply(func=fn_T20_FOB_Insurance_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T20 FOB Insurance Status'] = df_14t_edits1_tb4.apply(func=fn_T20_FOB_Insurance_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 FOB Insurance Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 FOB Insurance Status']) 
 
 #%%###################################
 
@@ -4818,11 +4793,11 @@ def fn_T20_FOB_Insurance(fdf):
     ###     END
     ### ELSE NULL
     ### END
-df4_edits1['_T20 FOB Insurance'] = df4_edits1.apply(func=fn_T20_FOB_Insurance, axis=1).astype('string') 
+df_14t_edits1_tb4['_T20 FOB Insurance'] = df_14t_edits1_tb4.apply(func=fn_T20_FOB_Insurance, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 FOB Insurance']) 
+inspect_col(df_14t_edits1_tb4['_T20 FOB Insurance']) 
 # #%%
-# inspect_col(df4_edits1['Hlth Insure Fob']) ### integer... but Empty. All NA.
+# inspect_col(df_14t_edits1_tb4['Hlth Insure Fob']) ### integer... but Empty. All NA.
 ### TODO: Why is 'Hlth Insure Fob' empty?
 ### TODO: Is this var old & should be deleted? It looks like '_T20 FOB Insurance Status' is more updated (compare).
 
@@ -4839,16 +4814,16 @@ def fn_T20_CG_Insurance_Status(fdf):
     ###     WHEN "MOB" THEN [_T20 MOB Insurance Status]
     ###     WHEN "FOB" THEN [_T20 FOB Insurance Status]
     ### END
-df4_edits1['_T20 CG Insurance Status'] = df4_edits1.apply(func=fn_T20_CG_Insurance_Status, axis=1).astype('string') 
+df_14t_edits1_tb4['_T20 CG Insurance Status'] = df_14t_edits1_tb4.apply(func=fn_T20_CG_Insurance_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
-inspect_col(df4_edits1['_T20 CG Insurance Status']) 
+inspect_col(df_14t_edits1_tb4['_T20 CG Insurance Status']) 
 #%%
-print(df4_edits1[['_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+print(df_14t_edits1_tb4[['_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
 ### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code?
     ### Half as many Y12Q4 rows as other 3 vars -- half of original 6. Other rows from Q1.
-### See "df4_unrecognized_values". Rows with "Unrecognized Value":
-df4_edits1[['Project Id','Year','Quarter', 'MOB or FOB', '_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance Status` == "Unrecognized Value"')
+### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
+df_14t_edits1_tb4[['Project Id','Year','Quarter', 'MOB or FOB', '_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance Status` == "Unrecognized Value"')
 
 ##################################################################################################
 ##################################################################################################
@@ -4869,24 +4844,24 @@ df4_edits1[['Project Id','Year','Quarter', 'MOB or FOB', '_T20 CG Insurance Stat
 ### Across many variables.
 
 #%%
-# df4_unrecognized_values = fn_find_unrecognized_value(df4_edits1)
-df4_unrecognized_values = fn_find_unrecognized_value(df4_edits1.query(f'`Year` == 12 & `Quarter` == 4'))
+# list_14t_unrecognized_values_tb4 = fn_find_unrecognized_value(df_14t_edits1_tb4)
+list_14t_unrecognized_values_tb4 = fn_find_unrecognized_value(df_14t_edits1_tb4.query(f'`Year` == 12 & `Quarter` == 4'))
 
 #%%
-len(df4_unrecognized_values)
+len(list_14t_unrecognized_values_tb4)
 #%%
 ### Columns that have "Unrecognized Value":
-[x['col'] for x in df4_unrecognized_values]
+[x['col'] for x in list_14t_unrecognized_values_tb4]
 
 #%%
 ### Look at one column:
-# df4_unrecognized_values[0]
+# list_14t_unrecognized_values_tb4[0]
 
 ### New values Y12Q4: All 4 vars tied back to "AD1PrimaryIns.1" & 2 new values. ### TODO: code new values.
-# [x for x in df4_unrecognized_values if x["col"] == '_C16 CG Insurance 1 Status'] 
-# [x for x in df4_unrecognized_values if x["col"] == '_T20 CG Insurance 1 Status'] 
-# [x for x in df4_unrecognized_values if x["col"] == '_T20 MOB Insurance Status'] 
-# [x for x in df4_unrecognized_values if x["col"] == '_T20 CG Insurance Status'] 
+# [x for x in list_14t_unrecognized_values_tb4 if x["col"] == '_C16 CG Insurance 1 Status'] 
+# [x for x in list_14t_unrecognized_values_tb4 if x["col"] == '_T20 CG Insurance 1 Status'] 
+# [x for x in list_14t_unrecognized_values_tb4 if x["col"] == '_T20 MOB Insurance Status'] 
+# [x for x in list_14t_unrecognized_values_tb4 if x["col"] == '_T20 CG Insurance Status'] 
 
 ### !TESTRUNHERE!
 
@@ -4899,27 +4874,27 @@ len(df4_unrecognized_values)
 #%%################################
 ### REMOVE extra COLUMNS
 
-# sorted([*df4_edits1])
+# sorted([*df_14t_edits1_tb4])
 
 #%%
 ### Remove columns created in merge.
-df4_edits2 = df4_edits1.drop(columns=['LJ_df4_2CI', 'LJ_df4_3FW', 'LJ_df4_4LL', 'LJ_df4_5MoF'])
+df_14t_edits2_tb4 = df_14t_edits1_tb4.drop(columns=['LJ_tb4_2CI', 'LJ_tb4_3FW', 'LJ_tb4_4LL', 'LJ_tb4_5MoF'])
 
 #%%################################
 ### ORDER COLUMNS
 
 ### Final order for columns:
-[*df4_comparison_csv]
+[*df_14t_comparison_csv_tb4]
 
 #%%
 ### Reorder Columns.
-df4_edits2 = df4_edits2[[*df4_comparison_csv]]
+df_14t_edits2_tb4 = df_14t_edits2_tb4[[*df_14t_comparison_csv_tb4]]
 
 #%%################################
 ### SORT ROWS
 
-df4_edits2 = df4_edits2.sort_values(by=['Project Id','Year','Quarter','MOB or FOB'], ignore_index=True)
-# df4_edits2 = df4_edits2.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
+df_14t_edits2_tb4 = df_14t_edits2_tb4.sort_values(by=['Project Id','Year','Quarter','MOB or FOB'], ignore_index=True)
+# df_14t_edits2_tb4 = df_14t_edits2_tb4.sort_values(by=['Project Id','Year','Quarter','__F1 Caregiver ID for MOB or FOB'], ignore_index=True)
 
 
 #%%##################################################
@@ -4928,11 +4903,11 @@ df4_edits2 = df4_edits2.sort_values(by=['Project Id','Year','Quarter','MOB or FO
 
 #%%
 ### Created Final DF.
-df4__final = df4_edits2.copy()
+df_14t__final_tb4 = df_14t_edits2_tb4.copy()
 
 #%%
 ### Write out df.
-df4__final.to_csv(path_4_output, index=False, date_format="%#m/%#d/%Y")
+df_14t__final_tb4.to_csv(path_14t_output_tb4, index=False, date_format="%#m/%#d/%Y")
 
 
 ##################################################################################################
@@ -4948,8 +4923,8 @@ df4__final.to_csv(path_4_output, index=False, date_format="%#m/%#d/%Y")
 
 #%%
 ### Read back in df for comparison.
-# df4__final_from_csv = pd.read_csv(path_4_output, dtype='string', keep_default_na=False, na_values=[''])
-df4__final_from_csv = pd.read_csv(path_4_output, dtype='object', keep_default_na=False, na_values=[''])
+# df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='string', keep_default_na=False, na_values=[''])
+df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='object', keep_default_na=False, na_values=[''])
 
 
 #%%##################################################
@@ -4960,25 +4935,25 @@ df4__final_from_csv = pd.read_csv(path_4_output, dtype='object', keep_default_na
 
 #%%
 ### Column names:
-[*df4__final_from_csv]
+[*df_14t__final_from_csv_tb4]
 #%%
 ### Column names:
-[*df4_comparison_csv]
+[*df_14t_comparison_csv_tb4]
 
 #%%
 ### Overlap / Similarities: Columns in both.
-set([*df4_comparison_csv]).intersection([*df4__final_from_csv])
+set([*df_14t_comparison_csv_tb4]).intersection([*df_14t__final_from_csv_tb4])
 
 #%%###################################
 ### COLUMNS:
 
 #%%
 ### Check if all Column names identical & in same order.
-[*df4__final_from_csv] == [*df4_comparison_csv]
+[*df_14t__final_from_csv_tb4] == [*df_14t_comparison_csv_tb4]
 
 #%%
 ### Differences: Columns only in one.
-set([*df4_comparison_csv]).symmetric_difference([*df4__final_from_csv])
+set([*df_14t_comparison_csv_tb4]).symmetric_difference([*df_14t__final_from_csv_tb4])
 
 #%%###################################
 
@@ -4987,19 +4962,19 @@ set([*df4_comparison_csv]).symmetric_difference([*df4__final_from_csv])
 
 #%%
 # Check rows & cols:
-print(f'df4__final_from_csv Rows: {len(df4__final_from_csv)}')
-print(f'df4_comparison_csv Rows: {len(df4_comparison_csv)}')
+print(f'df_14t__final_from_csv_tb4 Rows: {len(df_14t__final_from_csv_tb4)}')
+print(f'df_14t_comparison_csv_tb4 Rows: {len(df_14t_comparison_csv_tb4)}')
 
-print(f'df4__final_from_csv Columns: {len(df4__final_from_csv.columns)}')
-print(f'df4_comparison_csv Columns: {len(df4_comparison_csv.columns)}')
+print(f'df_14t__final_from_csv_tb4 Columns: {len(df_14t__final_from_csv_tb4.columns)}')
+print(f'df_14t_comparison_csv_tb4 Columns: {len(df_14t_comparison_csv_tb4.columns)}')
 
 #%%
-df4__final_from_csv == df4_comparison_csv
+df_14t__final_from_csv_tb4 == df_14t_comparison_csv_tb4
 
 #%%
 ### Checking ID columns used in Join >> DF should be empty (meaning all the same).
-df4_comp_compare = df4_comparison_csv[['Project Id','Year','Quarter']].compare(df4__final_from_csv[['Project Id','Year','Quarter']])
-df4_comp_compare
+df_14t_comp_compare_tb4 = df_14t_comparison_csv_tb4[['Project Id','Year','Quarter']].compare(df_14t__final_from_csv_tb4[['Project Id','Year','Quarter']])
+df_14t_comp_compare_tb4
 
 ###################################
 ###################################
@@ -5010,18 +4985,18 @@ df4_comp_compare
 
 #%%
 ### Now comparing ALL columns. DF created shows all differences:
-# df4_comp_compare = df4_comparison_csv.compare(df4__final_from_csv)
-df4_comp_compare = df4_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df4__final_from_csv.query(f'Year=="12" & Quarter=="4"'))
-df4_comp_compare
+# df_14t_comp_compare_tb4 = df_14t_comparison_csv_tb4.compare(df_14t__final_from_csv_tb4)
+df_14t_comp_compare_tb4 = df_14t_comparison_csv_tb4.query(f'Year=="12" & Quarter=="4"').compare(df_14t__final_from_csv_tb4.query(f'Year=="12" & Quarter=="4"'))
+df_14t_comp_compare_tb4
 
 #%%
 ### Number of columns with different values/types:
-len([*df4_comp_compare]) / 2 
+len([*df_14t_comp_compare_tb4]) / 2 
     ### Start: 50.
 
 #%%
 ### Columns:
-[*df4_comp_compare]
+[*df_14t_comp_compare_tb4]
 
 
 
@@ -5119,14 +5094,14 @@ len([*df4_comp_compare]) / 2
 
 #%%
 ### Columns still different:
-[*df4_comp_compare]
+[*df_14t_comp_compare_tb4]
 
 # #%%
-# dfTEST = df4_comparison_csv.compare(df4__final_from_csv, keep_equal=True, keep_shape=True)
+# dfTEST = df_14t_comparison_csv_tb4.compare(df_14t__final_from_csv_tb4, keep_equal=True, keep_shape=True)
 # [*dfTEST]
 
 #%%
-### I do not understand why these are not showing up here [*df4_comp_compare] when they use to & should. 
+### I do not understand why these are not showing up here [*df_14t_comp_compare_tb4] when they use to & should. 
     ### Is it because of reading in as string not object? Does that affect compare()?
     ### Yes. When read in as objects, with np.nan, compare finds these T09 vars when it didn't before.
     ### So, HOW to know these columns are an issue???
@@ -5146,13 +5121,13 @@ var_to_compare = 'AD2EDLevel'
 # var_to_compare = 'Pregnancystatus'
 # var_to_compare = 'Poverty Level'
 
-# print(df4_edits1[['Project Id','Year','Quarter', '__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB']].query(f'`__F1 Caregiver ID for MOB or FOB` in ["ps187FOB", "ps187MOB"]').to_string())
+# print(df_14t_edits1_tb4[['Project Id','Year','Quarter', '__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB']].query(f'`__F1 Caregiver ID for MOB or FOB` in ["ps187FOB", "ps187MOB"]').to_string())
 
 
 
 
 
-# var_to_compare = 'IPV Assess Date' ### Answered: Why not in df4_comp_compare when self/other are different? Because CSVs read in as 'string' instead of 'object.'
+# var_to_compare = 'IPV Assess Date' ### Answered: Why not in df_14t_comp_compare_tb4 when self/other are different? Because CSVs read in as 'string' instead of 'object.'
 # var_list_for_comparison = ['__F1 Caregiver ID for MOB or FOB', '__Primary Caregiver ID', 'MOB or FOB', var_to_compare]
 
 #%%################################
@@ -5171,8 +5146,8 @@ var_list_keys_or_ids = ['Project Id','Year','Quarter']
 # var_list_keys_or_ids = ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1']
 
 print((
-    # df4_comparison_csv.compare(df4__final_from_csv, keep_shape=True, keep_equal=True) 
-    df4_comparison_csv.query(f'Year=="12" & Quarter=="4"').compare(df4__final_from_csv.query(f'Year=="12" & Quarter=="4"'), keep_shape=True, keep_equal=True) 
+    # df_14t_comparison_csv_tb4.compare(df_14t__final_from_csv_tb4, keep_shape=True, keep_equal=True) 
+    df_14t_comparison_csv_tb4.query(f'Year=="12" & Quarter=="4"').compare(df_14t__final_from_csv_tb4.query(f'Year=="12" & Quarter=="4"'), keep_shape=True, keep_equal=True) 
     .loc[:, var_list_keys_or_ids + var_list_for_comparison]
     .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
     ##########
@@ -5189,16 +5164,16 @@ print((
 
 ##########
 #%%
-# compare_col(df4_comparison_csv, df4__final_from_csv, var_to_compare, info_or_value_counts='info')
-compare_col(df4_comparison_csv, df4__final_from_csv, var_to_compare, info_or_value_counts='value_counts')
+# compare_col(df_14t_comparison_csv_tb4, df_14t__final_from_csv_tb4, var_to_compare, info_or_value_counts='info')
+compare_col(df_14t_comparison_csv_tb4, df_14t__final_from_csv_tb4, var_to_compare, info_or_value_counts='value_counts')
 #%%
-inspect_col(df4__final_from_csv[var_to_compare]) 
+inspect_col(df_14t__final_from_csv_tb4[var_to_compare]) 
 #%%
-inspect_col(df4_comparison_csv[var_to_compare]) 
+inspect_col(df_14t_comparison_csv_tb4[var_to_compare]) 
 #%%
-inspect_col(df4_edits1[var_to_compare]) 
+inspect_col(df_14t_edits1_tb4[var_to_compare]) 
 #%%
-# print(df4_comp_compare[[var_to_compare]].to_string())
+# print(df_14t_comp_compare_tb4[[var_to_compare]].to_string())
 
 
 
@@ -5207,20 +5182,20 @@ inspect_col(df4_edits1[var_to_compare])
 ###################################
 
 # %%
-# df4_comparison_csv[['Project Id', 'www']].compare(df4__final_from_csv[['Project Id', 'www']], keep_equal=True).loc[(lambda df: df[('www', 'self')] != df[('www', 'other')]), :]
-# df4_comparison_csv[['www']].compare(df4__final_from_csv[['www']])
+# df_14t_comparison_csv_tb4[['Project Id', 'www']].compare(df_14t__final_from_csv_tb4[['Project Id', 'www']], keep_equal=True).loc[(lambda df: df[('www', 'self')] != df[('www', 'other')]), :]
+# df_14t_comparison_csv_tb4[['www']].compare(df_14t__final_from_csv_tb4[['www']])
 
 # #%%
 # print((
-#     df4_comparison_csv
-#     .compare(df4__final_from_csv, keep_shape=True, keep_equal=True) 
+#     df_14t_comparison_csv_tb4
+#     .compare(df_14t__final_from_csv_tb4, keep_shape=True, keep_equal=True) 
 #     .loc[:, var_list_keys_or_ids + var_list_for_comparison]
 #     .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
 # ).to_string())
 
 # #%%
 # (
-#     df4_edits1
+#     df_14t_edits1_tb4
 #     .sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 #     .loc[(lambda df: pd.isna(df['Agency'])), ['Project Id', 'Agency', 'variable']]
 # )
@@ -5232,16 +5207,16 @@ inspect_col(df4_edits1[var_to_compare])
 
 #%%
 ### Columns still different:
-[*df4_comp_compare]
+[*df_14t_comp_compare_tb4]
 
-# print(df4_comp_compare.to_string())
+# print(df_14t_comp_compare_tb4.to_string())
 
 # #%%
-# df4_comp_compare.columns.get_level_values(0)
+# df_14t_comp_compare_tb4.columns.get_level_values(0)
 
 #%%
 ### Trying to check if all other columns (other than those with differences) are the same. Results weird, but probably an issue with NA.
-( df4__final_from_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0))) == df4_comparison_csv.drop(columns=list(df4_comp_compare.columns.get_level_values(0))) ).all()
+( df_14t__final_from_csv_tb4.drop(columns=list(df_14t_comp_compare_tb4.columns.get_level_values(0))) == df_14t_comparison_csv_tb4.drop(columns=list(df_14t_comp_compare_tb4.columns.get_level_values(0))) ).all()
 
 
 

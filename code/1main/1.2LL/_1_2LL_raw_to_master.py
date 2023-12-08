@@ -34,18 +34,19 @@ if __name__ == "__main__":
     from _1_2LL_RUNME import * 
     print('Imported "_1_2LL_RUNME"')
 
+
 #%%##################################################
 ### COLUMN DEFINITIONS ###
 #####################################################
 
-#%%### df12LL_1: 'KU_BASETABLE'.
-#%%### df12LL_2: 'KU_CHILDERINJ'.
-#%%### df12LL_3: 'KU_MATERNALINS'.
-#%%### df12LL_4: 'KU_WELLCHILDVISITS'.
+#%%### df_12LL_1: 'KU_BASETABLE'.
+#%%### df_12LL_2: 'KU_CHILDERINJ'.
+#%%### df_12LL_3: 'KU_MATERNALINS'.
+#%%### df_12LL_4: 'KU_WELLCHILDVISITS'.
 
 #######################
-#%%### df12LL_1: 'KU_BASETABLE'.
-df12LL_1_col_detail = [
+#%%### df_12LL_1: 'KU_BASETABLE'.
+list_12LL_col_detail_1 = [
     ['site_id', 'string']
     ,['worker_id', 'string']
     ,['family_id', 'string']
@@ -224,51 +225,51 @@ df12LL_1_col_detail = [
     ,['need_exclusion6', 'string']
     ,['Has_ChildWelfareAdaptation', 'string']
 ]
-#%%### df12LL_1: 'KU_BASETABLE'.
-df12LL_1_col_dtypes = {x[0]:x[1] for x in df12LL_1_col_detail}
-print(df12LL_1_col_dtypes)
-print(collections.Counter(list(df12LL_1_col_dtypes.values())))
+#%%### df_12LL_1: 'KU_BASETABLE'.
+dict_12LL_col_dtypes_1 = {x[0]:x[1] for x in list_12LL_col_detail_1}
+print(dict_12LL_col_dtypes_1)
+print(collections.Counter(list(dict_12LL_col_dtypes_1.values())))
 
 #######################
-#%%### df12LL_2: 'KU_CHILDERINJ'.
-df12LL_2_col_detail = [
+#%%### df_12LL_2: 'KU_CHILDERINJ'.
+list_12LL_col_detail_2 = [
     ['family_id', 'string']
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['reason', 'string']
     ,['date', 'datetime64[ns]']
 ]
-#%%### df12LL_2: 'KU_CHILDERINJ'.
-df12LL_2_col_dtypes = {x[0]:x[1] for x in df12LL_2_col_detail}
-print(df12LL_2_col_dtypes)
-print(collections.Counter(list(df12LL_2_col_dtypes.values())))
+#%%### df_12LL_2: 'KU_CHILDERINJ'.
+dict_12LL_col_dtypes_2 = {x[0]:x[1] for x in list_12LL_col_detail_2}
+print(dict_12LL_col_dtypes_2)
+print(collections.Counter(list(dict_12LL_col_dtypes_2.values())))
 
 #######################
-#%%### df12LL_3: 'KU_MATERNALINS'.
-df12LL_3_col_detail = [
+#%%### df_12LL_3: 'KU_MATERNALINS'.
+list_12LL_col_detail_3 = [
     ['family_id', 'string']
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['insurance', 'Int64']
     ,['date', 'datetime64[ns]']
 ]
-#%%### df12LL_3: 'KU_MATERNALINS'.
-df12LL_3_col_dtypes = {x[0]:x[1] for x in df12LL_3_col_detail}
-print(df12LL_3_col_dtypes)
-print(collections.Counter(list(df12LL_3_col_dtypes.values())))
+#%%### df_12LL_3: 'KU_MATERNALINS'.
+dict_12LL_col_dtypes_3 = {x[0]:x[1] for x in list_12LL_col_detail_3}
+print(dict_12LL_col_dtypes_3)
+print(collections.Counter(list(dict_12LL_col_dtypes_3.values())))
 
 #######################
-#%%### df12LL_4: 'KU_WELLCHILDVISITS'.
-df12LL_4_col_detail = [
+#%%### df_12LL_4: 'KU_WELLCHILDVISITS'.
+list_12LL_col_detail_4 = [
     ['family_id', 'string']
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['date', 'datetime64[ns]']
 ]
-#%%### df12LL_4: 'KU_WELLCHILDVISITS'.
-df12LL_4_col_dtypes = {x[0]:x[1] for x in df12LL_4_col_detail}
-print(df12LL_4_col_dtypes)
-print(collections.Counter(list(df12LL_4_col_dtypes.values())))
+#%%### df_12LL_4: 'KU_WELLCHILDVISITS'.
+dict_12LL_col_dtypes_4 = {x[0]:x[1] for x in list_12LL_col_detail_4}
+print(dict_12LL_col_dtypes_4)
+print(collections.Counter(list(dict_12LL_col_dtypes_4.values())))
 
 
 #%%##################################################
@@ -277,71 +278,71 @@ print(collections.Counter(list(df12LL_4_col_dtypes.values())))
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx_df12LL = pd.ExcelFile(path_1_2LL_input_raw)
+xlsx_12LL = pd.ExcelFile(path_12LL_input_raw)
 
 #%% 
-### CHECK that all path_1_2LL_input_raw_sheets same as xlsx.sheet_names:
-print(sorted(path_1_2LL_input_raw_sheets))
-print(sorted(xlsx_df12LL.sheet_names))
-sorted(path_1_2LL_input_raw_sheets) == sorted(xlsx_df12LL.sheet_names)
+### CHECK that all list_path_12LL_input_raw_sheets same as xlsx.sheet_names:
+print(sorted(list_path_12LL_input_raw_sheets))
+print(sorted(xlsx_12LL.sheet_names))
+sorted(list_path_12LL_input_raw_sheets) == sorted(xlsx_12LL.sheet_names)
 
 #%%###################################
 ### READ in all sheets as strings.
 
 ### Read in EVERYTHING as a string WITH pd.NA for empty cells:
-df12LL_1_allstring = pd.read_excel(xlsx_df12LL, sheet_name=path_1_2LL_input_raw_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=df12LL_1_col_dtypes)
-df12LL_2_allstring = pd.read_excel(xlsx_df12LL, sheet_name=path_1_2LL_input_raw_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=df12LL_2_col_dtypes)
-df12LL_3_allstring = pd.read_excel(xlsx_df12LL, sheet_name=path_1_2LL_input_raw_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=df12LL_3_col_dtypes)
-df12LL_4_allstring = pd.read_excel(xlsx_df12LL, sheet_name=path_1_2LL_input_raw_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=df12LL_4_col_dtypes)
+df_12LL_allstring_1 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_1)
+df_12LL_allstring_2 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_2)
+df_12LL_allstring_3 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_3)
+df_12LL_allstring_4 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_4)
 
 ### Backup:
-df12LL_1 = df12LL_1_allstring.copy()
-df12LL_2 = df12LL_2_allstring.copy()
-df12LL_3 = df12LL_3_allstring.copy()
-df12LL_4 = df12LL_4_allstring.copy()
+df_12LL_1 = df_12LL_allstring_1.copy()
+df_12LL_2 = df_12LL_allstring_2.copy()
+df_12LL_3 = df_12LL_allstring_3.copy()
+df_12LL_4 = df_12LL_allstring_4.copy()
 
 #%%##################################################
 ### CLEAN ###
 #####################################################
 
 #%%###################################
-### df12LL_2: 'KU_CHILDERINJ'.
-df12LL_ChildERInj_2023Oct = (
-    df12LL_2_allstring
+### df_12LL_2: 'KU_CHILDERINJ'.
+df_12LL_ChildERInj = (
+    df_12LL_allstring_2
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    .pipe(fn_apply_dtypes, df12LL_2_col_dtypes)
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_2)
 )
 
 #%%###################################
-### df12LL_3: 'KU_MATERNALINS'.
-df12LL_MaternalIns_2023Oct = (
-    df12LL_3_allstring
+### df_12LL_3: 'KU_MATERNALINS'.
+df_12LL_MaternalIns = (
+    df_12LL_allstring_3
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    .pipe(fn_apply_dtypes, df12LL_3_col_dtypes)
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_3)
 )
 
 #%%###################################
-### df12LL_4: 'KU_WELLCHILDVISITS'.
-df12LL_WellChildVisits_2023Oct = (
-    df12LL_4_allstring
+### df_12LL_4: 'KU_WELLCHILDVISITS'.
+df_12LL_WellChildVisits = (
+    df_12LL_allstring_4
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    .pipe(fn_apply_dtypes, df12LL_4_col_dtypes)
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_4)
 )
 
 #%%###################################
-### df12LL_1: 'KU_BASETABLE'.
-df12LL_BaseTable_2023Oct = (
+### df_12LL_1: 'KU_BASETABLE'.
+df_12LL_BaseTable = (
     ### Raw table all read in as strings:
-    df12LL_1_allstring
+    df_12LL_allstring_1
     ### Strip surrounding whitespace:
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
     ### Find & replace values:
     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
     ### Set data types:
-    .pipe(fn_apply_dtypes, df12LL_1_col_dtypes)
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
     ### Edit columns:
     # .assign(
     #     site_id = 'll'
@@ -362,7 +363,7 @@ df12LL_BaseTable_2023Oct = (
     .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), '-----\nRemoving families discharged before current reporting year:\nDF Rows Before: ')
     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min Before: ')
     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max Before: ')
-    .query(f'discharge_dt >= @fy_start_date')
+    .query(f'discharge_dt >= @date_fy_start')
     .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), 'DF Rows After:  ')
     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min After:  ')
     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max After:  ')
@@ -379,20 +380,20 @@ df12LL_BaseTable_2023Oct = (
 
 
 #%%
-# df12LL_BaseTable_2023Oct.project_id
+# df_12LL_BaseTable.project_id
 
 
 # #%%
-# print(df12LL_1_allstring['tgt_id'].value_counts(dropna=False).to_string())
+# print(df_12LL_allstring_1['tgt_id'].value_counts(dropna=False).to_string())
 # #%%
-# print(df12LL_BaseTable_2023Oct['tgt_id'].value_counts(dropna=False).to_string())
+# print(df_12LL_BaseTable['tgt_id'].value_counts(dropna=False).to_string())
 #%%
 col_to_review = 'tgt_id'
 compare_col(
-    (df12LL_1_allstring
+    (df_12LL_allstring_1
         .loc[lambda df: pd.isna(df[col_to_review])]
     )
-    ,(df12LL_BaseTable_2023Oct
+    ,(df_12LL_BaseTable
         .query(f'`{col_to_review}` == "0"')
     )
     ,col_to_review ,'value_counts'
@@ -401,16 +402,16 @@ compare_col(
 #%%###################################
 
 #%%
-# inspect_df(df12LL_BaseTable_2023Oct)
+# inspect_df(df_12LL_BaseTable)
 
 #%%
-# inspect_df(df12LL_ChildERInj_2023Oct)
+# inspect_df(df_12LL_ChildERInj)
 
 #%%
-# inspect_df(df12LL_MaternalIns_2023Oct)
+# inspect_df(df_12LL_MaternalIns)
 
 #%%
-# inspect_df(df12LL_WellChildVisits_2023Oct)
+# inspect_df(df_12LL_WellChildVisits)
 
 
 

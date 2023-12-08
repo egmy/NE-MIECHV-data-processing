@@ -12,24 +12,13 @@ exec(open('RUNME.py').read())
 ### TO DO: Instructions for how to get into environment & how to edit/run code files.
 
 #%%##################################################
-### PACKAGES ###
+### SETUP ###
 #####################################################
 
-import pandas as pd
-from pathlib import Path
-import numpy as np
-import sys
-import IPython
+if __name__ == "__main__":
+    from _1_4tab_RUNME import * 
+    print('Imported "_1_4tab_RUNME"')
 
-print('Version Of Python: ' + sys.version)
-print('Version Of Pandas: ' + pd.__version__)
-print('Version Of Numpy: ' + np.version.version)
-
-#%%##################################################
-### SETTINGS ###
-#####################################################
-
-### None for now.
 
 #%%##################################################
 ### PATHS & READING ###
@@ -37,17 +26,17 @@ print('Version Of Numpy: ' + np.version.version)
 
 ### Files created for Y12Q1 by the old data sourcing process with Tableau.
 
-###path_2_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
-df2_comparison_csv = pd.read_csv(path_2_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
-df2_comparison_csv = df2_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+###path_14t_comparison_csv_tb2 = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
+df_14t_comparison_csv_tb2 = pd.read_csv(path_14t_comparison_csv_tb2, dtype=object, keep_default_na=False, na_values=[''])
+df_14t_comparison_csv_tb2 = df_14t_comparison_csv_tb2.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-###path_3_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
-df3_comparison_csv = pd.read_csv(path_3_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
-df3_comparison_csv = df3_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+###path_14t_comparison_csv_tb3 = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
+df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype=object, keep_default_na=False, na_values=[''])
+df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-###path_4_comparison_csv = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File for Form 1 from Excel on NE Server.csv')
-df4_comparison_csv = pd.read_csv(path_4_comparison_csv, dtype=object, keep_default_na=False, na_values=[''])
-df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+###path_14t_comparison_csv_tb4 = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File for Form 1 from Excel on NE Server.csv')
+df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype=object, keep_default_na=False, na_values=[''])
+df_14t_comparison_csv_tb4 = df_14t_comparison_csv_tb4.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 
 #%%##################################################
@@ -56,11 +45,11 @@ df4_comparison_csv = df4_comparison_csv.sort_values(by=['Project Id','Year','Qua
 
 #%%
 ### Differences: Columns only in one.
-set([*df2_comparison_csv]).symmetric_difference([*df3_comparison_csv])
+set([*df_14t_comparison_csv_tb2]).symmetric_difference([*df_14t_comparison_csv_tb3])
 
 #%%
 ### Overlap / Similarities: Columns in both.
-set([*df2_comparison_csv]).intersection([*df3_comparison_csv])
+set([*df_14t_comparison_csv_tb2]).intersection([*df_14t_comparison_csv_tb3])
 
 ### Created columns in both:
     ###  '_Agency',
@@ -81,17 +70,17 @@ set([*df2_comparison_csv]).intersection([*df3_comparison_csv])
 
 #%%
 ### Differences: Columns only in one.
-set([*df3_comparison_csv]).symmetric_difference([*df4_comparison_csv])
+set([*df_14t_comparison_csv_tb3]).symmetric_difference([*df_14t_comparison_csv_tb4])
 
-### Created columns in only df3_comparison_csv:
+### Created columns in only df_14t_comparison_csv_tb3:
 
-### Created columns in only df4_comparison_csv:
+### Created columns in only df_14t_comparison_csv_tb4:
 
 
 
 #%%
 ### Overlap / Similarities: Columns in both.
-set([*df3_comparison_csv]).intersection([*df4_comparison_csv])
+set([*df_14t_comparison_csv_tb3]).intersection([*df_14t_comparison_csv_tb4])
 
 ### Created columns in both:
     ### Lots!
