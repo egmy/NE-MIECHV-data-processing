@@ -11,16 +11,16 @@
 ### SETUP ###
 #####################################################
 
-# import sys
-# sys.path.append('U:\\Working\\nehv_ds_code_repository')
-# from packages_and_functions import * 
+#%%
+print('File that is running: ', os.path.basename(__file__))
 
-##%
-if __name__ == "__main__":
+#%%
+### The following is run if running this file by itself interactively (& ignored when run from RUNME):
+if (os.path.basename(__file__) == '_1_4_replacing_tableau_2_Child_Activities.py'):
     from _1_4tab_RUNME import * 
     print('Imported "_1_4tab_RUNME"')
-# else:
-#     from packages_and_functions import * 
+else:
+    print("Did NOT run RUNME again... because it's already running!")
 
 #%%
 bool_14t_deduplicate_tb2 = False

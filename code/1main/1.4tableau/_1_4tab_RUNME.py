@@ -36,6 +36,11 @@ from packages_and_functions import *
 ### SETTINGS ###
 #####################################################
 
+
+#%%##################################################
+### KEY VALUES ###
+#####################################################
+
 # str_nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
 # str_nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 # str_nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
@@ -151,16 +156,26 @@ print('end setup')
 ### RUN CODE FILES ###
 #####################################################
 
+### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
+    ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
+
+#%%
+### "_1_4_replacing_tableau_2_Child_Activities.py"
 if __name__ == "__main__":
-    # import ne_replacing_tableau_2_Child_Activities
-    # import ne_replacing_tableau_3_Adult_Activities_Form2DS
-    # import ne_replacing_tableau_4_Adult_Activities_Form1DS
+    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
 
-    # exec(open(Path(path_14t_code_base, 'ne_replacing_tableau_2_Child_Activities.py')).read())
-    # exec(open(Path(path_14t_code_base, 'ne_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
-    # exec(open(Path(path_14t_code_base, 'ne_replacing_tableau_4_Adult_Activities_Form1DS.py')).read())
+#%%
+### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"
+if __name__ == "__main__":
+    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
 
-    print('Imported code files')
+#%%
+### "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"
+if __name__ == "__main__":
+    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
 
 
 #%%##################################################

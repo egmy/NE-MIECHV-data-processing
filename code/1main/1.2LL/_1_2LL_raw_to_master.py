@@ -30,9 +30,16 @@
 ### SETUP ###
 #####################################################
 
-if __name__ == "__main__":
+#%%
+print('File that is running: ', os.path.basename(__file__))
+
+#%%
+### The following is run if running this file by itself interactively (& ignored when run from RUNME):
+if (os.path.basename(__file__) == '_1_2LL_raw_to_master.py'):
     from _1_2LL_RUNME import * 
     print('Imported "_1_2LL_RUNME"')
+else:
+    print("Did NOT run RUNME again... because it's already running!")
 
 
 #%%##################################################

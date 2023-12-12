@@ -38,6 +38,11 @@ from packages_and_functions import *
 ### SETTINGS ###
 #####################################################
 
+
+#%%##################################################
+### KEY VALUES ###
+#####################################################
+
 # str_nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
 # str_nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 # str_nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
@@ -109,9 +114,11 @@ print('end setup')
 ### RUN CODE FILES ###
 #####################################################
 
+### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
+    ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
 if __name__ == "__main__":
-    import _1_2LL_raw_to_master
-    print('Imported "_1_2LL_raw_to_master"')
+    exec(open(Path(path_12LL_code_base, '_1_2LL_raw_to_master.py')).read())
+    print('Executed code files')
 
 
 #%%##################################################

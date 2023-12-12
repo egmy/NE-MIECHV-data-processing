@@ -11,9 +11,16 @@
 ### SETUP ###
 #####################################################
 
-if __name__ == "__main__":
+#%%
+print('File that is running: ', os.path.basename(__file__))
+
+#%%
+### The following is run if running this file by itself interactively (& ignored when run from RUNME):
+if (os.path.basename(__file__) == '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py'):
     from _1_4tab_RUNME import * 
     print('Imported "_1_4tab_RUNME"')
+else:
+    print("Did NOT run RUNME again... because it's already running!")
 
 #%%
 bool_14t_deduplicate_tb3 = False

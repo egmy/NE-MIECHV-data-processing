@@ -18,7 +18,7 @@ print('Version Of Numpy: ' + np.version.version)
 
 
 #%%##################################################
-### Utility Functions ###
+### UTILITY FUNCTIONS ###
 #####################################################
 
 def inspect_df (df):
@@ -73,7 +73,7 @@ def fn_keep_row_differences(fdf, variable2compare):
 
 
 #%%##################################################
-### Project Functions ###
+### PROJECT FUNCTIONS ###
 #####################################################
 
 ### Function designed to turn a Pandas DataFrame whose columns are all dtype 'string' into dtypes specified in a dictionary.
@@ -193,6 +193,8 @@ def fn_print_expression_and_return_df(df, expression, additional_text_before):
 
 
 #%%##################################################
+### END ###
+#####################################################
 
 print('Imported functions!')
 
