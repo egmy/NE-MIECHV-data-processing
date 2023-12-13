@@ -97,9 +97,9 @@ list_14t_col_detail_tb2_3 = [
     ,['MinHVDateBFYes', 'Min HV Date BF Yes', '', 'datetime64[ns]']
     ,['BreastFeeding', 'Breast Feeding', '', 'string'] ### 'Breast Feeding (Count)'. ### 'string' in Tableau & needs to be read in as such.
     ,['MinOfDateDiscontinueBF', 'Min Of Date Discontinue BF', '', 'datetime64[ns]']
-    ,['SleepOnBack', 'Sleep On Back', '', 'string']
-    ,['CoSleeping', 'Co Sleeping', '', 'string']
-    ,['SoftBedding', 'Soft Bedding', '', 'string']
+    ### ,['SleepOnBack', 'Sleep On Back', '', 'string'] ### taken out by Y12Q4.
+    ### ,['CoSleeping', 'Co Sleeping', '', 'string'] ### taken out by Y12Q4.
+    ### ,['SoftBedding', 'Soft Bedding', '', 'string'] ### taken out by Y12Q4.
     ,['SafeSleepDate', 'Safe Sleep Date', '', 'datetime64[ns]']
     ,['SafeSleepPartialDate', 'Safe Sleep Partial Date', '', 'datetime64[ns]']
     ,['ASQ9MoDate', 'ASQ9MoDate', 'same', 'datetime64[ns]']
@@ -1089,6 +1089,7 @@ print(df_14t_edits1_tb2[['_TGT DOB', 'Tgt Dob', 'Tgt Dob-Cr']].query('`Tgt Dob` 
 df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['Safe Sleep Date'].combine_first(df_14t_edits1_tb2['Safe Sleep Yes Dt'])
     ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
 #############################################
+### OLD:
 ### def fn_C7_Safe_Sleep_Yes_Date(fdf):
 #     ### if ( 
 #     ###     fdf['Sleep On Back'] == "Yes" ### FW.
@@ -1313,6 +1314,8 @@ def fn_Funding(fdf):
                 return "S"
             case "se":
                 return "TANF"
+            case "lb":
+                return "O"
             case _:
                 return "Unrecognized Value"
     elif (fdf['_Agency'] == "ll"):

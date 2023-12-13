@@ -136,6 +136,9 @@ list_14t_col_detail_tb3_3 = [
     ['BehaviorDenom', 'BehaviorDenom', 'same', 'Int64'],
     ['HomeVisitsPrenatal', 'HomeVisitsPrenatal', 'same', 'Int64'],
     ['HomeVisitsTotal', 'HomeVisitsTotal', 'same', 'Int64'],
+    ['HomeVisitTypeAll', 'HomeVisitTypeAll', 'same', 'Int64'], ### New Y12Q4.
+    ['HomeVisitTypeIP', 'HomeVisitTypeIP', 'same', 'Int64'], ### New Y12Q4.
+    ['HomeVisitTypeV', 'HomeVisitTypeV', 'same', 'Int64'], ### New Y12Q4.
     ['MOBDOB', 'Mobdob', '', 'datetime64[ns]'],
     ['FOBDOB', 'Fobdob', '', 'datetime64[ns]'],
     ['MinEducationDate', 'Min Education Date', '', 'datetime64[ns]'],
