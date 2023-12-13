@@ -173,19 +173,19 @@ def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_
     fdf = fdf.replace(fr'(?i)^({string_of_values_to_find})$', replacement_value, regex=True)
     return fdf
 
-def fn_print_object_and_return(object):
+def fn_print_and_return_object(object):
     print(object)
     return object
 
-def fn_print_col_and_return(fdf, col, additional_text_before):
-    print(additional_text_before, fdf[col])
+def fn_print_col_and_return_df(fdf, col, additional_text_before=''):
+    print(additional_text_before, '\n', fdf[col])
     return fdf
 
-def fn_print_fstring(df, fstring_to_print):
+def fn_print_fstring_and_return_df(df, fstring_to_print=''):
     print(fstring_to_print)
     return df
 
-def fn_print_expression_and_return_df(df, expression, additional_text_before):
+def fn_print_expression_and_return_df(df, expression, additional_text_before=''):
     print(additional_text_before, expression(df))
     return df
 
