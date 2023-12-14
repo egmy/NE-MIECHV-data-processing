@@ -54,7 +54,7 @@
 # After VSC installation:
     # Close any open VSC.
     # In File Explorer, go to project folder:
-        # U:\Working\nebraska_miechv_coded_data_source 
+        # U:\Working\nehv_ds_repository 
     # Double click "nebraska_miechv_datasource.code-workspace" to open project in VSC.
     # Ignore the "Git not found" popup -- we'll do that next.
     # In the upper-left, click the "Explorer" icon (image of files/papers) to see all files in folder.
