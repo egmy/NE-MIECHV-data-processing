@@ -341,44 +341,64 @@ df_12LL_WellChildVisits = (
 
 #%%###################################
 ### df_12LL_1: 'KU_BASETABLE'.
-df_12LL_BaseTable = (
-    ### Raw table all read in as strings:
-    df_12LL_allstring_1
-    ### 
-    .pipe(fn_print_fstring_and_return_df, '-----\nStrip surrounding whitespace')
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    ###
-    .pipe(fn_print_fstring_and_return_df, '-----\nFind & replace "null" values:')
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    ### 
-    .pipe(fn_print_fstring_and_return_df, '-----\nSet data types:')
-    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
-    ####
-    .assign(site_id = 'll')
-    .pipe(fn_print_col_and_return_df, 'site_id', '-----\nColumn site_id should now be all "ll":')
-    ####
-    .pipe(fn_print_fstring_and_return_df, '-----\nColumn tgt_id before: Rows with NA that will be changed to "0":')
-    .pipe(fn_print_expression_and_return_df, (lambda df: df.loc[(lambda df: pd.isna(df['tgt_id'])), 'tgt_id'].index.tolist()))
-    .assign(tgt_id = lambda df: df['tgt_id'].fillna('0'))
-    .pipe(fn_print_fstring_and_return_df, 'Column tgt_id after: Rows with "0":')
-    .pipe(fn_print_expression_and_return_df, (lambda df: df.loc[(df['tgt_id'] == "0"), 'tgt_id'].index.tolist()))
-    ####
-    .assign(project_id = lambda df: df['site_id'] + df['family_id'] + '-' + df['tgt_id'])
-    .pipe(fn_print_col_and_return_df, 'project_id', '-----\nNew column:\n')
-    ####
-    .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), '-----\nRemoving families discharged before current reporting year:\nDF Rows Before: ')
-    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min Before: ')
-    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max Before: ')
-    .query(f'discharge_dt >= @date_fy_start')
-    .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), 'DF Rows After:  ')
-    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min After:  ')
-    .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max After:  ')
-    ###
-)
+# df_12LL_BaseTable = (
+#     ### Raw table all read in as strings:
+#     df_12LL_allstring_1
+#     ### 
+#     .pipe(fn_print_fstring_and_return_df, '-----\nStrip surrounding whitespace')
+#     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+#     ###
+#     .pipe(fn_print_fstring_and_return_df, '-----\nFind & replace "null" values:')
+#     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+#     ### 
+#     .pipe(fn_print_fstring_and_return_df, '-----\nSet data types:')
+#     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
+#     ####
+#     .assign(site_id = 'll')
+#     .pipe(fn_print_col_and_return_df, 'site_id', '-----\nColumn site_id should now be all "ll":')
+#     ####
+#     .pipe(fn_print_fstring_and_return_df, '-----\nColumn tgt_id before: Rows with NA that will be changed to "0":')
+#     .pipe(fn_print_expression_and_return_df, (lambda df: df.loc[(lambda df: pd.isna(df['tgt_id'])), 'tgt_id'].index.tolist()))
+#     .assign(tgt_id = lambda df: df['tgt_id'].fillna('0'))
+#     .pipe(fn_print_fstring_and_return_df, 'Column tgt_id after: Rows with "0":')
+#     .pipe(fn_print_expression_and_return_df, (lambda df: df.loc[(df['tgt_id'] == "0"), 'tgt_id'].index.tolist()))
+#     ####
+#     .assign(project_id = lambda df: df['site_id'] + df['family_id'] + '-' + df['tgt_id'])
+#     .pipe(fn_print_col_and_return_df, 'project_id', '-----\nNew column:\n')
+#     ####
+#     .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), '-----\nRemoving families discharged before current reporting year:\nDF Rows Before: ')
+#     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min Before: ')
+#     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max Before: ')
+#     .query(f'discharge_dt >= @date_fy_start')
+#     .pipe(fn_print_expression_and_return_df, (lambda df: len(df)), 'DF Rows After:  ')
+#     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].min()), 'discharge_dt min After:  ')
+#     .pipe(fn_print_expression_and_return_df, (lambda df: df['discharge_dt'].max()), 'discharge_dt max After:  ')
+#     ###
+# )
 
     # .pipe(fn_print_expression_and_return_df, (lambda df: df), '')
 
+#%%###################################
+### df_12LL_1: 'KU_BASETABLE'.
 
+df_12LL_before_BaseTable = df_12LL_allstring_1.copy()
+df_12LL_after_BaseTable = df_12LL_allstring_1.copy()
+
+#%%
+df_12LL_before_BaseTable = (
+    df_12LL_before_BaseTable
+    .pipe(fn_print_fstring_and_return_df, '-----\nStrip surrounding whitespace')
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+
+#%%
+if (
+    df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()
+):
+    print("yay!")
+    pass
+else:
+    raise Exception
 
 
 
