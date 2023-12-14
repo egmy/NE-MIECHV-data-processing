@@ -189,6 +189,15 @@ def fn_print_expression_and_return_df(df, expression, additional_text_before='')
     print(additional_text_before, expression(df))
     return df
 
+def fn_if_else(fdf, lambda_expression, if_true, if_false=None, if_na=None):
+    if pd.isna(lambda_expression(fdf)):
+        return if_na
+    elif (lambda_expression(fdf)):
+        return if_true
+    elif (lambda_expression(fdf)) == False:
+        return if_false
+    else:
+        return None
 
 
 
