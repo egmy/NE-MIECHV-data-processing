@@ -586,7 +586,6 @@ else:
 #%%### df_14t_piece_tb2_3: 'Family Wise'.
 ### join columns: ['Project ID','year (Family Wise)','quarter (Family Wise)']
 ### Show rows where join columns are same BUT some other columns are not:
-### TODO: make lists for each group of join columns.
 cols_14t_forJoin_tb2_3 = ['Project ID','year (Family Wise)','quarter (Family Wise)']
 df_14t_piece_tb2_3[df_14t_piece_tb2_3[cols_14t_forJoin_tb2_3].duplicated(keep=False)]
 
@@ -772,14 +771,6 @@ df_14t_edits1_tb2['_C18 ASQ 9 Mo Ref Location'] = df_14t_edits1_tb2['ASQ9MoRefLo
     ### [ASQ9MoRefLocation]
     ### Data Type in Tableau: string.
 
-### TODO: LLCHD needs to provide a safe sleep partial date.
-df_14t_edits1_tb2['_C7 Safe Sleep Partial Date'] = df_14t_edits1_tb2['Safe Sleep Partial Date']
-    ### // IFNULL(
-    ### [Safe Sleep Partial Date]  // FW
-    ### // ,[Safe Sleep Yes Dt]) // LLCHD needs to provide a safe sleep partial date
-    ### // END
-    ### Data Type in Tableau: date.
-
 #%%##################################################
 ### COALESCING
 
@@ -839,10 +830,6 @@ df_14t_edits1_tb2['_C2 BF Discontinuation Date'] = df_14t_edits1_tb2['Min Of Dat
 
 df_14t_edits1_tb2['_C2 BF Initiation Date'] = df_14t_edits1_tb2['Min HV Date BF Yes'].combine_first(df_14t_edits1_tb2['Lsp Bf Initiation Dt'])
     ### IFNULL([Min HV Date BF Yes],[Lsp Bf Initiation Dt])
-    ### Data Type in Tableau: date.
-
-df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2['Safe Sleep Date'].combine_first(df_14t_edits1_tb2['Safe Sleep Yes Dt'])
-    ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
     ### Data Type in Tableau: date.
 
 df_14t_edits1_tb2['_Discharge Date'] = df_14t_edits1_tb2['Discharge Dt'].combine_first(df_14t_edits1_tb2['Termination Date'])
@@ -1085,10 +1072,102 @@ print(df_14t_edits1_tb2[['_TGT DOB', 'Tgt Dob', 'Tgt Dob-Cr']].query('`Tgt Dob` 
 
 #%%###################################
 
+### TODO: Rename to "No".
+### TODO ASKJOE: LLCHD needs to provide a safe sleep partial date. 2023-12-13: Joe will reach out to LL.
+### In Form2, var used in [Include2]. "Partial Date" means date checked for Safe Sleep but answer was "No" -- so go into Denominator & not Missing.
+### Rename to ['_C7 Safe Sleep No Date'].
+########
+### OLD: ### df_14t_edits1_tb2['_C7 Safe Sleep Partial Date'] = df_14t_edits1_tb2['Safe Sleep Partial Date']
+########
+### 2023-12-13: Rewriting:
+def fn_C7_Safe_Sleep_Partial_Date(fdf):
+    ### LL:
+    if (fdf['_Agency'] == 'll'):
+        if pd.isna(fdf['Safe Sleep Yes']) or (fdf['Safe Sleep Yes'] != 'Y'):
+            return fdf['Safe Sleep Yes Dt']
+        else:
+            return pd.NaT
+    ### FW:
+    else:
+        return fdf['Safe Sleep Partial Date']
+    #######
+    ### // IFNULL(
+    ### [Safe Sleep Partial Date]  // FW
+    ### // ,[Safe Sleep Yes Dt]) // LLCHD needs to provide a safe sleep partial date
+    ### // END
+df_14t_edits1_tb2['_C7 Safe Sleep Partial Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Safe_Sleep_Partial_Date, axis=1)
+    ### Data Type in Tableau: 'date'.
+inspect_col(df_14t_edits1_tb2['_C7 Safe Sleep Partial Date'])
+
+#%%###################################
+
+### Identical to ['_C7 Safe Sleep Yes Date'].
+########
+### OLD: ### df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2['Safe Sleep Date'].combine_first(df_14t_edits1_tb2['Safe Sleep Yes Dt'])
+########
+### 2023-12-13: Rewriting:
+def fn_C7_Safe_Sleep_Date(fdf):
+    ### LL:
+    if (fdf['_Agency'] == 'll'):
+        if (fdf['Safe Sleep Yes'] == 'Y'):
+            return fdf['Safe Sleep Yes Dt']
+        else:
+            return pd.NaT
+    ### FW:
+    else:
+        return fdf['Safe Sleep Date']
+    #######
+    ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
+df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Safe_Sleep_Date, axis=1)
+    ### Data Type in Tableau: 'date'.
+inspect_col(df_14t_edits1_tb2['_C7 Safe Sleep Date'])
+#%%
+inspect_col(df_14t_edits1_tb2['_Agency'])
+#%%
+inspect_col(df_14t_edits1_tb2['Safe Sleep Yes']) ### LL.
+#%%
+inspect_col(df_14t_edits1_tb2['Safe Sleep Yes Dt']) ### LL.
+#%%
+inspect_col(df_14t_edits1_tb2['Safe Sleep Date']) ### FW.
+#%%
+inspect_col(df_14t_edits1_tb2['Safe Sleep Partial Date']) ### FW.
+#%%
+### Check LL:
+print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` == "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%%
+### Check FW:
+print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+#%%
+print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
+    .assign(**{
+        # 'Safe Sleep Yes': lambda df: pd.isna(df['Safe Sleep Yes'])
+        # ,'Safe Sleep Yes Dt': lambda df: pd.isna(df['Safe Sleep Yes Dt'])
+        # ,'Safe Sleep Date': lambda df: pd.isna(df['Safe Sleep Date'])
+        # ,'Safe Sleep Partial Date': lambda df: pd.isna(df['Safe Sleep Partial Date'])
+        # ,'_C7 Safe Sleep Partial Date': lambda df: pd.isna(df['_C7 Safe Sleep Partial Date'])
+        # ,'_C7 Safe Sleep Date': lambda df: pd.isna(df['_C7 Safe Sleep Date'])
+        ###
+        '_Agency': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: df['_Agency'] == 'll'), 'll', 'fw'))
+        ,'Safe Sleep Yes': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes'])), 'Y', '.'))
+        ,'Safe Sleep Yes Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes Dt'])), 'date', '.'))
+        ,'Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Date'])), 'date', '.'))
+        ,'Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Partial Date'])), 'date', '.'))
+        ,'_C7 Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Partial Date'])), 'date', '.'))
+        ,'_C7 Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Date'])), 'date', '.'))
+    })
+    .drop_duplicates(ignore_index=True)
+    .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
+)
+### TODO ASKJOE: Discuss what logic is needed. NOTE: "partial date" is BOTH yes & no, it seems.
+
+#%%###################################
+
+### Identical to ['_C7 Safe Sleep Date'].
+### In Form2, was used for OLD style, but no longer used.
 ### updated Y12Q3-Q4:
 df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['Safe Sleep Date'].combine_first(df_14t_edits1_tb2['Safe Sleep Yes Dt'])
     ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
-#############################################
+########
 ### OLD:
 ### def fn_C7_Safe_Sleep_Yes_Date(fdf):
 #     ### if ( 
@@ -1106,7 +1185,7 @@ df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['Safe Sleep Dat
 #     ### ### ELSE [Safe Sleep Yes Dt] //LLCHD
 #     ### ### END
 ### df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
-#############################################
+########
     ### Data Type in Tableau: 'date'.
 inspect_col(df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'])
 # #%%
@@ -1119,8 +1198,8 @@ inspect_col(df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'])
 inspect_col(df_14t_edits1_tb2['Safe Sleep Date'])
 #%%
 inspect_col(df_14t_edits1_tb2['Safe Sleep Yes Dt'])
-### TODO: Investigate why all 3 FW safe sleep variable all empty. ### Y12Q3: Investigate why all 3 disappeared?
-### TODO: Fix var: Only use date now or what? ### Answer: yes, see new "IFNULL" logic.
+### DONE: Investigate why all 3 FW safe sleep variable all empty. ### Y12Q3: Investigate why all 3 disappeared?
+### DONE: Fix var: Only use date now or what? ### Answer: yes, see new "IFNULL" logic.
 ### Answer 2023-10-24: Should be comparing dates now instead of T/F. See updated Tableau variable.
 
 #%%###################################
@@ -1291,14 +1370,17 @@ df_14t_edits1_tb2['_FW Gestation Age Recode'] = df_14t_edits1_tb2.apply(func=fn_
     ### Data Type in Tableau: integer.
 inspect_col(df_14t_edits1_tb2['_FW Gestation Age Recode'])
 #%%
-inspect_col(df_14t_edits1_tb2['Gestational Age'])
-### TODO: Check with Joe -- but need to add in values for "22/24/27/28/30/32 weeks".
+inspect_col(df_14t_edits1_tb2['Gestational Age']) ### From FW.
+### DONE: Check with Joe -- but need to add in values for "22/24/27/28/30/32 weeks".
     ### OR change to check if follows pattern, then pull first 2 chars, & then turn to int.
+    ### TODO: Fix with pattern.
 #%%
 inspect_col(df_14t_edits1_tb2['Gestational Age'])
 
 #%%###################################
 
+### TODO: Move downstream "Funding" variables ([_Funding (use this one)]) out of Form2 into this code.
+### This variable actually NOT used in Form2. ### TODO: Check Form1.
 def fn_Funding(fdf):
     if (fdf['_Agency'] != "ll"):
         match fdf['Agency']:
@@ -1307,15 +1389,19 @@ def fn_Funding(fdf):
             case "ph":
                 return "F"
             case "nc":
-                return "S"
+                return "F"
             case "ps":
-                return "S"
+                return "F"
             case "vn":
-                return "S"
+                return "F"
             case "se":
-                return "TANF"
+                return "F"
             case "lb":
-                return "O"
+                return "F" ### Added Y12.
+            case "tr":
+                return "F" ### Added Y13.
+            case "sh":
+                return "F" ### Added Y13.
             case _:
                 return "Unrecognized Value"
     elif (fdf['_Agency'] == "ll"):
@@ -1340,7 +1426,7 @@ print(df_14t_edits1_tb2[['_Agency', '_Funding', 'Funding']].drop_duplicates(igno
 #%% 
 ### Rows with "Unrecognized Value" (See "list_14t_unrecognized_values_tb2".):
 df_14t_edits1_tb2[['Project Id','Year','Quarter', '_Funding', '_Agency', 'Funding']].query(f'`_Funding` == "Unrecognized Value"')
-### TODO: How to code "lb" & "wb"?
+### DONE: How to code "wc"? ### "wc" is probably old & no longer used. ### See comments above.
 
 #%%###################################
 
@@ -1571,9 +1657,11 @@ def fn_T20_TGT_Insurance_Status(fdf):
         match fdf['CHINS Primary Ins']:
             case "Medicaid":
                 return "Medicaid or CHIP"
+            case "Medicare/Medicaid":
+                return "Medicare/Medicaid" ### TODO ASKJOE: Need to ask FW how to code this. Added Y13Q1.
             case "None":
                 return "No Insurance Coverage"
-            case "Medicare" | "Other" | "Private":
+            case "Medicare" | "Other" | "Private" | "Blue Cross Blue Shield" | "Aetna":
                 return "Private or Other"
             case "Tri-Care":
                 return "Tri-Care"
@@ -1636,7 +1724,7 @@ print(df_14t_edits1_tb2[['_T20 TGT Insurance Status', 'CHINS Primary Ins', 'Hlth
 #%% 
 ### Rows with "Unrecognized Value" (See "list_14t_unrecognized_values_tb2".):
 df_14t_edits1_tb2[['Project Id','Year','Quarter', '_T20 TGT Insurance Status', 'CHINS Primary Ins', 'Hlth Insure Tgt']].query(f'`_T20 TGT Insurance Status` == "Unrecognized Value"')
-### TODO: How to code new Y12Q4 values?: "Aetna", "Blue Cross Blue Shield", "Medicare/Medicaid".
+### DONE: How to code new Y12Q4 values?: "Aetna", "Blue Cross Blue Shield", "Medicare/Medicaid". Added above Y13Q1.
 
 #%%###################################
 
@@ -1915,7 +2003,6 @@ inspect_col(df_14t_edits1_tb2['_TGT Race'])
 
 #%%###################################
 
-### TODO: from RUNME, function fn_C11_Literacy_Read_Sing throws error: "TypeError: boolean value of NA is ambiguous".
 def fn_C11_Literacy_Read_Sing(fdf):
     ### FW.
     if (fdf['_Agency'] != "ll"):
@@ -1977,6 +2064,8 @@ def fn_C11_Literacy_Read_Sing(fdf):
 df_14t_edits1_tb2['_C11 Literacy Read Sing'] = df_14t_edits1_tb2.apply(func=fn_C11_Literacy_Read_Sing, axis=1)
     ### Data Type in Tableau: integer.
 inspect_col(df_14t_edits1_tb2['_C11 Literacy Read Sing'])
+### DONE?: from RUNME, function fn_C11_Literacy_Read_Sing throws error: "TypeError: boolean value of NA is ambiguous".
+### TODO: Fix data typing.
 #%%
 inspect_col(df_14t_edits1_tb2['Read Tell Story Sing']) ### Originally, csv read in as float64. Should be a string. But that breaks this is/else logic. Fixed in Read above by reading in as object.
     ### Above read in as "object" not "string" so that same data type
@@ -2157,6 +2246,8 @@ inspect_col(df_14t_edits1_tb2['_Family Number'])
 
 #%%###################################
 
+### TODO: Move to Tableau & pin to start/end of Reporting period.
+
 ### RECOMMEND that [_T05 TGT Age in Months] & ['_T05 Age Categories'] be created in the Form 1/2 Tableau Workbooks because the calculations do not match exactly between Tableau & Python. 
 
 ### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
@@ -2224,6 +2315,8 @@ inspect_col(df_14t_edits1_tb2['_T05 TGT Age in Months'])
 # print(df_T05_TGT_Age_in_Months.to_string())
 
 #%%###################################
+
+### TODO: Move to Tableau & pin to start/end of Reporting period.
 
 ### TODO: Adjust to deal with "-1" months old.
 def fn_T05_Age_Categories(fdf):
@@ -2584,3 +2677,10 @@ inspect_col(df_14t_edits1_tb2[var_to_compare])
 
 
 # %%
+
+
+
+### TODO in Form2:
+    ### Delete "sets", relics of user management on Server.
+
+

@@ -427,7 +427,7 @@ df_14t_piece_tb3_2 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_s
 df_14t_piece_tb3_3 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[2], keep_default_na=False, na_values=[''])#, dtype={'FOBRaceAsian': 'boolean', 'FOBRaceBlack': 'boolean', 'FOBRaceHawaiianPacific': 'boolean', 'FOBRaceIndianAlaskan': 'boolean', 'FOBRaceOther': 'boolean', 'FOBRaceWhite': 'boolean'})#, dtype=dict_14t_col_dtypes_tb3_3)
 df_14t_piece_tb3_4 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[3], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb3_4)
 
-### TODO: Problem: Boolean's cannot have NA.
+### TODO: Fix data types. Problem: Boolean's cannot have NA.
 
 ### Review each sheet:
 ### Note: Even empty DFs merge fine below.
@@ -572,7 +572,6 @@ else:
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
 ### join columns: ['Project ID1','year (Family Wise)','quarter (Family Wise)']
 ### Show rows where join columns are same BUT some other columns are not:
-### TODO: make lists for each group of join columns.
 cols_14t_forJoin_tb3_3 = ['Project ID1','year (Family Wise)','quarter (Family Wise)']
 # print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].to_string())
 # print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].sort_values(by=cols_14t_forJoin_tb3_3, ignore_index=True).to_string())
@@ -1037,7 +1036,8 @@ inspect_col(df_14t_edits1_tb3['Mob Gender'])
 
 #%%###################################
 
-### TODO: Question: Should we incorporate involved status into the fob variables? Answer: yes, should be checking Fob involvement first.
+### TODO: Question: Should we incorporate involved status into the fob variables? Answer: yes, should be checking Fob involvement first. 
+    ### TODO: Check all FOB variables & make sure in logic.
 ### DONE: Confirm that LLCHD not using "Non-Binary" yet. If we get a new value, we can't assume what it means. Flag as "Unrecognized Value".
 ### DONE: Add "unrecognized value"
 def fn_FOB_Gender(fdf):
@@ -1204,7 +1204,7 @@ inspect_col(df_14t_edits1_tb3['_T06 FOB Ethnicity'])
 
 #%%###################################
 
-### TODO: Check: Is this a Duplicate? Is it Used?
+### TODO: Check: Is this a Duplicate? Is it Used? ### In Tableau - check & delete var not used.
     ### Slight difference between vars in original Tableau: "NON-Hispanic" in (1) vs "NON-HISPANIC" in original.
     ### However, duplicate Python code because of the ".lower()".
 def fn_T06_FOB_Ethnicity_1(fdf):
@@ -1762,7 +1762,7 @@ inspect_col(df_14t_edits1_tb3['_T11 FOB Employment'])
 
 #%%###################################
 
-### TODO: Clarify with LL team -- on all education variables.
+### TODO ASKJOE: Clarify with LL team -- on all education variables.
     ### TODO: mimic new logic.
 ### DONE: Ask about significant difference from '_C15 Max Educational Enrollment'.
     ### Answer: In Form 2, max-min is checked to see change over time.
@@ -1825,7 +1825,7 @@ def fn_C15_Min_Educational_Enrollment(fdf):
     elif (fdf['mcafss_edu1_enroll'] == "N" or (pd.notna(fdf['mcafss_edu1_prog']) and fdf['mcafss_edu1_prog'] not in [1,2,3,4,5,6,7])): ### Y12Q4 changed from "NO".
         return "Not a student/trainee" ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
     ###########
-    ### TODO: Not sure what to put for "Unrecognized Value" for LL.
+    ### TODO ASKJOE: Not sure how to code for "Unrecognized Value" for LL. 
     ###########
     else:
         return "Unknown/Did not Report"
@@ -1930,7 +1930,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
     elif (fdf['mcafss_edu2_enroll'] == "N" or (pd.notna(fdf['mcafss_edu2_prog']) and fdf['mcafss_edu2_prog'] not in [1,2,3,4,5,6,7])): ### Y12Q4 changed from "NO".
         return "Not a student/trainee"
     ###########
-    ### TODO: Not sure what to put for "Unrecognized Value" for LL.
+    ### TODO ASKJOE: Not sure how to code for "Unrecognized Value" for LL.
     ###########
     else:
         return "Unknown/Did not Report"
@@ -2016,7 +2016,7 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
                 ### case np.nan:
                 ###     return "Unknown/Did Not Report"
     ###########
-            # ### TODO: this copied from var below. How to recode the above?
+            # ### TODO ASKJOE: this copied from var below. How to recode the above?
             # match fdf['Fob Edu']:
             #     # case 1 | 2:
             #     case "Less than 8" | "8-11":
@@ -2480,7 +2480,7 @@ inspect_col(df_14t_edits1_tb3['_C16 CG Insurance 1 Status'])
 #%%
 print(df_14t_edits1_tb3[['_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
-### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code?
+### TODO ASKJOE: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code?
 ### See "list_14t_unrecognized_values_tb3". Rows with "Unrecognized Value":
 df_14t_edits1_tb3[['Project Id','Year','Quarter', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_C16 CG Insurance 1 Status` == "Unrecognized Value"')
 # #%% ### Run list_14t_unrecognized_values_tb3 code below first:
@@ -2777,7 +2777,7 @@ inspect_col(df_14t_edits1_tb3['_MOB TGT Relation'])
 #%%
 print(df_14t_edits1_tb3[['_MOB TGT Relation', 'Adult1TGTRelation', 'Primary Relation', 'Mob Gender']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
-### TODO: UV when LL & 'Primary Relation' is "Bio parent" but 'Mob Gender' is NA. How to assign? Default to "MOB"?
+### TODO ASKJOE: UV when LL & 'Primary Relation' is "Bio parent" but 'Mob Gender' is NA. How to assign? Default to "MOB"?
 ### See "list_14t_unrecognized_values_tb3". Rows with "Unrecognized Value":
 df_14t_edits1_tb3[['Project Id','Year','Quarter', '_MOB TGT Relation', 'Adult1TGTRelation', 'Primary Relation', 'Mob Gender']].query(f'`_MOB TGT Relation` == "Unrecognized Value"')
 # #%% ### Run list_14t_unrecognized_values_tb3 code below first:
@@ -2969,7 +2969,7 @@ def fn_T14_Federal_Poverty_Categories(fdf):
         return "201-300%"
     elif (fdf['_T14 Poverty Percent'] > 3.00):
         return ">300%"
-    ### TODO: This option doesn't make much sense. Probably should be "elif pd.isna(fdf['_T14 Poverty Percent'])".
+    ### TODO ASKJOE: This option doesn't make much sense. Probably should be "elif pd.isna(fdf['_T14 Poverty Percent'])".
         ### But Python is catching this below: TODO: Figure out why:
     elif np.nan:
         return "Unknown/Did Not Report"
@@ -3173,7 +3173,7 @@ inspect_col(df_14t_edits1_tb3['_T15-5 Tobacco Use in Home'])
 inspect_col(df_14t_edits1_tb3['Priority Tobacco Use']) 
 #%%
 inspect_col(df_14t_edits1_tb3['Tobacco Use In Home']) 
-### old TODO: extra value "Unknown" not being addressed. 
+### DONE: extra value "Unknown" not being addressed. 
 ### Fixed: Added extra "case _" in each section to catch.
 ### Actually reverted back to if-elif clauses instead of match-case. Changed because can't use .lower() on any fload np.nan.
 ### TODO: Discuss whether need to use .lower() a lot or not.

@@ -692,7 +692,7 @@ inspect_df(df_14t_piece_tb4_4)
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
 inspect_df(df_14t_piece_tb4_5)
 
-### TODO: Ask how cross-joining (exploding) ALL rows with "MOB" & "FOB" helps anything.
+### TODO ASKJOE: Ask how cross-joining (exploding) ALL rows with "MOB" & "FOB" helps anything.
 
 #%%##################################################
 ### Rename Columns ###
@@ -999,7 +999,7 @@ inspect_col(df_14t_edits1_tb4['_TGT ID'])
 #%%###################################
 
 ### 'Mob Zip' has the string value "null" that needs to be recoded.
-### TODO: limit ZIP codes to first five -- have some with the extra 4.
+### TODO ASKJOE: limit ZIP codes to first five? -- have some with the extra 4.
 df_14t_edits1_tb4['_Zip'] = (
     df_14t_edits1_tb4['Zip'].combine_first(df_14t_edits1_tb4['Mob Zip'])
     .replace('null', pd.NA)
@@ -1293,7 +1293,7 @@ def fn_MOB_Gender(fdf):
 df_14t_edits1_tb4['_MOB Gender'] = df_14t_edits1_tb4.apply(func=fn_MOB_Gender, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df_14t_edits1_tb4['_MOB Gender']) 
-### TODO:Confirm that we don't have/are not expecting "N" from LL.
+### DONE:Confirm that we don't have/are not expecting "N" from LL. Answered in Adult3: If seen, would need to check meaning.
 
 #%%###################################
 
@@ -1343,8 +1343,8 @@ def fn_FOB_Gender(fdf):
 df_14t_edits1_tb4['_FOB Gender'] = df_14t_edits1_tb4.apply(func=fn_FOB_Gender, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df_14t_edits1_tb4['_FOB Gender']) 
-### TODO:Confirm that we don't have/are not expecting "N" from LL.
-### TODO: Ask old question: //should we incorporate involved status into the fob variables?
+### DONE:Confirm that we don't have/are not expecting "N" from LL. Answered in Adult3: If seen, would need to check meaning.
+### DONE: Ask old question: //should we incorporate involved status into the fob variables? Answered in Adult3: Yes.
 
 #%%###################################
 
@@ -1377,8 +1377,8 @@ def fn_MOB_TGT_Relation(fdf):
             case "FOB" | "Biological father" | "Adoptive father":
                 return "FOB"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
-            ### TODO: Maybe add options from 'Adult2TGTRelation': "Foster father", "Guardian", "Other".
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"? 
+            ### TODO ASKJOE: Maybe add options from 'Adult2TGTRelation': "Foster father", "Guardian", "Other".
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1398,12 +1398,12 @@ def fn_MOB_TGT_Relation(fdf):
                     case "M":
                         return "FOB"
                     case _:
-                        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### //should we call this primary relation??
@@ -1445,16 +1445,16 @@ def fn_FOB_Relation(fdf):
                 case "FOB" | "Biological father" | "Foster father":
                     return "FOB"
                 case "Grandmother": 
-                    return "Grandmother" ### TODO: Review whether should match MOB version where "Grandmother" is "MOB".
+                    return "Grandmother" ### TODO ASKJOE: Review whether should match MOB version where "Grandmother" is "MOB".
                 case "Guardian":
                     return "Guardian"
                 case "Other":
                     return "Other"
                 case _:
-                    return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
-                ### TODO: Maybe add options from 'Adult1TGTRelation': "Foster mother", "Adoptive father".
+                    return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?0 
+                ### TODO ASKJOE: Maybe add options from 'Adult1TGTRelation': "Foster mother", "Adoptive father".
         else:
-            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1463,10 +1463,10 @@ def fn_FOB_Relation(fdf):
         elif (fdf['Fob Involved1'] == "Y"):
             return "FOB"
         else:
-            return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [Fob Involved1] = "Y" THEN "FOB"
@@ -1501,7 +1501,7 @@ def fn_Enroll_Preg_Status(fdf):
             case 1:
                 return 'Not pregnant'
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?0 
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1513,10 +1513,10 @@ def fn_Enroll_Preg_Status(fdf):
             case 'Postpartum':
                 return 'Not pregnant'
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [Pregnancystatus] = 0 THEN "Pregnant" //FW
@@ -1536,7 +1536,7 @@ inspect_col(df_14t_edits1_tb4['_Enroll Preg Status'])
 ### df_14t_edits1_tb4['Assess IPV'] = df_14t_edits1_tb4['Assess IPV'].sample(frac=0.8)
 ### df_14t_edits1_tb4['Assess Police'] = df_14t_edits1_tb4['Assess Police'].sample(frac=0.8)
 
-### TODO: Is 'Agency' from df_14t_piece_tb4_2 ('Caregiver Insurance') wanted? Or 'agency (Family Wise)'? Or '_Agency'?
+### TODO ASKJOE: Is 'Agency' from df_14t_piece_tb4_2 ('Caregiver Insurance') wanted? Or 'agency (Family Wise)'? Or '_Agency'?
 ### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_IPV_Score_FW(fdf):
     ###########
@@ -1587,7 +1587,7 @@ def fn_Need_Exclusion_1_Sub_Abuse(fdf):
             case "Substance Abuse" | "Drug Abuse" | "Alcohol Abuse":
                 return "Alcohol/Drug Abuse"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?0 
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1597,10 +1597,10 @@ def fn_Need_Exclusion_1_Sub_Abuse(fdf):
             case "Y":
                 return "Alcohol/Drug Abuse"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion1] = "Substance Abuse" THEN "Alcohol/Drug Abuse" //FW
@@ -1624,7 +1624,7 @@ def fn_Need_Exclusion_2_Fam_Plan(fdf):
             case "Family Planning":
                 return "Family Planning"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?0 
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1634,10 +1634,10 @@ def fn_Need_Exclusion_2_Fam_Plan(fdf):
             case "Y":
                 return "Family Planning"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion2] = "Family Planning" THEN "Family Planning" //FW
@@ -1659,7 +1659,7 @@ def fn_Need_Exclusion_3_Mental_Health(fdf):
             case "Mental Health":
                 return "Mental Health"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?0 
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1669,10 +1669,10 @@ def fn_Need_Exclusion_3_Mental_Health(fdf):
             case "Y":
                 return "Mental Health"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion3] = "Mental Health" THEN "Mental Health" //FW
@@ -1694,7 +1694,7 @@ def fn_Need_Exclusion_5_IPV(fdf):
             case "IPV Services":
                 return "IPV Services"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?0 
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1704,10 +1704,10 @@ def fn_Need_Exclusion_5_IPV(fdf):
             case "Y":
                 return "IPV Services"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [Need Exclusion5] = "IPV Services" THEN "IPV Services" //FW
@@ -1729,7 +1729,7 @@ def fn_Need_Exclusion_6_Tobacco(fdf):
             case "Tobacco Cessation":
                 return "Tobacco Cessation"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?0 
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?0 
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1739,10 +1739,10 @@ def fn_Need_Exclusion_6_Tobacco(fdf):
             case "Y":
                 return "Tobacco Cessation"
             case _:
-                return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return pd.NA ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return pd.NA ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [need_exclusion6 (Family Wise)] = "Tobacco Cessation" THEN "Tobacco Cessation" //FW
@@ -1833,7 +1833,7 @@ def fn_T06_MOB_Ethnicity(fdf):
                 case _:
                     return "Unrecognized Value"
         else: 
-            return "Unknown/Did Not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return "Unknown/Did Not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1846,10 +1846,10 @@ def fn_T06_MOB_Ethnicity(fdf):
                 case _:
                     return "Unrecognized Value"
         else: 
-            return "Unknown/Did Not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return "Unknown/Did Not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return "Unknown/Did Not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return "Unknown/Did Not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF NOT ISNULL([Mob Ethnic]) THEN CASE [Mob Ethnic]
@@ -2745,7 +2745,7 @@ def fn_C15_Min_Educational_Enrollment(fdf):
     if (fdf['source'] == 'FW'):
         match fdf['Min Edu Enroll']:
             case _ if pd.isna(fdf['Min Edu Enroll']):
-                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
             case "College 2 Year" | "College 4 Year" | "ESL" | "Graduate School" | "Vocational College":
                 return "Student/trainee"
             case "GED Program" | "High/Middle School":
@@ -2755,17 +2755,17 @@ def fn_C15_Min_Educational_Enrollment(fdf):
             case "Unknown":
                 return "Unknown/Did not Report"
             case _:
-                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
         if (
             pd.isna(fdf['mcafss_edu1_enroll']) or
-            (fdf['mcafss_edu1_enroll'] == "YES" and pd.isna(fdf['mcafss_edu1_prog'])) ### TODO: After comparison, change to 'Y'.
+            (fdf['mcafss_edu1_enroll'] == "YES" and pd.isna(fdf['mcafss_edu1_prog'])) ### TODO ASKJOE: After comparison, change to 'Y'.
         ):
-            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
         elif (
-            fdf['mcafss_edu1_enroll'] == "YES" ### Enrolled. ### TODO: After comparison, change to 'Y'.
+            fdf['mcafss_edu1_enroll'] == "YES" ### Enrolled. ### TODO ASKJOE: After comparison, change to 'Y'.
             and
             (
                 fdf['mcafss_edu1_prog'] == 1 ### Enrolled in Middle School.
@@ -2776,13 +2776,13 @@ def fn_C15_Min_Educational_Enrollment(fdf):
             )
         ):
             return "Student/trainee HS/GED" 
-        elif (fdf['mcafss_edu1_enroll'] == "NO"): ### TODO: After comparison, change to 'N'.
+        elif (fdf['mcafss_edu1_enroll'] == "NO"): ### TODO ASKJOE: After comparison, change to 'N'.
             return "Student/trainee" ### Only difference from '_C15 Max Educational Enrollment' (other than diff vars).
         else:
-            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### //FW
@@ -2832,7 +2832,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
     if (fdf['source'] == 'FW'):
         match fdf['Max Edu Enroll']:
             case _ if pd.isna(fdf['Max Edu Enroll']):
-                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
             case "College 2 Year" | "College 4 Year" | "ESL" | "Graduate School" | "Vocational College":
                 return "Student/trainee"
             case "GED Program" | "High/Middle School":
@@ -2842,17 +2842,17 @@ def fn_C15_Max_Educational_Enrollment(fdf):
             case "Unknown":
                 return "Unknown/Did not Report"
             case _:
-                return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+                return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
         if (
             pd.isna(fdf['mcafss_edu2_enroll']) or
-            (fdf['mcafss_edu2_enroll'] == "YES" and pd.isna(fdf['mcafss_edu2_prog'])) ### TODO: After comparison, change to 'Y'.
+            (fdf['mcafss_edu2_enroll'] == "YES" and pd.isna(fdf['mcafss_edu2_prog'])) ### TODO ASKJOE: After comparison, change to 'Y'.
         ):
-            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
         elif (
-            fdf['mcafss_edu2_enroll'] == "YES" ### Enrolled. ### TODO: After comparison, change to 'Y'.
+            fdf['mcafss_edu2_enroll'] == "YES" ### Enrolled. ### TODO ASKJOE: After comparison, change to 'Y'.
             and
             (
                 fdf['mcafss_edu2_prog'] == 1 ### Enrolled in Middle School.
@@ -2863,13 +2863,13 @@ def fn_C15_Max_Educational_Enrollment(fdf):
             )
         ):
             return "Student/trainee HS/GED" 
-        elif (fdf['mcafss_edu2_enroll'] == "NO"): ### TODO: After comparison, change to 'N'.
+        elif (fdf['mcafss_edu2_enroll'] == "NO"): ### TODO ASKJOE: After comparison, change to 'N'.
             return "Not a student/trainee" ### Only difference from '_C15 Min Educational Enrollment' (other than diff vars).
         else:
-            return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+            return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     else:
-        return "Unknown/Did not Report" ### TODO: After comparison, Maybe change to "Unrecognized Value"?
+        return "Unknown/Did not Report" ### TODO ASKJOE: After comparison, Maybe change to "Unrecognized Value"?
     ###########
     ### /// Tableau Calculation:
     ### IF [Max Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
@@ -2961,7 +2961,7 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
         else:
             return pd.NA 
     ### TODO: Older note: Need an FOB enrollment prog from LLCHD.
-    ### TODO: Ask why cases 1-12 for LL commented out?
+    ### TODO ASK JOE: Ask why cases 1-12 for LL commented out?
     ### TODO: Fix logic because 'Fob Edu' is text not numbers. That's probably why.
     ###########
     else:
@@ -3024,7 +3024,7 @@ def fn_T10_Caregiver_Educational_Enrollment(fdf):
 df_14t_edits1_tb4['_T10 Caregiver Educational Enrollment'] = df_14t_edits1_tb4.apply(func=fn_T10_Caregiver_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df_14t_edits1_tb4['_T10 Caregiver Educational Enrollment']) 
-### TODO: Standardize "Unknown/Did not Report" vs "Unknown/Did Not Report".
+### TODO ASKJOE: Standardize "Unknown/Did not Report" vs "Unknown/Did Not Report".
 
 #%%###################################
 
@@ -3127,7 +3127,7 @@ def fn_T11_FOB_Employment(fdf):
                         return "Employed Part Time"
                     case (
                         "permanent disability" |
-                        ### "temporary disability" | ### TODO: Not in Tableau code, but should be. Add back in after comparison.
+                        ### "temporary disability" | ### TODO ASKJOE: Not in Tableau code, but should be. Add back in after comparison.
                         "unemployed - unspecified" |
                         "unemployed not seeking work-barriers" |
                         "unemployed not seeking work-preference" |
@@ -3250,9 +3250,9 @@ def fn_T12_MOB_Housing_Status(fdf):
                     case "some other arrangement":
                         return "Some other arrangement"
                     case "other":
-                        return "Some other arrangement" ### TODO: Check old comment: Not sure this is the right category.
+                        return "Some other arrangement" ### TODO ASKJOE: Check old comment: Not sure this is the right category.
                     case _:
-                        return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+                        return "Unrecognized Value" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
         else:
             return pd.NA 
     ###########
@@ -3352,9 +3352,9 @@ def fn_T12_FOB_Housing_Status(fdf):
                     case "some other arrangement":
                         return "Some other arrangement"
                     case "other":
-                        return "Some other arrangement" ### TODO: Check old comment: Not sure this is the right category.
+                        return "Some other arrangement" ### TODO ASKJOE: Check old comment: Not sure this is the right category.
                     case _:
-                        return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+                        return "Unrecognized Value" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
         else:
             return pd.NA 
     ###########
@@ -3473,9 +3473,9 @@ def fn_T12_MOB_Homeless_Status(fdf):
                             case "some other arrangement":
                                 return "Unknown/Did Not Report"
                             case "other":
-                                return "Unknown/Did Not Report" ### TODO: Check old comment: Not sure this is the right category.
+                                return "Unknown/Did Not Report" ### TODO ASKJOE: Check old comment: Not sure this is the right category.
                             case _:
-                                return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+                                return "Unrecognized Value" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
         else:
             return pd.NA 
     ###########
@@ -3565,9 +3565,9 @@ def fn_T12_FOB_Homeless_Status(fdf):
                             case "some other arrangement":
                                 return "Unknown/Did Not Report"
                             case "other":
-                                return "Unknown/Did Not Report" ### TODO: Check old comment: Not sure this is the right category.
+                                return "Unknown/Did Not Report" ### TODO ASKJOE: Check old comment: Not sure this is the right category.
                             case _:
-                                return "Unrecognized Value" ### TODO: Check old comment: will have to add new FW values as they come in, they aren't all here.
+                                return "Unrecognized Value" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
         else:
             return pd.NA 
     ###########
@@ -3704,7 +3704,7 @@ inspect_col(df_14t_edits1_tb4['_T14 Poverty Percent'])
 ### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T14_Federal_Poverty_Categories(fdf):
     if (pd.isna(fdf['_T14 Poverty Percent'])):
-        return pd.NA ### Should be "Unknown/Did Not Report" - Tableau code wrong. ### TODO: Fix after compare.
+        return pd.NA ### Should be "Unknown/Did Not Report" - Tableau code wrong. ### TODO ASKJOE: Fix after compare.
     elif (fdf['_T14 Poverty Percent'] <= .50):
         return "50% and Under"
     elif (fdf['_T14 Poverty Percent'] <= 1.00):
@@ -4047,7 +4047,7 @@ def fn_T17_Discharge_Reason(fdf):
     if (fdf['source'] == 'FW'):
         if (pd.notna(fdf['Termination Date'])):
             if pd.isna(fdf['Termination Status']):
-                return "Stopped Services Before Completion" ### TODO: Check if all logic for this var desired.
+                return "Stopped Services Before Completion" ### TODO ASKJOE: Check if all logic for this var desired.
             else: 
                 match fdf['Termination Status'].lower():
                     case "family graduated/met all program goals":
@@ -4061,7 +4061,7 @@ def fn_T17_Discharge_Reason(fdf):
     elif (fdf['source'] == 'LL'):
         if (pd.notna(fdf['Discharge Dt'])):
             if pd.isna(fdf['Discharge Reason']):
-                return "Stopped Services Before Completion" ### TODO: Check if all logic for this var desired.
+                return "Stopped Services Before Completion" ### TODO ASKJOE: Check if all logic for this var desired.
             else: 
                 match fdf['Discharge Reason'].lower():
                     case "1" | "family has met program goals":
@@ -4195,7 +4195,7 @@ inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 1 Status'])
 #%%
 print(df_14t_edits1_tb4[['_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
-### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
+### TODO ASKJOE: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
 ### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
 df_14t_edits1_tb4[['Project Id','Year','Quarter', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_C16 CG Insurance 1 Status` == "Unrecognized Value"')
 
@@ -4245,7 +4245,7 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
         case "3" | "Private":
             return "Private or Other"
         case "4":
-            return "Unknown/Did Not Report" ### #4 like Form2 but not other Form1's "FamilyChildHealthPlus". ### TODO: standardize.
+            return "Unknown/Did Not Report" ### #4 like Form2 but not other Form1's "FamilyChildHealthPlus". ### TODO ASKJOE: standardize.
         case "FamilyCh":
             return "FamilyChildHealthPlus"
         case "5" | "Uninsure":
@@ -4287,7 +4287,7 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
 df_14t_edits1_tb4['_C16 CG Insurance 4 Status'] = df_14t_edits1_tb4['AD1PrimaryIns.4'].apply(func=fn_C16_CG_Insurance_4_Status).astype('string') 
     ### Data Type in Tableau: 'string'.
 inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 4 Status']) 
-### TODO: standardize. FIX!
+### TODO ASKJOE: standardize. FIX!
 
 #%%###################################
 
@@ -4369,7 +4369,7 @@ inspect_col(df_14t_edits1_tb4['_C16 CG Insurance 16 Status'])
 def fn_T20_CG_Insurance_Status(fdf_column):
     match fdf_column:
         case _ if pd.isna(fdf_column):
-            return pd.NA ### Difference from fn_C16_CG_Insurance_Status where it's "Unknown/Did Not Report". ### TODO: standardize? Or at least document why different.
+            return pd.NA ### Difference from fn_C16_CG_Insurance_Status where it's "Unknown/Did Not Report". ### TODO ASKJOE: standardize? Or at least document why different.
         ###########
         ### FW.
         case "Medicaid" | "SCHIP":
@@ -4450,7 +4450,7 @@ inspect_col(df_14t_edits1_tb4['_T20 CG Insurance 1 Status'])
 #%%
 print(df_14t_edits1_tb4[['_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
-### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
+### TODO ASKJOE: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
 ### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
 df_14t_edits1_tb4[['Project Id','Year','Quarter', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance 1 Status` == "Unrecognized Value"')
 
@@ -4604,7 +4604,7 @@ inspect_col(df_14t_edits1_tb4['_T20 MOB Insurance Status'])
 #%%
 print(df_14t_edits1_tb4[['_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
-### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
+### TODO ASKJOE: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code? [IDs: "lb2-1" (2 rows), "lb4-1" (2 rows), "lb5-1" (2 rows)].
 ### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
 df_14t_edits1_tb4[['Project Id','Year','Quarter', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 MOB Insurance Status` == "Unrecognized Value"')
 #%%
@@ -4633,7 +4633,7 @@ print(df_14t_edits1_tb4[[
 
 #%%###################################
 
-### TODO: Compare options to / standardize with MOB insurance.
+### TODO ASKJOE: Compare options to / standardize with MOB insurance.
 def fn_T20_FOB_Insurance_Status(fdf):
     ###########
     ### FW.
@@ -4805,8 +4805,8 @@ df_14t_edits1_tb4['_T20 FOB Insurance'] = df_14t_edits1_tb4.apply(func=fn_T20_FO
 inspect_col(df_14t_edits1_tb4['_T20 FOB Insurance']) 
 # #%%
 # inspect_col(df_14t_edits1_tb4['Hlth Insure Fob']) ### integer... but Empty. All NA.
-### TODO: Why is 'Hlth Insure Fob' empty?
-### TODO: Is this var old & should be deleted? It looks like '_T20 FOB Insurance Status' is more updated (compare).
+### TODO ASKJOE: Why is 'Hlth Insure Fob' empty?
+### TODO ASKJOE: Is this var old & should be deleted? It looks like '_T20 FOB Insurance Status' is more updated (compare).
 
 #%%###################################
 
@@ -4827,7 +4827,7 @@ inspect_col(df_14t_edits1_tb4['_T20 CG Insurance Status'])
 #%%
 print(df_14t_edits1_tb4[['_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%% 
-### TODO: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code?
+### TODO ASKJOE: address "Unrecognized Values": "Blue Cross Blue Shield" & "Medicare/Medicaid". How to code?
     ### Half as many Y12Q4 rows as other 3 vars -- half of original 6. Other rows from Q1.
 ### See "list_14t_unrecognized_values_tb4". Rows with "Unrecognized Value":
 df_14t_edits1_tb4[['Project Id','Year','Quarter', 'MOB or FOB', '_T20 CG Insurance Status', '_T20 MOB Insurance Status', '_T20 CG Insurance 1 Status', '_C16 CG Insurance 1 Status', 'AD1PrimaryIns.1']].query(f'`_T20 CG Insurance Status` == "Unrecognized Value"')
@@ -4864,7 +4864,7 @@ len(list_14t_unrecognized_values_tb4)
 ### Look at one column:
 # list_14t_unrecognized_values_tb4[0]
 
-### New values Y12Q4: All 4 vars tied back to "AD1PrimaryIns.1" & 2 new values. ### TODO: code new values.
+### New values Y12Q4: All 4 vars tied back to "AD1PrimaryIns.1" & 2 new values. ### TODO ASKJOE: code new values.
 # [x for x in list_14t_unrecognized_values_tb4 if x["col"] == '_C16 CG Insurance 1 Status'] 
 # [x for x in list_14t_unrecognized_values_tb4 if x["col"] == '_T20 CG Insurance 1 Status'] 
 # [x for x in list_14t_unrecognized_values_tb4 if x["col"] == '_T20 MOB Insurance Status'] 
@@ -5057,7 +5057,7 @@ len([*df_14t_comp_compare_tb4]) / 2
 # var_to_compare = 'Asq3 Referral 30Mm' ### Tableau reading/outputting as numeric when really is date.
 
 ###
-### TODO: Fix. Seems to be an issue with these 2 Project IDs: 'hs123-1' & 'hs123-2' (each of which have 12 rows...)
+### TODO ASKJOE: Fix. Seems to be an issue with these 2 Project IDs: 'hs123-1' & 'hs123-2' (each of which have 12 rows...)
     ### Python reads these in as strings because can't read in as dates. Whereas Tableau coercing to dates & turning strings to NA.
 # var_to_compare = 'AD1InsChangeDate.9' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
 # var_to_compare = 'AD1InsChangeDate.10' ### Text mixed in with dates: 'hs123-1' & 'hs123-2'.
