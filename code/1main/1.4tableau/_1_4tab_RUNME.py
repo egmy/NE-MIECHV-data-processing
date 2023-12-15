@@ -27,8 +27,12 @@
 ### PACKAGES & FUNCTIONS ###
 #####################################################
 
+from pathlib import Path
+print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+
+#%%
 import sys
-sys.path.append('U:\\Working\\nehv_ds_code_repository')
+sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 from packages_and_functions import * 
 
 
@@ -71,7 +75,7 @@ elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun
 ### PATHS ###
 #####################################################
 
-path_14t_code_base = Path('U:\\Working\\nehv_ds_code_repository\\code\\1main\\1.4tableau')
+path_14t_code_base = Path.cwd()
 
 path_14t_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau')
 
