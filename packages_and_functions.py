@@ -61,15 +61,43 @@ def fn_all_value_counts(fdf):
         print('Column: ', column)
         print(fdf[column].value_counts(dropna=False).to_string(), '\n')
 
+#%%####################
+
 ### Function to keep rows where comparison column values are different. 
     ### For use on ".compare" pandas DataFrames with multi-index column names broken into "self" & "other".
 def fn_keep_row_differences(fdf, variable2compare):
+    ### Drop row if NA in both columns:
+        ### If CSVs read in as 'object': np.nan is always different from np.nan, so row would stay when looking for differences.
     if pd.isna(fdf[(variable2compare, 'self')]) and pd.isna(fdf[(variable2compare, 'other')]):
         return False 
+    ### Keep row if pd.NA in only 1 column:
+        ### If CSVs read in as 'string': would filter out rows resolving to <NA> (e.g., "pd.NA==x" or "pd.NA!=x").
     elif pd.isna(fdf[(variable2compare, 'self')] != fdf[(variable2compare, 'other')]):
         return True 
+    ### Keep rows where column values are different:
     else:
         return fdf[(variable2compare, 'self')] != fdf[(variable2compare, 'other')] 
+
+def fn_compare_col_across_dfs(
+    df1
+    ,df2
+    ,str_col_to_compare
+    ,list_key_or_id_cols=[]
+    ,list_other_cols_for_comparison=[]
+):
+    list_cols_for_comparison = [str_col_to_compare] + list_other_cols_for_comparison 
+    ### Preparation: Can only compare DF's with same structure (row/column counts same & indices identical).
+        ### "Can only compare identically-labeled (i.e. same shape, identical row and column labels) DataFrames".
+    print((
+        ### Compare: Keep shape so ID column not dropped when the same. Keep equal so can see ID values.
+        df1.compare(df2, keep_shape=True, keep_equal=True) 
+        ### Select desired columns:
+        .loc[:, list_key_or_id_cols + list_cols_for_comparison]
+        ### Keep rows where columns different:
+        .loc[lambda df: df.apply(fn_keep_row_differences, variable2compare=str_col_to_compare, axis=1), :] 
+    ).to_string())
+
+#%%####################
 
 
 #%%##################################################
