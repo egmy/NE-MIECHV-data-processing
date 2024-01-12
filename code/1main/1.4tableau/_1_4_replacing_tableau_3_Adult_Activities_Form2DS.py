@@ -4084,7 +4084,7 @@ df_14t_edits2_tb3 = df_14t_edits1_tb3.drop(columns=['LJ_tb3_2CI', 'LJ_tb3_3FW', 
 ### ORDER COLUMNS
 
 ### Final order for columns:
-[*df_14t_comparison_csv_tb3]
+# [*df_14t_comparison_csv_tb3]
 
 #%%
 ### Reorder Columns.
@@ -4095,32 +4095,6 @@ df_14t_edits2_tb3 = df_14t_edits2_tb3[[*df_14t_comparison_csv_tb3]]
 
 df_14t_edits2_tb3 = df_14t_edits2_tb3.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-###################################
-### SET DATA TYPES
-### Set the data type of each column like it should be in output.
-
-#%%
-### Identify columns that should be Integers:
-cols_14t_int_tb3 = df_14t_edits2_tb3.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
-print(cols_14t_int_tb3.to_string())
-#%%
-print(df_14t_edits2_tb3.dtypes.to_string())
-
-#%%
-### Turn all columns that should be into Integers:
-df_14t_edits2_tb3[cols_14t_int_tb3] = df_14t_edits2_tb3[cols_14t_int_tb3].astype('Int64')
-#%%
-print(df_14t_edits2_tb3.dtypes.to_string())
-
-#######
-#%%
-### Columns that should be boolean: 
-cols_14t_boolean_tb3 = ['FOB Race Asian', 'FOB Race Black', 'FOB Race Hawaiian Pacific', 'FOB Race Indian Alaskan', 'FOB Race Other', 'FOB Race White']
-df_14t_edits2_tb3[cols_14t_boolean_tb3] = df_14t_edits2_tb3[cols_14t_boolean_tb3].astype('boolean')
-
-#######
-#%%
-### Columns that should be dates:
 
 
 

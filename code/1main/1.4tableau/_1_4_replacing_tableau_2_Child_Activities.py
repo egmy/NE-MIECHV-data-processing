@@ -2626,7 +2626,7 @@ df_14t_edits2_tb2 = df_14t_edits1_tb2.drop(columns=['LJ_tb2_2ER', 'LJ_tb2_3FW', 
 ### ORDER COLUMNS
 
 ### Final order for columns:
-[*df_14t_comparison_csv_tb2]
+# [*df_14t_comparison_csv_tb2]
 
 #%%
 ### Reorder Columns.
@@ -2637,22 +2637,7 @@ df_14t_edits2_tb2 = df_14t_edits2_tb2[[*df_14t_comparison_csv_tb2]]
 
 df_14t_edits2_tb2 = df_14t_edits2_tb2.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
-###################################
-### SET DATA TYPES
-### Set the data type of each column like it should be in output.
 
-#%%
-### Identify columns that should be Integers:
-cols_14t_int_tb2 = df_14t_edits2_tb2.select_dtypes(include=['float']).fillna(-9999).applymap(float.is_integer).all().loc[lambda x: x==True].index.to_series()
-print(cols_14t_int_tb2.to_string())
-#%%
-print(df_14t_edits2_tb2.dtypes.to_string())
-
-#%%
-### Turn all columns that should be into Integers:
-df_14t_edits2_tb2[cols_14t_int_tb2] = df_14t_edits2_tb2[cols_14t_int_tb2].astype('Int64')
-#%%
-print(df_14t_edits2_tb2.dtypes.to_string())
 
 #%%##################################################
 ### WRITE ###
