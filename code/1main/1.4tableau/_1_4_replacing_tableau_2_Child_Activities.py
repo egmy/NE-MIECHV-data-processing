@@ -11,6 +11,8 @@
 ### SETUP ###
 #####################################################
 
+import os 
+
 #%%
 print('File that is running: ', os.path.basename(__file__))
 
@@ -133,7 +135,7 @@ list_14t_col_detail_tb2_3 = [
     ,['ASQ30MoProblem', 'ASQ30MoProblem', 'same', 'Int64']
     ,['ASQ30MoPersonal', 'ASQ30MoPersonal', 'same', 'Int64']
     ,['MaxEarlyLiteracyDate', 'Max Early Literacy Date', '', 'datetime64[ns]']
-    ,['ReadTellStorySing', 'Read Tell Story Sing', '', 'string'] ### 'string' in Tableau & needs to be read in as such.
+    ,['ReadTellStorySing', 'Read Tell Story Sing', '', 'string'] ### 'string' in Tableau & needs to be read in as such. ### TODO: Review: Seems to be all integers. But maybe historic "YES"?
     ,['BehaviorDenom', 'Behavior Denom', '', 'Int64']
     ,['BehaviorNumer', 'Behavior Numer', '', 'Int64']
     ### ,['HomeVisitsPrental', 'Home Visits Prental', '', 'Int64'] ### Variable in Y12Q1&Q2, but missing from Y12Q3. RESOLVED: Why? Answer: HV should be calculated from Adult data, so removed.
@@ -1121,6 +1123,8 @@ def fn_TGT_EDC_Date(fdf):
             return fdf['Dt Edc']
         else:
             return fdf['EDC Date']
+    ###########
+    ### /// Tableau Calculation:
     ### IF [Dt Edc] = DATE(1/1/1900) THEN NULL //LLCHD
     ### ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Dt Edc],[EDC Date])
@@ -1149,6 +1153,8 @@ def fn_TGT_DOB(fdf):
             return fdf['Tgt Dob']
         else:
             return fdf['Tgt Dob-Cr']
+    ###########
+    ### /// Tableau Calculation:
     ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
     ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
@@ -1166,6 +1172,7 @@ df_14t_edits1_tb2['_TGT DOB'] = df_14t_edits1_tb2.apply(func=fn_TGT_DOB, axis=1)
 #%%###################################
 
 ### TODO: Rename to "No".
+### TODO: Check in Report whether expecting dates overlapping with Yes.
 ### In Form2, var used in [Include2]. "Partial Date" means date checked for Safe Sleep but answer was "No" -- so go into Denominator & not Missing.
 ### Rename to ['_C7 Safe Sleep No Date'].
 ########
@@ -1174,15 +1181,22 @@ df_14t_edits1_tb2['_TGT DOB'] = df_14t_edits1_tb2.apply(func=fn_TGT_DOB, axis=1)
 ### 2023-12-13: Rewriting:
 def fn_C7_Safe_Sleep_Partial_Date(fdf):
     ### LL:
-    if (fdf['_Agency'] == 'll'):
+    if (fdf['source'] == 'LL'):
         if pd.isna(fdf['Safe Sleep Yes']) or (fdf['Safe Sleep Yes'] != 'Y'):
             return fdf['Safe Sleep Yes Dt']
         else:
             return pd.NaT
     ### FW:
+    elif (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Safe Sleep Date']):
+            return fdf['Safe Sleep Partial Date']
+        else:
+            return pd.NaT
+    ###
     else:
-        return fdf['Safe Sleep Partial Date']
-    #######
+        return pd.NaT 
+    ###########
+    ### /// Tableau Calculation:
     ### // IFNULL(
     ### [Safe Sleep Partial Date]  // FW
     ### // ,[Safe Sleep Yes Dt]) // LLCHD needs to provide a safe sleep partial date
@@ -1193,22 +1207,28 @@ df_14t_edits1_tb2['_C7 Safe Sleep Partial Date'] = df_14t_edits1_tb2.apply(func=
 
 #%%###################################
 
-### Identical to ['_C7 Safe Sleep Yes Date'].
+### Was identical to ['_C7 Safe Sleep Yes Date'].
 ########
 ### OLD: ### df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2['Safe Sleep Date'].combine_first(df_14t_edits1_tb2['Safe Sleep Yes Dt'])
 ########
 ### 2023-12-13: Rewriting:
 def fn_C7_Safe_Sleep_Date(fdf):
     ### LL:
-    if (fdf['_Agency'] == 'll'):
-        if (fdf['Safe Sleep Yes'] == 'Y'):
+    if (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Safe Sleep Yes']):
+            return pd.NaT 
+        elif (fdf['Safe Sleep Yes'] == 'Y'):
             return fdf['Safe Sleep Yes Dt']
         else:
             return pd.NaT
     ### FW:
-    else:
+    elif (fdf['source'] == 'FW'):
         return fdf['Safe Sleep Date']
-    #######
+    ###
+    else:
+        return pd.NaT 
+    ###########
+    ### /// Tableau Calculation:
     ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
 df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Safe_Sleep_Date, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: date.
@@ -1225,14 +1245,17 @@ df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Sa
 # inspect_col(df_14t_edits1_tb2['Safe Sleep Partial Date']) ### FW.
 #%%
 ### Check LL:
-print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` == "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` == "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt']].query('`_Agency` == "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%%
 ### Check FW:
 # print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
-print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 #%%
+print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
 # print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
-print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
+# print(df_14t_edits1_tb2[['source', '_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
+# print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
     .assign(**{
         # 'Safe Sleep Yes': lambda df: pd.isna(df['Safe Sleep Yes'])
         # ,'Safe Sleep Yes Dt': lambda df: pd.isna(df['Safe Sleep Yes Dt'])
@@ -1241,13 +1264,13 @@ print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe
         # ,'_C7 Safe Sleep Partial Date': lambda df: pd.isna(df['_C7 Safe Sleep Partial Date'])
         # ,'_C7 Safe Sleep Date': lambda df: pd.isna(df['_C7 Safe Sleep Date'])
         ###
-        '_Agency': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: df['_Agency'] == 'll'), 'll', 'fw'))
-        ,'Safe Sleep Yes': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes'])), 'Y', '.'))
+        # '_Agency': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: df['_Agency'] == 'll'), 'll', 'fw'))
+        'Safe Sleep Yes': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes'])), 'Y', '.'))
         ,'Safe Sleep Yes Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes Dt'])), 'date', '.'))
         ,'Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Date'])), 'date', '.'))
         ,'Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Partial Date'])), 'date', '.'))
-        # ,'_C7 Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Partial Date'])), 'date', '.'))
-        # ,'_C7 Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Date'])), 'date', '.'))
+        ,'_C7 Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Partial Date'])), 'date', '.'))
+        ,'_C7 Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Date'])), 'date', '.'))
     })
     .drop_duplicates(ignore_index=True)
     .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
@@ -1257,7 +1280,7 @@ print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe
     ### LL: yes: = Y+date, no= NULL+date, missingg = both NULL
 #### FW: yes = both, no = one.
 ### TODO: fix.
-### Check if FW dates are the same & if want earliest or latest.
+### TODO: Check if FW dates are the same & if want earliest or latest.
 
 
 #%%###################################
@@ -1265,8 +1288,10 @@ print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe
 ### Identical to ['_C7 Safe Sleep Date'].
 ### In Form2, was used for OLD style, but no longer used.
 ### updated Y12Q3-Q4:
-df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['Safe Sleep Date'].combine_first(df_14t_edits1_tb2['Safe Sleep Yes Dt']).astype('datetime64[ns]') 
+### OLD ### df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['Safe Sleep Date'].combine_first(df_14t_edits1_tb2['Safe Sleep Yes Dt']).astype('datetime64[ns]') 
     ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
+### TODO: Check reports & remove if not needed.
+df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['_C7 Safe Sleep Date']
 ########
 ### OLD:
 ### def fn_C7_Safe_Sleep_Yes_Date(fdf):
@@ -1326,6 +1351,8 @@ def fn_Discharge_Reason(fdf):
                 return "Stopped Services Before Completion"
     else:
         return "Currently Receiving Services"
+    ###########
+    ### /// Tableau Calculation:
     ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
     ###     WHEN 1 THEN "Completed Services" 
     ###     ELSE "Stopped Services Before Completion"
@@ -1387,10 +1414,12 @@ def fn_C2_BF_Status(fdf):
             case "-1":
                 return -1
             case _:
-                return np.nan  
+                return pd.NA  
     ### add CASE for LLCHD values when they add them to their dataset.
     elif (fdf['_Agency'] == "ll"):
-        return np.nan  
+        return pd.NA  
+    ###########
+    ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE [Breast Feeding]  // FW
     ###     WHEN "YES" THEN 1
     ###     WHEN "1" THEN 1
@@ -1415,6 +1444,8 @@ df_14t_edits1_tb2['_C2 BF Status'] = df_14t_edits1_tb2.apply(func=fn_C2_BF_Statu
 
 def fn_FW_Gestation_Age_Recode(fdf):
     match fdf['Gestational Age']: 
+        case _ if pd.isna(fdf['Gestational Age']):
+            return pd.NA
         case '29 weeks':
             return 29
         case '31 weeks':
@@ -1440,7 +1471,7 @@ def fn_FW_Gestation_Age_Recode(fdf):
         case '42 weeks':
             return 42
         case 'Unknown':
-            return np.nan
+            return pd.NA
         # case np.nan: ### no error, but doesn't work.
         # case pd.isna(): ### no error, but doesn't work.
         # case pd.isna(): ### TypeError: called match pattern must be a type.
@@ -1449,7 +1480,9 @@ def fn_FW_Gestation_Age_Recode(fdf):
         # case _ if pd.isna(_): ###ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all(). ### Note: This error only notice when running first time, not after var already created.
         #     return 100
         case _:
-            return np.nan
+            return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###########
+    ### /// Tableau Calculation:
     ### CASE [Gestational Age]
     ###     WHEN '29 weeks' THEN 29
     ###     WHEN '31 weeks' THEN 31
@@ -1502,10 +1535,14 @@ def fn_Funding(fdf):
                 return "F" ### Added Y13.
             case "sh":
                 return "F" ### Added Y13.
+            case 'wc':
+                return 'TODO' ### See ### TODO's
             case _:
                 return "Unrecognized Value"
     elif (fdf['_Agency'] == "ll"):
         return fdf['Funding']
+    ###########
+    ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE [Agency]
     ###     WHEN "hs" THEN "F"
     ###     WHEN "ph" THEN "F"
@@ -1531,12 +1568,23 @@ df_14t_edits1_tb2['_Funding'] = df_14t_edits1_tb2.apply(func=fn_Funding, axis=1)
 #%%###################################
 
 def fn_Need_Exclusion_4_Dev_Delay(fdf):
-    ### FW.
-    if (fdf['Need Exclusion4'] == "Developmental Delay"):
-        return "Developmental Delay" 
-    ### LLCHD.
-    elif (fdf['need exclusion4 (LLCHD)'] == "Y"):
-        return "Developmental Delay" 
+    ### FW:
+    if (fdf['source'] == 'FW'):
+        if (pd.isna(fdf['Need Exclusion4'])):
+            return pd.NA
+        elif (fdf['Need Exclusion4'] == "Developmental Delay"):
+            return "Developmental Delay" 
+    ### LL:
+    elif (fdf['source'] == 'LL'):
+        if (pd.isna(fdf['need exclusion4 (LLCHD)'])):
+            return pd.NA 
+        elif (fdf['need exclusion4 (LLCHD)'] == "Y"):
+            return "Developmental Delay" 
+    ###
+    else:
+        return pd.NA 
+    ###########
+    ### /// Tableau Calculation:
     ### IF [Need Exclusion4] = "Developmental Delay" THEN "Developmental Delay" //FW
     ### ELSEIF [need exclusion4 (LLCHD)] = "Y" THEN "Developmental Delay" //LLCHD
     ### END
@@ -1575,6 +1623,8 @@ def fn_T06_TGT_Ethnicity(fdf):
                 return "Unrecognized Value"
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### //FW
     ### IF NOT ISNULL([Tgt Ethnicity]) THEN CASE [Tgt Ethnicity]
     ###     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
@@ -1638,6 +1688,8 @@ def fn_T1_Tgt_Gender(fdf):
                 return "Unrecognized Value"
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### //FW
     ### IF NOT ISNULL([TGT Gender]) THEN CASE [TGT Gender]
     ###     WHEN "Female" THEN "Female"
@@ -1698,6 +1750,8 @@ def fn_T13_TGT_Language(fdf):
                 return "Other"
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### IF NOT ISNULL([Mob Language]) THEN CASE [Mob Language]
     ###     WHEN "English" THEN "English"
     ###     WHEN "Spanish" THEN "Spanish"
@@ -1727,18 +1781,35 @@ df_14t_edits1_tb2['_T13 TGT Language'] = df_14t_edits1_tb2.apply(func=fn_T13_TGT
 
 #%%###################################
 
+### TODO: ASKJOE: What to do about this old note?: To determine priority population, positive ASQ results also need to be considered.
 def fn_T15_7_Household_Developmental_Delay(fdf):
-    ### To determine priority population, positive ASQ results also need to be considered.
-    ### FW.
-    if (fdf['NT Child Dev Delay'] == "Yes"):
-        return 1 
-    elif (fdf['NT Child Dev Delay'] == "No"):
-        return 0
-    ### LLCHD.
-    elif (fdf['Priority Develop Delays'] == "Y"):
-        return 1 
-    elif (fdf['Priority Develop Delays'] == "N"):
-        return 0
+    ### FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['NT Child Dev Delay']:
+            case _ if pd.isna(fdf['NT Child Dev Delay']):
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ### LL:
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Develop Delays']:
+            case _ if pd.isna(fdf['Priority Develop Delays']):
+                return pd.NA 
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###
+    else:
+        return pd.NA 
+    ###########
+    ### /// Tableau Calculation:
     ### IF [NT Child Dev Delay] = "Yes" THEN 1 //FW
     ### ELSEIF [NT Child Dev Delay] = "No" THEN 0
     ### ELSEIF [Priority Develop Delays] = "Y" THEN 1 //LLCHD
@@ -1788,6 +1859,8 @@ def fn_T20_TGT_Insurance_Status(fdf):
                 return "Unrecognized Value"
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### IF NOT ISNULL([CHINS Primary Ins]) THEN CASE [CHINS Primary Ins] //FW
     ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
     ###     WHEN "Medicare" THEN "Private or Other"
@@ -1875,6 +1948,8 @@ def fn_T21_TGT_Usual_Source_of_Medical_Care(fdf):
                 return "Unrecognized Value"
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### IF NOT ISNULL([Child Med Care Source]) THEN CASE [Child Med Care Source] //FW
     ###     WHEN "Doctor/Nurse Practitioner" THEN "Doctor's/Nurse Practitioner's Office"
     ###     WHEN "Federally Qualified Health Center" THEN "Federally Qualified Health Center"
@@ -1939,6 +2014,8 @@ def fn_T22_TGT_Usual_Souce_of_Dental_Care(fdf):
                 return "Unrecognized Value"
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### IF NOT ISNULL([Child Dental Care Source]) THEN CASE [Child Dental Care Source] //FW
     ###     WHEN "Do not have a usual source of dental care" THEN "Do not have a usual source of dental care"
     ###     WHEN "Does not have a usual source of dental care" THEN "Do not have a usual source of dental care"
@@ -1965,77 +2042,71 @@ df_14t_edits1_tb2['_T22 TGT Usual Souce of Dental Care'] = df_14t_edits1_tb2.app
 
 ### Difference from Tableau in that last "if NULL" case not in this Python code.
 def fn_TGT_Race(fdf):
-    ### LLCHD.
-    ### multiracial:
-    if (
-        (
-            (0 if pd.isna(fdf['Tgt Race Asian']) else (1 if fdf['Tgt Race Asian']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Tgt Race Black']) else (1 if fdf['Tgt Race Black']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Tgt Race Hawaiian']) else (1 if fdf['Tgt Race Hawaiian']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Tgt Race Indian']) else (1 if fdf['Tgt Race Indian']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Tgt Race White']) else (1 if fdf['Tgt Race White']=="Y" else 0)) +
-            (0 if pd.isna(fdf['Tgt Race Other']) else (1 if fdf['Tgt Race Other']=="Y" else 0)) 
-        ) > 1 
-    ):
-        return "More than one race"
-        # return (
-        #     (0 if pd.isna(fdf['Tgt Race Asian']) else (1 if fdf['Tgt Race Asian']=="Y" else 0)) + 
-        #     (0 if pd.isna(fdf['Tgt Race Black']) else (1 if fdf['Tgt Race Black']=="Y" else 0)) + 
-        #     (0 if pd.isna(fdf['Tgt Race Hawaiian']) else (1 if fdf['Tgt Race Hawaiian']=="Y" else 0)) + 
-        #     (0 if pd.isna(fdf['Tgt Race Indian']) else (1 if fdf['Tgt Race Indian']=="Y" else 0)) + 
-        #     (0 if pd.isna(fdf['Tgt Race White']) else (1 if fdf['Tgt Race White']=="Y" else 0)) +
-        #     (0 if pd.isna(fdf['Tgt Race Other']) else (1 if fdf['Tgt Race Other']=="Y" else 0)) 
-        # )
-    ### single race:
-    elif (fdf['Tgt Race Asian'] == "Y"):
-        return "Asian"
-    elif (fdf['Tgt Race Black'] == "Y"):
-        return "Black or African American"
-    elif (fdf['Tgt Race Hawaiian'] == "Y"):
-        return "Native Hawaiian or Other Pacific Islander"
-    elif (fdf['Tgt Race Indian'] == "Y"):
-        return "American Indian or Alaska Native"
-    elif (fdf['Tgt Race White'] == "Y"):
-        return "White"
-    elif (fdf['Tgt Race Other'] == "Y"):
-        return "Other"
-    ### FW.
-    ### multiracial, == "True" is not required in IIF statement because race is boolean.
-    elif (
-        (
-            (0 if pd.isna(fdf['TGT Race Asian']) else (1 if fdf['TGT Race Asian'] else 0)) + 
-            (0 if pd.isna(fdf['TGT Race Black']) else (1 if fdf['TGT Race Black'] else 0)) + 
-            (0 if pd.isna(fdf['TGT Race Hawaiian Pacific']) else (1 if fdf['TGT Race Hawaiian Pacific'] else 0)) + 
-            (0 if pd.isna(fdf['TGT Race Indian Alaskan']) else (1 if fdf['TGT Race Indian Alaskan'] else 0)) + 
-            (0 if pd.isna(fdf['TGT Race White']) else (1 if fdf['TGT Race White'] else 0)) + 
-            (0 if pd.isna(fdf['TGT Race Other']) else (1 if fdf['TGT Race Other'] else 0)) 
-        ) > 1 
-    ):
-        return "More than one race"
-        # return (
-        #     (0 if pd.isna(fdf['TGT Race Asian']) else (1 if fdf['TGT Race Asian'] else 0)) + 
-        #     (0 if pd.isna(fdf['TGT Race Black']) else (1 if fdf['TGT Race Black'] else 0)) + 
-        #     (0 if pd.isna(fdf['TGT Race Hawaiian Pacific']) else (1 if fdf['TGT Race Hawaiian Pacific'] else 0)) + 
-        #     (0 if pd.isna(fdf['TGT Race Indian Alaskan']) else (1 if fdf['TGT Race Indian Alaskan'] else 0)) + 
-        #     (0 if pd.isna(fdf['TGT Race White']) else (1 if fdf['TGT Race White'] else 0)) + 
-        #     (0 if pd.isna(fdf['TGT Race Other']) else (1 if fdf['TGT Race Other'] else 0)) 
-        # ) * 10
-    ### single race:
-    elif (fdf['TGT Race Asian'] == True):
-        return "Asian"
-    elif (fdf['TGT Race Black'] == True):
-        return "Black or African American"
-    elif (fdf['TGT Race Hawaiian Pacific'] == True):
-        return "Native Hawaiian or Other Pacific Islander"
-    elif (fdf['TGT Race Indian Alaskan'] == True):
-        return "American Indian or Alaska Native"
-    elif (fdf['TGT Race White'] == True):
-        return "White"
-    elif (fdf['TGT Race Other'] == True):
-        return "Other"
-    #######
-    else: 
+    ###########
+    ### FW (FW race variables are boolean).
+    if (fdf['source'] == 'FW'):
+        ### multiracial.
+        if (
+            (
+                (0 if pd.isna(fdf['TGT Race Asian']) else (1 if fdf['TGT Race Asian'] else 0)) + 
+                (0 if pd.isna(fdf['TGT Race Black']) else (1 if fdf['TGT Race Black'] else 0)) + 
+                (0 if pd.isna(fdf['TGT Race Hawaiian Pacific']) else (1 if fdf['TGT Race Hawaiian Pacific'] else 0)) + 
+                (0 if pd.isna(fdf['TGT Race Indian Alaskan']) else (1 if fdf['TGT Race Indian Alaskan'] else 0)) + 
+                (0 if pd.isna(fdf['TGT Race White']) else (1 if fdf['TGT Race White'] else 0)) + 
+                (0 if pd.isna(fdf['TGT Race Other']) else (1 if fdf['TGT Race Other'] else 0)) 
+            ) > 1 
+        ):
+            return "More than one race"
+        ### single race.
+        elif (False if pd.isna(fdf['TGT Race Asian']) else (True if fdf['TGT Race Asian'] else False)):
+            return "Asian"
+        elif (False if pd.isna(fdf['TGT Race Black']) else (True if fdf['TGT Race Black'] else False)):
+            return "Black or African American"
+        elif (False if pd.isna(fdf['TGT Race Hawaiian Pacific']) else (True if fdf['TGT Race Hawaiian Pacific'] else False)):
+            return "Native Hawaiian or Other Pacific Islander"
+        elif (False if pd.isna(fdf['TGT Race Indian Alaskan']) else (True if fdf['TGT Race Indian Alaskan'] else False)):
+            return "American Indian or Alaska Native"
+        elif (False if pd.isna(fdf['TGT Race White']) else (True if fdf['TGT Race White'] else False)):
+            return "White"
+        elif (False if pd.isna(fdf['TGT Race Other']) else (True if fdf['TGT Race Other'] else False)):
+            return "Other"
+        else:
+            return "Unknown/Did Not Report"
+    ###########
+    ### LLCHD (LL race variables are strings).
+    elif (fdf['source'] == 'LL'):
+        ### multiracial.
+        if (
+            (
+                (0 if pd.isna(fdf['Tgt Race Asian']) else (1 if fdf['Tgt Race Asian']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Tgt Race Black']) else (1 if fdf['Tgt Race Black']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Tgt Race Hawaiian']) else (1 if fdf['Tgt Race Hawaiian']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Tgt Race Indian']) else (1 if fdf['Tgt Race Indian']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Tgt Race White']) else (1 if fdf['Tgt Race White']=="Y" else 0)) + 
+                (0 if pd.isna(fdf['Tgt Race Other']) else (1 if fdf['Tgt Race Other']=="Y" else 0)) 
+            ) > 1 
+        ):
+            return "More than one race"
+        ### single race.
+        elif (False if pd.isna(fdf['Tgt Race Asian']) else (True if fdf['Tgt Race Asian']=="Y" else False)):
+            return "Asian"
+        elif (False if pd.isna(fdf['Tgt Race Black']) else (True if fdf['Tgt Race Black']=="Y" else False)):
+            return "Black or African American"
+        elif (False if pd.isna(fdf['Tgt Race Hawaiian']) else (True if fdf['Tgt Race Hawaiian']=="Y" else False)):
+            return "Native Hawaiian or Other Pacific Islander"
+        elif (False if pd.isna(fdf['Tgt Race Indian']) else (True if fdf['Tgt Race Indian']=="Y" else False)):
+            return "American Indian or Alaska Native"
+        elif (False if pd.isna(fdf['Tgt Race White']) else (True if fdf['Tgt Race White']=="Y" else False)):
+            return "White"
+        elif (False if pd.isna(fdf['Tgt Race Other']) else (True if fdf['Tgt Race Other']=="Y" else False)):
+            return "Other"
+        else:
+            return "Unknown/Did Not Report"
+    ###########
+    else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### //LLCHD
     ### //multiracial
     ### IF IIF([Tgt Race Asian]="Y",1,0,0)+IIF([Tgt Race Black]="Y",1,0,0)+IIF([Tgt Race Hawaiian]="Y",1,0,0)+IIF([Tgt Race Indian]="Y",1,0,0)
@@ -2096,50 +2167,56 @@ df_14t_edits1_tb2['_TGT Race'] = df_14t_edits1_tb2.apply(func=fn_TGT_Race, axis=
 #     ]]
 #     ### .loc[df_14t_edits1_tb2['_TGT Race'] == 'More than one race', :]
 #     # .loc[df_14t_comp_compare_tb2_race.index, :]
-#     .loc[df_14t_edits1_tb2['Project Id'].isin(df_14t_comp_compare_tb2_race[('Project Id', 'self')].values), :]
+#     # .loc[df_14t_edits1_tb2['Project Id'].isin(df_14t_comp_compare_tb2_race[('Project Id', 'self')].values), :]
 #     .to_string()
 # )
-# ### Shows that code is returning "More than one race" for when all 6 columns are "N"/False. Should be "Unknown".
+# ### Shows that code is returning "More than one race" for when all 6 columns are "N"/False. Should be "Unknown". ### TODO: Check in Report if fixed.
 
 #%%###################################
 
 def fn_C11_Literacy_Read_Sing(fdf):
     ### FW.
-    if (fdf['_Agency'] != "ll"):
-        if (pd.isna(fdf['Read Tell Story Sing'])):
-            return np.nan
-        else:
-            match fdf['Read Tell Story Sing']:
-                case "0":
-                    return 0
-                case "1":
-                    return 1
-                case "2":
-                    return 2
-                case "3":
-                    return 3
-                case "4":
-                    return 4
-                case "5":
-                    return 5
-                case "6":
-                    return 6
-                case "7":
-                    return 7
-                case "YES":
-                    return 7
-                case _:
-                    return np.nan 
+    if (fdf['source'] == 'FW'):
+        match fdf['Read Tell Story Sing']:
+            case _ if pd.isna(fdf['Read Tell Story Sing']):
+                return pd.NA
+            case "0":
+                return 0
+            case "1":
+                return 1
+            case "2":
+                return 2
+            case "3":
+                return 3
+            case "4":
+                return 4
+            case "5":
+                return 5
+            case "6":
+                return 6
+            case "7":
+                return 7
+            case "YES":
+                return 7
+            case _:
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
     ### LLCHD.
-    elif (fdf['_Agency'] == "ll"):
+    elif (fdf['source'] == 'LL'):
         match fdf['Early Language']:
+            case _ if pd.isna(fdf['Early Language']):
+                return pd.NA 
             case "N":
                 return 0
             case "Y":
                 return 7
                 ### Y = "Every day of the week / Most days of the week / Several days of the week"
             case _:
-                return np.nan
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###
+    else:
+        return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###########
+    ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE [Read Tell Story Sing]  // FW
     ###     WHEN "0" THEN 0
     ###     WHEN "1" THEN 1
@@ -2168,24 +2245,41 @@ df_14t_edits1_tb2['_C11 Literacy Read Sing'] = df_14t_edits1_tb2.apply(func=fn_C
 ### TODO: Fix data typing.
 # #%%
 # inspect_col(df_14t_edits1_tb2['Read Tell Story Sing']) ### Originally, csv read in as float64. Should be a string. But that breaks this is/else logic. Fixed in Read above by reading in as object.
-    ### Above read in as "object" not "string" so that same data type
+#     ### Above read in as "object" not "string" so that same data type
 # #%%
 # inspect_col(df_14t_edits1_tb2['Early Language'])
 
 #%%###################################
 
+### TODO: ASKJOE: Review this old note: ### For priority population, current maltreatment reports also need to be considered.
 def fn_Child_Welfare_Interaction(fdf):
-    ### For priority population, current maltreatment reports also need to be considered.
-    ### FW.
-    if (fdf['History Inter Welfare Child'] == True):
-        return 1 
-    elif (fdf['History Inter Welfare Child'] == False):
-        return 0
-    ### LLCHD.
-    elif (fdf['Priority Child Welfare'] == "Y"):
-        return 1 
-    elif (fdf['Priority Child Welfare'] == "N"):
-        return 0
+    ### FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['History Inter Welfare Child']:
+            case _ if pd.isna(fdf['History Inter Welfare Child']):
+                return pd.NA 
+            case True:
+                return 1 
+            case False:
+                return 0 
+            case _:
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ### LLCHD:
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Child Welfare']:
+            case _ if pd.isna(fdf['Priority Child Welfare']):
+                return pd.NA 
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###
+    else:
+        return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###########
+    ### /// Tableau Calculation:
     ### IF [History Inter Welfare Child] = True THEN 1 //FW
     ### ELSEIF [History Inter Welfare Child] = False THEN 0
     ### ELSEIF [Priority Child Welfare] = "Y" THEN 1 //LLCHD
@@ -2199,16 +2293,35 @@ df_14t_edits1_tb2['_Child Welfare Interaction'] = df_14t_edits1_tb2.apply(func=f
 #%%###################################
 
 def fn_T15_6_Low_Student_Achievement(fdf):
-    ### FW.
-    if (fdf['NT Child Low Achievement'] == "No"):
-        return 0 
-    elif (fdf['NT Child Low Achievement'] == "Yes"):
-        return 1
-    ### LLCHD.
-    elif (fdf['Priority Low Student'] == "N"):
-        return 0 
-    elif (fdf['Priority Low Student'] == "Y"):
-        return 1
+    ### FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['NT Child Low Achievement']:
+            case _ if pd.isna(fdf['NT Child Low Achievement']):
+                return pd.NA 
+            case 'Unknown':
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ### LLCHD:
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Low Student']:
+            case _ if pd.isna(fdf['Priority Low Student']):
+                return pd.NA 
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###
+    else:
+        return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+    ###########
+    ### /// Tableau Calculation:
     ### IF [NT Child Low Achievement] = "No" THEN 0 //FW
     ### ELSEIF [NT Child Low Achievement] = "Yes" THEN 1
     ### ELSEIF [Priority Low Student] = "N" THEN 0 //LLCHD
@@ -2217,6 +2330,10 @@ def fn_T15_6_Low_Student_Achievement(fdf):
 df_14t_edits1_tb2['_T15-6 Low Student Achievement'] = df_14t_edits1_tb2.apply(func=fn_T15_6_Low_Student_Achievement, axis=1).astype('Int64') 
     ### Data Type in Tableau: integer.
 # inspect_col(df_14t_edits1_tb2['_T15-6 Low Student Achievement'])
+# #%%
+# inspect_col(df_14t_edits1_tb2['NT Child Low Achievement'])
+# #%%
+# inspect_col(df_14t_edits1_tb2['Priority Low Student'])
 
 #%%##################################################
 ### COALESCING
@@ -2331,20 +2448,22 @@ df_14t_edits1_tb2['_C18 ASQ 9 Mo Referral Date'] = df_14t_edits1_tb2['Asq3 Refer
 ###################################
 
 #%%
-# df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_first(df_14t_edits1_tb2['Family Number'].astype('Int64'))
-df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_first(df_14t_edits1_tb2['Family Number'].astype('Int64')).astype('string') 
+### df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_first(df_14t_edits1_tb2['Family Number'].astype('Int64'))
+### df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_first(df_14t_edits1_tb2['Family Number'].astype('Int64')).astype('string') 
+df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_first(df_14t_edits1_tb2['Family Number']).astype('string') 
     ### IFNULL([Family Id],[Family Number])
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_Family Number'])
-### Most are integers, some are long string ID's of letters & numbers.
+# ### Most are integers, some are long string ID's of letters & numbers.
 # #%%
 # inspect_col(df_14t_edits1_tb2['Family Id']) ### Long IDs.
 # #%%
 # inspect_col(df_14t_edits1_tb2['Family Number']) ### Just Integers.
 # #%%
 # ### 2024-01-05: All ID variables should be strings.
-# ### This var should be an integer. Adjusting above.
-# df_14t_edits1_tb2['Family Number'].fillna(-9999).apply(float.is_integer).all()
+# ### Old: This var should be an integer. Adjusting above.
+# ### TODO: Adjust the below if want to test if all really integers.
+# ### df_14t_edits1_tb2['Family Number'].fillna('-9999').apply(float.is_integer).all()
 
 #%%###################################
 
@@ -2384,6 +2503,8 @@ def fn_T05_TGT_Age_in_Months(fdf):
         ### return (((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
         return pd.Series((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
         # return 0 ### Testing.
+    ###########
+    ### /// Tableau Calculation:
     ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
     ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
     ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
@@ -2434,6 +2555,8 @@ def fn_T05_Age_Categories(fdf):
         return "6+ years"
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
     ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
     ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
@@ -2780,5 +2903,9 @@ inspect_col(df_14t_edits1_tb2[var_to_compare])
 
 ### TODO in Form2:
     ### Delete "sets", relics of user management on Server.
+
+
+### TODO here:
+    ### Check 'Unknown/Did Not Report' vs 'Unrecognized Value'
 
 

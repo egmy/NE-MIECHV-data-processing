@@ -11,6 +11,8 @@
 ### SETUP ###
 #####################################################
 
+import os 
+
 #%%
 print('File that is running: ', os.path.basename(__file__))
 
@@ -937,7 +939,8 @@ df_14t_edits1_tb3['_UNCOPE Referral'] = df_14t_edits1_tb3['Substance Abuse Ref D
 ### DONE: Fix 'Dateuncope' earlier in data sourcing process so does not have bad values. ### Resolved by setting data types at beginning.
 df_14t_edits1_tb3['_UNCOPE Date'] = df_14t_edits1_tb3['Uncope Dt'].combine_first(df_14t_edits1_tb3['Dateuncope']).astype('datetime64[ns]')
     ### pd.to_datetime(df_14t_edits1_tb3['Dateuncope'].replace('00:00:00', np.nan).astype('string'))) ### OLD, from before setting dtypes.
-    #########
+    ###########
+    ### /// Tableau Calculation:
     ### IFNULL([Uncope Dt],[Dateuncope]) 
     ### Data Type in Tableau: date.
 # inspect_col(df_14t_edits1_tb3['_UNCOPE Date'])
@@ -1004,6 +1007,8 @@ def fn_TGT_DOB(fdf):
             return fdf['Tgt Dob']
         else:
             return fdf['Tgt Dob-Cr']
+    ###########
+    ### /// Tableau Calculation:
     ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
     ### ELSEIF [Tgt Dob-Cr] = DATE(1/1/1900) THEN NULL //FW
     ### ELSE IFNULL([Tgt Dob],[Tgt Dob-Cr])
@@ -1030,6 +1035,8 @@ def fn_MOB_DOB(fdf):
             return fdf['Mob Dob']
         else:
             return fdf['Mobdob']
+    ###########
+    ### /// Tableau Calculation:
     # IF [Mob Dob] = DATE(1/1/1900) THEN NULL //LLCHD
     # ELSEIF [Mobdob] = DATE(1/1/1900) THEN NULL //FW
     # ELSE IFNULL([Mob Dob],[Mobdob])
@@ -1052,6 +1059,8 @@ def fn_FOB_DOB(fdf):
             return fdf['Fob Dob']
         else:
             return fdf['Fobdob']
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Dob] = DATE(1/1/1900) THEN NULL //LLCHD
     # ELSEIF [Fobdob] = DATE(1/1/1900) THEN NULL //FW
     # ELSE IFNULL([Fob Dob],[Fobdob])
@@ -1068,11 +1077,8 @@ def fn_T04_MOB_Age(fdf):
     ### FIX:
     1
 
-    # IF [_MOB DOB]> DATEADD('year',-DATEDIFF('year',[_MOB DOB],TODAY()),TODAY())
-    # THEN DATEDIFF('year',[_MOB DOB],TODAY()-1)
-    # ELSE DATEDIFF('year',[_MOB DOB],TODAY())
-    # END
-
+    ###########
+    ### /// Tableau Calculation:
     # IF [_MOB DOB]> DATEADD('year',-DATEDIFF('year',[_MOB DOB],TODAY()),TODAY())
     # THEN DATEDIFF('year',[_MOB DOB],TODAY()-1)
     # ELSE DATEDIFF('year',[_MOB DOB],TODAY())
@@ -1089,11 +1095,8 @@ def fn_T04_FOB_Age(fdf):
     ### FIX:
     1
 
-    # IF [_FOB DOB]> DATEADD('year',-DATEDIFF('year',[_FOB DOB],TODAY()),TODAY())
-    # THEN DATEDIFF('year',[_FOB DOB],TODAY()-1)
-    # ELSE DATEDIFF('year',[_FOB DOB],TODAY())
-    # END
-
+    ###########
+    ### /// Tableau Calculation:
     # IF [_FOB DOB]> DATEADD('year',-DATEDIFF('year',[_FOB DOB],TODAY()),TODAY())
     # THEN DATEDIFF('year',[_FOB DOB],TODAY()-1)
     # ELSE DATEDIFF('year',[_FOB DOB],TODAY())
@@ -1107,26 +1110,37 @@ df_14t_edits1_tb3['_T04 FOB Age'] = df_14t_edits1_tb3.apply(func=fn_T04_FOB_Age,
 ### DONE: Confirm that LLCHD not using "Non-Binary" yet. If we get a new value, we can't assume what it means. Flag as "Unrecognized Value".
 ### DONE: Add "unrecognized value"
 def fn_MOB_Gender(fdf):
-    ### FW.
-    if (fdf['Adult1Gender'] == "Female"):
-        return "Female" 
-    elif (fdf['Adult1Gender'] == "Male"):
-        return "Male"
-    elif (fdf['Adult1Gender'] == "Non-Binary"):
-        return "Non-Binary"
-    ### LLCHD.
-    elif (fdf['Mob Gender'] == "F"):
-        return "Female" 
-    elif (fdf['Mob Gender'] == "M"):
-        return "Male"
-    ## elif (fdf['Mob Gender'] == "N"):
-    ##     return "Non-Binary" ### Don't have this value yet - Confirm what means if comes through.
+    ### FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['Adult1Gender']:
+            case _ if pd.isna(fdf['Adult1Gender']):
+                return pd.NA 
+            case 'Female':
+                return 'Female'
+            case 'Male':
+                return 'Male'
+            case 'Non-Binary':
+                return 'Non-Binary'
+            case _:
+                return "Unrecognized Value"
+    ### LLCHD:
+    elif (fdf['source'] == 'LL'):
+        match fdf['Mob Gender']:
+            case _ if pd.isna(fdf['Mob Gender']):
+                return pd.NA 
+            case 'F':
+                return 'Female'
+            case 'M':
+                return 'Male'
+            ### case 'N': ### Don't have this value yet - Confirm what means if comes through.
+            ###     return 'Non-Binary' 
+            case _:
+                return "Unrecognized Value"
     ###
-    elif pd.notna(fdf['Adult1Gender']) | pd.notna(fdf['Mob Gender']):
+    else:
         return "Unrecognized Value"
-    else: 
-        return np.nan
-    ###
+    ###########
+    ### /// Tableau Calculation:
     # IF [Adult1Gender] = "Female" THEN "Female" //FW
     # ELSEIF [Adult1Gender] = "Male" THEN "Male"
     # ELSEIF [Adult1Gender] = "Non-Binary" THEN "Non-Binary"
@@ -1148,25 +1162,39 @@ df_14t_edits1_tb3['_MOB Gender'] = df_14t_edits1_tb3.apply(func=fn_MOB_Gender, a
 ### DONE: Confirm that LLCHD not using "Non-Binary" yet. If we get a new value, we can't assume what it means. Flag as "Unrecognized Value".
 ### DONE: Add "unrecognized value"
 def fn_FOB_Gender(fdf):
-    ### LLCHD.
-    if (fdf['Fob Involved1'] == "Y"):
-        match fdf['Fob Gender']:
-            case _ if pd.isna(fdf['Fob Gender']):
-                return np.nan 
-            case "M":
-                return "Male" 
-            case "F":
-                return "Female"
-            ## case "N":
-            ##     return "Non-Binary" ### No values yet - confirm.
-            case _:
-                return "Unrecognized Value"
+    ###########
     ### FW.
-    elif (fdf['Fob Involved'] == True):
-        return fdf['Adult2Gender'] 
-    ###
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            return fdf['Adult2Gender'] 
+        else:
+            return pd.NA ### probably MOB.
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            match fdf['Fob Gender']:
+                case _ if pd.isna(fdf['Fob Gender']):
+                    return pd.NA 
+                case 'F':
+                    return 'Female'
+                case 'M':
+                    return 'Male' 
+                ### case 'N': ### Don't have this value yet - Confirm what means if comes through.
+                ###     return 'Non-Binary' 
+                case _:
+                    return 'Unrecognized Value' 
+        else:
+            return pd.NA ### probably MOB.
+    ###########
     else:
-        return np.nan ### Likely MOB.
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # //should we incorporate involved status into the fob variables?
     # IF [Fob Involved1] = "Y" THEN CASE[Fob Gender]
     #     WHEN "M" THEN "Male" //LLCHD
@@ -1211,6 +1239,8 @@ def fn_T06_MOB_Ethnicity(fdf):
     ###
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     # IF NOT ISNULL([Mob Ethnic]) THEN CASE [Mob Ethnic]
     #     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
     #     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
@@ -1240,41 +1270,51 @@ df_14t_edits1_tb3['_T06 MOB Ethnicity'] = df_14t_edits1_tb3.apply(func=fn_T06_MO
 
 ### Slight difference between vars in original Tableau: "NON-HISPANIC" here instead of "NON-Hispanic" in (1).
 def fn_T06_FOB_Ethnicity(fdf):
+    ###########
     ### FW.
-    if (fdf['Fob Involved'] == True):
-        if pd.isna(fdf['Fob Ethnicity']):
-            return "Unknown/Did Not Report"
-        else: 
-            match fdf['Fob Ethnicity'].lower():
-                case "non hispanic/latino":
-                    return "Not Hispanic or Latino" 
-                case "hispanic/latino":
-                    return "Hispanic or Latino"
-                case "unknown":
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
-                case _:
-                    return "Unrecognized Value"
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['Fob Ethnicity']):
+                return 'Unknown/Did Not Report'
+            else: 
+                match fdf['Fob Ethnicity'].lower():
+                    case 'hispanic/latino':
+                        return 'Hispanic or Latino'
+                    case 'non hispanic/latino':
+                        return 'Not Hispanic or Latino' 
+                    case 'unknown':
+                        return 'Unknown/Did Not Report'
+                    case _:
+                        return 'Unrecognized Value'
+        else:
+            return pd.NA 
+    ###########
     ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Fob Ethnicity1']):
-            return "Unknown/Did Not Report"
-        else: 
-            match fdf['Fob Ethnicity1'].lower():
-                case "hispanic/latino":
-                    return "Hispanic or Latino" 
-                case "not hispanic/latino" | "non-hispanic":
-                    return "Not Hispanic or Latino"
-                case "unreported/refused to report":
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
-                case _:
-                    return "Unrecognized Value"
-    ###
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            if pd.isna(fdf['Fob Ethnicity1']):
+                return 'Unknown/Did Not Report'
+            else: 
+                match fdf['Fob Ethnicity1'].lower():
+                    case 'hispanic/latino':
+                        return 'Hispanic or Latino' 
+                    case 'not hispanic/latino' | 'non-hispanic':
+                        return 'Not Hispanic or Latino'
+                    case 'unreported/refused to report':
+                        return 'Unknown/Did Not Report'
+                    case _:
+                        return 'Unrecognized Value'
+        else:
+            return pd.NA 
+    ###########
     else:
-        return np.nan 
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Involved] = True //FW
     # THEN CASE [Fob Ethnicity]
     #     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino" 
@@ -1314,42 +1354,44 @@ df_14t_edits1_tb3['_T06 FOB Ethnicity'] = df_14t_edits1_tb3.apply(func=fn_T06_FO
 ### TODO: Check: Is this a Duplicate? Is it Used? ### In Tableau - check & delete var not used.
     ### Slight difference between vars in original Tableau: "NON-Hispanic" in (1) vs "NON-HISPANIC" in original.
     ### However, duplicate Python code because of the ".lower()".
-def fn_T06_FOB_Ethnicity_1(fdf):
-    ### FW.
-    if (fdf['Fob Involved'] == True):
-        if pd.isna(fdf['Fob Ethnicity']):
-            return "Unknown/Did Not Report"
-        else: 
-            match fdf['Fob Ethnicity'].lower():
-                case "non hispanic/latino":
-                    return "Not Hispanic or Latino" 
-                case "hispanic/latino":
-                    return "Hispanic or Latino"
-                case "unknown":
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
-                case _:
-                    return "Unrecognized Value"
-    ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Fob Ethnicity1']):
-            return "Unknown/Did Not Report"
-        else: 
-            match fdf['Fob Ethnicity1'].lower():
-                case "hispanic/latino":
-                    return "Hispanic or Latino" 
-                case "not hispanic/latino" | "non-hispanic":
-                    return "Not Hispanic or Latino"
-                case "unreported/refused to report":
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
-                case _:
-                    return "Unrecognized Value"
-    ###
-    else:
-        return np.nan 
+# def fn_T06_FOB_Ethnicity_1(fdf):
+#     ### FW.
+#     if (fdf['Fob Involved'] == True):
+#         if pd.isna(fdf['Fob Ethnicity']):
+#             return "Unknown/Did Not Report"
+#         else: 
+#             match fdf['Fob Ethnicity'].lower():
+#                 case "non hispanic/latino":
+#                     return "Not Hispanic or Latino" 
+#                 case "hispanic/latino":
+#                     return "Hispanic or Latino"
+#                 case "unknown":
+#                     return "Unknown/Did Not Report"
+#                 ### case pd.NA:
+#                 ###     return "Unknown/Did Not Report" ### Pulled out above.
+#                 case _:
+#                     return "Unrecognized Value"
+#     ### LLCHD.
+#     elif (fdf['Fob Involved1'] == "Y"):
+#         if pd.isna(fdf['Fob Ethnicity1']):
+#             return "Unknown/Did Not Report"
+#         else: 
+#             match fdf['Fob Ethnicity1'].lower():
+#                 case "hispanic/latino":
+#                     return "Hispanic or Latino" 
+#                 case "not hispanic/latino" | "non-hispanic":
+#                     return "Not Hispanic or Latino"
+#                 case "unreported/refused to report":
+#                     return "Unknown/Did Not Report"
+#                 ### case pd.NA:
+#                 ###     return "Unknown/Did Not Report" ### Pulled out above.
+#                 case _:
+#                     return "Unrecognized Value"
+#     ###
+#     else:
+#         return pd.NA 
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Involved] = True //FW
     # THEN CASE [Fob Ethnicity]
     #     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino" 
@@ -1369,7 +1411,7 @@ def fn_T06_FOB_Ethnicity_1(fdf):
     #     END
     # ELSE NULL
     # END
-df_14t_edits1_tb3['_T06 FOB Ethnicity (1)'] = df_14t_edits1_tb3.apply(func=fn_T06_FOB_Ethnicity_1, axis=1).astype('string') 
+df_14t_edits1_tb3['_T06 FOB Ethnicity (1)'] = df_14t_edits1_tb3.apply(func=fn_T06_FOB_Ethnicity, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb3['_T06 FOB Ethnicity (1)']) 
 ### TODO: Check this is one used in Tableau Report, then delete other (changelog). Only one should be used.
@@ -1378,62 +1420,70 @@ df_14t_edits1_tb3['_T06 FOB Ethnicity (1)'] = df_14t_edits1_tb3.apply(func=fn_T0
 
 def fn_T07_MOB_Race(fdf):
     ###########
-    ### LLCHD.
-    ### multiracial.
-    if (
-        (
-            (0 if pd.isna(fdf['Mob Race Asian']) else (1 if fdf['Mob Race Asian']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Mob Race Black']) else (1 if fdf['Mob Race Black']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Mob Race Hawaiian']) else (1 if fdf['Mob Race Hawaiian']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Mob Race Indian']) else (1 if fdf['Mob Race Indian']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Mob Race White']) else (1 if fdf['Mob Race White']=="Y" else 0)) + 
-            (0 if pd.isna(fdf['Mob Race Other']) else (1 if fdf['Mob Race Other']=="Y" else 0)) 
-        ) > 1 
-    ):
-        return "More than one race"
-    ### single race.
-    elif (fdf['Mob Race Asian'] == "Y"):
-        return "Asian"
-    elif (fdf['Mob Race Black'] == "Y"):
-        return "Black or African American"
-    elif (fdf['Mob Race Hawaiian'] == "Y"):
-        return "Native Hawaiian or Other Pacific Islander"
-    elif (fdf['Mob Race Indian'] == "Y"):
-        return "American Indian or Alaska Native"
-    elif (fdf['Mob Race White'] == "Y"):
-        return "White"
-    elif (fdf['Mob Race Other'] == "Y"):
-        return "Other"
+    ### FW (FW race variables are boolean).
+    if (fdf['source'] == 'FW'):
+        ### multiracial.
+        if (
+            (
+                (0 if pd.isna(fdf['MOB Race Asian']) else (1 if fdf['MOB Race Asian'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Black']) else (1 if fdf['MOB Race Black'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (1 if fdf['MOB Race Hawaiian Pacific'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Indian Alaskan']) else (1 if fdf['MOB Race Indian Alaskan'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race White']) else (1 if fdf['MOB Race White'] else 0)) + 
+                (0 if pd.isna(fdf['MOB Race Other']) else (1 if fdf['MOB Race Other'] else 0)) 
+            ) > 1 
+        ):
+            return 'More than one race'
+        ### single race.
+        elif (False if pd.isna(fdf['MOB Race Asian']) else (True if fdf['MOB Race Asian'] else False)):
+            return 'Asian'
+        elif (False if pd.isna(fdf['MOB Race Black']) else (True if fdf['MOB Race Black'] else False)):
+            return 'Black or African American'
+        elif (False if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (True if fdf['MOB Race Hawaiian Pacific'] else False)):
+            return 'Native Hawaiian or Other Pacific Islander'
+        elif (False if pd.isna(fdf['MOB Race Indian Alaskan']) else (True if fdf['MOB Race Indian Alaskan'] else False)):
+            return 'American Indian or Alaska Native'
+        elif (False if pd.isna(fdf['MOB Race White']) else (True if fdf['MOB Race White'] else False)):
+            return 'White'
+        elif (False if pd.isna(fdf['MOB Race Other']) else (True if fdf['MOB Race Other'] else False)):
+            return 'Other'
+        else:
+            return 'Unknown/Did Not Report'
     ###########
-    ### FW.
-    ### multiracial, == "True" is not required in IIF statement because race is boolean.
-    elif (
-        (
-            (0 if pd.isna(fdf['MOB Race Asian']) else (1 if fdf['MOB Race Asian'] else 0)) + 
-            (0 if pd.isna(fdf['MOB Race Black']) else (1 if fdf['MOB Race Black'] else 0)) + 
-            (0 if pd.isna(fdf['MOB Race Hawaiian Pacific']) else (1 if fdf['MOB Race Hawaiian Pacific'] else 0)) + 
-            (0 if pd.isna(fdf['MOB Race Indian Alaskan']) else (1 if fdf['MOB Race Indian Alaskan'] else 0)) + 
-            (0 if pd.isna(fdf['MOB Race White']) else (1 if fdf['MOB Race White'] else 0)) + 
-            (0 if pd.isna(fdf['MOB Race Other']) else (1 if fdf['MOB Race Other'] else 0)) 
-        ) > 1 
-    ):
-        return "More than one race"
-    ### single race.
-    elif (fdf['MOB Race Asian'] == True):
-        return "Asian"
-    elif (fdf['MOB Race Black'] == True):
-        return "Black or African American"
-    elif (fdf['MOB Race Hawaiian Pacific'] == True):
-        return "Native Hawaiian or Other Pacific Islander"
-    elif (fdf['MOB Race Indian Alaskan'] == True):
-        return "American Indian or Alaska Native"
-    elif (fdf['MOB Race White'] == True):
-        return "White"
-    elif (fdf['MOB Race Other'] == True):
-        return "Other"
+    ### LLCHD (LL race variables are strings).
+    elif (fdf['source'] == 'LL'):
+        ### multiracial.
+        if (
+            (
+                (0 if pd.isna(fdf['Mob Race Asian']) else (1 if fdf['Mob Race Asian']=='Y' else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Black']) else (1 if fdf['Mob Race Black']=='Y' else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Hawaiian']) else (1 if fdf['Mob Race Hawaiian']=='Y' else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Indian']) else (1 if fdf['Mob Race Indian']=='Y' else 0)) + 
+                (0 if pd.isna(fdf['Mob Race White']) else (1 if fdf['Mob Race White']=='Y' else 0)) + 
+                (0 if pd.isna(fdf['Mob Race Other']) else (1 if fdf['Mob Race Other']=='Y' else 0)) 
+            ) > 1 
+        ):
+            return 'More than one race'
+        ### single race.
+        elif (False if pd.isna(fdf['Mob Race Asian']) else (True if fdf['Mob Race Asian']=='Y' else False)):
+            return 'Asian'
+        elif (False if pd.isna(fdf['Mob Race Black']) else (True if fdf['Mob Race Black']=='Y' else False)):
+            return 'Black or African American'
+        elif (False if pd.isna(fdf['Mob Race Hawaiian']) else (True if fdf['Mob Race Hawaiian']=='Y' else False)):
+            return 'Native Hawaiian or Other Pacific Islander'
+        elif (False if pd.isna(fdf['Mob Race Indian']) else (True if fdf['Mob Race Indian']=='Y' else False)):
+            return 'American Indian or Alaska Native'
+        elif (False if pd.isna(fdf['Mob Race White']) else (True if fdf['Mob Race White']=='Y' else False)):
+            return 'White'
+        elif (False if pd.isna(fdf['Mob Race Other']) else (True if fdf['Mob Race Other']=='Y' else False)):
+            return 'Other'
+        else:
+            return 'Unknown/Did Not Report'
     ###########
     else:
-        return "Unknown/Did Not Report"
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # //LLCHD
     # //multiracial
     # IF IIF([Mob Race Asian]="Y",1,0,0)+IIF([Mob Race Black]="Y",1,0,0)+IIF([Mob Race Hawaiian]="Y",1,0,0)+IIF([Mob Race Indian]="Y",1,0,0)
@@ -1467,68 +1517,80 @@ df_14t_edits1_tb3['_T07 MOB Race'] = df_14t_edits1_tb3.apply(func=fn_T07_MOB_Rac
 
 def fn_T07_FOB_Race(fdf):
     ###########
-    ### LLCHD.
-    ### multiracial.
-    if (fdf['Fob Involved1'] == "Y"):
-        if (
-            (
-                (0 if pd.isna(fdf['Fob Race Asian']) else (1 if fdf['Fob Race Asian']=="Y" else 0)) + 
-                (0 if pd.isna(fdf['Fob Race Black']) else (1 if fdf['Fob Race Black']=="Y" else 0)) + 
-                (0 if pd.isna(fdf['Fob Race Hawaiian']) else (1 if fdf['Fob Race Hawaiian']=="Y" else 0)) + 
-                (0 if pd.isna(fdf['Fob Race Indian']) else (1 if fdf['Fob Race Indian']=="Y" else 0)) + 
-                (0 if pd.isna(fdf['Fob Race White']) else (1 if fdf['Fob Race White']=="Y" else 0)) + 
-                (0 if pd.isna(fdf['Fob Race Other']) else (1 if fdf['Fob Race Other']=="Y" else 0)) 
-            ) > 1
-        ):
-            return "More than one race"
-        ### single race.
-        elif (fdf['Fob Race Asian'] == "Y"):
-            return "Asian"
-        elif (fdf['Fob Race Black'] == "Y"):
-            return "Black or African American"
-        elif (fdf['Fob Race Hawaiian'] == "Y"):
-            return "Native Hawaiian or Other Pacific Islander"
-        elif (fdf['Fob Race Indian'] == "Y"):
-            return "American Indian or Alaska Native"
-        elif (fdf['Fob Race White'] == "Y"):
-            return "White"
-        elif (fdf['Fob Race Other'] == "Y"):
-            return "Other"
+    ### FW (FW race variables are boolean).
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            ### multiracial.
+            if (
+                (
+                    (0 if pd.isna(fdf['FOB Race Asian']) else (1 if fdf['FOB Race Asian'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Black']) else (1 if fdf['FOB Race Black'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Hawaiian Pacific']) else (1 if fdf['FOB Race Hawaiian Pacific'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Indian Alaskan']) else (1 if fdf['FOB Race Indian Alaskan'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race White']) else (1 if fdf['FOB Race White'] else 0)) + 
+                    (0 if pd.isna(fdf['FOB Race Other']) else (1 if fdf['FOB Race Other'] else 0)) 
+                ) > 1 
+            ):
+                return 'More than one race'
+            ### single race.
+            elif (False if pd.isna(fdf['FOB Race Asian']) else (True if fdf['FOB Race Asian'] else False)):
+                return 'Asian'
+            elif (False if pd.isna(fdf['FOB Race Black']) else (True if fdf['FOB Race Black'] else False)):
+                return 'Black or African American'
+            elif (False if pd.isna(fdf['FOB Race Hawaiian Pacific']) else (True if fdf['FOB Race Hawaiian Pacific'] else False)):
+                return 'Native Hawaiian or Other Pacific Islander'
+            elif (False if pd.isna(fdf['FOB Race Indian Alaskan']) else (True if fdf['FOB Race Indian Alaskan'] else False)):
+                return 'American Indian or Alaska Native'
+            elif (False if pd.isna(fdf['FOB Race White']) else (True if fdf['FOB Race White'] else False)):
+                return 'White'
+            elif (False if pd.isna(fdf['FOB Race Other']) else (True if fdf['FOB Race Other'] else False)):
+                return 'Other'
+            else:
+                return 'Unknown/Did Not Report'
         else:
-            return "Unknown/Did Not Report"
+            return pd.NA 
     ###########
-    ### FW.
-    ### multiracial, == "True" is not required in IIF statement because race is boolean.
-    elif (fdf['Fob Involved'] == True):
-        if (
-            (
-                (0 if pd.isna(fdf['FOB Race Asian']) else (1 if fdf['FOB Race Asian'] else 0)) + 
-                (0 if pd.isna(fdf['FOB Race Black']) else (1 if fdf['FOB Race Black'] else 0)) + 
-                (0 if pd.isna(fdf['FOB Race Hawaiian Pacific']) else (1 if fdf['FOB Race Hawaiian Pacific'] else 0)) + 
-                (0 if pd.isna(fdf['FOB Race Indian Alaskan']) else (1 if fdf['FOB Race Indian Alaskan'] else 0)) + 
-                (0 if pd.isna(fdf['FOB Race White']) else (1 if fdf['FOB Race White'] else 0)) + 
-                (0 if pd.isna(fdf['FOB Race Other']) else (1 if fdf['FOB Race Other'] else 0)) 
-            ) > 1
-        ):
-            return "More than one race"
-        ### single race.
-        elif (fdf['FOB Race Asian'] == True):
-            return "Asian"
-        elif (fdf['FOB Race Black'] == True):
-            return "Black or African American"
-        elif (fdf['FOB Race Hawaiian Pacific'] == True):
-            return "Native Hawaiian or Other Pacific Islander"
-        elif (fdf['FOB Race Indian Alaskan'] == True):
-            return "American Indian or Alaska Native"
-        elif (fdf['FOB Race White'] == True):
-            return "White"
-        elif (fdf['FOB Race Other'] == True):
-            return "Other"
+    ### LLCHD (LL race variables are strings).
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            ### multiracial.
+            if (
+                (
+                    (0 if pd.isna(fdf['Fob Race Asian']) else (1 if fdf['Fob Race Asian']=='Y' else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Black']) else (1 if fdf['Fob Race Black']=='Y' else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Hawaiian']) else (1 if fdf['Fob Race Hawaiian']=='Y' else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Indian']) else (1 if fdf['Fob Race Indian']=='Y' else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race White']) else (1 if fdf['Fob Race White']=='Y' else 0)) + 
+                    (0 if pd.isna(fdf['Fob Race Other']) else (1 if fdf['Fob Race Other']=='Y' else 0)) 
+                ) > 1 
+            ):
+                return 'More than one race'
+            ### single race.
+            elif (False if pd.isna(fdf['Fob Race Asian']) else (True if fdf['Fob Race Asian']=='Y' else False)):
+                return 'Asian'
+            elif (False if pd.isna(fdf['Fob Race Black']) else (True if fdf['Fob Race Black']=='Y' else False)):
+                return 'Black or African American'
+            elif (False if pd.isna(fdf['Fob Race Hawaiian']) else (True if fdf['Fob Race Hawaiian']=='Y' else False)):
+                return 'Native Hawaiian or Other Pacific Islander'
+            elif (False if pd.isna(fdf['Fob Race Indian']) else (True if fdf['Fob Race Indian']=='Y' else False)):
+                return 'American Indian or Alaska Native'
+            elif (False if pd.isna(fdf['Fob Race White']) else (True if fdf['Fob Race White']=='Y' else False)):
+                return 'White'
+            elif (False if pd.isna(fdf['Fob Race Other']) else (True if fdf['Fob Race Other']=='Y' else False)):
+                return 'Other'
+            else:
+                return 'Unknown/Did Not Report'
         else:
-            return "Unknown/Did Not Report"
+            return pd.NA 
     ###########
     else:
-        return np.nan 
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # //LLCHD
     # //multiracial
     # IF [Fob Involved1]= "Y" THEN 
@@ -1601,6 +1663,8 @@ def fn_T08_MOB_Marital_Status(fdf):
     ###########
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     # //FW
     # IF NOT ISNULL([Adult1MaritalStatus]) THEN CASE [Adult1MaritalStatus]
     #     WHEN "Divorced" THEN "Separated, Divorced, or Widowed"
@@ -1642,45 +1706,57 @@ df_14t_edits1_tb3['_T08 MOB Marital Status'] = df_14t_edits1_tb3.apply(func=fn_T
 def fn_T08_FOB_Marital_Status(fdf):
     ###########
     ### FW.
-    if (fdf['Fob Involved'] == True):
-        if pd.isna(fdf['Adult2MaritalStatus']):
-            return "Unknown/Did Not Report"
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['Adult2MaritalStatus']):
+                return 'Unknown/Did Not Report'
+            else:
+                match fdf['Adult2MaritalStatus'].lower():
+                    case 'married':
+                        return 'Married'
+                    case 'living with partner':
+                        return 'Not Married but Living Together with Partner'
+                    case 'separated' | 'legally separated' | 'divorced' | 'widowed':
+                        return 'Separated, Divorced, or Widowed'
+                    case 'single':
+                        return 'Never Married'
+                    case 'unknown' | 'null':
+                        return 'Unknown/Did Not Report'
+                    case _:
+                        return 'Unrecognized Value'
         else:
-            match fdf['Adult2MaritalStatus'].lower():
-                case "married":
-                    return "Married"
-                case "living with partner":
-                    return "Not Married but Living Together with Partner"
-                case "separated" | "legally separated" | "divorced" | "widowed":
-                    return "Separated, Divorced, or Widowed"
-                case "single":
-                    return "Never Married"
-                case "unknown" | "null":
-                    return "Unknown/Did Not Report"
-                case _:
-                    return "Unrecognized Value"
+            return pd.NA 
     ###########
     ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Fob Marital Status']):
-            return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            if pd.isna(fdf['Fob Marital Status']):
+                return 'Unknown/Did Not Report'
+            else:
+                match fdf['Fob Marital Status'].lower():
+                    case 'married':
+                        return 'Married'
+                    case 'living with partner' | 'life partner':
+                        return 'Not Married but Living Together with Partner'
+                    case 'separated' | 'legally separated' | 'divorced' | 'widowed':
+                        return 'Separated, Divorced, or Widowed'
+                    case 'single' | 'not married':
+                        return 'Never Married'
+                    case 'unknown' | 'null':
+                        return 'Unknown/Did Not Report'
+                    case _:
+                        return 'Unrecognized Value'
         else:
-            match fdf['Fob Marital Status'].lower():
-                case "married":
-                    return "Married"
-                case "life partner":
-                    return "Not Married but Living Together with Partner"
-                case "separated" | "legally separated" | "divorced" | "widowed":
-                    return "Separated, Divorced, or Widowed"
-                case "single" | "not married":
-                    return "Never Married"
-                case "unknown":
-                    return "Unknown/Did Not Report"
-                case _:
-                    return "Unrecognized Value"
+            return pd.NA 
     ###########
     else:
-        return np.nan ### likely MOB.
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # //FW
     # IF [Fob Involved] = True THEN CASE [Adult2MaritalStatus]
     #     WHEN "Divorced" THEN "Separated, Divorced, or Widowed"
@@ -1746,13 +1822,17 @@ def fn_T11_MOB_Employment(fdf):
         match fdf['Mcafss Employ']:
             case 1 | 2:
                 return "Not Employed"
-            case 3 | 4 | 5:
-                return "Employed Full Time"
+            case 3:
+                return 'Employed Part Time' 
+            case 4 | 5:
+                return 'Employed Full Time'
             case _:
                 return "Unrecognized Value"
     ###########
     else:
         return "Unknown/Did Not Report"
+    ###########
+    ### /// Tableau Calculation:
     # IF NOT ISNULL([AD1EmpStatus]) THEN CASE [AD1EmpStatus] //FW
     #     WHEN "Employed Full Time" THEN "Employed Full Time"
     #     WHEN "Employed Part Time" THEN "Employed Part Time"
@@ -1789,51 +1869,59 @@ df_14t_edits1_tb3['_T11 MOB Employment'] = df_14t_edits1_tb3.apply(func=fn_T11_M
 def fn_T11_FOB_Employment(fdf):
     ###########
     ### FW.
-    if (fdf['Fob Involved'] == True):
-        if pd.isna(fdf['AD2EmployStatus']):
-            return "Unknown/Did Not Report"
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['AD2EmployStatus']):
+                return 'Unknown/Did Not Report'
+            else:
+                match fdf['AD2EmployStatus'].lower():
+                    case 'employed full time' | 'maternal leave, paid, full time' | 'maternal leave, unpaid, full time':
+                        return 'Employed Full Time'
+                    case 'employed part time' | 'maternal leave, unpaid, part time' | 'self-employed':
+                        return 'Employed Part Time'
+                    case (
+                        'temporary disability' | ### TODO ASKJOE: new value -- I believe it goes here.
+                        'permanent disability' |
+                        'unemployed - unspecified' |
+                        'unemployed not seeking work-barriers' |
+                        'unemployed not seeking work-preference' |
+                        'unemployed not seeking work-teen caregiver' |
+                        'unemployed seeking work'
+                    ):
+                        return 'Not Employed'
+                    case 'unknown' | 'null':
+                        return 'Unknown/Did Not Report'
+                    case _:
+                        return 'Unrecognized Value'
         else:
-            match fdf['AD2EmployStatus'].lower():
-                case "employed full time" | "maternal leave, paid, full time" | "maternal leave, unpaid, full time":
-                    return "Employed Full Time"
-                case "employed part time" | "maternal leave, unpaid, part time" | "self-employed":
-                    return "Employed Part Time"
-                case (
-                    "temporary disability" |
-                    "permanent disability" |
-                    "unemployed - unspecified" |
-                    "unemployed not seeking work-barriers" |
-                    "unemployed not seeking work-preference" |
-                    "unemployed not seeking work-teen caregiver" |
-                    "unemployed seeking work"
-                ):
-                    return "Not Employed"
-                case "unknown":
-                    return "Unknown/Did Not Report"
-                case "null":
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
-                case _:
-                    return "Unrecognized Value"
+            return pd.NA 
     ###########
     ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Fob Employ']):
-            return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            if pd.isna(fdf['Fob Employ']):
+                return 'Unknown/Did Not Report'
+            else:
+                match fdf['Fob Employ']:
+                    case 1 | 2:
+                        return 'Not Employed'
+                    case 3:
+                        return 'Employed Part Time' 
+                    case 4 | 5:
+                        return 'Employed Full Time'
+                    case _:
+                        return 'Unrecognized Value'
         else:
-            match fdf['Fob Employ']:
-                case 1 | 2:
-                    return "Not Employed"
-                case 3 | 4 | 5:
-                    return "Employed Full Time"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report" ### Pulled out above.
-                case _:
-                    return "Unrecognized Value"
+            return pd.NA 
     ###########
     else:
-        return np.nan 
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Involved] = True THEN CASE [AD2EmployStatus] //FW
     #     WHEN "Employed Full Time" THEN "Employed Full Time"
     #     WHEN "Employed Part Time" THEN "Employed Part Time"
@@ -1876,67 +1964,65 @@ df_14t_edits1_tb3['_T11 FOB Employment'] = df_14t_edits1_tb3.apply(func=fn_T11_F
 def fn_C15_Min_Educational_Enrollment(fdf):
     ###########
     ### FW.
-    if (fdf['Min Edu Enroll'] == "High/Middle School"):
-        return "Student/trainee HS/GED"
-    elif (fdf['Min Edu Enroll'] == "GED Program"):
-        return "Student/trainee HS/GED"
-    ##
-    elif (fdf['Min Edu Enroll'] == "College 2 Year"):
-        return "Student/trainee" 
-    elif (fdf['Min Edu Enroll'] == "College 4 Year"):
-        return "Student/trainee"
-    elif (fdf['Min Edu Enroll'] == "ESL"):
-        return "Student/trainee"
-    elif (fdf['Min Edu Enroll'] == "Graduate School"):
-        return "Student/trainee"
-    elif (fdf['Min Edu Enroll'] == "Vocational College"):
-        return "Student/trainee"
-    ##
-    elif (fdf['Min Edu Enroll'] == "Not Enrolled in School"):
-        return "Not a student/trainee"
-    ##
-    elif (fdf['Min Edu Enroll'] == "Unknown"):
-        return "Unknown/Did not Report"
-    ##
-    elif (pd.notna(fdf['Min Edu Enroll'])):
-        return "Unrecognized Value"
+    if (fdf['source'] == 'FW'):
+        match fdf['Min Edu Enroll']:
+            case _ if pd.isna(fdf['Min Edu Enroll']):
+                return 'Unknown/Did not Report' ### TODO ASKJOE: Maybe change to 'Unrecognized Value'?
+            case 'College 2 Year' | 'College 4 Year' | 'ESL' | 'Graduate School' | 'Vocational College':
+                return 'Student/trainee'
+            case 'GED Program' | 'High/Middle School':
+                return 'Student/trainee HS/GED'
+            case 'Not Enrolled in School':
+                return 'Not a student/trainee'
+            case 'Unknown':
+                return 'Unknown/Did not Report'
+            case _:
+                return 'Unrecognized Value'
     ###########
     ### LLCHD.
-    elif (
-        fdf['mcafss_edu1_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
-        and
-        (
-            fdf['mcafss_edu1_prog'] == 1 ### Enrolled in Middle School.
-            or
-            fdf['mcafss_edu1_prog'] == 2 ### Enrolled in High School.
-            or
-            fdf['mcafss_edu1_prog'] == 3 ### Enrolled in GED.
-        )
-    ):
-        return "Student/trainee HS/GED" 
-    ### Added Y12Q4.
-    elif (
-        fdf['mcafss_edu1_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
-        and
-        (
-            fdf['mcafss_edu1_prog'] == 4 ### ESL.
-            or
-            fdf['mcafss_edu1_prog'] == 5 ### Adult education in basic reading or math.
-            or
-            fdf['mcafss_edu1_prog'] == 6 ### College.
-            or
-            fdf['mcafss_edu1_prog'] == 7 ### Vocational training, technical or trade school (excluding training received during HS).
-        )
-    ):
-        return "Student/trainee" 
-    elif (fdf['mcafss_edu1_enroll'] == "N" or (pd.notna(fdf['mcafss_edu1_prog']) and fdf['mcafss_edu1_prog'] not in [1,2,3,4,5,6,7])): ### Y12Q4 changed from "NO".
-        return "Not a student/trainee" ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
-    ###########
-    ### TODO ASKJOE: Not sure how to code for "Unrecognized Value" for LL. 
+    elif (fdf['source'] == 'LL'):
+        if (
+            pd.isna(fdf['mcafss_edu1_enroll']) or
+            (fdf['mcafss_edu1_enroll'] == 'Y' and pd.isna(fdf['mcafss_edu1_prog'])) 
+        ):
+            return 'Unknown/Did not Report' ### TODO ASKJOE: see if this is wanted.
+        elif (
+            fdf['mcafss_edu1_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
+            and
+            (
+                fdf['mcafss_edu1_prog'] == 1 ### Enrolled in Middle School.
+                or
+                fdf['mcafss_edu1_prog'] == 2 ### Enrolled in High School.
+                or
+                fdf['mcafss_edu1_prog'] == 3 ### Enrolled in GED.
+            )
+        ):
+            return 'Student/trainee HS/GED' 
+        ### Added Y12Q4.
+        elif (
+            fdf['mcafss_edu1_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
+            and
+            (
+                fdf['mcafss_edu1_prog'] == 4 ### ESL.
+                or
+                fdf['mcafss_edu1_prog'] == 5 ### Adult education in basic reading or math.
+                or
+                fdf['mcafss_edu1_prog'] == 6 ### College.
+                or
+                fdf['mcafss_edu1_prog'] == 7 ### Vocational training, technical or trade school (excluding training received during HS).
+            )
+        ):
+            return 'Student/trainee' 
+        elif (fdf['mcafss_edu1_enroll'] == 'N'): ### Y12Q4 changed from 'NO'.
+            return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
+        else:
+            ### For example: (pd.notna(fdf['mcafss_edu1_prog']) and fdf['mcafss_edu1_prog'] not in [1,2,3,4,5,6,7]) 
+            return 'Unrecognized Value' ### TODO ASKJOE: see if this is wanted.
     ###########
     else:
-        return "Unknown/Did not Report"
+        return 'Unrecognized Value' ### if not FW or LL.
     ###########
+    ### /// Tableau Calculation:
     # IF [Min Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
     # ELSEIF [Min Edu Enroll] = "College 4 Year" THEN "Student/trainee"
     # ELSEIF [Min Edu Enroll] = "ESL" THEN "Student/trainee"
@@ -1974,74 +2060,74 @@ df_14t_edits1_tb3['_C15 Min Educational Enrollment'] = df_14t_edits1_tb3.apply(f
 # inspect_col(df_14t_edits1_tb3['_C15 Min Educational Enrollment']) 
 #%%
 # inspect_col(df_14t_edits1_tb3['mcafss_edu1_prog']) 
+# inspect_col(df_14t_edits1_tb3['mcafss_edu1_enroll']) ### Only "Y" & "N".
 # print(df_14t_edits1_tb3[['_C15 Min Educational Enrollment', 'Min Edu Enroll', 'mcafss_edu1_enroll', 'mcafss_edu1_prog']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+# print(df_14t_edits1_tb3[['Min Edu Enroll', 'mcafss_edu1_enroll', 'mcafss_edu1_prog']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 
 #%%###################################
 
 def fn_C15_Max_Educational_Enrollment(fdf):
     ###########
     ### FW.
-    if (fdf['Max Edu Enroll'] == "High/Middle School"):
-        return "Student/trainee HS/GED"
-    elif (fdf['Max Edu Enroll'] == "GED Program"):
-        return "Student/trainee HS/GED"
-    ##
-    elif (fdf['Max Edu Enroll'] == "College 2 Year"):
-        return "Student/trainee" 
-    elif (fdf['Max Edu Enroll'] == "College 4 Year"):
-        return "Student/trainee"
-    elif (fdf['Max Edu Enroll'] == "ESL"):
-        return "Student/trainee"
-    elif (fdf['Max Edu Enroll'] == "Graduate School"):
-        return "Student/trainee"
-    elif (fdf['Max Edu Enroll'] == "Vocational College"):
-        return "Student/trainee"
-    ##
-    elif (fdf['Max Edu Enroll'] == "Not Enrolled in School"):
-        return "Not a student/trainee"
-    ##
-    elif (fdf['Max Edu Enroll'] == "Unknown"):
-        return "Unknown/Did not Report"
-    ##
-    elif (pd.notna(fdf['Max Edu Enroll'])):
-        return "Unrecognized Value"
+    if (fdf['source'] == 'FW'):
+        match fdf['Max Edu Enroll']:
+            case _ if pd.isna(fdf['Max Edu Enroll']):
+                return 'Unknown/Did not Report' ### TODO ASKJOE: Maybe change to 'Unrecognized Value'?
+            case 'College 2 Year' | 'College 4 Year' | 'ESL' | 'Graduate School' | 'Vocational College':
+                return 'Student/trainee'
+            case 'GED Program' | 'High/Middle School':
+                return 'Student/trainee HS/GED'
+            case 'Not Enrolled in School':
+                return 'Not a student/trainee'
+            case 'Unknown':
+                return 'Unknown/Did not Report'
+            case _:
+                return 'Unrecognized Value'
     ###########
     ### LLCHD.
-    elif (
-        fdf['mcafss_edu2_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
-        and
-        (
-            fdf['mcafss_edu2_prog'] == 1 ### Enrolled in Middle School.
-            or
-            fdf['mcafss_edu2_prog'] == 2 ### Enrolled in High School.
-            or
-            fdf['mcafss_edu2_prog'] == 3 ### Enrolled in GED.
-        )
-    ):
-        return "Student/trainee HS/GED" 
-    ### Added Y12Q4.
-    elif (
-        fdf['mcafss_edu2_enroll'] == "Y" ### Enrolled. ### Y12Q4 changed from "YES".
-        and
-        (
-            fdf['mcafss_edu2_prog'] == 4 ### ESL.
-            or
-            fdf['mcafss_edu2_prog'] == 5 ### Adult education in basic reading or math.
-            or
-            fdf['mcafss_edu2_prog'] == 6 ### College.
-            or
-            fdf['mcafss_edu2_prog'] == 7 ### Vocational training, technical or trade school (excluding training received during HS).
-        )
-    ):
-        return "Student/trainee" 
-    elif (fdf['mcafss_edu2_enroll'] == "N" or (pd.notna(fdf['mcafss_edu2_prog']) and fdf['mcafss_edu2_prog'] not in [1,2,3,4,5,6,7])): ### Y12Q4 changed from "NO".
-        return "Not a student/trainee"
-    ###########
-    ### TODO ASKJOE: Not sure how to code for "Unrecognized Value" for LL.
+    elif (fdf['source'] == 'LL'):
+        if (
+            pd.isna(fdf['mcafss_edu2_enroll']) or
+            (fdf['mcafss_edu2_enroll'] == 'Y' and pd.isna(fdf['mcafss_edu2_prog']))
+        ):
+            return 'Unknown/Did not Report' ### TODO ASKJOE: see if this is wanted.
+        elif (
+            fdf['mcafss_edu2_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
+            and
+            (
+                fdf['mcafss_edu2_prog'] == 1 ### Enrolled in Middle School.
+                or
+                fdf['mcafss_edu2_prog'] == 2 ### Enrolled in High School.
+                or
+                fdf['mcafss_edu2_prog'] == 3 ### Enrolled in GED.
+            )
+        ):
+            return 'Student/trainee HS/GED' 
+        ### Added Y12Q4.
+        elif (
+            fdf['mcafss_edu2_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
+            and
+            (
+                fdf['mcafss_edu2_prog'] == 4 ### ESL.
+                or
+                fdf['mcafss_edu2_prog'] == 5 ### Adult education in basic reading or math.
+                or
+                fdf['mcafss_edu2_prog'] == 6 ### College.
+                or
+                fdf['mcafss_edu2_prog'] == 7 ### Vocational training, technical or trade school (excluding training received during HS).
+            )
+        ):
+            return 'Student/trainee' 
+        elif (fdf['mcafss_edu2_enroll'] == 'N'): ### Y12Q4 changed from 'NO'.
+            return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
+        else:
+            ### For example: (pd.notna(fdf['mcafss_edu2_prog']) and fdf['mcafss_edu2_prog'] not in [1,2,3,4,5,6,7]) 
+            return 'Unrecognized Value' ### TODO ASKJOE: see if this is wanted.
     ###########
     else:
-        return "Unknown/Did not Report"
+        return 'Unrecognized Value' ### if not FW or LL.
     ###########
+    ### /// Tableau Calculation:
     # IF [Max Edu Enroll] = "College 2 Year" THEN "Student/trainee" //FW
     # ELSEIF [Max Edu Enroll] = "College 4 Year" THEN "Student/trainee"
     # ELSEIF [Max Edu Enroll] = "ESL" THEN "Student/trainee"
@@ -2082,73 +2168,87 @@ df_14t_edits1_tb3['_C15 Max Educational Enrollment'] = df_14t_edits1_tb3.apply(f
 
 #%%###################################
 
+### TODO: Fix FOB variables.
 def fn_T10_FOB_Educational_Enrollment(fdf):
     ### max.
     ###########
     ### FW.
-    if (fdf['Fob Involved'] == True):
-        if pd.isna(fdf['AD2InSchool']):
-            return "Unknown/Did Not Report"
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['AD2InSchool']):
+                return 'Unknown/Did Not Report'
+            else:
+                match fdf['AD2InSchool'].lower():
+                    case (
+                        'esl' |
+                        'ged program' |
+                        'high/middle school' |
+                        'vocational college' |
+                        'college 2 year' |
+                        'college 4 year' |
+                        'graduate school'
+                    ):
+                        return 'Student/trainee' 
+                    case 'not enrolled in school':
+                        return 'Not a student/trainee'
+                    case 'unknown':
+                        return 'Unknown/Did Not Report'
+                    case _:
+                        return pd.NA 
         else:
-            match fdf['AD2InSchool'].lower():
-                case (
-                    "esl" |
-                    "ged program" |
-                    "high/middle school" |
-                    "vocational college" |
-                    "college 2 year" |
-                    "college 4 year" |
-                    "graduate school"
-                ):
-                    return "Student/trainee" 
-                case "not enrolled in school":
-                    return "Not a student/trainee"
-                case "unknown":
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report"
+            return pd.NA 
     ###########
     ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Fob Edu']):
-            return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            return 'Unknown/Did Not Report' ### Placeholder. ### TODO: need to fix all vars that use 'Fob Edu'.
+            # if pd.isna(fdf['Fob Edu']):
+            #     return 'Unknown/Did Not Report'
+            # else:
+            #     match fdf['Fob Edu']:
+            #         case 1 | 9:
+            #             return 'Student/trainee'
+            #         case 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 11:
+            #             return 'Not a student/trainee'
+            #         case 12:
+            #             return 'Unknown/Did Not Report'
+            #         ### case pd.NA:
+            #         ###     return 'Unknown/Did Not Report'
+        ###########
+                # ### TODO ASKJOE: this copied from var below. How to recode the above?
+                # match fdf['Fob Edu']:
+                #     # case 1 | 2:
+                #     case 'Less than 8' | '8-11':
+                #         return 'Less than HS diploma'
+                #     # case 3 | 4:
+                #     case 'HS Grad' | 'GED':
+                #         return 'HS diploma/GED'
+                #     # case 5:
+                #     case 'Vocational school after HS':
+                #         return 'Vocational School after High School'
+                #     # case 6:
+                #     case 'Some college':
+                #         return 'Some college/training'
+                #     # case 7:
+                #     case 'Associates degree':
+                #         return 'Associates Degree' 
+                #     # case 8:
+                #     case 'Bachelor’s degree or higher':
+                #         return 'Bachelor's Degree or Higher'
+                #     # case 0:
+                #     case _:
+                #         return 'Unrecognized Value'
         else:
-            match fdf['Fob Edu']:
-                case 1 | 9:
-                    return "Student/trainee"
-                case 2 | 3 | 4 | 5 | 6 | 7 | 8 | 10 | 11:
-                    return "Not a student/trainee"
-                case 12:
-                    return "Unknown/Did Not Report"
-                ### case np.nan:
-                ###     return "Unknown/Did Not Report"
-    ###########
-            # ### TODO ASKJOE: this copied from var below. How to recode the above?
-            # match fdf['Fob Edu']:
-            #     # case 1 | 2:
-            #     case "Less than 8" | "8-11":
-            #         return "Less than HS diploma"
-            #     # case 3 | 4:
-            #     case "HS Grad" | "GED":
-            #         return "HS diploma/GED"
-            #     # case 5:
-            #     case "Vocational school after HS":
-            #         return "Vocational School after High School"
-            #     # case 6:
-            #     case "Some college":
-            #         return "Some college/training"
-            #     # case 7:
-            #     case "Associates degree":
-            #         return "Associates Degree" 
-            #     # case 8:
-            #     case "Bachelor’s degree or higher":
-            #         return "Bachelor's Degree or Higher"
-            #     # case 0:
-            #     case _:
-            #         return "Unrecognized Value"
+            return pd.NA 
     ###########
     else:
-        return np.nan 
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # //max
     # IF [Fob Involved] = True THEN CASE[AD2InSchool] //FW
     #     WHEN "College 2 Year" THEN "Student/trainee" 
@@ -2190,71 +2290,69 @@ df_14t_edits1_tb3['_T10 FOB Educational Enrollment'] = df_14t_edits1_tb3.apply(f
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_C15_Min_Educational_Status(fdf):
+    if (pd.isna(fdf['Mcafss Edu1']) and pd.isna(fdf['AD1MinEdu'])):
+        return 'Unknown/Did Not Report'
     ###########
     ### LLCHD.
-    if (fdf['Mcafss Edu1'] == 1):
-        return "Less than HS diploma" ### Less than 8th Grade.
-    elif (fdf['Mcafss Edu1'] == 2):
-        return "Less than HS diploma" ### 8-11th Grade.
-    elif (fdf['Mcafss Edu1'] == 3):
-        return "HS diploma/GED" ### High School Grad.
-    elif (fdf['Mcafss Edu1'] == 4):
-        return "HS diploma/GED" ### Completed a GED.
-    elif (fdf['Mcafss Edu1'] == 5):
-        return "Technical Training or Associates Degree" ### Vocational School after High School.
-    elif (fdf['Mcafss Edu1'] == 6):
-        return "Some college/training" ### Some College.
-    elif (fdf['Mcafss Edu1'] == 7):
-        return "Technical Training or Associates Degree" ### Associates Degree.
-    elif (fdf['Mcafss Edu1'] == 8):
-        return "Bachelor's Degree or Higher" ### Bachelors Degree or Higher.
-    ### elif (fdf['Mcafss Edu1'] == 9):
-    ###     return "HS diploma/GED" ### currently enrolled in college - vocational training or trade apprenticeship.
-    ### elif (fdf['Mcafss Edu1'] == 10):
-    ###     return "HS diploma/GED" ### currently not enrolled in college - vocational training or trade apprenticeship.
-    ### elif (fdf['Mcafss Edu1'] == 11):
-    ###     return "Other" ### other education.
-    ### elif (fdf['Mcafss Edu1'] == 12):
-    ###     return "Unknown/Did Not Report" ### unknown/did not report.
-    elif (fdf['Mcafss Edu1'] == 0):
-        return "Unknown/Did Not Report" ### unknown/did not report (missing data).
-    ### //Confirmed 9-12 are old and no longer needed - new LLCHD variables are sent to confirm enrollment.
-    elif (fdf['Mcafss Edu1'] >= 9):
-        return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'LL'):
+        match fdf['Mcafss Edu1']:
+            case _ if pd.isna(fdf['Mcafss Edu1']): 
+                return 'Unrecognized Value' 
+            case 1 | 2:
+                return 'Less than HS diploma' ### 'Less than 8th Grade' | '8-11th Grade'.
+            case 3 | 4:
+                return 'HS diploma/GED' ### 'High School Grad' | 'Completed a GED'.
+            case 5 | 7:
+                return 'Technical Training or Associates Degree' ### 'Vocational School after High School' | 'Associates Degree'.
+            case 6:
+                return 'Some college/training' ### Some College.
+            case 8:
+                return "Bachelor's Degree or Higher" ### Bachelors Degree or Higher.
+            ### case 9:
+            ###     return 'HS diploma/GED' ### currently enrolled in college - vocational training or trade apprenticeship.
+            ### case 10:
+            ###     return 'HS diploma/GED' ### currently not enrolled in college - vocational training or trade apprenticeship.
+            ### case 11:
+            ###     return 'Other' ### other education.
+            ### case 12:
+            ###     return 'Unknown/Did Not Report' ### unknown/did not report.
+            case 0:
+                return 'Unknown/Did Not Report' ### unknown/did not report (missing data).
+            case _ if int(fdf['Mcafss Edu1']) >= 9:
+                return 'Unknown/Did Not Report'
+            case _:
+                return 'Unrecognized Value'
     ###########
     ### FW.
-    elif (fdf['AD1MinEdu'] == "8th Grade or less"):
-        return "Less than HS diploma"
-    elif (fdf['AD1MinEdu'] == "Some High School"):
-        return "Less than HS diploma"
-    elif (fdf['AD1MinEdu'] == "GED"):
-        return "HS diploma/GED"
-    elif (fdf['AD1MinEdu'] == "High School Graduate"):
-        return "HS diploma/GED"
-    elif (fdf['AD1MinEdu'] == "Achievement Certificate"):
-        return "Technical Training or Certification"
-    elif (fdf['AD1MinEdu'] == "Certificate Program"):
-        return "Technical Training or Certification"
-    elif (fdf['AD1MinEdu'] == "Some College"):
-        return "Some college/training"
-    elif (fdf['AD1MinEdu'] == "Associates or Two Year Technical Degree"):
-        return "Technical Training or Associates Degree" ### these are two serparate categories on F1.
-    elif (fdf['AD1MinEdu'] == "Two Year Degree"):
-        return "Associate's Degree"
-    elif (fdf['AD1MinEdu'] == "Four Year College Degree"):
-        return "Bachelor's Degree or Higher"
-    elif (fdf['AD1MinEdu'] == "Graduate School"):
-        return "Bachelor's Degree or Higher"
-    elif (fdf['AD1MinEdu'] == "Unknown"):
-        return "Unknown/Did Not Report"
-    elif (fdf['AD1MinEdu'] == "null"):
-        return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'FW'):
+        match fdf['AD1MinEdu']:
+            case _ if pd.isna(fdf['AD1MinEdu']): 
+                return 'Unrecognized Value' 
+            case '8th Grade or less' | 'Some High School':
+                return 'Less than HS diploma'
+            case 'GED' | 'High School Graduate':
+                return 'HS diploma/GED'
+            case 'Achievement Certificate' | 'Certificate Program':
+                return 'Technical Training or Certification'
+            case 'Some College':
+                return 'Some college/training'
+            case 'Associates or Two Year Technical Degree':
+                return 'Technical Training or Associates Degree' ### these are two separate categories on F1.
+            case 'Two Year Degree':
+                return "Associate's Degree"
+            case 'Four Year College Degree' | 'Graduate School':
+                return "Bachelor's Degree or Higher"
+            case 'Unknown' | 'null':
+                return 'Unknown/Did Not Report'
+            case _:
+                return 'Unrecognized Value'
     ###########
-    elif (pd.isna(fdf['Mcafss Edu1']) and pd.isna(fdf['AD1MinEdu'])):
-        return "Unknown/Did Not Report"
     else:
-        return "Unrecognized Value"
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Mcafss Edu1] = 1 THEN "Less than HS diploma" //LLCHD // Less than 8th Grade
     # ELSEIF [Mcafss Edu1] = 2 THEN "Less than HS diploma" // 8-11th Grade
     # ELSEIF [Mcafss Edu1] = 3 THEN "HS diploma/GED" // High School Grad
@@ -2303,70 +2401,69 @@ df_14t_edits1_tb3['_C15 Min Educational Status'] = df_14t_edits1_tb3.apply(func=
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_C15_Max_Educational_Status(fdf):
+    if (pd.isna(fdf['Mcafss Edu2']) and pd.isna(fdf['AD1MaxEdu'])):
+        return 'Unknown/Did Not Report'
     ###########
     ### LLCHD.
-    if (fdf['Mcafss Edu2'] == 1):
-        return "Less than HS diploma" ### Less than 8th Grade.
-    elif (fdf['Mcafss Edu2'] == 2):
-        return "Less than HS diploma" ### 8-11th Grade.
-    elif (fdf['Mcafss Edu2'] == 3):
-        return "HS diploma/GED" ### High School Grad.
-    elif (fdf['Mcafss Edu2'] == 4):
-        return "HS diploma/GED" ### Completed a GED.
-    elif (fdf['Mcafss Edu2'] == 5):
-        return "Technical Training or Associates Degree" ### Vocational School after High School.
-    elif (fdf['Mcafss Edu2'] == 6):
-        return "Some college/training" ### Some College.
-    elif (fdf['Mcafss Edu2'] == 7):
-        return "Technical Training or Associates Degree" ### Associates Degree.
-    elif (fdf['Mcafss Edu2'] == 8):
-        return "Bachelor's Degree or Higher" ### Bachelors Degree or Higher.
-    ### elif (fdf['Mcafss Edu2'] == 9):
-    ###     return "HS diploma/GED" ### currently enrolled in college - vocational training or trade apprenticeship.
-    ### elif (fdf['Mcafss Edu2'] == 10):
-    ###     return "HS diploma/GED" ### currently not enrolled in college - vocational training or trade apprenticeship.
-    ### elif (fdf['Mcafss Edu2'] == 11):
-    ###     return "Other" ### other education.
-    ### elif (fdf['Mcafss Edu2'] == 12):
-    ###     return "Unknown/Did Not Report" ### unknown/did not report.
-    elif (fdf['Mcafss Edu2'] == 0):
-        return "Unknown/Did Not Report" ### unknown/did not report (missing data).
-    elif (fdf['Mcafss Edu2'] >= 9):
-        return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'LL'):
+        match fdf['Mcafss Edu2']:
+            case _ if pd.isna(fdf['Mcafss Edu2']): 
+                return 'Unrecognized Value' 
+            case 1 | 2:
+                return 'Less than HS diploma' ### 'Less than 8th Grade' | '8-11th Grade'.
+            case 3 | 4:
+                return 'HS diploma/GED' ### 'High School Grad' | 'Completed a GED'.
+            case 5 | 7:
+                return 'Technical Training or Associates Degree' ### 'Vocational School after High School' | 'Associates Degree'.
+            case 6:
+                return 'Some college/training' ### Some College.
+            case 8:
+                return "Bachelor's Degree or Higher" ### Bachelors Degree or Higher.
+            ### case 9:
+            ###     return 'HS diploma/GED' ### currently enrolled in college - vocational training or trade apprenticeship.
+            ### case 10:
+            ###     return 'HS diploma/GED' ### currently not enrolled in college - vocational training or trade apprenticeship.
+            ### case 11:
+            ###     return 'Other' ### other education.
+            ### case 12:
+            ###     return 'Unknown/Did Not Report' ### unknown/did not report.
+            case 0:
+                return 'Unknown/Did Not Report' ### unknown/did not report (missing data).
+            case _ if int(fdf['Mcafss Edu2']) >= 9:
+                return 'Unknown/Did Not Report'
+            case _:
+                return 'Unrecognized Value'
     ###########
     ### FW.
-    elif (fdf['AD1MaxEdu'] == "8th Grade or less"):
-        return "Less than HS diploma"
-    elif (fdf['AD1MaxEdu'] == "Some High School"):
-        return "Less than HS diploma"
-    elif (fdf['AD1MaxEdu'] == "GED"):
-        return "HS diploma/GED"
-    elif (fdf['AD1MaxEdu'] == "High School Graduate"):
-        return "HS diploma/GED"
-    elif (fdf['AD1MaxEdu'] == "Achievement Certificate"):
-        return "Technical Training or Certification"
-    elif (fdf['AD1MaxEdu'] == "Certificate Program"):
-        return "Technical Training or Certification"
-    elif (fdf['AD1MaxEdu'] == "Some College"):
-        return "Some college/training"
-    elif (fdf['AD1MaxEdu'] == "Associates or Two Year Technical Degree"):
-        return "Technical Training or Associates Degree" ### these are two serparate categories on F1.
-    elif (fdf['AD1MaxEdu'] == "Two Year Degree"):
-        return "Associate's Degree"
-    elif (fdf['AD1MaxEdu'] == "Four Year College Degree"):
-        return "Bachelor's Degree or Higher"
-    elif (fdf['AD1MaxEdu'] == "Graduate School"):
-        return "Bachelor's Degree or Higher"
-    elif (fdf['AD1MaxEdu'] == "Unknown"):
-        return "Unknown/Did Not Report"
-    elif (fdf['AD1MaxEdu'] == "null"):
-        return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'FW'):
+        match fdf['AD1MaxEdu']:
+            case _ if pd.isna(fdf['AD1MaxEdu']): 
+                return 'Unrecognized Value' 
+            case '8th Grade or less' | 'Some High School':
+                return 'Less than HS diploma'
+            case 'GED' | 'High School Graduate':
+                return 'HS diploma/GED'
+            case 'Achievement Certificate' | 'Certificate Program':
+                return 'Technical Training or Certification'
+            case 'Some College':
+                return 'Some college/training'
+            case 'Associates or Two Year Technical Degree':
+                return 'Technical Training or Associates Degree' ### these are two separate categories on F1.
+            case 'Two Year Degree':
+                return "Associate's Degree"
+            case 'Four Year College Degree' | 'Graduate School':
+                return "Bachelor's Degree or Higher"
+            case 'Unknown' | 'null':
+                return 'Unknown/Did Not Report'
+            case _:
+                return 'Unrecognized Value'
     ###########
-    elif (pd.isna(fdf['Mcafss Edu2']) and pd.isna(fdf['AD1MaxEdu'])):
-        return "Unknown/Did Not Report"
     else:
-        return "Unrecognized Value"
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # //LLCHD
     # IF [Mcafss Edu2] = 1 THEN "Less than HS diploma" // Less than 8th Grade
     # ELSEIF [Mcafss Edu2] = 2 THEN "Less than HS diploma" // 8-11th Grade
@@ -2417,62 +2514,74 @@ df_14t_edits1_tb3['_C15 Max Educational Status'] = df_14t_edits1_tb3.apply(func=
 
 #%%###################################
 
+### TODO: Fix code because 'Fob Edu' is string & not int as expected.
 def fn_T09_FOB_Education_Status(fdf):
     ###########
     ### FW.
-    if (fdf['Fob Involved'] == True):
-        if pd.isna(fdf['AD2EDLevel']):
-            return "Unknown/Did Not Report"
-        else:
-            match fdf['AD2EDLevel'].lower():
-                case "8th grade or less" | "some high school":
-                    return "Less than HS diploma"
-                case "ged" | "high school graduate":
-                    return "HS diploma/GED"
-                case "achievement certificate":
-                    return "Some college/training" ### is this the right category?.
-                case "some college":
-                    return "Some college/training"
-                case "associates or two year technical degree" | "certificate program" | "two year degree":
-                    ### FY12Q4: DONE: Kind of copying '_C15 Min/Max Educational Status' coding for "Certificate Program" & "Two Year Degree" (but not exactly).
-                    return "Technical Training or Associates Degree" ### these are two serparate categories on F1.
-                case "four year college degree" | "graduate school":
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            match fdf['AD2EDLevel']:
+                case _ if pd.isna(fdf['AD2EDLevel']):
+                    return 'Unknown/Did Not Report'
+                case '8th Grade or less' | 'Some High School':
+                    return 'Less than HS diploma'
+                case 'GED' | 'High School Graduate':
+                    return 'HS diploma/GED'
+                case 'Achievement Certificate':
+                    return 'Some college/training' ### is this the right category?
+                case 'Certificate Program':
+                    return 'Some college/training' ### is this the right category?
+                case 'Some College':
+                    return 'Some college/training'
+                case 'Associates or Two Year Technical Degree' | 'Two Year Degree':
+                    return 'Technical Training or Associates Degree' ### these are two serparate categories on F1.
+                case 'Four Year College Degree' | 'Graduate School':
                     return "Bachelor's Degree or Higher"
-                case "unknown":
-                    return "Unknown/Did Not Report"
+                case 'Unknown':
+                    return 'Unknown/Did Not Report'
                 case _:
-                    return "Unrecognized Value"
+                    return pd.NA 
+        else:
+            return pd.NA 
     ###########
     ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Fob Edu']):
-            return "Unknown/Did Not Report"
-        else:
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
             match fdf['Fob Edu']:
+                case _ if pd.isna(fdf['Fob Edu']):
+                    return 'Unknown/Did Not Report'
                 # case 1 | 2:
-                case "Less than 8" | "8-11":
-                    return "Less than HS diploma"
+                case 'Less than 8' | '8-11':
+                    return 'Less than HS diploma'
                 # case 3 | 4:
-                case "HS Grad" | "GED":
-                    return "HS diploma/GED"
+                case 'HS Grad' | 'GED':
+                    return 'HS diploma/GED'
                 # case 5:
-                case "Vocational school after HS":
-                    return "Vocational School after High School"
+                case 'Vocational school after HS':
+                    return 'Vocational School after High School'
                 # case 6:
-                case "Some college":
-                    return "Some college/training"
+                case 'Some college':
+                    return 'Some college/training'
                 # case 7:
-                case "Associates degree":
-                    return "Associates Degree" 
+                case 'Associates degree':
+                    return "Associate's Degree"
                 # case 8:
-                case "Bachelor’s degree or higher":
+                case 'Bachelor’s degree or higher':
                     return "Bachelor's Degree or Higher"
-                # case 0:
+                # case 0: ### Was 'Unknown/Did Not Report' ### TODO: check.
                 case _:
-                    return "Unrecognized Value"
+                    return 'Unrecognized Value'
+        else:
+            return pd.NA 
     ###########
     else:
-        return np.nan ### likely MOB.
+        return pd.NA ### likely MOB.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Involved]= True THEN CASE[AD2EDLevel] //FW
     #     WHEN "8th Grade or less" THEN "Less than HS diploma"
     #     WHEN "Some High School" THEN "Less than HS diploma"
@@ -2552,6 +2661,8 @@ def fn_C16_CG_Insurance_Status(fdf_column):
         ###########
         case _:
             return "Unrecognized Value"
+    ###########
+    ### /// Tableau Calculation:
     # CASE [AD1PrimaryIns.1] //FW
     #     WHEN "Medicaid" THEN "Medicaid or CHIP"
     #     WHEN "SCHIP" THEN "Medicaid or CHIP"
@@ -2690,54 +2801,63 @@ df_14t_edits1_tb3['_C16 CG Insurance 16 Status'] = df_14t_edits1_tb3['AD1Primary
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Almost Same Tableau Calculation. Python modified.
 def fn_T20_FOB_Insurance(fdf):
     ###########
     ### FW.
-    if (fdf['Fob Involved'] == True):
-        if pd.isna(fdf['AD2InsPrimary']):
-            return "Unknown/Did Not Report"
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            if pd.isna(fdf['AD2InsPrimary']):
+                return 'Unknown/Did Not Report'
+            else:
+                match fdf['AD2InsPrimary'].lower():
+                    case 'medicaid':
+                        return 'Medicaid or CHIP'
+                    case 'medicare':
+                        return 'Other' ### this is what our previous syntax indicated.
+                    case 'none':
+                        return 'No Insurance Coverage'
+                    case 'other' | 'private':
+                        return 'Private or Other'
+                    case 'tri-care':
+                        return 'Tri-Care'
+                    case 'unknown':
+                        return 'Unknown/Did Not Report'
+                    case _:
+                        return 'Unrecognized Value'
         else:
-            match fdf['AD2InsPrimary'].lower():
-                case "medicaid":
-                    return "Medicaid or CHIP"
-                case "medicare":
-                    return "Other" ### this is what our previous syntax indicated.
-                case "none":
-                    return "No Insurance Coverage"
-                case "other" | "private":
-                    return "Private or Other"
-                case "tri-care":
-                    return "Tri-Care"
-                case "unknown":
-                    return "Unknown/Did Not Report"
-                ### case NULL:
-                ###     return "Unknown/Did Not Report"
-                case _:
-                    return "Unrecognized Value"
+            return pd.NA 
     ###########
     ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        if pd.isna(fdf['Hlth Insure Fob']):
-            return "Unknown/Did Not Report"
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            if pd.isna(fdf['Hlth Insure Fob']):
+                return 'Unknown/Did Not Report'
+            else:
+                match fdf['Hlth Insure Fob']:
+                    case 1:
+                        return 'Medicaid or CHIP'
+                    case 2:
+                        return 'Tri-Care'
+                    case 3:
+                        return 'Private or Other'
+                    case 4 | 99:
+                        return 'Unknown/Did Not Report'
+                    case 5:
+                        return 'No Insurance Coverage'
+                    case _:
+                        return 'Unrecognized Value'
         else:
-            match fdf['Hlth Insure Fob']:
-                case 1:
-                    return "Medicaid or CHIP"
-                case 2:
-                    return "Tri-Care"
-                case 3:
-                    return "Private or Other"
-                case 4:
-                    return "Unknown/Did Not Report"
-                case 5:
-                    return "No Insurance Coverage"
-                ### case NULL:
-                ###     return "Unknown/Did Not Report"
-                case _:
-                    return "Unrecognized Value"
+            return pd.NA 
     ###########
     else:
-        return np.nan 
+        return pd.NA ### likely MOB.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Involved] = True THEN CASE [AD2InsPrimary] //FW
     #     WHEN "Medicaid" THEN "Medicaid or CHIP"
     #     WHEN "Medicare" THEN "Other" //this is what our previous syntax indicated
@@ -2767,19 +2887,35 @@ df_14t_edits1_tb3['_T20 FOB Insurance'] = df_14t_edits1_tb3.apply(func=fn_T20_FO
 #%%###################################
 
 def fn_Enroll_Preg_Status(fdf):
+    ###########
     ### FW.
-    if (fdf['Pregnancystatus'] == 0):
-        return "Pregnant" 
-    elif (fdf['Pregnancystatus'] == 1):
-        return "Not pregnant"
+    if (fdf['source'] == 'FW'):
+        match fdf['Pregnancystatus']:
+            case _ if pd.isna(fdf['Pregnancystatus']):
+                return pd.NA 
+            case 0:
+                return 'Pregnant'
+            case 1:
+                return 'Not pregnant'
+            case _:
+                return 'Unrecognized Value'
+    ###########
     ### LLCHD.
-    elif (fdf['Enroll Preg Status'] == "Postpartum"):
-        return "Not pregnant" 
-    elif (fdf['Enroll Preg Status'] == "Pregnant"):
-        return "Pregnant"
-    ###
+    elif (fdf['source'] == 'LL'):
+        match fdf['Enroll Preg Status']:
+            case _ if pd.isna(fdf['Enroll Preg Status']):
+                return pd.NA 
+            case 'Pregnant':
+                return 'Pregnant'
+            case 'Postpartum':
+                return 'Not pregnant'
+            case _:
+                return 'Unrecognized Value'
+    ###########
     else:
-        return np.nan 
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Pregnancystatus] = 0 THEN "Pregnant" //FW
     # ELSEIF [Pregnancystatus] = 1 THEN "Not pregnant"
     # ELSEIF [Enroll Preg Status] = "Postpartum" THEN "Not pregnant" //LLCHD
@@ -2792,19 +2928,37 @@ df_14t_edits1_tb3['_Enroll Preg Status'] = df_14t_edits1_tb3.apply(func=fn_Enrol
 
 #%%###################################
 
+### Required for 'Caregiver Involved'.
 def fn_FOB_Involved(fdf):
+    ###########
     ### FW.
-    if (fdf['Fob Involved'] == True):
-        return 1 
-    elif (fdf['Fob Involved'] == False):
-        return 0 
+    if (fdf['source'] == 'FW'):
+        match fdf['Fob Involved']:
+            case _ if pd.isna(fdf['Fob Involved']):
+                return 0 
+            case True:
+                return 1 
+            case False:
+                return 0 
+            case _:
+                return 0 
+    ###########
     ### LLCHD.
-    elif (fdf['Fob Involved1'] == "Y"):
-        return 1 
-    elif (fdf['Fob Involved1'] == "N"):
-        return 0 
+    elif (fdf['source'] == 'LL'):
+        match fdf['Fob Involved1']:
+            case _ if pd.isna(fdf['Fob Involved1']):
+                return 0 
+            case "Y":
+                return 1 
+            case "N":
+                return 0 
+            case _:
+                return 0 
+    ###########
     else:
         return 0 
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Involved] = True THEN 1 //FW
     # ELSEIF [Fob Involved] = False THEN 0
     # ELSEIF [Fob Involved1] = "Y" THEN 1 //LLCHD
@@ -2817,52 +2971,54 @@ df_14t_edits1_tb3['_FOB Involved'] = df_14t_edits1_tb3.apply(func=fn_FOB_Involve
 
 #%%###################################
 
-### TODO: Change to match-case statements.
 def fn_MOB_TGT_Relation(fdf):
     ###########
     ### FW.
-    if (
-        (fdf['Adult1TGTRelation'] == "Adoptive mother")
-        or (fdf['Adult1TGTRelation'] == "Aunt") ### Added Y12Q4.
-        or (fdf['Adult1TGTRelation'] == "Biological mother")
-        or (fdf['Adult1TGTRelation'] == "Foster mother")
-        or (fdf['Adult1TGTRelation'] == "Grandmother")
-        or (fdf['Adult1TGTRelation'] == "Guardian")
-        or (fdf['Adult1TGTRelation'] == "MOB")
-        or (fdf['Adult1TGTRelation'] == "Mother") ### Added Y12Q4.
-    ):
-        return "MOB"
-    elif (
-        (fdf['Adult1TGTRelation'] == "Adoptive father")
-        or (fdf['Adult1TGTRelation'] == "Biological father")
-        or (fdf['Adult1TGTRelation'] == "FOB")
-    ):
-        return "FOB"
-    elif (pd.notna(fdf['Adult1TGTRelation'])):
-        return "Unrecognized Value"
+    if (fdf['source'] == 'FW'):
+        match fdf['Adult1TGTRelation']:
+            case _ if pd.isna(fdf['Adult1TGTRelation']):
+                return pd.NA 
+            case 'Aunt' | 'Biological mother' | 'Foster mother' | 'Grandmother'| 'Guardian' | 'MOB' | 'Mother':
+                return 'MOB'
+            case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father':
+                return 'FOB'
+            case _:
+                return 'Unrecognized Value'
+            ### TODO ASKJOE: Maybe add options from 'Adult2TGTRelation': 'Other'.
     ###########
     ### LLCHD.
-    elif (
-        (fdf['Primary Relation'] == "MOTHER OF CHILD")
-        or (fdf['Primary Relation'] == "PRIMARY CAREGIVER" and fdf['Mob Gender'] == "F")
-        or (fdf['Primary Relation'] == "Bio parent" and fdf['Mob Gender'] == "F") ### Added Y12Q4.
-        or (fdf['Primary Relation'] == "Grandparent" and fdf['Mob Gender'] == "F") ### Added Y12Q4.
-        or (fdf['Primary Relation'] == "Other" and fdf['Mob Gender'] == "F") ### Added Y12Q4.
-    ):
-        return "MOB"
-    elif (
-        (fdf['Primary Relation'] == "FATHER OF CHILD")
-        or (fdf['Primary Relation'] == "PRIMARY CAREGIVER" and fdf['Mob Gender'] == "M")
-        or (fdf['Primary Relation'] == "Bio parent" and fdf['Mob Gender'] == "M") ### Added Y12Q4.
-        or (fdf['Primary Relation'] == "Grandparent" and fdf['Mob Gender'] == "M") ### Added Y12Q4.
-    ):
-        return "FOB"
-    elif (pd.notna(fdf['Primary Relation'])):
-        return "Unrecognized Value"
+    elif (fdf['source'] == 'LL'):
+        match fdf['Primary Relation']:
+            case _ if pd.isna(fdf['Primary Relation']):
+                return pd.NA 
+            ###
+            case 'MOTHER OF CHILD':
+                return 'MOB'
+            case 'PRIMARY CAREGIVER' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                return 'MOB'
+            case 'Bio parent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                return 'MOB'
+            case 'Grandparent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                return 'MOB'
+            case 'Other' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                return 'MOB'
+            ###
+            case 'FATHER OF CHILD':
+                return 'FOB' 
+            case 'PRIMARY CAREGIVER' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                return 'FOB'
+            case 'Bio parent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                return 'FOB'
+            case 'Grandparent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                return 'FOB'
+            ###
+            case _:
+                return 'Unrecognized Value'
     ###########
     else:
-        return np.nan
+        return 'Unrecognized Value' ### if not FW or LL.
     ###########
+    ### /// Tableau Calculation:
     # IF [Adult1TGTRelation] = "Biological mother" THEN "MOB" //FW
     # ELSEIF  [Adult1TGTRelation] = "Biological father" THEN "FOB"
     # ELSEIF  [Adult1TGTRelation] = "FOB" THEN "FOB"
@@ -2902,22 +3058,44 @@ df_14t_edits1_tb3['_MOB TGT Relation'] = df_14t_edits1_tb3.apply(func=fn_MOB_TGT
 #%%###################################
 
 def fn_FOB_Relation(fdf):
-    if (fdf['Fob Involved1'] == "Y"):
-        return "FOB"
-    elif (fdf['Fob Involved'] == True):
-        match fdf['Adult2TGTRelation']:
-            case "Biological mother" | "MOB":
-                return "MOB"
-            case "Biological father" | "FOB" | "Foster father":
-                return "FOB"
-            case "Guardian":
-                return "Guardian"
-            case "Grandmother":
-                return "Grandmother"
-            case "Other":
-                return "Other"
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        if pd.isna(fdf['Fob Involved']):
+            return pd.NA 
+        elif (fdf['Fob Involved'] == True):
+            match fdf['Adult2TGTRelation']:
+                case _ if pd.isna(fdf['Adult2TGTRelation']):
+                    return pd.NA 
+                case 'Aunt' | 'Biological mother' | 'Foster mother' | 'MOB' | 'Mother':
+                    return 'MOB'
+                case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father':
+                    return 'FOB'
+                case 'Grandmother': 
+                    return 'Grandmother' ### TODO ASKJOE: Review whether should match MOB version where is 'MOB'.
+                case 'Guardian':
+                    return 'Guardian' ### TODO ASKJOE: Review whether should match MOB version where is 'MOB'.
+                case 'Other':
+                    return 'Other'
+                case _:
+                    return 'Unrecognized Value'
+        else:
+            return 'Unrecognized Value' ### If (fdf['Fob Involved'] != True).
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        if pd.isna(fdf['Fob Involved1']):
+            return pd.NA 
+        elif (fdf['Fob Involved1'] == 'Y'):
+            return 'FOB'
+        ### TODO: No need for other relationships?
+        else:
+            return pd.NA
+    ###########
     else:
-        return np.nan
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Fob Involved1] = "Y" THEN "FOB"
     # ELSEIF [Fob Involved] = True
     # THEN CASE [Adult2TGTRelation]
@@ -2965,7 +3143,7 @@ def fn_T12_MOB_Housing_Status(fdf):
                     return "Some other arrangement"
                 case "other":
                     return "Some other arrangement" ### Not sure this is the right category.
-                ### case np.nan:
+                ### case pd.NA:
                 ###     return "Unknown/Did Not Report"
                 case _:
                     return "Unrecognized Value" ### will have to add new FW values as they come in, they aren't all here.
@@ -2992,10 +3170,12 @@ def fn_T12_MOB_Housing_Status(fdf):
                     return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
                 case 8:
                     return "Homeless, some other arrangement" ### Homeless with some other arrangement.
-                ### case np.nan:
+                ### case pd.NA:
                 ###     return "Unknown/Did Not Report"
                 case _:
                     return "Unrecognized Value"
+    ###########
+    ### /// Tableau Calculation:
     # IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
     #     WHEN "Homeless and living in an emergency or transitional shelter" THEN "Homeless and living in an emergency or transition shelter" //Homeless and living in emergency or transitional shelter
     #     WHEN "Homeless and sharing housing" THEN "Homeless and sharing housing"
@@ -3045,14 +3225,16 @@ df_14t_edits1_tb3['_T14 Federal Poverty Level update'] = (int_fpg_base + (int_fp
 def fn_T14_Poverty_Percent(fdf):
     ### LLCHD.
     if (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Income'])):
-        return np.nan  
+        return pd.NA  
     elif (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Size'])):
-        return np.nan 
+        return pd.NA 
     elif (fdf['_Agency'] == "ll"):
         return fdf['Household Income'] / fdf['_T14 Federal Poverty Level update']
     ### FW.
     elif (fdf['_Agency'] != "ll"):
         return fdf['Poverty Level'] 
+    ###########
+    ### /// Tableau Calculation:
     # IF [_Agency] = "ll" AND ISNULL([Household Income]) THEN NULL //LLCHD
     # ELSEIF [_Agency] = "ll" AND ISNULL([Household Size]) THEN NULL
     # ELSEIF [_Agency] = "ll" THEN [Household Income]/[_T14 Federal Poverty Level update]
@@ -3067,23 +3249,24 @@ df_14t_edits1_tb3['_T14 Poverty Percent'] = df_14t_edits1_tb3.apply(func=fn_T14_
 #%%###################################
 
 ### Dependent on '_T14 Poverty Percent' above.
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T14_Federal_Poverty_Categories(fdf):
-    if (fdf['_T14 Poverty Percent'] <= .50):
-        return "50% and Under"
+    if (pd.isna(fdf['_T14 Poverty Percent'])):
+        return 'Unknown/Did Not Report' ### TODO ASKJOE: Check that this is desired.
+    elif (fdf['_T14 Poverty Percent'] <= .50):
+        return '50% and Under'
     elif (fdf['_T14 Poverty Percent'] <= 1.00):
-        return "51-100%"
+        return '51-100%'
     elif (fdf['_T14 Poverty Percent'] <= 1.33):
-        return "101-133%"
+        return '101-133%'
     elif (fdf['_T14 Poverty Percent'] <= 2.00):
-        return "134-200%"
+        return '134-200%'
     elif (fdf['_T14 Poverty Percent'] <= 3.00):
-        return "201-300%"
+        return '201-300%'
     elif (fdf['_T14 Poverty Percent'] > 3.00):
-        return ">300%"
-    ### TODO : This option doesn't make much sense. Probably should be "elif pd.isna(fdf['_T14 Poverty Percent'])".
-        ### But Python is catching this below: TODO: Figure out why:
-    elif np.nan:
-        return "Unknown/Did Not Report"
+        return '>300%'
+    ###########
+    ### /// Tableau Calculation:
     # IF [_T14 Poverty Percent] <= .50 THEN "50% and Under"
     # ELSEIF [_T14 Poverty Percent] <= 1.00 THEN "51-100%"
     # ELSEIF [_T14 Poverty Percent] <= 1.33 THEN "101-133%"
@@ -3117,6 +3300,8 @@ def fn_T17_Discharge_Reason(fdf):
                 return "Stopped Services Before Completion"
     else:
         return "Currently Receiving Services"
+    ###########
+    ### /// Tableau Calculation:
     # IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
     #     WHEN "1" THEN "Completed Services" 
     #     WHEN "Family Has Met Program Goals" THEN "Completed Services"
@@ -3149,16 +3334,31 @@ df_14t_edits1_tb3['_T17 Discharge Reason'] = df_14t_edits1_tb3.apply(func=fn_T17
 #%%###################################
 
 def fn_Need_Exclusion_1_Sub_Abuse(fdf):
+    ###########
     ### FW.
-    if (fdf['Need Exclusion1'] == "Substance Abuse"):
-        return "Alcohol/Drug Abuse" 
-    elif (fdf['Need Exclusion1'] == "Drug Abuse"):
-        return "Alcohol/Drug Abuse"
-    elif (fdf['Need Exclusion1'] == "Alcohol Abuse"):
-        return "Alcohol/Drug Abuse"
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion1']:
+            case _ if pd.isna(fdf['Need Exclusion1']):
+                return pd.NA 
+            case 'Substance Abuse' | 'Drug Abuse' | 'Alcohol Abuse':
+                return 'Alcohol/Drug Abuse'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
     ### LLCHD.
-    elif (fdf['need exclusion1 (LLCHD)'] == "Y"):
-        return "Alcohol/Drug Abuse" 
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion1 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion1 (LLCHD)']):
+                return pd.NA 
+            case 'Y':
+                return 'Alcohol/Drug Abuse'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
+    else:
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Need Exclusion1] = "Substance Abuse" THEN "Alcohol/Drug Abuse" //FW
     #     ELSEIF [Need Exclusion1] = "Drug Abuse" THEN "Alcohol/Drug Abuse"
     #     ELSEIF [Need Exclusion1] = "Alcohol Abuse" THEN "Alcohol/Drug Abuse"
@@ -3167,16 +3367,39 @@ def fn_Need_Exclusion_1_Sub_Abuse(fdf):
 df_14t_edits1_tb3['_Need Exclusion 1 - Sub Abuse'] = df_14t_edits1_tb3.apply(func=fn_Need_Exclusion_1_Sub_Abuse, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb3['_Need Exclusion 1 - Sub Abuse']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Need Exclusion1']) ### Options: 3 listed above or NA.
+# #%%
+# inspect_col(df_14t_edits1_tb3['need exclusion1 (LLCHD)']) ### Options: "Y", "N", "U", NA. ### TODO ASKJOE: Do we care about the other options?
 
 #%%###################################
 
 def fn_Need_Exclusion_2_Fam_Plan(fdf):
+    ###########
     ### FW.
-    if (fdf['Need Exclusion2'] == "Family Planning"):
-        return "Family Planning" 
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion2']:
+            case _ if pd.isna(fdf['Need Exclusion2']):
+                return pd.NA 
+            case 'Family Planning':
+                return 'Family Planning'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
     ### LLCHD.
-    elif (fdf['need exclusion2 (LLCHD)'] == "Y"):
-        return "Family Planning" 
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion2 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion2 (LLCHD)']):
+                return pd.NA 
+            case 'Y':
+                return 'Family Planning'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
+    else:
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Need Exclusion2] = "Family Planning" THEN "Family Planning" //FW
     # ELSEIF [need exclusion2 (LLCHD)] = "Y" THEN "Family Planning" //LLCHD
     # END
@@ -3187,12 +3410,31 @@ df_14t_edits1_tb3['_Need Exclusion 2 - Fam Plan'] = df_14t_edits1_tb3.apply(func
 #%%###################################
 
 def fn_Need_Exclusion_3_Mental_Health(fdf):
+    ###########
     ### FW.
-    if (fdf['Need Exclusion3'] == "Mental Health"):
-        return "Mental Health" 
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion3']:
+            case _ if pd.isna(fdf['Need Exclusion3']):
+                return pd.NA 
+            case 'Mental Health':
+                return 'Mental Health'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
     ### LLCHD.
-    elif (fdf['need exclusion3 (LLCHD)'] == "Y"):
-        return "Mental Health" 
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion3 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion3 (LLCHD)']):
+                return pd.NA 
+            case 'Y':
+                return 'Mental Health'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
+    else:
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Need Exclusion3] = "Mental Health" THEN "Mental Health" //FW
     # ELSEIF [need exclusion3 (LLCHD)] = "Y" THEN "Mental Health" //LLCHD
     # END
@@ -3203,12 +3445,31 @@ df_14t_edits1_tb3['_Need Exclusion 3 - Mental Health'] = df_14t_edits1_tb3.apply
 #%%###################################
 
 def fn_Need_Exclusion_5_IPV(fdf):
-    ## FW.
-    if (fdf['Need Exclusion5'] == "IPV Services"):
-        return "IPV Services" 
-    ## LLCHD.
-    elif (fdf['need exclusion5 (LLCHD)'] == "Y"):
-        return "IPV Services" 
+    ###########
+    ### FW.
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion5']:
+            case _ if pd.isna(fdf['Need Exclusion5']):
+                return pd.NA 
+            case 'IPV Services':
+                return 'IPV Services'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
+    ### LLCHD.
+    elif (fdf['source'] == 'LL'):
+        match fdf['need exclusion5 (LLCHD)']:
+            case _ if pd.isna(fdf['need exclusion5 (LLCHD)']):
+                return pd.NA 
+            case 'Y':
+                return 'IPV Services'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
+    else:
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Need Exclusion5] = "IPV Services" THEN "IPV Services" //FW
     # ELSEIF [need exclusion5 (LLCHD)] = "Y" THEN "IPV Services" //LLCHD
     # END
@@ -3218,13 +3479,33 @@ df_14t_edits1_tb3['_Need Exclusion 5 - IPV'] = df_14t_edits1_tb3.apply(func=fn_N
 
 #%%###################################
 
+### TODO: fix var name difference of Excludion6 between Form2 & Form1.
 def fn_Need_Exclusion_6_Tobacco(fdf):
+    ###########
     ### FW.
-    if (fdf['Need Exclusion6'] == "Tobacco Cessation"):
-        return "Tobacco Cessation" 
+    if (fdf['source'] == 'FW'):
+        match fdf['Need Exclusion6']:
+            case _ if pd.isna(fdf['Need Exclusion6']):
+                return pd.NA 
+            case 'Tobacco Cessation':
+                return 'Tobacco Cessation'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
     ### LLCHD.
-    elif (fdf['need_exclusion6'] == "Y"):
-        return "Tobacco Cessation" 
+    elif (fdf['source'] == 'LL'):
+        match fdf['need_exclusion6']:
+            case _ if pd.isna(fdf['need_exclusion6']):
+                return pd.NA 
+            case 'Y':
+                return 'Tobacco Cessation'
+            case _:
+                return pd.NA ### TODO ASKJOE: Clarify if this is what's wanted.
+    ###########
+    else:
+        return 'Unrecognized Value' ### if not FW or LL.
+    ###########
+    ### /// Tableau Calculation:
     # IF [Need Exclusion6] = "Tobacco Cessation" THEN "Tobacco Cessation" //FW
     # ELSEIF [need_exclusion6] = "Y" THEN "Tobacco Cessation" //LLCHD
     # END
@@ -3234,43 +3515,38 @@ df_14t_edits1_tb3['_Need Exclusion 6 - Tobacco'] = df_14t_edits1_tb3.apply(func=
 
 #%%###################################
 
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
+### TODO: No opportunity to catch Unknown Values.
 def fn_T15_5_Tobacco_Use_in_Home(fdf):
+    ###########
     ### FW.
-    ### if (fdf['Tobacco Use In Home'].lower() == "yes"):
-    if (fdf['Tobacco Use In Home'] == "Yes"):
-        return 1 
-    elif (fdf['Tobacco Use In Home'] == "No"):
-        return 0
+    if (fdf['source'] == 'FW'):
+        match fdf['Tobacco Use In Home']:
+            case _ if pd.isna(fdf['Tobacco Use In Home']):
+                return 0
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return 0 
+    ###########
     ### LLCHD.
-    elif (fdf['Priority Tobacco Use'] == "Y"):
-        return 1 
-    elif (fdf['Priority Tobacco Use'] == "N"):
-        return 0
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Tobacco Use']:
+            case _ if pd.isna(fdf['Priority Tobacco Use']):
+                return 0 
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return 0 
+    ###########
     else:
-        return 0
-# def fn_T15_5_Tobacco_Use_in_Home(fdf):
-#     ### FW.
-#     if pd.notna(fdf['Tobacco Use In Home']):
-#         match fdf['Tobacco Use In Home'].lower():
-#             case "yes":
-#                 return 1 
-#             case "no":
-#                 return 0
-#             case _:
-#                 return 0
-#     ### LLCHD.
-#     elif pd.notna(fdf['Priority Tobacco Use']):
-#         match fdf['Priority Tobacco Use'].lower():
-#             case "y":
-#                 return 1 
-#             case "n":
-#                 return 0
-#             case _:
-#                 return 0
-#     ###
-#     else:
-#         return 0
-    #######
+        return 0 
+    ###########
+    ### /// Tableau Calculation:
     # IF[Tobacco Use In Home] = "Yes" THEN 1 //FW
     # ELSEIF [Tobacco Use In Home] = "No" THEN 0
     # ELSEIF [Priority Tobacco Use] = "Y" THEN 1 //LLCHD
@@ -3298,7 +3574,7 @@ df_14t_edits1_tb3['_T15-5 Tobacco Use in Home'] = df_14t_edits1_tb3.apply(func=f
 ### Returns both NaN & None at the moment.
 def fn_IPV_Score_FW(fdf):
     if pd.isna(fdf['Agency']):
-        return np.nan 
+        return pd.NA 
     elif (fdf['Agency'] != "ll"):
         if (
             fdf['Assess Afraid'] == True 
@@ -3308,6 +3584,8 @@ def fn_IPV_Score_FW(fdf):
             return "P"
         else:
             return "N" 
+    ###########
+    ### /// Tableau Calculation:
     # IF [Agency] <> "ll" THEN
     #     (IF [Assess Afraid] = TRUE 
     #     OR [Assess IPV] = TRUE 
@@ -3349,6 +3627,8 @@ def fn_TGT_EDC_Date(fdf):
             return fdf['Dt Edc']
         else:
             return fdf['EDC Date']
+    ###########
+    ### /// Tableau Calculation:
     # IF [Dt Edc] = DATE(1/1/1900) THEN NULL //LLCHD
     # ELSEIF [EDC Date] = DATE(1/1/1900) THEN NULL //FW
     # ELSE IFNULL([Dt Edc],[EDC Date])
@@ -3359,11 +3639,24 @@ df_14t_edits1_tb3['_TGT EDC Date'] = df_14t_edits1_tb3.apply(func=fn_TGT_EDC_Dat
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
 def fn_UNCOPE_U_Recode(fdf):
-    if (fdf['U'] == "Yes"):
-        return 1 
-    elif (fdf['U'] == "No"):
-        return 0 
+    ### ONLY for FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['U']:
+            case _ if pd.isna(fdf['U']):
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return pd.NA ### TODO ASKJOE: Return a different number?
+    ###########
+    else:
+        return pd.NA
+    ###########
+    ### /// Tableau Calculation:
     # IF [U] = "Yes" THEN INT(1)
     # ELSEIF [U] = "No" THEN INT(0)
     # END
@@ -3373,11 +3666,24 @@ df_14t_edits1_tb3['_UNCOPE U Recode'] = df_14t_edits1_tb3.apply(func=fn_UNCOPE_U
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
 def fn_UNCOPE_N_Recode(fdf):
-    if (fdf['N'] == "Yes"):
-        return 1 
-    elif (fdf['N'] == "No"):
-        return 0 
+    ### ONLY for FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['N']:
+            case _ if pd.isna(fdf['N']):
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return pd.NA ### TODO ASKJOE: Return a different number?
+    ###########
+    else:
+        return pd.NA
+    ###########
+    ### /// Tableau Calculation:
     # IF [N] = "Yes" THEN INT(1)
     # ELSEIF [N] = "No" THEN INT(0)
     # END
@@ -3387,11 +3693,24 @@ df_14t_edits1_tb3['_UNCOPE N Recode'] = df_14t_edits1_tb3.apply(func=fn_UNCOPE_N
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
 def fn_UNCOPE_C_Recode(fdf):
-    if (fdf['C'] == "Yes"):
-        return 1 
-    elif (fdf['C'] == "No"):
-        return 0 
+    ### ONLY for FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['C']:
+            case _ if pd.isna(fdf['C']):
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return pd.NA ### TODO ASKJOE: Return a different number?
+    ###########
+    else:
+        return pd.NA
+    ###########
+    ### /// Tableau Calculation:
     # IF [C] = "Yes" THEN INT(1)
     # ELSEIF [C] = "No" THEN INT(0)
     # END
@@ -3401,11 +3720,24 @@ df_14t_edits1_tb3['_UNCOPE C Recode'] = df_14t_edits1_tb3.apply(func=fn_UNCOPE_C
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
 def fn_UNCOPE_O_Recode(fdf):
-    if (fdf['O'] == "Yes"):
-        return 1 
-    elif (fdf['O'] == "No"):
-        return 0 
+    ### ONLY for FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['O']:
+            case _ if pd.isna(fdf['O']):
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return pd.NA ### TODO ASKJOE: Return a different number?
+    ###########
+    else:
+        return pd.NA
+    ###########
+    ### /// Tableau Calculation:
     # IF [O] = "Yes" THEN INT(1)
     # ELSEIF [O] = "No" THEN INT(0)
     # END
@@ -3415,11 +3747,24 @@ df_14t_edits1_tb3['_UNCOPE O Recode'] = df_14t_edits1_tb3.apply(func=fn_UNCOPE_O
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
 def fn_UNCOPE_P_Recode(fdf):
-    if (fdf['P'] == "Yes"):
-        return 1 
-    elif (fdf['P'] == "No"):
-        return 0 
+    ### ONLY for FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['P']:
+            case _ if pd.isna(fdf['P']):
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return pd.NA ### TODO ASKJOE: Return a different number?
+    ###########
+    else:
+        return pd.NA
+    ###########
+    ### /// Tableau Calculation:
     # IF [P] = "Yes" THEN INT(1)
     # ELSEIF [P] = "No" THEN INT(0)
     # END
@@ -3429,11 +3774,24 @@ df_14t_edits1_tb3['_UNCOPE P Recode'] = df_14t_edits1_tb3.apply(func=fn_UNCOPE_P
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
 def fn_UNCOPE_E_Recode(fdf):
-    if (fdf['E'] == "Yes"):
-        return 1 
-    elif (fdf['E'] == "No"):
-        return 0 
+    ### ONLY for FW:
+    if (fdf['source'] == 'FW'):
+        match fdf['E']:
+            case _ if pd.isna(fdf['E']):
+                return pd.NA 
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return pd.NA ### TODO ASKJOE: Return a different number?
+    ###########
+    else:
+        return pd.NA
+    ###########
+    ### /// Tableau Calculation:
     # IF [E] = "Yes" THEN INT(1)
     # ELSEIF [E] = "No" THEN INT(0)
     # END
@@ -3453,6 +3811,8 @@ def fn_UNCOPE_Score_FW(fdf):
         fdf['_UNCOPE P Recode'] + 
         fdf['_UNCOPE E Recode']
     )
+    ###########
+    ### /// Tableau Calculation:
     # [_UNCOPE U Recode]+[_UNCOPE N Recode]+[_UNCOPE C Recode]+[_UNCOPE O Recode]+[_UNCOPE P Recode]+[_UNCOPE E Recode]
     # //sum of UNCOPE scores in the FW dataset
 df_14t_edits1_tb3['_UNCOPE Score FW'] = df_14t_edits1_tb3.apply(func=fn_UNCOPE_Score_FW, axis=1).astype('Int64') 
@@ -3461,20 +3821,38 @@ df_14t_edits1_tb3['_UNCOPE Score FW'] = df_14t_edits1_tb3.apply(func=fn_UNCOPE_S
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T15_3_History_Welfare_Interaction(fdf):
+    ###########
     ### FW.
-    if (fdf['History Inter Welfare Adult'] == True):
-        return 1 
-    elif (fdf['History Inter Welfare Adult'] == False):
-        return 0 
+    if (fdf['source'] == 'FW'):
+        match fdf['History Inter Welfare Adult']:
+            case _ if pd.isna(fdf['History Inter Welfare Adult']):
+                return 0
+            case True:
+                return 1 
+            case False:
+                return 0 
+            case _:
+                return 0 
+    ###########
     ### LLCHD.
-    elif (fdf['Priority Child Welfare'] == "Y"):
-        return 1 
-    elif (fdf['Priority Child Welfare'] == "N"):
-        return 0 
-    ###
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Child Welfare']:
+            case _ if pd.isna(fdf['Priority Child Welfare']):
+                return 0 
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return 0 
+    ###########
     else:
         return 0 
+    ###########
+    ### /// Tableau Calculation:
     # IF [History Inter Welfare Adult] = True THEN 1 //FW
     # ELSEIF  [History Inter Welfare Adult] = False THEN 0
     # ELSEIF[Priority Child Welfare] = "Y" THEN 1 //LLCHD
@@ -3487,20 +3865,38 @@ df_14t_edits1_tb3['_T15-3 History Welfare Interaction'] = df_14t_edits1_tb3.appl
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T15_6_Low_Achievement(fdf):
+    ###########
     ### FW.
-    if (fdf['Low Achievement'] == "Yes"):
-        return 1 
-    elif (fdf['Low Achievement'] == "No"):
-        return 0 
+    if (fdf['source'] == 'FW'):
+        match fdf['Low Achievement']:
+            case _ if pd.isna(fdf['Low Achievement']):
+                return 0
+            case 'Yes':
+                return 1 
+            case 'No':
+                return 0 
+            case _:
+                return 0 
+    ###########
     ### LLCHD.
-    elif (fdf['Priority Low Student'] == "Y"):
-        return 1 
-    elif (fdf['Priority Low Student'] == "N"):
-        return 0 
-    ###
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Low Student']:
+            case _ if pd.isna(fdf['Priority Low Student']):
+                return 0 
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return 0 
+    ###########
     else:
         return 0 
+    ###########
+    ### /// Tableau Calculation:
     # IF[Low Achievement] = "Yes" THEN 1 //FW
     # ELSEIF [Low Achievement] = "No" THEN 0
     # ELSEIF [Priority Low Student] = "Y" THEN 1 //LLCHD
@@ -3513,20 +3909,38 @@ df_14t_edits1_tb3['_T15-6 Low Achievement'] = df_14t_edits1_tb3.apply(func=fn_T1
 
 #%%###################################
 
+### TODO: No opportunity to flag Unrecognized Values.
+### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_T15_8_Military(fdf):
+    ###########
     ### FW.
-    if (fdf['Military'] == "Y"):
-        return 1 
-    elif (fdf['Military'] == "N"):
-        return 0 
+    if (fdf['source'] == 'FW'):
+        match fdf['Military']:
+            case _ if pd.isna(fdf['Military']):
+                return 0
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return 0 
+    ###########
     ### LLCHD.
-    elif (fdf['Priority Military'] == "Y"):
-        return 1 
-    elif (fdf['Priority Military'] == "N"):
-        return 0 
-    ###
+    elif (fdf['source'] == 'LL'):
+        match fdf['Priority Military']:
+            case _ if pd.isna(fdf['Priority Military']):
+                return 0 
+            case 'Y':
+                return 1 
+            case 'N':
+                return 0 
+            case _:
+                return 0 
+    ###########
     else:
         return 0 
+    ###########
+    ### /// Tableau Calculation:
     # IF [Military]= "Y" THEN 1 //FW
     # ELSEIF [Military] = "N" THEN 0
     # ELSEIF [Priority Military] = "Y" THEN 1 //LLCHD
