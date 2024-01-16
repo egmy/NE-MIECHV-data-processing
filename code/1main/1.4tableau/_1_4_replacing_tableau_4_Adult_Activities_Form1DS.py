@@ -141,11 +141,11 @@ list_14t_col_detail_tb4_3 = [
     ['MaxOfVISIT NUMBER', 'MaxOfVISIT NUMBER', 'same', 'Int64'],
     ['BehaviorNumer', 'BehaviorNumer', 'same', 'Int64'],
     ['BehaviorDenom', 'BehaviorDenom', 'same', 'Int64'],
-    ['HomeVisitsPrenatal', 'HomeVisitsPrenatal', 'same', 'Int64'],
-    ['HomeVisitsTotal', 'HomeVisitsTotal', 'same', 'Int64'],
-    ['HomeVisitTypeAll', 'HomeVisitTypeAll', 'same', 'Int64'], ### New Y12Q4.
-    ['HomeVisitTypeIP', 'HomeVisitTypeIP', 'same', 'Int64'], ### New Y12Q4.
-    ['HomeVisitTypeV', 'HomeVisitTypeV', 'same', 'Int64'], ### New Y12Q4.
+    ['HomeVisitsPrenatal', 'Home Visits Prenatal', '', 'Int64'],
+    ['HomeVisitsTotal', 'Home Visits Total', '', 'Int64'],
+    ['HomeVisitTypeAll', 'Home Visit Type All', '', 'Int64'], ### New Y12Q4.
+    ['HomeVisitTypeIP', 'Home Visit Type IP', '', 'Int64'], ### New Y12Q4.
+    ['HomeVisitTypeV', 'Home Visit Type V', '', 'Int64'], ### New Y12Q4.
     ['MOBDOB', 'Mobdob', '', 'datetime64[ns]'],
     ['FOBDOB', 'Fobdob', '', 'datetime64[ns]'],
     ['MinEducationDate', 'Min Education Date', '', 'datetime64[ns]'],
@@ -267,10 +267,10 @@ list_14t_col_detail_tb4_4 = [
     ['discharge_dt', 'Discharge Dt', '', 'datetime64[ns]'],
     ['last_home_visit', 'Last Home Visit', '', 'datetime64[ns]'],
     ['home_visits_num', 'Home Visits Num', '', 'Int64'],
-    ['home_visits_pre', 'home_visits_pre', 'same', 'Int64'],
-    ['home_visits_post', 'home_visits_post', 'same', 'Int64'],
-    ['home_visits_person', 'home_visits_person', 'same', 'string'],
-    ['home_visits_virtual', 'home_visits_virtual', 'same', 'string'],
+    ['home_visits_pre', 'Home Visits Pre', '', 'Int64'],
+    ['home_visits_post', 'Home Visits Post', '', 'Int64'],
+    ['home_visits_person', 'Home Visits Person', '', 'Int64'],
+    ['home_visits_virtual', 'Home Visits Virtual', '', 'Int64'],
     ['funding', 'funding (LLCHD)', '', 'string'],
     ['c_fundingdate', 'c_fundingdate', 'same', 'datetime64[ns]'],
     ['p_funding', 'p_funding', 'same', 'string'],
@@ -979,8 +979,8 @@ df_14t_edits1_tb4['_Zip'] = (
 
 #%%
 
-df_14t_edits1_tb4['_T16 Number of Home Visits'] = df_14t_edits1_tb4['HomeVisitsTotal'].combine_first(df_14t_edits1_tb4['Home Visits Num']).astype('Float64').astype('Int64') 
-    ### IFNULL([HomeVisitsTotal],[Home Visits Num])
+df_14t_edits1_tb4['_T16 Number of Home Visits'] = df_14t_edits1_tb4['Home Visits Total'].combine_first(df_14t_edits1_tb4['Home Visits Num']).astype('Float64').astype('Int64') 
+    ### IFNULL([Home Visits Total],[Home Visits Num])
     ### Data Type in Tableau: integer.
 # inspect_col(df_14t_edits1_tb4['_T16 Number of Home Visits'])
 
