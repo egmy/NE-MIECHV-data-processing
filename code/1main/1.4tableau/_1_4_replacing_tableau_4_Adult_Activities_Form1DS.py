@@ -4898,7 +4898,8 @@ df_14t_edits2_tb4 = df_14t_edits1_tb4.drop(columns=['LJ_tb4_2CI', 'LJ_tb4_3FW', 
 
 #%%
 ### Reorder Columns.
-df_14t_edits2_tb4 = df_14t_edits2_tb4[[*df_14t_comparison_csv_tb4]]
+### df_14t_edits2_tb4 = df_14t_edits2_tb4[[*df_14t_comparison_csv_tb4]]
+### 2024-01-16: Not using comparison because different variables now. Note: This also keeps in "source" that was previously removed.
 
 #%%################################
 ### SORT ROWS
@@ -4940,6 +4941,40 @@ df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='object', ke
 #%%##################################################
 ### COMPARE CSVs ###
 #####################################################
+
+#%%###################################
+### Make comparison have the same columns.
+
+#%%
+### Extra columns created:
+df_14t_comparison_csv_tb4['source'] = (
+    df_14t_comparison_csv_tb4
+    .apply(func=(
+        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+    ), axis=1)
+    .astype('string') 
+)
+
+#%%
+### Columns Renamed:
+df_14t_comparison_csv_tb4 = df_14t_comparison_csv_tb4.rename(columns={
+    'home_visits_pre': 'Home Visits Pre'
+    ,'home_visits_post': 'Home Visits Post'
+    ,'home_visits_person': 'Home Visits Person'
+    ,'home_visits_virtual': 'Home Visits Virtual'
+    ,'HomeVisitsPrenatal': 'Home Visits Prenatal'
+    ,'HomeVisitsTotal': 'Home Visits Total'
+    ,'HomeVisitTypeIP': 'Home Visit Type IP'
+    ,'HomeVisitTypeV': 'Home Visit Type V'
+    ,'HomeVisitTypeAll': 'Home Visit Type All'
+})
+
+#%%
+### Columns removed from code:
+
+#%%
+### Reorder Columns.
+df_14t_comparison_csv_tb4 = df_14t_comparison_csv_tb4[[*df_14t__final_from_csv_tb4]]
 
 #%%###################################
 

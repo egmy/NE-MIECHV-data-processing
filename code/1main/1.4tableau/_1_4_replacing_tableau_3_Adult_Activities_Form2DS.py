@@ -1072,39 +1072,37 @@ df_14t_edits1_tb3['_FOB DOB'] = df_14t_edits1_tb3.apply(func=fn_FOB_DOB, axis=1)
 
 #%%###################################
 
-### TODO: Move age calculations to Tableau Report Workbook. ### Joe ok!
-def fn_T04_MOB_Age(fdf):
-
-    ### FIX:
-    1
-
-    ###########
-    ### /// Tableau Calculation:
-    # IF [_MOB DOB]> DATEADD('year',-DATEDIFF('year',[_MOB DOB],TODAY()),TODAY())
-    # THEN DATEDIFF('year',[_MOB DOB],TODAY()-1)
-    # ELSE DATEDIFF('year',[_MOB DOB],TODAY())
-    # END
-df_14t_edits1_tb3['_T04 MOB Age'] = df_14t_edits1_tb3.apply(func=fn_T04_MOB_Age, axis=1).astype('Int64') 
-    ### Data Type in Tableau: integer.
-# inspect_col(df_14t_edits1_tb3['_T04 MOB Age']) 
+### DONE: Move age calculations to Tableau Report Workbook. ### Joe ok!
+### NOT Used in Form 2 (or Form 1). So REMOVING.
+# def fn_T04_MOB_Age(fdf):
+#     ### FIX because month calculations not calculation the same as in Tableau:
+#     1
+#     ###########
+#     ### /// Tableau Calculation:
+#     # IF [_MOB DOB]> DATEADD('year',-DATEDIFF('year',[_MOB DOB],TODAY()),TODAY())
+#     # THEN DATEDIFF('year',[_MOB DOB],TODAY()-1)
+#     # ELSE DATEDIFF('year',[_MOB DOB],TODAY())
+#     # END
+# df_14t_edits1_tb3['_T04 MOB Age'] = df_14t_edits1_tb3.apply(func=fn_T04_MOB_Age, axis=1).astype('Int64') 
+#     ### Data Type in Tableau: integer.
+# # inspect_col(df_14t_edits1_tb3['_T04 MOB Age']) 
 
 #%%###################################
 
-### TODO: Move age calculations to Tableau Report Workbook. ### Joe ok!
-def fn_T04_FOB_Age(fdf):
-
-    ### FIX:
-    1
-
-    ###########
-    ### /// Tableau Calculation:
-    # IF [_FOB DOB]> DATEADD('year',-DATEDIFF('year',[_FOB DOB],TODAY()),TODAY())
-    # THEN DATEDIFF('year',[_FOB DOB],TODAY()-1)
-    # ELSE DATEDIFF('year',[_FOB DOB],TODAY())
-    # END
-df_14t_edits1_tb3['_T04 FOB Age'] = df_14t_edits1_tb3.apply(func=fn_T04_FOB_Age, axis=1).astype('Int64') 
-    ### Data Type in Tableau: integer.
-# inspect_col(df_14t_edits1_tb3['_T04 FOB Age']) 
+### DONE: Move age calculations to Tableau Report Workbook. ### Joe ok!
+### NOT Used in Form 2 (or Form 1). So REMOVING.
+# def fn_T04_FOB_Age(fdf):
+#     ### FIX because month calculations not calculation the same as in Tableau:
+#     1
+#     ###########
+#     ### /// Tableau Calculation:
+#     # IF [_FOB DOB]> DATEADD('year',-DATEDIFF('year',[_FOB DOB],TODAY()),TODAY())
+#     # THEN DATEDIFF('year',[_FOB DOB],TODAY()-1)
+#     # ELSE DATEDIFF('year',[_FOB DOB],TODAY())
+#     # END
+# df_14t_edits1_tb3['_T04 FOB Age'] = df_14t_edits1_tb3.apply(func=fn_T04_FOB_Age, axis=1).astype('Int64') 
+#     ### Data Type in Tableau: integer.
+# # inspect_col(df_14t_edits1_tb3['_T04 FOB Age']) 
 
 #%%###################################
 
@@ -4015,7 +4013,7 @@ df_14t_edits1_tb3['_TGT 3 Month Date'] = (df_14t_edits1_tb3['_TGT DOB'] + pd.Dat
 
 #%%
 ### For testing/comparisons
-df_14t_edits1_tb3_sorted = df_14t_edits1_tb3.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)[[*df_14t_comparison_csv_tb3]].copy() ### Rows then Columns sorted.
+### df_14t_edits1_tb3_sorted = df_14t_edits1_tb3.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)[[*df_14t_comparison_csv_tb3]].copy() ### Rows then Columns sorted.
 
 
 #%%##################################################
@@ -4089,7 +4087,8 @@ df_14t_edits2_tb3 = df_14t_edits1_tb3.drop(columns=['LJ_tb3_2CI', 'LJ_tb3_3FW', 
 
 #%%
 ### Reorder Columns.
-df_14t_edits2_tb3 = df_14t_edits2_tb3[[*df_14t_comparison_csv_tb3]]
+### df_14t_edits2_tb3 = df_14t_edits2_tb3[[*df_14t_comparison_csv_tb3]]
+### 2024-01-16: Not using comparison because different variables now. Note: This also keeps in "source" that was previously removed.
 
 #%%################################
 ### SORT ROWS
@@ -4131,6 +4130,45 @@ df_14t__final_from_csv_tb3 = pd.read_csv(path_14t_output_tb3, dtype=object, keep
 #%%##################################################
 ### COMPARE CSVs ###
 #####################################################
+
+#%%###################################
+### Make comparison have the same columns.
+
+#%%
+### Extra columns created:
+df_14t_comparison_csv_tb3['source'] = (
+    df_14t_comparison_csv_tb3
+    .apply(func=(
+        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+    ), axis=1)
+    .astype('string') 
+)
+
+df_14t_comparison_csv_tb3['Home Visit Type IP'] = 1 ### Placeholder.
+df_14t_comparison_csv_tb3['Home Visit Type V'] = 1 ### Placeholder.
+df_14t_comparison_csv_tb3['Home Visit Type All'] = 1 ### Placeholder.
+
+#%%
+### Columns Renamed:
+df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.rename(columns={
+    'home_visits_pre': 'Home Visits Pre'
+    ,'home_visits_post': 'Home Visits Post'
+    ,'home_visits_person': 'Home Visits Person'
+    ,'home_visits_virtual': 'Home Visits Virtual'
+    ,'HomeVisitsPrenatal': 'Home Visits Prenatal'
+    ,'HomeVisitsTotal': 'Home Visits Total'
+    # ,'HomeVisitTypeIP': 'Home Visit Type IP'
+    # ,'HomeVisitTypeV': 'Home Visit Type V'
+    # ,'HomeVisitTypeAll': 'Home Visit Type All'
+})
+
+#%%
+### Columns removed from code:
+df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.drop(columns=['_T04 MOB Age', '_T04 FOB Age'])
+
+#%%
+### Reorder Columns.
+df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3[[*df_14t__final_from_csv_tb3]]
 
 #%%###################################
 

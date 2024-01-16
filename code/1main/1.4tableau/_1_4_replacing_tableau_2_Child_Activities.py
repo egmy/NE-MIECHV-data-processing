@@ -2467,51 +2467,59 @@ df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_fir
 
 #%%###################################
 
-### TODO: Move to Tableau & pin to start/end of Reporting period.
+### DONE: Did not, see below: Move to Tableau & pin to start/end of Reporting period.
 
 ### RECOMMEND that [_T05 TGT Age in Months] & ['_T05 Age Categories'] be created in the Form 1/2 Tableau Workbooks because the calculations do not match exactly between Tableau & Python. 
 
 ### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
 ### Testing in Tableau on DATEDIFF shows that it rounds to an integer, so implemented here.
-### TODO: FIX: first if clause.
-### TODO: Ask Joe purpose of IF clause. WHY!?!?!?!?
+### DONE: FIX: first if clause.
+### DONE: Ask Joe purpose of IF clause. WHY!?!?!?!?
 ### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
-### TODO: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
+### DONE: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
 # now = pd.Timestamp('now')
 # date_for_age_calcs_14t_tb2 = now
 
 ### Base Age off [Report End Date]. *** Check how these are used in the F1/F2.
 
-date_for_age_calcs_14t_tb2 = pd.Timestamp("2023-02-08T14:12")
-def fn_T05_TGT_Age_in_Months(fdf):
-    if (fdf['_TGT DOB'] is pd.NaT):
-        return np.nan
-        # return 0 ### Testing.
-    ### Break.
-    # if (fdf['_TGT DOB'] > (date_for_age_calcs_14t_tb2 - pd.DateOffset(months=
-    #         (pd.Series((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
-    #     ))):
-    if ((fdf['_TGT DOB'] is not pd.NaT) and 
-        (fdf['_TGT DOB'] > (date_for_age_calcs_14t_tb2 - pd.DateOffset(months=np.where(
-            (fdf['_TGT DOB'] is not pd.NaT)
-            ,(pd.Series((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
-            ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
-        ))))):
-        return pd.Series(((date_for_age_calcs_14t_tb2 - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
-        # return 1 ### Testing.
-    else:
-        ### return (((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
-        return pd.Series((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
-        # return 0 ### Testing.
-    ###########
-    ### /// Tableau Calculation:
+### Age only matters for Form 1 (not Form 2). However, neither [_T05 TGT Age in Months] nor [_T05 Age Categories] are actually used in Form 2; instead, [_T05 TGT Age] & [_T05 TGT Age Categories] are used.
+    ### SO: 2024-01-16: Removing these calculations because not needed.
+### Last version of Tableau Calculation:
     ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
     ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
     ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
     ### END
-df_14t_edits1_tb2['_T05 TGT Age in Months'] = df_14t_edits1_tb2.apply(func=fn_T05_TGT_Age_in_Months, axis=1).round()#.astype('Float64').astype('Int64')
-    ### Data Type in Tableau: integer.
-# inspect_col(df_14t_edits1_tb2['_T05 TGT Age in Months'])
+
+# date_for_age_calcs_14t_tb2 = pd.Timestamp("2023-02-08T14:12")
+# def fn_T05_TGT_Age_in_Months(fdf):
+#     if (fdf['_TGT DOB'] is pd.NaT):
+#         return np.nan
+#         # return 0 ### Testing.
+#     ### Break.
+#     # if (fdf['_TGT DOB'] > (date_for_age_calcs_14t_tb2 - pd.DateOffset(months=
+#     #         (pd.Series((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
+#     #     ))):
+#     if ((fdf['_TGT DOB'] is not pd.NaT) and 
+#         (fdf['_TGT DOB'] > (date_for_age_calcs_14t_tb2 - pd.DateOffset(months=np.where(
+#             (fdf['_TGT DOB'] is not pd.NaT)
+#             ,(pd.Series((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB']) / np.timedelta64(1, 'M')).astype('Float64').astype('Int64')) ### Must be int.
+#             ,0 ### Missing DOB's should be removed in "if" but pd.DateOffset can't handle missing values, so need this np.where.
+#         ))))):
+#         return pd.Series(((date_for_age_calcs_14t_tb2 - pd.DateOffset(days=1)) - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+#         # return 1 ### Testing.
+#     else:
+#         ### return (((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB'])) / pd.DateOffset(months=1)).astype('Float64').astype('Int64')
+#         return pd.Series((date_for_age_calcs_14t_tb2 - fdf['_TGT DOB']) / np.timedelta64(1, 'M'))#.astype('Float64')#.astype('Int64')
+#         # return 0 ### Testing.
+#     ###########
+#     ### /// Tableau Calculation:
+#     ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
+#     ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
+#     ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
+#     ### END
+# df_14t_edits1_tb2['_T05 TGT Age in Months'] = df_14t_edits1_tb2.apply(func=fn_T05_TGT_Age_in_Months, axis=1).round()#.astype('Float64').astype('Int64')
+#     ### Data Type in Tableau: integer.
+# # inspect_col(df_14t_edits1_tb2['_T05 TGT Age in Months'])
 
 # #%%
 # # print(df_14t_edits1_tb2[['_T05 TGT Age in Months', '_TGT DOB']].query('`_T05 TGT Age in Months` == 1').to_string())
@@ -2539,24 +2547,11 @@ df_14t_edits1_tb2['_T05 TGT Age in Months'] = df_14t_edits1_tb2.apply(func=fn_T0
 
 #%%###################################
 
-### TODO: Move to Tableau & pin to start/end of Reporting period.
+### DONE: Did not, see below:: Move to Tableau & pin to start/end of Reporting period.
 
-### TODO: Adjust to deal with "-1" months old.
-def fn_T05_Age_Categories(fdf):
-    if (fdf['_T05 TGT Age in Months'] < 12):
-        return "< 1 year"
-    elif (fdf['_T05 TGT Age in Months'] < 36):
-        return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
-    elif (fdf['_T05 TGT Age in Months'] < 48):
-        return "3-4 years"
-    elif (fdf['_T05 TGT Age in Months'] <= 60):
-        return "5-6 years"
-    elif (fdf['_T05 TGT Age in Months'] > 60):
-        return "6+ years"
-    else:
-        return "Unknown/Did Not Report"
-    ###########
-    ### /// Tableau Calculation:
+### Age only matters for Form 1 (not Form 2). However, neither [_T05 TGT Age in Months] nor [_T05 Age Categories] are actually used in Form 2; instead, [_T05 TGT Age] & [_T05 TGT Age Categories] are used.
+    ### SO: 2024-01-16: Removing these calculations because not needed.
+### Last version of Tableau Calculation:
     ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
     ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
     ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
@@ -2564,9 +2559,34 @@ def fn_T05_Age_Categories(fdf):
     ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
     ### ELSE "Unknown/Did Not Report"
     ### END
-df_14t_edits1_tb2['_T05 Age Categories'] = df_14t_edits1_tb2.apply(func=fn_T05_Age_Categories, axis=1).astype('string') 
-    ### Data Type in Tableau: 'string'.
-# inspect_col(df_14t_edits1_tb2['_T05 Age Categories'])
+
+### TODO: Adjust to deal with "-1" months old. ### TODO: Check in other variables actually used.
+
+# def fn_T05_Age_Categories(fdf):
+#     if (fdf['_T05 TGT Age in Months'] < 12):
+#         return "< 1 year"
+#     elif (fdf['_T05 TGT Age in Months'] < 36):
+#         return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
+#     elif (fdf['_T05 TGT Age in Months'] < 48):
+#         return "3-4 years"
+#     elif (fdf['_T05 TGT Age in Months'] <= 60):
+#         return "5-6 years"
+#     elif (fdf['_T05 TGT Age in Months'] > 60):
+#         return "6+ years"
+#     else:
+#         return "Unknown/Did Not Report"
+#     ###########
+#     ### /// Tableau Calculation:
+#     ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
+#     ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
+#     ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
+#     ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
+#     ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
+#     ### ELSE "Unknown/Did Not Report"
+#     ### END
+# df_14t_edits1_tb2['_T05 Age Categories'] = df_14t_edits1_tb2.apply(func=fn_T05_Age_Categories, axis=1).astype('string') 
+#     ### Data Type in Tableau: 'string'.
+# # inspect_col(df_14t_edits1_tb2['_T05 Age Categories'])
 
 
 ##################################################################################################
@@ -2630,7 +2650,8 @@ df_14t_edits2_tb2 = df_14t_edits1_tb2.drop(columns=['LJ_tb2_2ER', 'LJ_tb2_3FW', 
 
 #%%
 ### Reorder Columns.
-df_14t_edits2_tb2 = df_14t_edits2_tb2[[*df_14t_comparison_csv_tb2]]
+### df_14t_edits2_tb2 = df_14t_edits2_tb2[[*df_14t_comparison_csv_tb2]]
+### 2024-01-16: Not using comparison because different variables now. Note: This also keeps in "source" that was previously removed.
 
 #%%################################
 ### SORT ROWS
@@ -2672,13 +2693,37 @@ df_14t__final_from_csv_tb2 = pd.read_csv(path_14t_output_tb2, dtype=object, keep
 #####################################################
 
 #%%###################################
+### Make comparison have the same columns.
+
+#%%
+### Extra columns created:
+df_14t_comparison_csv_tb2['source'] = (
+    df_14t_comparison_csv_tb2
+    .apply(func=(
+        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+    ), axis=1)
+    .astype('string') 
+)
+
+#%%
+### Columns Renamed:
+
+#%%
+### Columns removed from code:
+df_14t_comparison_csv_tb2 = df_14t_comparison_csv_tb2.drop(columns=['_T05 TGT Age in Months', '_T05 Age Categories'])
+
+#%%
+### Reorder Columns.
+df_14t_comparison_csv_tb2 = df_14t_comparison_csv_tb2[[*df_14t__final_from_csv_tb2]]
+
+#%%###################################
 
 #%%
 ### Column names:
-[*df_14t__final_from_csv_tb2]
+# [*df_14t__final_from_csv_tb2]
 #%%
 ### Column names:
-[*df_14t_comparison_csv_tb2]
+# [*df_14t_comparison_csv_tb2]
 
 #%%
 ### Overlap / Similarities: Columns in both.
@@ -2766,9 +2811,9 @@ print(df_14t_comp_compare_tb2[['_Discharge Reason', 'Discharge Reason']].to_stri
 
 #%%
 # print(df_14t_comp_compare_tb2[['_T05 TGT Age in Months']].to_string())
-print(df_14t_comp_compare_tb2[['_T05 TGT Age in Months', '_T05 Age Categories']].to_string())
+### print(df_14t_comp_compare_tb2[['_T05 TGT Age in Months', '_T05 Age Categories']].to_string())
 ### Age in Month calculation is off by 1 many times. Is it exactly what number is used in the division? Something else?
-### TODO: Recommend moving both of these variables to the Form 1&2 Tableau Workbooks.
+### DONE: Removed.
 
 #%%
 # print(df_14t_comp_compare_tb2[['_Family Number']].to_string())
@@ -2894,3 +2939,5 @@ inspect_col(df_14t_edits1_tb2[var_to_compare])
     ### Check 'Unknown/Did Not Report' vs 'Unrecognized Value'
 
 
+
+# %%
