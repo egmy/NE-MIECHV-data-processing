@@ -533,7 +533,7 @@ df_14t_piece_tb2_1 = df_14t_piece_tb2_1.rename(columns=dict_14t_colnames_tb2_1)
 
 #######################
 #%%### df_14t_piece_tb2_2: 'ER Injury'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb2_2 
 # [*df_14t_piece_tb2_2]
 # dict_14t_colnames_tb2_2
 df_14t_piece_tb2_2 = df_14t_piece_tb2_2.rename(columns=dict_14t_colnames_tb2_2)
@@ -541,7 +541,7 @@ df_14t_piece_tb2_2 = df_14t_piece_tb2_2.rename(columns=dict_14t_colnames_tb2_2)
 
 #######################
 #%%### df_14t_piece_tb2_3: 'Family Wise'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb2_3 
 # [*df_14t_piece_tb2_3]
 # dict_14t_colnames_tb2_3
 df_14t_piece_tb2_3 = df_14t_piece_tb2_3.rename(columns=dict_14t_colnames_tb2_3)
@@ -549,7 +549,7 @@ df_14t_piece_tb2_3 = df_14t_piece_tb2_3.rename(columns=dict_14t_colnames_tb2_3)
 
 #######################
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb2_4 
 # [*df_14t_piece_tb2_4]
 # dict_14t_colnames_tb2_4
 df_14t_piece_tb2_4 = df_14t_piece_tb2_4.rename(columns=dict_14t_colnames_tb2_4)
@@ -557,7 +557,7 @@ df_14t_piece_tb2_4 = df_14t_piece_tb2_4.rename(columns=dict_14t_colnames_tb2_4)
 
 #######################
 #%%### df_14t_piece_tb2_5: 'Well Child'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb2_5 
 # [*df_14t_piece_tb2_5]
 # dict_14t_colnames_tb2_5
 df_14t_piece_tb2_5 = df_14t_piece_tb2_5.rename(columns=dict_14t_colnames_tb2_5)
@@ -838,7 +838,7 @@ df_14t_edits1_tb2['Number of Records'] = 1
 df_14t_edits1_tb2['source'] = (
     df_14t_edits1_tb2
     .apply(func=(
-        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
     ), axis=1)
     .astype('string') 
 )
@@ -2700,7 +2700,7 @@ df_14t__final_from_csv_tb2 = pd.read_csv(path_14t_output_tb2, dtype=object, keep
 df_14t_comparison_csv_tb2['source'] = (
     df_14t_comparison_csv_tb2
     .apply(func=(
-        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
     ), axis=1)
     .astype('string') 
 )

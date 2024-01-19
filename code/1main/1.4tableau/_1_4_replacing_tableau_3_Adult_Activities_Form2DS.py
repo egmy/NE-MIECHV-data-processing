@@ -833,7 +833,7 @@ df_14t_edits1_tb3['Number of Records'] = 1
 df_14t_edits1_tb3['source'] = (
     df_14t_edits1_tb3
     .apply(func=(
-        lambda df: 'FW' if pd.notna(df['Project ID1']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+        lambda df: 'FW' if pd.notna(df['Project ID1']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
     ), axis=1)
     .astype('string') 
 )
@@ -4139,7 +4139,7 @@ df_14t__final_from_csv_tb3 = pd.read_csv(path_14t_output_tb3, dtype=object, keep
 df_14t_comparison_csv_tb3['source'] = (
     df_14t_comparison_csv_tb3
     .apply(func=(
-        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
     ), axis=1)
     .astype('string') 
 )

@@ -661,7 +661,7 @@ df_14t_piece_tb4_5 = (
 
 #######################
 #%%### df_14t_piece_tb4_1: 'Project ID'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb4_1 
 # [*df_14t_piece_tb4_1]
 # dict_14t_colnames_tb4_1
 df_14t_piece_tb4_1 = df_14t_piece_tb4_1.rename(columns=dict_14t_colnames_tb4_1)
@@ -669,7 +669,7 @@ df_14t_piece_tb4_1 = df_14t_piece_tb4_1.rename(columns=dict_14t_colnames_tb4_1)
 
 #######################
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb4_2 
 # [*df_14t_piece_tb4_2]
 # dict_14t_colnames_tb4_2
 df_14t_piece_tb4_2 = df_14t_piece_tb4_2.rename(columns=dict_14t_colnames_tb4_2)
@@ -677,7 +677,7 @@ df_14t_piece_tb4_2 = df_14t_piece_tb4_2.rename(columns=dict_14t_colnames_tb4_2)
 
 #######################
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb4_3 
 # [*df_14t_piece_tb4_3]
 # dict_14t_colnames_tb4_3
 df_14t_piece_tb4_3 = df_14t_piece_tb4_3.rename(columns=dict_14t_colnames_tb4_3)
@@ -685,7 +685,7 @@ df_14t_piece_tb4_3 = df_14t_piece_tb4_3.rename(columns=dict_14t_colnames_tb4_3)
 
 #######################
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb4_4 
 # [*df_14t_piece_tb4_4]
 # dict_14t_colnames_tb4_4
 df_14t_piece_tb4_4 = df_14t_piece_tb4_4.rename(columns=dict_14t_colnames_tb4_4)
@@ -693,7 +693,7 @@ df_14t_piece_tb4_4 = df_14t_piece_tb4_4.rename(columns=dict_14t_colnames_tb4_4)
 
 #######################
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
-### Rename df_14t_piece_tb2_1 
+### Rename df_14t_piece_tb4_5 
 # [*df_14t_piece_tb4_5]
 # dict_14t_colnames_tb4_5
 df_14t_piece_tb4_5 = df_14t_piece_tb4_5.rename(columns=dict_14t_colnames_tb4_5)
@@ -918,7 +918,7 @@ df_14t_edits1_tb4['Number of Records'] = 1
 df_14t_edits1_tb4['source'] = (
     df_14t_edits1_tb4
     .apply(func=(
-        lambda df: 'FW' if pd.notna(df['Project ID1']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+        lambda df: 'FW' if pd.notna(df['Project ID1']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
     ), axis=1)
     .astype('string') 
 )
@@ -4115,6 +4115,23 @@ def fn_T17_Discharge_Reason(fdf):
 df_14t_edits1_tb4['_T17 Discharge Reason'] = df_14t_edits1_tb4.apply(func=fn_T17_Discharge_Reason, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb4['_T17 Discharge Reason']) 
+# #%%
+# inspect_col(df_14t_edits1_tb4['Discharge Dt']) 
+
+#%%
+print(df_14t_edits1_tb4[['source', 'Termination Date', 'Termination Status', 'Discharge Dt', 'Discharge Reason', '_T17 Discharge Reason']]
+    .assign(**{
+        'Termination Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Date'])), 'date', '.'))
+        # ,'Termination Status': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Status'])), 'st', '.'))
+        ,'Discharge Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Dt'])), 'date', '.'))
+        # ,'Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Reason'])), 'st', '.'))
+        # ,'_T17 Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_T17 Discharge Reason'])), 'st', '.'))
+    })
+    .drop_duplicates(ignore_index=True)
+    .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
+)
+### TODO ASKJOE: Ask about LL reason with no date.
+
 
 #%%###################################
 
@@ -4950,7 +4967,7 @@ df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='object', ke
 df_14t_comparison_csv_tb4['source'] = (
     df_14t_comparison_csv_tb4
     .apply(func=(
-        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna('project id (LLCHD)') else 'um... problem')
+        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
     ), axis=1)
     .astype('string') 
 )
