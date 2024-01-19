@@ -31,16 +31,18 @@ bool_14t_deduplicate_tb3 = False
 ### Comparison File ###
 #####################################################
 
-# df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='string', keep_default_na=False, na_values=[''])
-df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='object', keep_default_na=False, na_values=[''])
-print(f'df_14t_comparison_csv_tb3 Rows: {len(df_14t_comparison_csv_tb3)}')
+### As of Y13Q1, there is no comparison file because we are only using this python code!
 
-#%%
-### Y12Q4 deduplicated rows to 3189 rows (but should be 3192?) vs. original comparison of 3581.
-if bool_14t_deduplicate_tb3:
-    df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.drop_duplicates(ignore_index=True) 
-print(f'df_14t_comparison_csv_tb3 Rows: {len(df_14t_comparison_csv_tb3)}')
-df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
+### # df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='string', keep_default_na=False, na_values=[''])
+### df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='object', keep_default_na=False, na_values=[''])
+### print(f'df_14t_comparison_csv_tb3 Rows: {len(df_14t_comparison_csv_tb3)}')
+
+### #%%
+### ### Y12Q4 deduplicated rows to 3189 rows (but should be 3192?) vs. original comparison of 3581.
+### if bool_14t_deduplicate_tb3:
+###     df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.drop_duplicates(ignore_index=True) 
+### print(f'df_14t_comparison_csv_tb3 Rows: {len(df_14t_comparison_csv_tb3)}')
+### df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 #%%##################################################
 ### COLUMN DEFINITIONS ###
@@ -961,8 +963,19 @@ df_14t_edits1_tb3['_UNCOPE Date'] = df_14t_edits1_tb3['Uncope Dt'].combine_first
 
 #%%###################################
 
-### In Child2 & Adult3.
-df_14t_edits1_tb3['_Zip'] = df_14t_edits1_tb3['Zip'].combine_first(df_14t_edits1_tb3['Mob Zip']).astype('string') 
+### Similar variable In Child2. Basicaly dentical in Adult3 & Adult4 (except data type).
+### 'Mob Zip' has the string value "null" that needs to be recoded. ### FY13Q1, other bad value seen.
+### TODO ASKJOE: limit ZIP codes to first five? -- have some with the extra 4.
+### TODO: see if ZIP should be string.
+df_14t_edits1_tb3['_Zip'] = (
+    df_14t_edits1_tb3['Zip'].combine_first(df_14t_edits1_tb3['Mob Zip'])
+    ### Remove all entries NOT matching the pattern:
+    .replace(r'^(?!(\d{5})(-)?(\d{4})?).*$', pd.NA, regex=True)
+    ### Only keep the first 5 digits:
+    .replace(r'^(\d{5})(-)?(\d{4})?$', r'\1', regex=True)
+    ###
+    .astype('string') ### Difference.
+)
     ### IFNULL([Zip],[Mob Zip]) 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb3['_Zip'])
@@ -4122,381 +4135,384 @@ df_14t__final_tb3.to_csv(path_14t_output_tb3, index=False, date_format="%#m/%#d/
 ##################################################################################################
 ##################################################################################################
 
-
-#%%
-### Read back in df for comparison.
-df_14t__final_from_csv_tb3 = pd.read_csv(path_14t_output_tb3, dtype=object, keep_default_na=False, na_values=[''])
-
-#%%##################################################
-### COMPARE CSVs ###
-#####################################################
-
-#%%###################################
-### Make comparison have the same columns.
-
-#%%
-### Extra columns created:
-df_14t_comparison_csv_tb3['source'] = (
-    df_14t_comparison_csv_tb3
-    .apply(func=(
-        lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
-    ), axis=1)
-    .astype('string') 
-)
-
-df_14t_comparison_csv_tb3['Home Visit Type IP'] = 1 ### Placeholder.
-df_14t_comparison_csv_tb3['Home Visit Type V'] = 1 ### Placeholder.
-df_14t_comparison_csv_tb3['Home Visit Type All'] = 1 ### Placeholder.
-
-#%%
-### Columns Renamed:
-df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.rename(columns={
-    'home_visits_pre': 'Home Visits Pre'
-    ,'home_visits_post': 'Home Visits Post'
-    ,'home_visits_person': 'Home Visits Person'
-    ,'home_visits_virtual': 'Home Visits Virtual'
-    ,'HomeVisitsPrenatal': 'Home Visits Prenatal'
-    ,'HomeVisitsTotal': 'Home Visits Total'
-    # ,'HomeVisitTypeIP': 'Home Visit Type IP'
-    # ,'HomeVisitTypeV': 'Home Visit Type V'
-    # ,'HomeVisitTypeAll': 'Home Visit Type All'
-})
-
-#%%
-### Columns removed from code:
-df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.drop(columns=['_T04 MOB Age', '_T04 FOB Age'])
-
-#%%
-### Reorder Columns.
-df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3[[*df_14t__final_from_csv_tb3]]
-
-#%%###################################
-
-#%%
-### Column names:
-[*df_14t__final_from_csv_tb3]
-#%%
-### Column names:
-[*df_14t_comparison_csv_tb3]
-
-#%%
-### Overlap / Similarities: Columns in both.
-set([*df_14t_comparison_csv_tb3]).intersection([*df_14t__final_from_csv_tb3])
-
-#%%###################################
-### COLUMNS:
-
-#%%
-### Check if all Column names identical & in same order.
-[*df_14t__final_from_csv_tb3] == [*df_14t_comparison_csv_tb3]
-
-#%%
-### Differences: Columns only in one.
-set([*df_14t_comparison_csv_tb3]).symmetric_difference([*df_14t__final_from_csv_tb3])
-
-#%%###################################
-
-####### Compare values
-### including row count, distinct ids, 
-
-#%%
-# Check rows & cols:
-print(f'df_14t__final_from_csv_tb3 Rows: {len(df_14t__final_from_csv_tb3)}')
-print(f'df_14t_comparison_csv_tb3 Rows: {len(df_14t_comparison_csv_tb3)}')
-
-print(f'df_14t__final_from_csv_tb3 Columns: {len(df_14t__final_from_csv_tb3.columns)}')
-print(f'df_14t_comparison_csv_tb3 Columns: {len(df_14t_comparison_csv_tb3.columns)}')
-
-#%%
-#!HERE #TODO
-### When deduplicated: Identify which rows are not coming through. Problem is that multiple columns are not aligned, so can't tell.
-# df_14t_comparison_csv_tb3[['Project Id','Year','Quarter']].merge(df_14t__final_from_csv_tb3[['Project Id','Year','Quarter']], indicator=True, how='left').loc[lambda x : x['_merge']!='both']
+### As of Y13Q1, there is no comparison file because we are only using this python code!
 
 
-#%%
-df_14t__final_from_csv_tb3 == df_14t_comparison_csv_tb3
 
-#%%
-### Checking ID columns used in Join >> DF should be empty (meaning all the same).
-df_14t_comp_compare_tb3 = df_14t_comparison_csv_tb3[['Project Id','Year','Quarter']].compare(df_14t__final_from_csv_tb3[['Project Id','Year','Quarter']])
-df_14t_comp_compare_tb3
+# #%%
+# ### Read back in df for comparison.
+# df_14t__final_from_csv_tb3 = pd.read_csv(path_14t_output_tb3, dtype=object, keep_default_na=False, na_values=[''])
 
-###################################
-###################################
-###################################
+# #%%##################################################
+# ### COMPARE CSVs ###
+# #####################################################
 
-#%%
-### Now comparing ALL columns. DF created shows all differences:
-# df_14t_comp_compare_tb3 = df_14t_comparison_csv_tb3.compare(df_14t__final_from_csv_tb3)
-# df_14t_comp_compare_tb3 = df_14t_comparison_csv_tb3.query(f'Year=="12" & Quarter=="4"').compare(df_14t__final_from_csv_tb3.query(f'Year=="12" & Quarter=="4"'))
+# #%%###################################
+# ### Make comparison have the same columns.
 
-df_14t_comp_compare_tb3 = (
-        df_14t_comparison_csv_tb3.query(f'Year=="12" & Quarter=="4"')
-        ### To remove these vars that should be fixed earlier in the DS process:
-        .assign(**{
-            'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
-            ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
-            ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
-        })
-    ).compare(df_14t__final_from_csv_tb3.query(f'Year=="12" & Quarter=="4"'))
+# #%%
+# ### Extra columns created:
+# df_14t_comparison_csv_tb3['source'] = (
+#     df_14t_comparison_csv_tb3
+#     .apply(func=(
+#         lambda df: 'FW' if pd.notna(df['Project ID']) else ('LL' if pd.notna(df['project id (LLCHD)']) else 'um... problem')
+#     ), axis=1)
+#     .astype('string') 
+# )
 
+# df_14t_comparison_csv_tb3['Home Visit Type IP'] = 1 ### Placeholder.
+# df_14t_comparison_csv_tb3['Home Visit Type V'] = 1 ### Placeholder.
+# df_14t_comparison_csv_tb3['Home Visit Type All'] = 1 ### Placeholder.
+
+# #%%
+# ### Columns Renamed:
+# df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.rename(columns={
+#     'home_visits_pre': 'Home Visits Pre'
+#     ,'home_visits_post': 'Home Visits Post'
+#     ,'home_visits_person': 'Home Visits Person'
+#     ,'home_visits_virtual': 'Home Visits Virtual'
+#     ,'HomeVisitsPrenatal': 'Home Visits Prenatal'
+#     ,'HomeVisitsTotal': 'Home Visits Total'
+#     # ,'HomeVisitTypeIP': 'Home Visit Type IP'
+#     # ,'HomeVisitTypeV': 'Home Visit Type V'
+#     # ,'HomeVisitTypeAll': 'Home Visit Type All'
+# })
+
+# #%%
+# ### Columns removed from code:
+# df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.drop(columns=['_T04 MOB Age', '_T04 FOB Age'])
+
+# #%%
+# ### Reorder Columns.
+# df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3[[*df_14t__final_from_csv_tb3]]
+
+# #%%###################################
+
+# #%%
+# ### Column names:
+# [*df_14t__final_from_csv_tb3]
+# #%%
+# ### Column names:
+# [*df_14t_comparison_csv_tb3]
+
+# #%%
+# ### Overlap / Similarities: Columns in both.
+# set([*df_14t_comparison_csv_tb3]).intersection([*df_14t__final_from_csv_tb3])
+
+# #%%###################################
+# ### COLUMNS:
+
+# #%%
+# ### Check if all Column names identical & in same order.
+# [*df_14t__final_from_csv_tb3] == [*df_14t_comparison_csv_tb3]
+
+# #%%
+# ### Differences: Columns only in one.
+# set([*df_14t_comparison_csv_tb3]).symmetric_difference([*df_14t__final_from_csv_tb3])
+
+# #%%###################################
+
+# ####### Compare values
+# ### including row count, distinct ids, 
+
+# #%%
+# # Check rows & cols:
+# print(f'df_14t__final_from_csv_tb3 Rows: {len(df_14t__final_from_csv_tb3)}')
+# print(f'df_14t_comparison_csv_tb3 Rows: {len(df_14t_comparison_csv_tb3)}')
+
+# print(f'df_14t__final_from_csv_tb3 Columns: {len(df_14t__final_from_csv_tb3.columns)}')
+# print(f'df_14t_comparison_csv_tb3 Columns: {len(df_14t_comparison_csv_tb3.columns)}')
+
+# #%%
+# #!HERE #TODO
+# ### When deduplicated: Identify which rows are not coming through. Problem is that multiple columns are not aligned, so can't tell.
+# # df_14t_comparison_csv_tb3[['Project Id','Year','Quarter']].merge(df_14t__final_from_csv_tb3[['Project Id','Year','Quarter']], indicator=True, how='left').loc[lambda x : x['_merge']!='both']
+
+
+# #%%
+# df_14t__final_from_csv_tb3 == df_14t_comparison_csv_tb3
+
+# #%%
+# ### Checking ID columns used in Join >> DF should be empty (meaning all the same).
+# df_14t_comp_compare_tb3 = df_14t_comparison_csv_tb3[['Project Id','Year','Quarter']].compare(df_14t__final_from_csv_tb3[['Project Id','Year','Quarter']])
 # df_14t_comp_compare_tb3
 
-#%%
-### Number of columns with different values/types:
-len([*df_14t_comp_compare_tb3]) / 2 
-    ### Start: 50.
-
-#%%
-### Columns:
-[*df_14t_comp_compare_tb3]
-
-
-#%% !TESTRUNHERE!
-
-
-###################################
-#### completed
-###################################
-
-#%%
-# df_14t_comparison_csv_tb3[['_IPV Score FW']].compare(df_14t__final_from_csv_tb3[['_IPV Score FW']], keep_equal=True).loc[(lambda df: df[('_IPV Score FW', 'self')] != df[('_IPV Score FW', 'other')]), ['_IPV Score FW']]
-# df_14t_comparison_csv_tb3[['_IPV Score FW']].compare(df_14t__final_from_csv_tb3[['_IPV Score FW']])
-# print(df_14t_comp_compare_tb3[['_IPV Score FW']].to_string())
-
-###################################
+# ###################################
+# ###################################
+# ###################################
 
 # #%%
-# # inspect_col(df_14t_comparison_csv_tb3['FOB Race White']) 
-# inspect_col(df_14t__final_from_csv_tb3['FOB Race White']) 
-# # inspect_col(df_14t_edits1_tb3_sorted['FOB Race White']) ### Float before changing in Read above.
-# # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Asian']) ### Float before changing in Read above.
-# # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Black']) ### Float before changing in Read above.
-# # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Hawaiian Pacific']) ### Float before changing in Read above.
-# # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Indian Alaskan']) ### Float before changing in Read above.
-# # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Other']) ### Float before changing in Read above.
+# ### Now comparing ALL columns. DF created shows all differences:
+# # df_14t_comp_compare_tb3 = df_14t_comparison_csv_tb3.compare(df_14t__final_from_csv_tb3)
+# # df_14t_comp_compare_tb3 = df_14t_comparison_csv_tb3.query(f'Year=="12" & Quarter=="4"').compare(df_14t__final_from_csv_tb3.query(f'Year=="12" & Quarter=="4"'))
+
+# df_14t_comp_compare_tb3 = (
+#         df_14t_comparison_csv_tb3.query(f'Year=="12" & Quarter=="4"')
+#         ### To remove these vars that should be fixed earlier in the DS process:
+#         .assign(**{
+#             'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+#             ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+#             ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+#         })
+#     ).compare(df_14t__final_from_csv_tb3.query(f'Year=="12" & Quarter=="4"'))
+
+# # df_14t_comp_compare_tb3
+
 # #%%
-# # var_to_compare = 'FOB Race Asian'
-# # var_to_compare = 'FOB Race Black'
-# # var_to_compare = 'FOB Race Hawaiian Pacific'
-# # var_to_compare = 'FOB Race Indian Alaskan'
-# # var_to_compare = 'FOB Race Other'
-# var_to_compare = 'FOB Race White'
-# var_list_for_comparison = ['_T07 FOB Race', 'FOB Race Asian', 'FOB Race Black', 'FOB Race Hawaiian Pacific', 'FOB Race Indian Alaskan', 'FOB Race Other', 'FOB Race White']
-# (
-#     df_14t_comparison_csv_tb3
-#     .compare(
-#         df_14t__final_from_csv_tb3
-#         # df_14t_edits1_tb3_sorted
-#         , keep_equal=True, keep_shape=True
-#     )
-#     .loc[:, ['Project Id', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
-#     .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
-#     .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
-# )
-# ### Fixed by changing the 6 "FOB Race" columns to Boolean at end.
-# ### TODO:
-#     ### Change earlier in pipeline so Excel has True/Fasle instead of 1/0. (Needed?)
+# ### Number of columns with different values/types:
+# len([*df_14t_comp_compare_tb3]) / 2 
+#     ### Start: 50.
 
-###################################
+# #%%
+# ### Columns:
+# [*df_14t_comp_compare_tb3]
 
-#%%
-# var_to_compare = 'AD1InsChangeDate.1'
-# var_to_compare = 'AD1InsChangeDate.2'
-# var_to_compare = 'AD1InsChangeDate.3'
-# var_to_compare = 'AD1InsChangeDate.4'
-# var_to_compare = 'AD1InsChangeDate.5'
-# var_to_compare = 'AD1InsChangeDate.6'
-# var_to_compare = 'AD1InsChangeDate.7'
-# var_to_compare = 'AD1InsChangeDate.8'
-# var_to_compare = 'AD1InsChangeDate.9'
-# var_to_compare = 'AD1InsChangeDate.10'
-# var_to_compare = 'AD1InsChangeDate.11'
-# var_to_compare = 'AD1InsChangeDate.12'
-# var_to_compare = 'AD1InsChangeDate.13'
-# var_to_compare = 'AD1InsChangeDate.14'
-# var_to_compare = 'AD1InsChangeDate.15'
-# var_to_compare = 'AD1InsChangeDate.16'
 
-# (
-#     df_14t_comparison_csv_tb3
-#     .compare(df_14t__final_from_csv_tb3, keep_equal=True, keep_shape=True)
-#     .loc[:, ['Project Id', 'Agency', '_C16 CG Insurance 9 Status', 'AD1PrimaryIns.9', 'AD1InsChangeDate.9', 'AD1PrimaryIns.10', 'AD1InsChangeDate.10']]
-#     .dropna(how='all', subset=[('AD1InsChangeDate.9', 'self'), ('AD1InsChangeDate.9', 'other')])
-#     .loc[(lambda df: df[('AD1InsChangeDate.9', 'self')] != df[('AD1InsChangeDate.9', 'other')]), :]
-# )
+# #%% !TESTRUNHERE!
 
-### DONE (but not for historical data): Fix Tab "Caregiver Insurance":
-    ### Found that for 'Project Id's "hs123-1" & "hs123-2", from column "AD1PrimaryIns.9" to "AD1PrimaryIns.16" the dates & strings are switched. 
-    ### "AD1InsChangeDate.16" is blank, so maybe everything got shifted to the left?
-    ### It seems that for every person with ".9" & higher, the same pattern of incorrect entry exists.
-### Answer: Corrected for Q2!
 
-### Y12Q4: When filting to Y12Q4, no longer any differences.
+# ###################################
+# #### completed
+# ###################################
 
-###################################
-#### need work
-###################################
+# #%%
+# # df_14t_comparison_csv_tb3[['_IPV Score FW']].compare(df_14t__final_from_csv_tb3[['_IPV Score FW']], keep_equal=True).loc[(lambda df: df[('_IPV Score FW', 'self')] != df[('_IPV Score FW', 'other')]), ['_IPV Score FW']]
+# # df_14t_comparison_csv_tb3[['_IPV Score FW']].compare(df_14t__final_from_csv_tb3[['_IPV Score FW']])
+# # print(df_14t_comp_compare_tb3[['_IPV Score FW']].to_string())
 
-###################################
+# ###################################
 
-#%%
-# inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 9Mm']) 
-# inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 18Mm'])
-# inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 24Mm'])
-# inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 30Mm'])
+# # #%%
+# # # inspect_col(df_14t_comparison_csv_tb3['FOB Race White']) 
+# # inspect_col(df_14t__final_from_csv_tb3['FOB Race White']) 
+# # # inspect_col(df_14t_edits1_tb3_sorted['FOB Race White']) ### Float before changing in Read above.
+# # # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Asian']) ### Float before changing in Read above.
+# # # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Black']) ### Float before changing in Read above.
+# # # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Hawaiian Pacific']) ### Float before changing in Read above.
+# # # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Indian Alaskan']) ### Float before changing in Read above.
+# # # inspect_col(df_14t_edits1_tb3_sorted['FOB Race Other']) ### Float before changing in Read above.
+# # #%%
+# # # var_to_compare = 'FOB Race Asian'
+# # # var_to_compare = 'FOB Race Black'
+# # # var_to_compare = 'FOB Race Hawaiian Pacific'
+# # # var_to_compare = 'FOB Race Indian Alaskan'
+# # # var_to_compare = 'FOB Race Other'
+# # var_to_compare = 'FOB Race White'
+# # var_list_for_comparison = ['_T07 FOB Race', 'FOB Race Asian', 'FOB Race Black', 'FOB Race Hawaiian Pacific', 'FOB Race Indian Alaskan', 'FOB Race Other', 'FOB Race White']
+# # (
+# #     df_14t_comparison_csv_tb3
+# #     .compare(
+# #         df_14t__final_from_csv_tb3
+# #         # df_14t_edits1_tb3_sorted
+# #         , keep_equal=True, keep_shape=True
+# #     )
+# #     .loc[:, ['Project Id', 'Fob Involved', 'Fob Involved1'] + var_list_for_comparison]
+# #     .dropna(how='all', subset=[(var_to_compare, 'self'), (var_to_compare, 'other')])
+# #     .loc[(lambda df: df[(var_to_compare, 'self')] != df[(var_to_compare, 'other')]), :]
+# # )
+# # ### Fixed by changing the 6 "FOB Race" columns to Boolean at end.
+# # ### TODO:
+# #     ### Change earlier in pipeline so Excel has True/Fasle instead of 1/0. (Needed?)
 
-#%%
-# var_to_compare = 'Asq3 Referral 18Mm'
-# var_to_compare = 'Asq3 Referral 24Mm'
+# ###################################
 
-# var_to_compare = 'Asq3 Referral 30Mm'
-# var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Referral 30Mm', 'Asq3 Referral 9Mm']
+# #%%
+# # var_to_compare = 'AD1InsChangeDate.1'
+# # var_to_compare = 'AD1InsChangeDate.2'
+# # var_to_compare = 'AD1InsChangeDate.3'
+# # var_to_compare = 'AD1InsChangeDate.4'
+# # var_to_compare = 'AD1InsChangeDate.5'
+# # var_to_compare = 'AD1InsChangeDate.6'
+# # var_to_compare = 'AD1InsChangeDate.7'
+# # var_to_compare = 'AD1InsChangeDate.8'
+# # var_to_compare = 'AD1InsChangeDate.9'
+# # var_to_compare = 'AD1InsChangeDate.10'
+# # var_to_compare = 'AD1InsChangeDate.11'
+# # var_to_compare = 'AD1InsChangeDate.12'
+# # var_to_compare = 'AD1InsChangeDate.13'
+# # var_to_compare = 'AD1InsChangeDate.14'
+# # var_to_compare = 'AD1InsChangeDate.15'
+# # var_to_compare = 'AD1InsChangeDate.16'
 
-#%%
-# compare_col(df_14t_comparison_csv_tb3, df_14t__final_from_csv_tb3, var_to_compare, info_or_value_counts='value_counts')
+# # (
+# #     df_14t_comparison_csv_tb3
+# #     .compare(df_14t__final_from_csv_tb3, keep_equal=True, keep_shape=True)
+# #     .loc[:, ['Project Id', 'Agency', '_C16 CG Insurance 9 Status', 'AD1PrimaryIns.9', 'AD1InsChangeDate.9', 'AD1PrimaryIns.10', 'AD1InsChangeDate.10']]
+# #     .dropna(how='all', subset=[('AD1InsChangeDate.9', 'self'), ('AD1InsChangeDate.9', 'other')])
+# #     .loc[(lambda df: df[('AD1InsChangeDate.9', 'self')] != df[('AD1InsChangeDate.9', 'other')]), :]
+# # )
 
-#%%
-# print(( df_14t_comparison_csv_tb3[var_list_for_comparison]
-#     .assign(**{
-#         # 'Asq3 Referral 18Mm': (lambda df: df['Asq3 Referral 18Mm'].astype('float64'))
-#         # ,'Asq3 Referral 24Mm': (lambda df: df['Asq3 Referral 24Mm'].astype('float64'))
-#         # ,'Asq3 Referral 30Mm': (lambda df: df['Asq3 Referral 30Mm'].astype('float64'))
-#         ###
-#         'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30'))
-#         ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30'))
-#         ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30'))
-#     }) 
-#     .dropna(how='all', subset=[var_to_compare])
-# ).to_string())
+# ### DONE (but not for historical data): Fix Tab "Caregiver Insurance":
+#     ### Found that for 'Project Id's "hs123-1" & "hs123-2", from column "AD1PrimaryIns.9" to "AD1PrimaryIns.16" the dates & strings are switched. 
+#     ### "AD1InsChangeDate.16" is blank, so maybe everything got shifted to the left?
+#     ### It seems that for every person with ".9" & higher, the same pattern of incorrect entry exists.
+# ### Answer: Corrected for Q2!
 
-#%%
+# ### Y12Q4: When filting to Y12Q4, no longer any differences.
+
+# ###################################
+# #### need work
+# ###################################
+
+# ###################################
+
+# #%%
+# # inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 9Mm']) 
+# # inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 18Mm'])
+# # inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 24Mm'])
+# # inspect_col(df_14t_comparison_csv_tb3['Asq3 Referral 30Mm'])
+
+# #%%
+# # var_to_compare = 'Asq3 Referral 18Mm'
+# # var_to_compare = 'Asq3 Referral 24Mm'
+
+# # var_to_compare = 'Asq3 Referral 30Mm'
+# # var_list_for_comparison = ['Asq3 Referral 18Mm', 'Asq3 Referral 24Mm', 'Asq3 Referral 30Mm', 'Asq3 Referral 9Mm']
+
+# #%%
+# # compare_col(df_14t_comparison_csv_tb3, df_14t__final_from_csv_tb3, var_to_compare, info_or_value_counts='value_counts')
+
+# #%%
+# # print(( df_14t_comparison_csv_tb3[var_list_for_comparison]
+# #     .assign(**{
+# #         # 'Asq3 Referral 18Mm': (lambda df: df['Asq3 Referral 18Mm'].astype('float64'))
+# #         # ,'Asq3 Referral 24Mm': (lambda df: df['Asq3 Referral 24Mm'].astype('float64'))
+# #         # ,'Asq3 Referral 30Mm': (lambda df: df['Asq3 Referral 30Mm'].astype('float64'))
+# #         ###
+# #         'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30'))
+# #         ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30'))
+# #         ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30'))
+# #     }) 
+# #     .dropna(how='all', subset=[var_to_compare])
+# # ).to_string())
+
+# #%%
+# # print((
+# #     df_14t_comparison_csv_tb3
+# #     .assign(**{
+# #         'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+# #         ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+# #         ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
+# #     }) ### After this no rows returned because all self/other dates match when 5-digit numbers turned to dates.
+# #     .compare(df_14t__final_from_csv_tb3, keep_equal=True, keep_shape=True)
+# #     .loc[:, ['Project Id'] + var_list_for_comparison]
+# #     .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
+# # ).to_string())
+# ### Now shows NO differences after columns edited.
+
+# ### In Tableau, these 3 "Asq3 Referral" vars are Integers & [Asq3 Referral 9Mm] is a String (completely empty for Q1).
+# ### None of these 3 "Asq3 Referral" vars are used in calculations in this code.
+# ### For these 3 "Asq3 Referral" vars, the output should be in Date format, BUT the original output is an Int.
+
+# ### Status: Nothing to do in this code. #TODO: should fix earlier in DS process.
+# ### TODO: Check that this output is read in correctly in the Report Tableau Workbooks.
+
+# ###################################
+
+# #%%
+# # var_to_compare = 'Fob Edu' ### DONE: Fix: NOT supposed to be an int, but is int in Tableau.
+
+# var_to_compare = '_T09 FOB Education Status' ### Temporarily fixed, but need to actually fix for 'Fob Edu'.
+# var_list_for_comparison = ['_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']
+
+# #%%
+# # compare_col(df_14t_comparison_csv_tb3, df_14t__final_from_csv_tb3, var_to_compare, info_or_value_counts='value_counts')
+
+
+# ### DONE: Fixed code above: Reading in 'Fob Edu' as string instead of int (which was making it all NA).
+
+# ###################################
+
+# # var_to_compare = 'Poverty Level' ### Both are floats, but Tableau output drops all non-significatn digits (like ".0").
+# ### TODO: Test matching numeric style in output.
+
+# ###################################
+
+# # var_to_compare = '_T15-5 Tobacco Use in Home'
+# ### Answer: Adjust so that if not values or NA is "Unrecognized" --- won't work because needs to be integer.
+#     ### TODO: Need different function that catches if there WOULD have been Unrecognized values & mark at end so can fix.
+
+# ###################################
+
+# # var_to_compare = '_T04 FOB Age'
+# # var_to_compare = '_T04 MOB Age'
+# ### TODO: move to Tableau reports.
+
+# ###################################
+
+
+
+# ###################################
+# ### investigation
+# ###################################
+
+# #%%
+# ### Columns still different:
+# [*df_14t_comp_compare_tb3]
+
+# #%%
+
+# # var_to_compare = '_Family ID'
+# # var_to_compare = '_T06 FOB Ethnicity'
+# # var_to_compare = '_T06 FOB Ethnicity (1)'
+# # var_to_compare = '_T06 MOB Ethnicity'
+# # var_to_compare = '_T10 FOB Educational Enrollment'
+# # var_to_compare = '_T11 FOB Employment'
+# # var_to_compare = '_T11 MOB Employment'
+# # var_to_compare = '_T14 Federal Poverty Categories'
+# # var_to_compare = '_T14 Poverty Percent'
+# # var_to_compare = '_Zip'
+
+
+# #######
+
+
+
+
+# #%%################################
+# ### Column Comparisons
+# ###################################
+
+# #!HERE
+
+# # var_to_compare = 'www'
+
+# # var_list_for_comparison = [var_to_compare]
+
+# # var_list_keys_or_ids = ['Project Id']
+# var_list_keys_or_ids = ['Project Id','Year','Quarter']
+# # var_list_keys_or_ids = ['Project Id', 'Agency']
+# # var_list_keys_or_ids = ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1']
+
 # print((
-#     df_14t_comparison_csv_tb3
-#     .assign(**{
-#         'Asq3 Referral 18Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 18Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
-#         ,'Asq3 Referral 24Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 24Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
-#         ,'Asq3 Referral 30Mm': (lambda df: pd.to_datetime(df['Asq3 Referral 30Mm'].astype('float64'), unit='D', origin='1899-12-30').dt.strftime('%#m/%#d/%Y'))
-#     }) ### After this no rows returned because all self/other dates match when 5-digit numbers turned to dates.
-#     .compare(df_14t__final_from_csv_tb3, keep_equal=True, keep_shape=True)
-#     .loc[:, ['Project Id'] + var_list_for_comparison]
+#     # df_14t_comparison_csv_tb3.compare(df_14t__final_from_csv_tb3, keep_shape=True, keep_equal=True) 
+#     df_14t_comparison_csv_tb3.query(f'Year=="12" & Quarter=="4"').compare(df_14t__final_from_csv_tb3.query(f'Year=="12" & Quarter=="4"'), keep_shape=True, keep_equal=True) 
+#     .loc[:, var_list_keys_or_ids + var_list_for_comparison]
 #     .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
+#     ##########
+#     ### Testing numeric vars:
+#     # .apply(lambda df: df[(var_to_compare, 'self')] == df[(var_to_compare, 'other')], axis=1) ### Outputs a Series.
+#     # .apply(lambda df: float(df[(var_to_compare, 'self')]) == float(df[(var_to_compare, 'other')]), axis=1)
+#     # .all()
+#     ##########
+#     ### Testing date vars:
+#     # .apply(lambda df: pd.to_datetime(df[(var_to_compare, 'self')]) == pd.to_datetime(df[(var_to_compare, 'other')]), axis=1)
+#     # .all()
 # ).to_string())
-### Now shows NO differences after columns edited.
 
-### In Tableau, these 3 "Asq3 Referral" vars are Integers & [Asq3 Referral 9Mm] is a String (completely empty for Q1).
-### None of these 3 "Asq3 Referral" vars are used in calculations in this code.
-### For these 3 "Asq3 Referral" vars, the output should be in Date format, BUT the original output is an Int.
 
-### Status: Nothing to do in this code. #TODO: should fix earlier in DS process.
-### TODO: Check that this output is read in correctly in the Report Tableau Workbooks.
-
-###################################
-
-#%%
-# var_to_compare = 'Fob Edu' ### DONE: Fix: NOT supposed to be an int, but is int in Tableau.
-
-var_to_compare = '_T09 FOB Education Status' ### Temporarily fixed, but need to actually fix for 'Fob Edu'.
-var_list_for_comparison = ['_T09 FOB Education Status', 'AD2EDLevel', 'Fob Edu']
-
-#%%
+# ##########
+# #%%
+# # compare_col(df_14t_comparison_csv_tb3, df_14t__final_from_csv_tb3, var_to_compare, info_or_value_counts='info')
 # compare_col(df_14t_comparison_csv_tb3, df_14t__final_from_csv_tb3, var_to_compare, info_or_value_counts='value_counts')
-
-
-### DONE: Fixed code above: Reading in 'Fob Edu' as string instead of int (which was making it all NA).
-
-###################################
-
-# var_to_compare = 'Poverty Level' ### Both are floats, but Tableau output drops all non-significatn digits (like ".0").
-### TODO: Test matching numeric style in output.
-
-###################################
-
-# var_to_compare = '_T15-5 Tobacco Use in Home'
-### Answer: Adjust so that if not values or NA is "Unrecognized" --- won't work because needs to be integer.
-    ### TODO: Need different function that catches if there WOULD have been Unrecognized values & mark at end so can fix.
-
-###################################
-
-# var_to_compare = '_T04 FOB Age'
-# var_to_compare = '_T04 MOB Age'
-### TODO: move to Tableau reports.
-
-###################################
-
-
-
-###################################
-### investigation
-###################################
-
-#%%
-### Columns still different:
-[*df_14t_comp_compare_tb3]
-
-#%%
-
-# var_to_compare = '_Family ID'
-# var_to_compare = '_T06 FOB Ethnicity'
-# var_to_compare = '_T06 FOB Ethnicity (1)'
-# var_to_compare = '_T06 MOB Ethnicity'
-# var_to_compare = '_T10 FOB Educational Enrollment'
-# var_to_compare = '_T11 FOB Employment'
-# var_to_compare = '_T11 MOB Employment'
-# var_to_compare = '_T14 Federal Poverty Categories'
-# var_to_compare = '_T14 Poverty Percent'
-# var_to_compare = '_Zip'
-
-
-#######
-
-
-
-
-#%%################################
-### Column Comparisons
-###################################
-
-#!HERE
-
-# var_to_compare = 'www'
-
-# var_list_for_comparison = [var_to_compare]
-
-# var_list_keys_or_ids = ['Project Id']
-var_list_keys_or_ids = ['Project Id','Year','Quarter']
-# var_list_keys_or_ids = ['Project Id', 'Agency']
-# var_list_keys_or_ids = ['Project Id', 'Agency', 'Fob Involved', 'Fob Involved1']
-
-print((
-    # df_14t_comparison_csv_tb3.compare(df_14t__final_from_csv_tb3, keep_shape=True, keep_equal=True) 
-    df_14t_comparison_csv_tb3.query(f'Year=="12" & Quarter=="4"').compare(df_14t__final_from_csv_tb3.query(f'Year=="12" & Quarter=="4"'), keep_shape=True, keep_equal=True) 
-    .loc[:, var_list_keys_or_ids + var_list_for_comparison]
-    .loc[lambda df: df.apply(fn_keep_row_differences, axis=1, variable2compare=var_to_compare), :] 
-    ##########
-    ### Testing numeric vars:
-    # .apply(lambda df: df[(var_to_compare, 'self')] == df[(var_to_compare, 'other')], axis=1) ### Outputs a Series.
-    # .apply(lambda df: float(df[(var_to_compare, 'self')]) == float(df[(var_to_compare, 'other')]), axis=1)
-    # .all()
-    ##########
-    ### Testing date vars:
-    # .apply(lambda df: pd.to_datetime(df[(var_to_compare, 'self')]) == pd.to_datetime(df[(var_to_compare, 'other')]), axis=1)
-    # .all()
-).to_string())
-
-
-##########
-#%%
-# compare_col(df_14t_comparison_csv_tb3, df_14t__final_from_csv_tb3, var_to_compare, info_or_value_counts='info')
-compare_col(df_14t_comparison_csv_tb3, df_14t__final_from_csv_tb3, var_to_compare, info_or_value_counts='value_counts')
-#%%
-inspect_col(df_14t__final_from_csv_tb3[var_to_compare]) 
-#%%
-inspect_col(df_14t_comparison_csv_tb3[var_to_compare]) 
-#%%
-inspect_col(df_14t_edits1_tb3[var_to_compare]) 
-#%%
-# print(df_14t_comp_compare_tb3[[var_to_compare]].to_string())
+# #%%
+# inspect_col(df_14t__final_from_csv_tb3[var_to_compare]) 
+# #%%
+# inspect_col(df_14t_comparison_csv_tb3[var_to_compare]) 
+# #%%
+# inspect_col(df_14t_edits1_tb3[var_to_compare]) 
+# #%%
+# # print(df_14t_comp_compare_tb3[[var_to_compare]].to_string())
 
 
 #%%################################
