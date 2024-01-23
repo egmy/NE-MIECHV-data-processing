@@ -30,6 +30,8 @@
 ### SETUP ###
 #####################################################
 
+import os 
+
 #%%
 print('File that is running: ', os.path.basename(__file__))
 
@@ -384,22 +386,71 @@ df_12LL_WellChildVisits = (
 df_12LL_before_BaseTable = df_12LL_allstring_1.copy()
 df_12LL_after_BaseTable = df_12LL_allstring_1.copy()
 
+
+######################################
+#%%###################################
+### Test that DFs the same:
+len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
+
 #%%
-df_12LL_before_BaseTable = (
-    df_12LL_before_BaseTable
-    .pipe(fn_print_fstring_and_return_df, '-----\nStrip surrounding whitespace')
+### Make change:
+print('Strip surrounding whitespace')
+df_12LL_after_BaseTable = (
+    df_12LL_after_BaseTable
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
 
 #%%
+### See differences:
+df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+
+#%%
+### Test change:
 if (
-    df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()
+    ### Test 1: Number of NA has not increased.
+    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
 ):
-    print("yay!")
-    pass
+    print('tests passed!')
+    print('Test 1: Number of NA has not increased.')
 else:
     raise Exception
 
+#%%
+### Make DFs the same:
+df_12LL_after_BaseTable = df_12LL_before_BaseTable
+
+
+######################################
+#%%###################################
+### Test that DFs the same:
+len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
+
+#%%
+### Make change:
+print('Strip surrounding whitespace')
+df_12LL_after_BaseTable = (
+    df_12LL_after_BaseTable
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+
+#%%
+### See differences:
+df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+
+#%%
+### Test change:
+if (
+    ### Test 1: Number of NA has not increased.
+    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
+):
+    print('tests passed!')
+    print('Test 1: Number of NA has not increased.')
+else:
+    raise Exception
+
+#%%
+### Make DFs the same:
+df_12LL_after_BaseTable = df_12LL_before_BaseTable
 
 
 #%%###################################
@@ -447,4 +498,7 @@ compare_col(
 # %%
 ### TODO:
 ### - Remove duplciate rows.
+### look up "logger"
+
+
 
