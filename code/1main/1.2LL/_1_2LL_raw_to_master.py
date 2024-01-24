@@ -346,12 +346,8 @@ df_12LL_WellChildVisits = (
 # df_12LL_BaseTable = (
 #     ### Raw table all read in as strings:
 #     df_12LL_allstring_1
-#     ### 
-#     .pipe(fn_print_fstring_and_return_df, '-----\nStrip surrounding whitespace')
-#     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
-#     ###
-#     .pipe(fn_print_fstring_and_return_df, '-----\nFind & replace "null" values:')
-#     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+
+
 #     ### 
 #     .pipe(fn_print_fstring_and_return_df, '-----\nSet data types:')
 #     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
@@ -413,7 +409,7 @@ if (
     print('tests passed!')
     print('Test 1: Number of NA has not increased.')
 else:
-    raise Exception
+    raise Exception('Not the same')
 
 #%%
 ### Make DFs the same:
@@ -427,10 +423,11 @@ len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
 
 #%%
 ### Make change:
-print('Strip surrounding whitespace')
+print('Find & replace "null" values')
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    # .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=['null'], replacement_value=pd.NA)
+    .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=['N'], replacement_value=pd.NA)
 )
 
 #%%
@@ -438,15 +435,27 @@ df_12LL_after_BaseTable = (
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
+df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
+
+#%%
+# from pandas.testing import assert_frame_equal
+print(f'Output \n {assert_frame_equal(df_12LL_before_BaseTable, df_12LL_after_BaseTable) is None}')
+
+#%%
+df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable, keep_shape=True, keep_equal=True) 
+
+#%%
 ### Test change:
-if (
+try:
     ### Test 1: Number of NA has not increased.
     (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
-):
+except Exception as err:
+    print(f"Unexpected {err=}, {type(err)=}")
+    raise 
+else:
     print('tests passed!')
     print('Test 1: Number of NA has not increased.')
-else:
-    raise Exception
+
 
 #%%
 ### Make DFs the same:

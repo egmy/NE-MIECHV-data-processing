@@ -181,8 +181,8 @@ def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_
     list_of_values_to_find = [str(x).lower() for x in list_of_values_to_find]
     ####
     string_of_values_to_find = list_of_values_to_find
-    if (len(list_of_values_to_find) > 1):
-        string_of_values_to_find = '|'.join(list_of_values_to_find)
+    ### if (len(list_of_values_to_find) > 1): ### Removed: Doesn't matter how long it is.
+    string_of_values_to_find = '|'.join(list_of_values_to_find) ### Changes it to a string. Only adds "|" if multiple values.
     ###print(string_of_values_to_find)
     ####
     fn_list = []
