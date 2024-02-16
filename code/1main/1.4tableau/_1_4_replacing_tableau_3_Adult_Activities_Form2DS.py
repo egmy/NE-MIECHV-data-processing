@@ -2662,14 +2662,12 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "Tri-Care"
         case "3" | "Private":
             return "Private or Other"
-        case "4":
-            return "FamilyChildHealthPlus" ###  Was "Unknown/Did Not Report". Different from Form 1's "FamilyChildHealthPlus". ### DONE Y12Q4: standardize. Answer: match F1! 
+        case "4" | "FamilyCh":
+            return "FamilyChildHealthPlus" ###  Was "Unknown/Did Not Report" for "4". Different from Form 1's "FamilyChildHealthPlus". ### DONE Y12Q4: standardize. Answer: match F1! 
         case "5" | "Uninsure":
             return "No Insurance Coverage"
         case "6" | "99" | "Unknown":
             return "Unknown/Did Not Report"
-        case "FamilyCh":
-            return "FamilyChildHealthPlus"
         ###########
         case _:
             return "Unrecognized Value"
