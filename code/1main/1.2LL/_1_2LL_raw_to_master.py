@@ -54,6 +54,10 @@ else:
 #%%### df_12LL_4: 'KU_WELLCHILDVISITS'.
 
 #######################
+
+### List = [name, dtype]
+
+#######################
 #%%### df_12LL_1: 'KU_BASETABLE'.
 list_12LL_col_detail_1 = [
     ['site_id', 'string']
@@ -310,6 +314,14 @@ df_12LL_2 = df_12LL_allstring_2.copy()
 df_12LL_3 = df_12LL_allstring_3.copy()
 df_12LL_4 = df_12LL_allstring_4.copy()
 
+# #%% 
+# ### Test if all read in as strings:
+# print(df_12LL_allstring_1.dtypes.to_string())
+# print(df_12LL_allstring_2.dtypes.to_string())
+# print(df_12LL_allstring_3.dtypes.to_string())
+# print(df_12LL_allstring_4.dtypes.to_string())
+
+
 #%%##################################################
 ### CLEAN ###
 #####################################################
@@ -341,6 +353,46 @@ df_12LL_WellChildVisits = (
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_4)
 )
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #%%###################################
 ### df_12LL_1: 'KU_BASETABLE'.
 # df_12LL_BaseTable = (
@@ -348,9 +400,7 @@ df_12LL_WellChildVisits = (
 #     df_12LL_allstring_1
 
 
-#     ### 
-#     .pipe(fn_print_fstring_and_return_df, '-----\nSet data types:')
-#     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
+
 #     ####
 #     .assign(site_id = 'll')
 #     .pipe(fn_print_col_and_return_df, 'site_id', '-----\nColumn site_id should now be all "ll":')
@@ -376,11 +426,85 @@ df_12LL_WellChildVisits = (
 
     # .pipe(fn_print_expression_and_return_df, (lambda df: df), '')
 
+
+# #%%
+# # df_12LL_BaseTable.project_id
+
+
+# # #%%
+# # print(df_12LL_allstring_1['tgt_id'].value_counts(dropna=False).to_string())
+# # #%%
+# # print(df_12LL_BaseTable['tgt_id'].value_counts(dropna=False).to_string())
+# #%%
+# col_to_review = 'tgt_id'
+# compare_col(
+#     (df_12LL_allstring_1
+#         .loc[lambda df: pd.isna(df[col_to_review])]
+#     )
+#     ,(df_12LL_BaseTable
+#         .query(f'`{col_to_review}` == "0"')
+#     )
+#     ,col_to_review ,'value_counts'
+# )
+
+
+
+
+
+
+
+
 #%%###################################
 ### df_12LL_1: 'KU_BASETABLE'.
 
 df_12LL_before_BaseTable = df_12LL_allstring_1.copy()
-df_12LL_after_BaseTable = df_12LL_allstring_1.copy()
+df_12LL_after_BaseTable = df_12LL_allstring_1.copy() ### Using .copy() on the same object creates the same hashes every time.
+# df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy()
+
+# df_12LL_before_BaseTable = df_12LL_allstring_1.copy(deep=True)
+# df_12LL_after_BaseTable = df_12LL_allstring_1.copy(deep=True) ### Using .copy() on the same object creates the same hashes every time.
+# # df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy(deep=True)
+
+# df_12LL_before_BaseTable = df_12LL_allstring_1.copy(deep=False)
+# df_12LL_after_BaseTable = df_12LL_allstring_1.copy(deep=False) ### Using .copy() on the same object creates the same hashes every time.
+# # df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy(deep=False)
+
+# #%%
+# ### Test
+# df_12LL_allstring_1._is_view, df_12LL_allstring_1._is_copy 
+# #%%
+# df_12LL_before_BaseTable._is_view, df_12LL_before_BaseTable._is_copy 
+# #%%
+# df_12LL_after_BaseTable._is_view, df_12LL_after_BaseTable._is_copy 
+
+### TODO: this isn't showing any connection even for deep=False.
+
+# #%%
+# pd.util.hash_pandas_object(df_12LL_allstring_1)
+# #%%
+# pd.util.hash_pandas_object(df_12LL_before_BaseTable)
+# #%%
+# pd.util.hash_pandas_object(df_12LL_after_BaseTable)
+# #%%
+# all(pd.util.hash_pandas_object(df_12LL_before_BaseTable) == pd.util.hash_pandas_object(df_12LL_after_BaseTable))
+
+# #%%
+# print(id(df_12LL_allstring_1))
+# print(id(df_12LL_before_BaseTable))
+# print(id(df_12LL_after_BaseTable))
+
+# #%%
+# [id(df_12LL_allstring_1[n]) for n in df_12LL_allstring_1.columns]
+# #%%
+# [id(df_12LL_before_BaseTable[n]) for n in df_12LL_before_BaseTable.columns]
+# #%%
+# [id(df_12LL_after_BaseTable[n]) for n in df_12LL_after_BaseTable.columns]
+
+# #%%
+# [id(df_12LL_allstring_1[n]) for n in df_12LL_allstring_1.columns] == [id(df_12LL_before_BaseTable[n]) for n in df_12LL_before_BaseTable.columns]
+
+# #%%
+# [id(df_12LL_before_BaseTable[n]) for n in df_12LL_before_BaseTable.columns] == [id(df_12LL_after_BaseTable[n]) for n in df_12LL_after_BaseTable.columns]
 
 
 ######################################
@@ -403,7 +527,7 @@ df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 #%%
 ### Test change:
 if (
-    ### Test 1: Number of NA has not increased.
+    ### Test 1: Number of NA has not increased:
     (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
 ):
     print('tests passed!')
@@ -413,7 +537,7 @@ else:
 
 #%%
 ### Make DFs the same:
-df_12LL_after_BaseTable = df_12LL_before_BaseTable
+df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
 
 
 ######################################
@@ -426,64 +550,174 @@ len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
 print('Find & replace "null" values')
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    # .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=['null'], replacement_value=pd.NA)
-    .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=['N'], replacement_value=pd.NA)
+    .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=['null'], replacement_value=pd.NA)
 )
+
+#%%
+### Check if any changes. Still equal?:
+print(f'{len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0}')
+print(f'{df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+print(f'{assert_frame_equal(df_12LL_before_BaseTable, df_12LL_after_BaseTable) is None}')
 
 #%%
 ### See differences:
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
-df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
-
-#%%
-# from pandas.testing import assert_frame_equal
-print(f'Output \n {assert_frame_equal(df_12LL_before_BaseTable, df_12LL_after_BaseTable) is None}')
-
-#%%
-df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable, keep_shape=True, keep_equal=True) 
-
-#%%
 ### Test change:
-try:
-    ### Test 1: Number of NA has not increased.
+if (
+    ### Test 1: Number of NA has not increased:
     (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
-except Exception as err:
-    print(f"Unexpected {err=}, {type(err)=}")
-    raise 
-else:
+    and
+    ### Test 2: Find where before is differet & is "null" & see ig after turned that NA
+    True 
+):
     print('tests passed!')
     print('Test 1: Number of NA has not increased.')
-
+else:
+    raise Exception('Not the same')
 
 #%%
 ### Make DFs the same:
-df_12LL_after_BaseTable = df_12LL_before_BaseTable
+df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
 
 
+######################################
 #%%###################################
-
+### Test that DFs the same:
+len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
 
 #%%
-# df_12LL_BaseTable.project_id
-
-
-# #%%
-# print(df_12LL_allstring_1['tgt_id'].value_counts(dropna=False).to_string())
-# #%%
-# print(df_12LL_BaseTable['tgt_id'].value_counts(dropna=False).to_string())
-#%%
-col_to_review = 'tgt_id'
-compare_col(
-    (df_12LL_allstring_1
-        .loc[lambda df: pd.isna(df[col_to_review])]
-    )
-    ,(df_12LL_BaseTable
-        .query(f'`{col_to_review}` == "0"')
-    )
-    ,col_to_review ,'value_counts'
+### Make change:
+print('Set data types') 
+df_12LL_after_BaseTable = (
+    df_12LL_after_BaseTable
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
 )
+### TODO: This is affecting AFTER AND BEFORE.
+
+### TODO: Date issues.
+
+#%%
+### Check if any changes. Still equal?:
+print(f'{df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+
+#%%
+### See differences:
+df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+
+#%%
+### TODO: Check if data types changed. 
+print(df_12LL_before_BaseTable.dtypes.to_string())
+print('-------------------------------------')
+print(df_12LL_after_BaseTable.dtypes.to_string())
+# print('-------------------------------------')
+# print(df_12LL_allstring_1.dtypes.to_string())
+
+#%%
+df_12LL_before_BaseTable.dtypes.to_string() == df_12LL_after_BaseTable.dtypes.to_string()
+
+#%%
+### Test change:
+if (
+    ### Test 1: Number of NA has not increased:
+    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
+    and
+    ### Test 2: Not every column is string (Not always true for every dataset!):
+    True
+    ### TODO
+):
+    print('tests passed!')
+    print('Test 1: Number of NA has not increased.')
+else:
+    raise Exception('Not the same')
+
+#%%
+### Make DFs the same:
+df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+######################################
+#%%###################################
+### Test that DFs the same:
+len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
+
+#%%
+### Make change:
+# print('TEMPLATE') #TODO!
+# df_12LL_after_BaseTable = (
+#     df_12LL_after_BaseTable
+#     . #TODO!
+# )
+
+#%%
+### Check if any changes. Still equal?:
+print(f'{df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+
+#%%
+### See differences:
+df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+
+#%%
+### Test change:
+if (
+    ### Test 1: Number of NA has not increased:
+    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
+):
+    print('tests passed!')
+    print('Test 1: Number of NA has not increased.')
+else:
+    raise Exception('Not the same')
+
+#%%
+### Make DFs the same:
+df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #%%###################################
 
@@ -506,8 +740,9 @@ compare_col(
 
 # %%
 ### TODO:
-### - Remove duplciate rows.
-### look up "logger"
+    ### - Remove duplciate rows.
+    ### look up "logger"
+
 
 
 
