@@ -16,6 +16,8 @@ print('Version Of Python: ' + sys.version)
 print('Version Of Pandas: ' + pd.__version__)
 print('Version Of Numpy: ' + np.version.version)
 
+### From 1.2LL:
+from pandas.testing import assert_frame_equal
 
 #%%##################################################
 ### UTILITY FUNCTIONS ###
@@ -181,7 +183,6 @@ def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_
     list_of_values_to_find = [str(x).lower() for x in list_of_values_to_find]
     ####
     string_of_values_to_find = list_of_values_to_find
-    ### if (len(list_of_values_to_find) > 1): ### Removed: Doesn't matter how long it is.
     string_of_values_to_find = '|'.join(list_of_values_to_find) ### Changes it to a string. Only adds "|" if multiple values.
     ###print(string_of_values_to_find)
     ####
@@ -198,6 +199,7 @@ def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_
             }) 
     print('These values were replaced: ', fn_list)
     ###
+    ### TODO: At the moment, searching is case-insensitive. Could make option for case sensitive.
     fdf = fdf.replace(fr'(?i)^({string_of_values_to_find})$', replacement_value, regex=True)
     return fdf
 

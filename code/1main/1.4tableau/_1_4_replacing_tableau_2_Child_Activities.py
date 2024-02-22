@@ -47,6 +47,8 @@ bool_14t_deduplicate_tb2 = False
 ### COLUMN DEFINITIONS ###
 #####################################################
 
+### Lists: ['original name in Excel', 'col name in Tableau', 'either blank or "same"', 'intended dtype']
+
 #######################
 #%%### df_14t_piece_tb2_1: 'Project ID'.
 list_14t_col_detail_tb2_1 = [
