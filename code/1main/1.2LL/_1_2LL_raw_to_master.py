@@ -19,15 +19,16 @@
 
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
-#%%##################################################
-### INSTRUCTIONS ###
+#%%##############################################!>>>
+### >>>  INSTRUCTIONS 
 #####################################################
 
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
 
-#%%##################################################
-### SETUP ###
+
+#%%##############################################!>>> 
+### >>>  SETUP 
 #####################################################
 
 import os 
@@ -44,8 +45,8 @@ else:
     print("Did NOT run RUNME again... because it's already running!")
 
 
-#%%##################################################
-### COLUMN DEFINITIONS ###
+#%%##############################################!>>>
+### >>> COLUMN DEFINITIONS 
 #####################################################
 
 #%%### df_12LL_1: 'KU_BASETABLE'.
@@ -285,8 +286,8 @@ print(dict_12LL_col_dtypes_4)
 print(collections.Counter(list(dict_12LL_col_dtypes_4.values())))
 
 
-#%%##################################################
-### READ ###
+#%%##############################################!>>>
+### >>> READ 
 #####################################################
 
 #%%
@@ -322,12 +323,12 @@ df_12LL_4 = df_12LL_allstring_4.copy()
 # print(df_12LL_allstring_4.dtypes.to_string())
 
 
-#%%##################################################
-### CLEAN ###
+#%%##############################################!>>>
+### >>> CLEAN 
 #####################################################
 
 #%%###################################
-### df_12LL_2: 'KU_CHILDERINJ'.
+### <> df_12LL_2: 'KU_CHILDERINJ'.
 df_12LL_ChildERInj = (
     df_12LL_allstring_2
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
@@ -336,7 +337,7 @@ df_12LL_ChildERInj = (
 )
 
 #%%###################################
-### df_12LL_3: 'KU_MATERNALINS'.
+### <> df_12LL_3: 'KU_MATERNALINS'.
 df_12LL_MaternalIns = (
     df_12LL_allstring_3
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
@@ -345,7 +346,7 @@ df_12LL_MaternalIns = (
 )
 
 #%%###################################
-### df_12LL_4: 'KU_WELLCHILDVISITS'.
+### <> df_12LL_4: 'KU_WELLCHILDVISITS'.
 df_12LL_WellChildVisits = (
     df_12LL_allstring_4
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
@@ -394,7 +395,10 @@ df_12LL_WellChildVisits = (
 
 
 #%%###################################
-### df_12LL_1: 'KU_BASETABLE'.
+### >>> df_12LL_1: 'KU_BASETABLE'.
+
+
+### <> old
 # df_12LL_BaseTable = (
 #     ### Raw table all read in as strings:
 #     df_12LL_allstring_1
@@ -447,106 +451,81 @@ df_12LL_WellChildVisits = (
 #     ,col_to_review ,'value_counts'
 # )
 
-
-
-
-
-
-
+ 
 
 #%%###################################
+### <> Before & After 
 ### df_12LL_1: 'KU_BASETABLE'.
 
 df_12LL_before_BaseTable = df_12LL_allstring_1.copy()
-df_12LL_after_BaseTable = df_12LL_allstring_1.copy() ### Using .copy() on the same object creates the same hashes every time.
-# df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy()
-
-# df_12LL_before_BaseTable = df_12LL_allstring_1.copy(deep=True)
-# df_12LL_after_BaseTable = df_12LL_allstring_1.copy(deep=True) ### Using .copy() on the same object creates the same hashes every time.
-# # df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy(deep=True)
-
-# df_12LL_before_BaseTable = df_12LL_allstring_1.copy(deep=False)
-# df_12LL_after_BaseTable = df_12LL_allstring_1.copy(deep=False) ### Using .copy() on the same object creates the same hashes every time.
-# # df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy(deep=False)
-
-# #%%
-# ### Test
-# df_12LL_allstring_1._is_view, df_12LL_allstring_1._is_copy 
-# #%%
-# df_12LL_before_BaseTable._is_view, df_12LL_before_BaseTable._is_copy 
-# #%%
-# df_12LL_after_BaseTable._is_view, df_12LL_after_BaseTable._is_copy 
-
-### TODO: this isn't showing any connection even for deep=False.
-
-# #%%
-# pd.util.hash_pandas_object(df_12LL_allstring_1)
-# #%%
-# pd.util.hash_pandas_object(df_12LL_before_BaseTable)
-# #%%
-# pd.util.hash_pandas_object(df_12LL_after_BaseTable)
-# #%%
-# all(pd.util.hash_pandas_object(df_12LL_before_BaseTable) == pd.util.hash_pandas_object(df_12LL_after_BaseTable))
-
-# #%%
-# print(id(df_12LL_allstring_1))
-# print(id(df_12LL_before_BaseTable))
-# print(id(df_12LL_after_BaseTable))
-
-# #%%
-# [id(df_12LL_allstring_1[n]) for n in df_12LL_allstring_1.columns]
-# #%%
-# [id(df_12LL_before_BaseTable[n]) for n in df_12LL_before_BaseTable.columns]
-# #%%
-# [id(df_12LL_after_BaseTable[n]) for n in df_12LL_after_BaseTable.columns]
-
-# #%%
-# [id(df_12LL_allstring_1[n]) for n in df_12LL_allstring_1.columns] == [id(df_12LL_before_BaseTable[n]) for n in df_12LL_before_BaseTable.columns]
-
-# #%%
-# [id(df_12LL_before_BaseTable[n]) for n in df_12LL_before_BaseTable.columns] == [id(df_12LL_after_BaseTable[n]) for n in df_12LL_after_BaseTable.columns]
+df_12LL_after_BaseTable = df_12LL_allstring_1.copy() 
 
 
 ######################################
 #%%###################################
-### Test that DFs the same:
-len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
+### <> Strip surrounding whitespace
 
 #%%
-### Make change:
+### 1. Test that DFs identical:
+df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
+
+#%%
+### 2. Make change:
 print('Strip surrounding whitespace')
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
 
+### TODO: "FutureWarning: DataFrame.applymap has been deprecated. Use DataFrame.map instead."
+
+#%%
+### 3. Manual/Visual checks:
+print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+
 #%%
 ### See differences:
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
-### Test change:
-if (
-    ### Test 1: Number of NA has not increased:
-    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
-):
-    print('tests passed!')
-    print('Test 1: Number of NA has not increased.')
+### 4. Programmatically test change:
+if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
+    print('Passed Test 1: Number of NA unchanged.')
 else:
-    raise Exception('Not the same')
+    raise Exception('**Test 1 Failed: Number of NA has changed.')
+
+if (len(df_12LL_before_BaseTable.columns) == len(df_12LL_after_BaseTable.columns)): 
+    print('Passed Test 2: Number of columns unchanged.')
+else:
+    raise Exception('**Test 2 Failed: Number of columns has changed.')
+
+if (len(df_12LL_before_BaseTable) == len(df_12LL_after_BaseTable)): 
+    print('Passed Test 3: Number of rows unchanged.')
+else:
+    raise Exception('**Test 3 Failed: Number of rows has changed.')
+
+if (True): #TODO
+    print('Passed Test 4:')
+else:
+    raise Exception('**Test 4 Failed:')
+
+print('All tests passed!')
 
 #%%
-### Make DFs the same:
+### 5. Make DFs identical:
 df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
 
 
 ######################################
 #%%###################################
-### Test that DFs the same:
-len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
+### <> Find & replace "null" values
 
 #%%
-### Make change:
+### 1. Test that DFs identical:
+df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
+
+#%%
+### 2. Make change:
 print('Find & replace "null" values')
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
@@ -554,60 +533,75 @@ df_12LL_after_BaseTable = (
 )
 
 #%%
-### Check if any changes. Still equal?:
-print(f'{len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0}')
-print(f'{df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
-print(f'{assert_frame_equal(df_12LL_before_BaseTable, df_12LL_after_BaseTable) is None}')
+### 3. Manual/Visual checks:
+print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+
+# print(f'{len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0}')
+# print(f'{df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+# print(f'{assert_frame_equal(df_12LL_before_BaseTable, df_12LL_after_BaseTable) is None}')
 
 #%%
 ### See differences:
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
-### Test change:
-if (
-    ### Test 1: Number of NA has not increased:
-    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
-    and
-    ### Test 2: Find where before is differet & is "null" & see ig after turned that NA
-    True 
-):
-    print('tests passed!')
-    print('Test 1: Number of NA has not increased.')
+### 4. Programmatically test change:
+if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
+    print('Passed Test 1: Number of NA unchanged.')
 else:
-    raise Exception('Not the same')
+    raise Exception('**Test 1 Failed: Number of NA has changed.')
+
+if (len(df_12LL_before_BaseTable.columns) == len(df_12LL_after_BaseTable.columns)): 
+    print('Passed Test 2: Number of columns unchanged.')
+else:
+    raise Exception('**Test 2 Failed: Number of columns has changed.')
+
+if (len(df_12LL_before_BaseTable) == len(df_12LL_after_BaseTable)): 
+    print('Passed Test 3: Number of rows unchanged.')
+else:
+    raise Exception('**Test 3 Failed: Number of rows has changed.')
+
+### Test 4: Find where before is different & is "null" & see if after turned that NA.
+if (True): #TODO
+    print('Passed Test 4:')
+else:
+    raise Exception('**Test 4 Failed:')
+
+print('All tests passed!')
 
 #%%
-### Make DFs the same:
+### 5. Make DFs identical:
 df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
 
 
 ######################################
 #%%###################################
-### Test that DFs the same:
-len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
+### <> Set data types 
 
 #%%
-### Make change:
+### 1. Test that DFs identical:
+df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
+
+#%%
+### 2. Make change:
 print('Set data types') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
 )
-### TODO: This is affecting AFTER AND BEFORE.
 
 ### TODO: Date issues.
 
 #%%
-### Check if any changes. Still equal?:
-print(f'{df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+### 3. Manual/Visual checks:
+print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
 
 #%%
 ### See differences:
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
-### TODO: Check if data types changed. 
+### Check if data types changed:
 print(df_12LL_before_BaseTable.dtypes.to_string())
 print('-------------------------------------')
 print(df_12LL_after_BaseTable.dtypes.to_string())
@@ -618,29 +612,33 @@ print(df_12LL_after_BaseTable.dtypes.to_string())
 df_12LL_before_BaseTable.dtypes.to_string() == df_12LL_after_BaseTable.dtypes.to_string()
 
 #%%
-### Test change:
-if (
-    ### Test 1: Number of NA has not increased:
-    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
-    and
-    ### Test 2: Not every column is string (Not always true for every dataset!):
-    True
-    ### TODO
-):
-    print('tests passed!')
-    print('Test 1: Number of NA has not increased.')
+### 4. Programmatically test change:
+if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
+    print('Passed Test 1: Number of NA unchanged.')
 else:
-    raise Exception('Not the same')
+    raise Exception('**Test 1 Failed: Number of NA has changed.')
+
+if (len(df_12LL_before_BaseTable.columns) == len(df_12LL_after_BaseTable.columns)): 
+    print('Passed Test 2: Number of columns unchanged.')
+else:
+    raise Exception('**Test 2 Failed: Number of columns has changed.')
+
+if (len(df_12LL_before_BaseTable) == len(df_12LL_after_BaseTable)): 
+    print('Passed Test 3: Number of rows unchanged.')
+else:
+    raise Exception('**Test 3 Failed: Number of rows has changed.')
+
+### Test 4: Not every column is string (Not always true for every dataset!):
+if (True): #TODO
+    print('Passed Test 4:')
+else:
+    raise Exception('**Test 4 Failed:')
+
+print('All tests passed!')
 
 #%%
-### Make DFs the same:
+### 5. Make DFs identical:
 df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
-
-
-
-
-
-
 
 
 
@@ -663,38 +661,54 @@ df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy()
 
 ######################################
 #%%###################################
-### Test that DFs the same:
-len(df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)) == 0
+### <> TEMPLATE 
 
 #%%
-### Make change:
-# print('TEMPLATE') #TODO!
-# df_12LL_after_BaseTable = (
-#     df_12LL_after_BaseTable
-#     . #TODO!
-# )
+### 1. Test that DFs identical:
+df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 
 #%%
-### Check if any changes. Still equal?:
-print(f'{df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+### 2. Make change:
+print('TEMPLATE') #TODO
+df_12LL_after_BaseTable = (
+    df_12LL_after_BaseTable
+    #. #TODO
+)
+
+#%%
+### 3. Manual/Visual checks:
+print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
 
 #%%
 ### See differences:
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
-### Test change:
-if (
-    ### Test 1: Number of NA has not increased:
-    (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum())
-):
-    print('tests passed!')
-    print('Test 1: Number of NA has not increased.')
+### 4. Programmatically test change:
+if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
+    print('Passed Test 1: Number of NA unchanged.')
 else:
-    raise Exception('Not the same')
+    raise Exception('**Test 1 Failed: Number of NA has changed.')
+
+if (len(df_12LL_before_BaseTable.columns) == len(df_12LL_after_BaseTable.columns)): 
+    print('Passed Test 2: Number of columns unchanged.')
+else:
+    raise Exception('**Test 2 Failed: Number of columns has changed.')
+
+if (len(df_12LL_before_BaseTable) == len(df_12LL_after_BaseTable)): 
+    print('Passed Test 3: Number of rows unchanged.')
+else:
+    raise Exception('**Test 3 Failed: Number of rows has changed.')
+
+if (True): #TODO
+    print('Passed Test 4:')
+else:
+    raise Exception('**Test 4 Failed:')
+
+print('All tests passed!')
 
 #%%
-### Make DFs the same:
+### 5. Make DFs identical:
 df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
 
 
@@ -715,7 +729,10 @@ df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy()
 
 
 
-
+### !>>> 
+#%%##############################################!>>>
+### >>> OLD  
+#####################################################
 
 
 
@@ -734,6 +751,13 @@ df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy()
 # inspect_df(df_12LL_WellChildVisits)
 
 
+
+
+
+
+#%%##############################################!>>>
+### >>> END 
+#################################################!>>>
 
 
 
