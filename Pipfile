@@ -5,11 +5,11 @@ name = "pypi"
 
 [packages]
 pandas = ">=2.*"
+numpy = "*"
 xlsxwriter = "*"
 openpyxl = "*"
 ipykernel = "*"
 ipython = "*"
-faker = "*"
 
 [dev-packages]
 
