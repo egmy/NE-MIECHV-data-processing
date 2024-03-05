@@ -264,7 +264,7 @@ list_12LL_col_detail_3 = [
     ['family_id', 'string']
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
-    ,['insurance', 'Int64']
+    ,['insurance', 'string'] ### Could be 'Int64'; however, left as string because will union with FW string vars. Will be UN-coded in 1.4 code.
     ,['date', 'datetime64[ns]']
 ]
 #%%### df_12LL_3: 'KU_MATERNALINS'.
@@ -669,8 +669,7 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 print('Column site_id should now be all "ll".') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    .assign(site_id = 'll')
-    .astype({'site_id': 'string'})
+    .assign(site_id = 'll').astype({'site_id': 'string'})
 )
 
 #%%
@@ -1227,39 +1226,87 @@ df_12LL_BaseTable = df_12LL_after_BaseTable.copy()
 ### !>>> 
 #%%###################################
 ### <> df_12LL_2: 'KU_CHILDERINJ'.
-df_12LL_ChildERInj = (
+df_12LL_ChildERInj_2 = (
     df_12LL_allstring_2
-    ### 1. Strip surrounding whitespace.
+    ### 1. Strip surrounding whitespace:
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    ### 2. Find & replace "null" values.
+    ### 2. Find & replace "null" values:
     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    ### 3. Add nanoseconds to datetimes missing them.
-    ### 4. Set data types.
+    ### 3. Add nanoseconds to datetimes missing them:
+    ### 4. Set data types:
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_2)
-    ### 5. Column site_id set to "ll".
-    ### 6. Column tgt_id fill NA with "0".
-    ### 7. Create project_id column.
+    ### 5v2. Column agency set to "ll":
+    .assign(agency = 'll').astype({'agency': 'string'})
+    ### 6. Column tgt_id fill NA with "0":
+    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
+    ### 7v2. Create project_id column:
+    .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
+    ### new8. Reorder columns:
+    [['project_id', 'agency', 'family_id', 'tgt_id', 'funding', 'reason', 'date']]
+    ### new9. Filter dates:
+    .query('date >= @date_fy_start')
+    ### new10. Sort rows:
+    .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
+    ### new11. Rename columns:
+    .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'reason': 'ERVisitReason', 'date': 'IncidentDate'})
 )
+
+
 
 #%%###################################
 ### <> df_12LL_3: 'KU_MATERNALINS'.
-df_12LL_MaternalIns = (
+df_12LL_MaternalIns_3 = (
     df_12LL_allstring_3
+    ### 1. Strip surrounding whitespace:
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    ### 2. Find & replace "null" values:
     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    ### 3. Add nanoseconds to datetimes missing them:
+    ### 4. Set data types:
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_3)
+    ### 5v2. Column agency set to "ll":
+    .assign(agency = 'll').astype({'agency': 'string'})
+    ### 6. Column tgt_id fill NA with "0":
+    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
+    ### 7v2. Create project_id column:
+    .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
+    ### new8. Reorder columns:
+    [['project_id', 'agency', 'family_id', 'tgt_id', 'funding', 'insurance', 'date']]
+    ### Note: Do NOT filter dates.
+    ### new10. Sort rows:
+    .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
+    ### new11. Rename columns:
+    .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'insurance': 'AD1PrimaryIns', 'date': 'AD1InsChangeDate'})
 )
+
+
 
 #%%###################################
 ### <> df_12LL_4: 'KU_WELLCHILDVISITS'.
-df_12LL_WellChildVisits = (
+df_12LL_WellChildVisits_4 = (
     df_12LL_allstring_4
+    ### 1. Strip surrounding whitespace:
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    ### 2. Find & replace "null" values:
     .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    ### 3. Add nanoseconds to datetimes missing them:
+    ### 4. Set data types:
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_4)
+    ### 5v2. Column agency set to "ll":
+    .assign(agency = 'll').astype({'agency': 'string'})
+    ### 6. Column tgt_id fill NA with "0":
+    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
+    ### 7v2. Create project_id column:
+    .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
+    ### new8. Reorder columns:
+    [['project_id', 'agency', 'family_id', 'tgt_id', 'funding', 'date']]
+    ### new9. Filter dates:
+    .query('date >= @date_fy_start')
+    ### new10. Sort rows:
+    .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
+    ### new11. Rename columns:
+    .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'date': 'WellVisitDate'})
 )
-
-
 
 
 
@@ -1272,15 +1319,13 @@ df_12LL_WellChildVisits = (
 # print(collections.Counter(df_12LL_BaseTable.dtypes))
 
 #%%
-inspect_df(df_12LL_ChildERInj)
+inspect_df(df_12LL_ChildERInj_2)
 
 #%%
-inspect_df(df_12LL_MaternalIns)
+inspect_df(df_12LL_MaternalIns_3)
 
 #%%
-inspect_df(df_12LL_WellChildVisits)
-
-
+inspect_df(df_12LL_WellChildVisits_4)
 
 
 
@@ -1288,15 +1333,109 @@ inspect_df(df_12LL_WellChildVisits)
 ### >>> RESTRUCTURING  
 #####################################################
 
-### Compare to files here: U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\after restructuring   
+### Compare to files here: 
+    ### U:\Working\nehv_ds_data_files\2mid\1main\1.2LL\previous\before restructure\Y13Q1 (Oct 2023 - Dec 2023) 
+    ### U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\previous\after restructuring\Y13Q1 (Oct 2023 - Dec 2023) 
+
+### TODO: AFTER restructuring, add year & quarter variables.
+
+
+#%%###################################
+### <> ChildERInj 
+
+### Pivot the DataFrame:
+df_12LL_pivoted_ChildERInj_2 = df_12LL_ChildERInj_2.pivot_table(
+    index=['ProjectID', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    ,columns=df_12LL_ChildERInj_2.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
+    ,values=['ERVisitReason', 'IncidentDate'] ### Columns that change.
+    ,aggfunc='first' ### To use the values themselves and not an aggregation.
+)
+df_12LL_pivoted_ChildERInj_2
+
+#%%
+### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
+df_12LL_pivoted_ChildERInj_2 = df_12LL_pivoted_ChildERInj_2.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
+df_12LL_pivoted_ChildERInj_2
+
+#%%
+### Flatten the column MultiIndex & rename columns in the style of SPSS:
+df_12LL_pivoted_ChildERInj_2.columns = [f'{col[0]}.{col[1]}' for col in df_12LL_pivoted_ChildERInj_2.columns]
+df_12LL_pivoted_ChildERInj_2
+
+#%%
+### Reset row & column indices:
+df_12LL_pivoted_ChildERInj_2 = df_12LL_pivoted_ChildERInj_2.reset_index()
+df_12LL_pivoted_ChildERInj_2
 
 
 
+#%%###################################
+### <> MaternalIns 
+
+### Pivot the DataFrame:
+df_12LL_pivoted_MaternalIns_3 = df_12LL_MaternalIns_3.pivot_table(
+    index=['ProjectID', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    ,columns=df_12LL_MaternalIns_3.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
+    ,values=['AD1PrimaryIns', 'AD1InsChangeDate'] ### Columns that change.
+    ,aggfunc='first' ### To use the values themselves and not an aggregation.
+)
+df_12LL_pivoted_MaternalIns_3
+
+#%%
+### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
+df_12LL_pivoted_MaternalIns_3 = df_12LL_pivoted_MaternalIns_3.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
+df_12LL_pivoted_MaternalIns_3
+
+#%%
+### Flatten the column MultiIndex & rename columns in the style of SPSS:
+df_12LL_pivoted_MaternalIns_3.columns = [f'{col[0]}.{col[1]}' for col in df_12LL_pivoted_MaternalIns_3.columns]
+df_12LL_pivoted_MaternalIns_3
+
+#%%
+### Reset row & column indices:
+df_12LL_pivoted_MaternalIns_3 = df_12LL_pivoted_MaternalIns_3.reset_index()
+df_12LL_pivoted_MaternalIns_3
 
 
 
+#%%###################################
+### <> WellChildVisits 
+
+### Pivot the DataFrame:
+df_12LL_pivoted_WellChildVisits_4 = df_12LL_WellChildVisits_4.pivot_table(
+    index=['ProjectID', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    ,columns=df_12LL_WellChildVisits_4.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
+    ,values=['WellVisitDate'] ### Columns that change.
+    ,aggfunc='first' ### To use the values themselves and not an aggregation.
+)
+df_12LL_pivoted_WellChildVisits_4
+
+#%%
+### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
+df_12LL_pivoted_WellChildVisits_4 = df_12LL_pivoted_WellChildVisits_4.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
+df_12LL_pivoted_WellChildVisits_4
+
+#%%
+### Flatten the column MultiIndex & rename columns in the style of SPSS:
+df_12LL_pivoted_WellChildVisits_4.columns = [f'{col[0]}.{col[1]}' for col in df_12LL_pivoted_WellChildVisits_4.columns]
+df_12LL_pivoted_WellChildVisits_4
+
+#%%
+### Reset row & column indices:
+df_12LL_pivoted_WellChildVisits_4 = df_12LL_pivoted_WellChildVisits_4.reset_index()
+df_12LL_pivoted_WellChildVisits_4
 
 
+
+#%%##############################################!>>>
+### >>> WRITE OUT FILES   
+#####################################################
+
+
+df_12LL_BaseTable.to_csv(Path(path_12LL_dir_output, 'df_12LL_BaseTable.csv'), index = False)
+df_12LL_pivoted_ChildERInj_2.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_ChildERInj_2.csv'), index = False)
+df_12LL_pivoted_MaternalIns_3.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_MaternalIns_3.csv'), index = False)
+df_12LL_pivoted_WellChildVisits_4.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_WellChildVisits_4.csv'), index = False)
 
 
 
