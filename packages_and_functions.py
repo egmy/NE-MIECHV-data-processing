@@ -24,7 +24,7 @@ from pandas.testing import assert_frame_equal
 #####################################################
 
 def inspect_df (df):
-    print(df.describe(include='all', datetime_is_numeric=True))
+    print(df.describe(include='all'))
     print('\n')
     print(df.dtypes.to_string())
     print('\n')

@@ -327,109 +327,10 @@ df_12LL_4 = df_12LL_allstring_4.copy()
 ### >>> CLEAN 
 #####################################################
 
-#%%###################################
-### <> df_12LL_2: 'KU_CHILDERINJ'.
-df_12LL_ChildERInj = (
-    df_12LL_allstring_2
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_2)
-)
-
-#%%###################################
-### <> df_12LL_3: 'KU_MATERNALINS'.
-df_12LL_MaternalIns = (
-    df_12LL_allstring_3
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_3)
-)
-
-#%%###################################
-### <> df_12LL_4: 'KU_WELLCHILDVISITS'.
-df_12LL_WellChildVisits = (
-    df_12LL_allstring_4
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
-    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_4)
-)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #%%###################################
 ### >>> df_12LL_1: 'KU_BASETABLE'.
-
-
-### <> old
-# df_12LL_BaseTable = (
-#     ### Raw table all read in as strings:
-#     df_12LL_allstring_1
-
-
-# )
-
-    # .pipe(fn_print_expression_and_return_df, (lambda df: df), '')
-
-
-# #%%
-# # df_12LL_BaseTable.project_id
-
-
-# # #%%
-# # print(df_12LL_allstring_1['tgt_id'].value_counts(dropna=False).to_string())
-# # #%%
-# # print(df_12LL_BaseTable['tgt_id'].value_counts(dropna=False).to_string())
-# #%%
-# col_to_review = 'tgt_id'
-# compare_col(
-#     (df_12LL_allstring_1
-#         .loc[lambda df: pd.isna(df[col_to_review])]
-#     )
-#     ,(df_12LL_BaseTable
-#         .query(f'`{col_to_review}` == "0"')
-#     )
-#     ,col_to_review ,'value_counts'
-# )
-
-
 
 #%%###################################
 ### <> Before & After 
@@ -441,9 +342,11 @@ df_12LL_after_BaseTable = df_12LL_allstring_1.copy()
 #%% ### If needed, fo rtesting:
 # df_12LL_after_BaseTable = df_12LL_before_BaseTable.copy() 
 
+
+
 ######################################
 #%%###################################
-### <> Strip surrounding whitespace
+### <> 1. Strip surrounding whitespace
 
 #%%
 ### 1. Test that DFs identical:
@@ -509,7 +412,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Find & replace "null" values
+### <> 2. Find & replace "null" values
 
 #%%
 ### 1. Test that DFs identical:
@@ -579,7 +482,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Add nanoseconds to datetimes missing them   
+### <> 3. Add nanoseconds to datetimes missing them   
 
 #%%
 ### 1. Test that DFs identical:
@@ -665,7 +568,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Set data types 
+### <> 4. Set data types 
 
 #%%
 ### 1. Test that DFs identical:
@@ -755,7 +658,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Column site_id set to "ll" 
+### <> 5. Column site_id set to "ll" 
 
 #%%
 ### 1. Test that DFs identical:
@@ -767,6 +670,7 @@ print('Column site_id should now be all "ll".')
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     .assign(site_id = 'll')
+    .astype({'site_id': 'string'})
 )
 
 #%%
@@ -828,7 +732,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Column tgt_id fill NA with "0" 
+### <> 6. Column tgt_id fill NA with "0" 
 
 
 #     ####
@@ -848,7 +752,7 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 print('All NAs in column tgt_id should be replaced with "0".') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    .assign(tgt_id = lambda df: df['tgt_id'].fillna('0')) 
+    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
 )
 
 #%%
@@ -914,7 +818,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Create project_id column 
+### <> 7. Create project_id column 
 
 #%%
 ### 1. Test that DFs identical:
@@ -995,7 +899,7 @@ print((
 
 ######################################
 #%%###################################
-### <> Filter out families that discharged before the current reporting year (using "discharge_dt"). 
+### <> 8. Filter out families that discharged before the current reporting year (using "discharge_dt"). 
 
 ### TODO ASKJOE: Filtering rows (parent-child combinations), not really families.
 
@@ -1089,7 +993,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Filter out families without a home visit in the current fiscal year (using "last_home_visit"). 
+### <> 9. Filter out families without a home visit in the current fiscal year (using "last_home_visit"). 
 
 ### TODO ASKJOE: Filtering rows (parent-child combinations), not really families.
 
@@ -1165,7 +1069,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Filter out families with 0 home visits (using "home_visits_num"). 
+### <> 10. Filter out families with 0 home visits (using "home_visits_num"). 
 
 ### TODO ASKJOE: Filtering rows (parent-child combinations), not really families.
 
@@ -1244,7 +1148,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> Remove identifying variables 
+### <> 11. Remove identifying variables 
 
 #%%
 ### 1. Test that DFs identical:
@@ -1309,33 +1213,87 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 
 
+#%%###################################
+### <> df_12LL_BaseTable
+df_12LL_BaseTable = df_12LL_after_BaseTable.copy()
+
+
+
 #%%
 ### <> NOTE: Previously, FW & LL combined before the following restructuring and joining.
 
 
 
-
-
 ### !>>> 
-#%%##############################################!>>>
-### >>> OLD  
-#####################################################
+#%%###################################
+### <> df_12LL_2: 'KU_CHILDERINJ'.
+df_12LL_ChildERInj = (
+    df_12LL_allstring_2
+    ### 1. Strip surrounding whitespace.
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    ### 2. Find & replace "null" values.
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    ### 3. Add nanoseconds to datetimes missing them.
+    ### 4. Set data types.
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_2)
+    ### 5. Column site_id set to "ll".
+    ### 6. Column tgt_id fill NA with "0".
+    ### 7. Create project_id column.
+)
+
+#%%###################################
+### <> df_12LL_3: 'KU_MATERNALINS'.
+df_12LL_MaternalIns = (
+    df_12LL_allstring_3
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_3)
+)
+
+#%%###################################
+### <> df_12LL_4: 'KU_WELLCHILDVISITS'.
+df_12LL_WellChildVisits = (
+    df_12LL_allstring_4
+    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_4)
+)
+
+
 
 
 
 #%%###################################
+### <> Inspect DFs
 
 #%%
 # inspect_df(df_12LL_BaseTable)
+# ### Counts of dtypes:
+# print(collections.Counter(df_12LL_BaseTable.dtypes))
 
 #%%
-# inspect_df(df_12LL_ChildERInj)
+inspect_df(df_12LL_ChildERInj)
 
 #%%
-# inspect_df(df_12LL_MaternalIns)
+inspect_df(df_12LL_MaternalIns)
 
 #%%
-# inspect_df(df_12LL_WellChildVisits)
+inspect_df(df_12LL_WellChildVisits)
+
+
+
+
+
+#%%##############################################!>>>
+### >>> RESTRUCTURING  
+#####################################################
+
+### Compare to files here: U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\after restructuring   
+
+
+
+
+
 
 
 
