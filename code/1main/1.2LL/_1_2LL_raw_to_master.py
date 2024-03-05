@@ -922,11 +922,13 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 
 #%%
 ### 2. Make change:
+print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 print('Create project_id column') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     .assign(project_id = lambda df: (df['site_id'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
 )
+print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 
 #%%
 ### 3. Manual/Visual checks:
@@ -1013,12 +1015,14 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 
 #%%
 ### 2. Make change:
+print(f'Rows: {len(df_12LL_after_BaseTable)}')
 print('Filter "discharge_dt" to remove families discharged before current reporting year') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     ### Keep both later dates AND where NO discharge date:
     .query('discharge_dt >= @date_fy_start or discharge_dt.isna()')
 )
+print(f'Rows: {len(df_12LL_after_BaseTable)}')
 
 #%%
 ### 3. Manual/Visual checks:
@@ -1040,10 +1044,10 @@ print('For change "Filter "discharge_dt" to remove families discharged before cu
 #     raise Exception('**Test 1 Failed: Number of NA has changed.')
 ### ________________________________
 
-if (len(df_12LL_before_BaseTable) > len(df_12LL_after_BaseTable)): 
-    print('Passed Test 2: Rows have been removed.')
+if (len(df_12LL_before_BaseTable) >= len(df_12LL_after_BaseTable)): 
+    print('Passed Test 2: Rows have been removed (unless no change).')
 else:
-    raise Exception('**Test 2 Failed: Same or greater number of rows after.')
+    raise Exception('**Test 2 Failed: Greater number of rows after.')
 ### TODO: More specific test of row numbers?
 ### ________________________________
 
@@ -1093,41 +1097,32 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 ### 1. Test that DFs identical:
 df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 
-#%%
-inspect_col(df_12LL_after_BaseTable['last_home_visit'])
+# #%%
+# inspect_col(df_12LL_after_BaseTable['last_home_visit'])
 
 #%%
 ### 2. Make change:
+print(f'Rows: {len(df_12LL_after_BaseTable)}')
 print('Filter "last_home_visit" to remove families without a home visit in the current fiscal year') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     .query('last_home_visit >= @date_fy_start and last_home_visit < @date_fy_end_day_after')
 )
+print(f'Rows: {len(df_12LL_after_BaseTable)}')
 
 #%%
 ### 3. Manual/Visual checks:
 print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
-
-# #%%
-# ### See differences:
-# df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable) ### Cannot .compare when different rows.
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Filter "last_home_visit" to remove families without a home visit in the current fiscal year"...') 
 ### ________________________________
 
-# ### Don't use Test 1: Because removing rows, NA might be very different.
-# if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
-#     print('Passed Test 1: Number of NA unchanged.')
-# else:
-#     raise Exception('**Test 1 Failed: Number of NA has changed.')
-### ________________________________
-
-if (len(df_12LL_before_BaseTable) > len(df_12LL_after_BaseTable)): 
-    print('Passed Test 2: Rows have been removed.')
+if (len(df_12LL_before_BaseTable) >= len(df_12LL_after_BaseTable)): 
+    print('Passed Test 2: Rows have been removed (unless no change).')
 else:
-    raise Exception('**Test 2 Failed: Same or greater number of rows after.')
+    raise Exception('**Test 2 Failed: Greater number of rows after.')
 ### TODO: More specific test of row numbers?
 ### ________________________________
 
@@ -1183,33 +1178,23 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 
 #%%
 ### 2. Make change:
+print(f'Rows: {len(df_12LL_after_BaseTable)}')
 print('Filter "home_visits_num" to remove families without a home visit') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     .query('home_visits_num > 0')
 )
+print(f'Rows: {len(df_12LL_after_BaseTable)}')
 
 #%%
 ### 3. Manual/Visual checks:
 print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
-
-# #%%
-# ### See differences:
-# df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable) ### Cannot .compare when different rows.
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Filter "home_visits_num" to remove families without a home visit"...') 
 ### ________________________________
 
-# ### Don't use Test 1: Because removing rows, NA might be very different.
-# if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
-#     print('Passed Test 1: Number of NA unchanged.')
-# else:
-#     raise Exception('**Test 1 Failed: Number of NA has changed.')
-### ________________________________
-
-###HERE
 if (len(df_12LL_before_BaseTable) >= len(df_12LL_after_BaseTable)): 
     print('Passed Test 2: Rows have been removed (unless no change).')
 else:
@@ -1224,10 +1209,23 @@ else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-if (True): #TODO
-    print('Passed Test 4:')
+if (all(df_12LL_after_BaseTable['home_visits_num'] > 0)
+    and all(~(df_12LL_after_BaseTable['home_visits_num'] <= 0))): 
+    print('Passed Test 4: After change, all "home_visits_num" numbers greater than 0.')
 else:
-    raise Exception('**Test 4 Failed:')
+    raise Exception('**Test 4 Failed: After change, at least one "home_visits_num" number less than or equal to 0.')
+### ________________________________
+
+if (all(df_12LL_before_BaseTable[~df_12LL_before_BaseTable.index.isin(df_12LL_after_BaseTable.index)]['home_visits_num'] <= 0)): 
+    print('Passed Test 5: All rows filtered out had "home_visits_num" numbers less than or equal to 0.')
+else:
+    raise Exception('**Test 5 Failed: At least one row filtered out had a "home_visits_num" number greater than 0.')
+### ________________________________
+
+if (True): #TODO
+    print('Passed Test 6:')
+else:
+    raise Exception('**Test 6 Failed:')
 ### ________________________________
 
 print('All tests passed!')
@@ -1240,83 +1238,40 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### <> NOTE: CREATE CFS ID File here.
 
 
 
 ######################################
 #%%###################################
-### <> TEMPLATE 
+### <> Remove identifying variables 
 
 #%%
 ### 1. Test that DFs identical:
 df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 
 #%%
+### Search for specific columns:
+### Want to remove: first and last name of tgt, mob, and fob; SSNs of tgt, mob, and fob; address; city; and worker_id. (Leave ZIP).
+list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_12LL_after_BaseTable]))
+
+#%%
 ### 2. Make change:
-print('TEMPLATE') #TODO
+print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
+print('Remove identifying variables') 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    #. #TODO
+    .drop(columns=['worker_id', 'tgt_first_name', 'tgt_last_name', 'tgt_ssn', 'mob_first_name', 'mob_last_name', 'mob_ssn', 'fob_first_name', 'fob_last_name', 'fob_ssn', 'address', 'city']) 
 )
+print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 
 #%%
 ### 3. Manual/Visual checks:
 print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
 
 #%%
-### See differences:
-df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
-
-#%%
 ### 4. Programmatically test change:
-print('For change "TEMPLATE"...') #TODO
-### ________________________________
-
-if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
-    print('Passed Test 1: Number of NA unchanged.')
-else:
-    raise Exception('**Test 1 Failed: Number of NA has changed.')
+print('For change "Remove identifying variables"...') 
 ### ________________________________
 
 if (len(df_12LL_before_BaseTable) == len(df_12LL_after_BaseTable)): 
@@ -1325,17 +1280,23 @@ else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_12LL_before_BaseTable.columns) == len(df_12LL_after_BaseTable.columns))
-    and ([*df_12LL_before_BaseTable] == [*df_12LL_after_BaseTable])): 
-    print('Passed Test 3: Number and names of columns unchanged.')
+if (len(df_12LL_before_BaseTable.columns) >= len(df_12LL_after_BaseTable.columns)):
+    print('Passed Test 3: Columns have been removed (unless no change).')
 else:
-    raise Exception('**Test 3 Failed: Number or names of columns has changed.')
+    raise Exception('**Test 3 Failed: Greater number of columns after.')
+### ________________________________
+
+if ((len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_12LL_before_BaseTable]))) >= 0)
+    and (len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_12LL_after_BaseTable]))) == 0)): 
+    print('Passed Test 4: Variables to delete possibly present before but definitely not after.')
+else:
+    raise Exception('**Test 4 Failed: Variables to delete not present before or present after.')
 ### ________________________________
 
 if (True): #TODO
-    print('Passed Test 4:')
+    print('Passed Test 5:')
 else:
-    raise Exception('**Test 4 Failed:')
+    raise Exception('**Test 5 Failed:')
 ### ________________________________
 
 print('All tests passed!')
@@ -1348,17 +1309,8 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+#%%
+### <> NOTE: Previously, FW & LL combined before the following restructuring and joining.
 
 
 
