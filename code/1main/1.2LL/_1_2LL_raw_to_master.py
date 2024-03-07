@@ -243,6 +243,8 @@ list_12LL_col_detail_1 = [
 dict_12LL_col_dtypes_1 = {x[0]:x[1] for x in list_12LL_col_detail_1}
 print(dict_12LL_col_dtypes_1)
 print(collections.Counter(list(dict_12LL_col_dtypes_1.values())))
+### List of date columns:
+list_12LL_date_cols_1 = [key for key, value in dict_12LL_col_dtypes_1.items() if value == 'datetime64[ns]'] 
 
 #######################
 #%%### df_12LL_2: 'KU_CHILDERINJ'.
@@ -257,6 +259,8 @@ list_12LL_col_detail_2 = [
 dict_12LL_col_dtypes_2 = {x[0]:x[1] for x in list_12LL_col_detail_2}
 print(dict_12LL_col_dtypes_2)
 print(collections.Counter(list(dict_12LL_col_dtypes_2.values())))
+### List of date columns:
+list_12LL_date_cols_2 = [key for key, value in dict_12LL_col_dtypes_2.items() if value == 'datetime64[ns]'] 
 
 #######################
 #%%### df_12LL_3: 'KU_MATERNALINS'.
@@ -271,6 +275,8 @@ list_12LL_col_detail_3 = [
 dict_12LL_col_dtypes_3 = {x[0]:x[1] for x in list_12LL_col_detail_3}
 print(dict_12LL_col_dtypes_3)
 print(collections.Counter(list(dict_12LL_col_dtypes_3.values())))
+### List of date columns:
+list_12LL_date_cols_3 = [key for key, value in dict_12LL_col_dtypes_3.items() if value == 'datetime64[ns]'] 
 
 #######################
 #%%### df_12LL_4: 'KU_WELLCHILDVISITS'.
@@ -284,6 +290,9 @@ list_12LL_col_detail_4 = [
 dict_12LL_col_dtypes_4 = {x[0]:x[1] for x in list_12LL_col_detail_4}
 print(dict_12LL_col_dtypes_4)
 print(collections.Counter(list(dict_12LL_col_dtypes_4.values())))
+### List of date columns:
+list_12LL_date_cols_4 = [key for key, value in dict_12LL_col_dtypes_4.items() if value == 'datetime64[ns]'] 
+
 
 
 #%%##############################################!>>>
@@ -394,12 +403,6 @@ else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-if (True): #TODO
-    print('Passed Test 4:')
-else:
-    raise Exception('**Test 4 Failed:')
-### ________________________________
-
 print('All tests passed!')
 print(f'Rows: {len(df_12LL_after_BaseTable)}')
 print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
@@ -421,11 +424,13 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 #%%
 ### 2. Make change:
 print('Find & replace "null" values')
+list_12LL_values_to_find_and_replace = ['null'] 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=['null'], replacement_value=pd.NA)
+    .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=list_12LL_values_to_find_and_replace, replacement_value=pd.NA)
 )
 ### Note: ### TODO: At the moment, searching is case-insensitive. Could make option for case sensitive.
+### Note: ### TODO: At the moment, the entire cell must match. Could make an option for matching with substrings.
 
 #%%
 ### 3. Manual/Visual checks:
@@ -444,10 +449,10 @@ df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 print('For change "Find & replace "null" values"...') 
 ### ________________________________
 
-if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
-    print('Passed Test 1: Number of NA unchanged.')
+if (df_12LL_before_BaseTable.isna().sum().sum() <= df_12LL_after_BaseTable.isna().sum().sum()):
+    print('Passed Test 1: There are more NA after (unless no change).')
 else:
-    raise Exception('**Test 1 Failed: Number of NA has changed.')
+    raise Exception('**Test 1 Failed: Fewer NA after.')
 ### ________________________________
 
 if (len(df_12LL_before_BaseTable) == len(df_12LL_after_BaseTable)): 
@@ -463,7 +468,14 @@ else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-### Test 4: Find where before is different & is "null" & see if after turned that NA.
+if ((fn_find_and_count_value_in_df(df_12LL_before_BaseTable, list_12LL_values_to_find_and_replace) >= 0)
+    and (fn_find_and_count_value_in_df(df_12LL_after_BaseTable, list_12LL_values_to_find_and_replace) == 0)): 
+    print('Passed Test 4: Values to find NOT found after, but maybe found before.')
+else:
+    raise Exception('**Test 4 Failed: Vales to find found after.')
+### ________________________________
+
+### TODO: Test 5: Find where before is different & is "null" & see if after turned that NA.
 if (True): #TODO
     print('Passed Test 4:')
 else:
@@ -482,7 +494,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 ######################################
 #%%###################################
-### <> 3. Add nanoseconds to datetimes missing them   
+### <> 3. Add nanoseconds to strings of datetimes missing them   
 
 #%%
 ### 1. Test that DFs identical:
@@ -490,22 +502,20 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 
 #%%
 ### 2. Make change:
-print('Add nanoseconds to datetimes missing them') 
+print('Add nanoseconds to datetimes strings missing them') 
 
 ### Columns that later have problems with "fn_apply_dtypes":
-list_date_cols_to_edit = ['c_fundingdate', 'mob_living_arrangement_dt', 'fob_edu_dt', 'mcafss_edu_dt1', 'mcafss_edu_dt2', 'hlth_insure_tgt_dt']
+### list_date_cols_to_edit = ['c_fundingdate', 'mob_living_arrangement_dt', 'fob_edu_dt', 'mcafss_edu_dt1', 'mcafss_edu_dt2', 'hlth_insure_tgt_dt'] ### Specific columns causing errors Y13Q1.
+
+regex_12LL_dates_to_fix = r'(^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$)' 
+regex_12LL_dates_replacement = r'\1.000000000' ### 9 zeros for nanoseconds! 
 
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    # .replace({col:r'(^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$)' for col in list_date_cols_to_edit}, r'(\1)(\.)0{9}', regex=True) 
-    .replace({col:r'(^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$)' for col in list_date_cols_to_edit}, r'\1.000000000', regex=True) 
+    .replace({col:regex_12LL_dates_to_fix for col in list_12LL_date_cols_1}, regex_12LL_dates_replacement, regex=True) ### Checking all date columns.
 )
-### TODO: apply on all date vars.
-
-# dict_12LL_col_dtypes_1 = {x[0]:x[1] for x in list_12LL_col_detail_1}
-
-### Want: "2019-12-10 14:02:37.223000000"
-### Causing errors: "2019-12-04 17:48:04"
+### Format causing errors: "2019-12-04 17:48:04" (missing nanoseconds).
+### Want this format: "2019-12-10 14:02:37.223000000"
 
 #%%
 ### 3. Manual/Visual checks:
@@ -528,7 +538,7 @@ print((
 
 #%%
 ### 4. Programmatically test change:
-print('For change "Add nanoseconds to datetimes missing them"...') 
+print('For change "Add nanoseconds to datetimes strings missing them"...') 
 ### ________________________________
 
 if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
@@ -550,6 +560,7 @@ else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
+### TODO: Add a test on the regex values & see if changed.
 if (True): #TODO
     print('Passed Test 4:')
 else:
@@ -581,20 +592,7 @@ df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_1)
 )
-
-#%%
-### TODO: Date issues.
-
-print((
-    df_12LL_before_BaseTable
-    ### Compare: Keep shape so ID column not dropped when the same. Keep equal so can see ID values.
-    # .compare(df_12LL_after_BaseTable, keep_shape=True, keep_equal=True) 
-    ### Select desired columns:
-    .loc[:, ['c_fundingdate', 'mob_living_arrangement_dt', 'fob_edu_dt', 'mcafss_edu_dt1', 'mcafss_edu_dt2', 'hlth_insure_tgt_dt']]
-    ### Keep rows where columns different:
-    # .loc[lambda df: df.apply(fn_keep_row_differences, variable2compare=str_col_to_compare, axis=1), :] 
-).to_string())
-
+### Note: Needed to edit date strings above before applying dtypes.
 
 #%%
 ### 3. Manual/Visual checks:
@@ -639,7 +637,7 @@ else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-### Test 4: Not every column is string (Not always true for every dataset!):
+### TODO: Test 4: Not every column is string (Not always true for every dataset!):
 if (True): #TODO
     print('Passed Test 4:')
 else:
@@ -711,12 +709,6 @@ if ((all(df_12LL_before_BaseTable['site_id']=='01')) and (all(df_12LL_after_Base
     print('Passed Test 4: site_id is "01" before and "ll" after.')
 else:
     raise Exception('**Test 4 Failed: site_id is either not "01" before or not "ll" after.')
-### ________________________________
-
-if (True): #TODO
-    print('Passed Test 5:')
-else:
-    raise Exception('**Test 5 Failed:')
 ### ________________________________
 
 print('All tests passed!')
@@ -798,7 +790,7 @@ else:
 #     raise Exception('**Test 5 Failed:')
 ### ________________________________
 
-### Test 6: show that all before 0's are now NA -- filtering on those idicies?
+### Test 6: show that all before 0's are now NA -- filtering on those indicies?
 if (True): #TODO
     print('Passed Test 4:')
 else:
@@ -994,7 +986,8 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 #%%###################################
 ### <> 9. Filter out families without a home visit in the current fiscal year (using "last_home_visit"). 
 
-### TODO ASKJOE: Filtering rows (parent-child combinations), not really families.
+### Note: Filtering rows (parent-child combinations), not really families. (Joe approves!)
+### TODO: Check later (in 1.4 or Report) (maybe "active child") where DOB are checked to filter out "subsequent children".
 
 #%%
 ### 1. Test that DFs identical:
@@ -1050,12 +1043,6 @@ else:
     raise Exception('**Test 5 Failed: At least one row filtered out had a "last_home_visit" within the Fiscal Year.')
 ### ________________________________
 
-if (True): #TODO
-    print('Passed Test 6:')
-else:
-    raise Exception('**Test 6 Failed:')
-### ________________________________
-
 print('All tests passed!')
 print(f'Rows: {len(df_12LL_after_BaseTable)}')
 print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
@@ -1070,7 +1057,7 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 #%%###################################
 ### <> 10. Filter out families with 0 home visits (using "home_visits_num"). 
 
-### TODO ASKJOE: Filtering rows (parent-child combinations), not really families.
+### Note: Filtering rows (parent-child combinations), not really families.
 
 #%%
 ### 1. Test that DFs identical:
@@ -1088,6 +1075,7 @@ df_12LL_after_BaseTable = (
     .query('home_visits_num > 0')
 )
 print(f'Rows: {len(df_12LL_after_BaseTable)}')
+### Note: By this filter, all families to remove should have been removed above.
 
 #%%
 ### 3. Manual/Visual checks:
@@ -1123,12 +1111,6 @@ if (all(df_12LL_before_BaseTable[~df_12LL_before_BaseTable.index.isin(df_12LL_af
     print('Passed Test 5: All rows filtered out had "home_visits_num" numbers less than or equal to 0.')
 else:
     raise Exception('**Test 5 Failed: At least one row filtered out had a "home_visits_num" number greater than 0.')
-### ________________________________
-
-if (True): #TODO
-    print('Passed Test 6:')
-else:
-    raise Exception('**Test 6 Failed:')
 ### ________________________________
 
 print('All tests passed!')
@@ -1167,6 +1149,7 @@ df_12LL_after_BaseTable = (
     .drop(columns=['worker_id', 'tgt_first_name', 'tgt_last_name', 'tgt_ssn', 'mob_first_name', 'mob_last_name', 'mob_ssn', 'fob_first_name', 'fob_last_name', 'fob_ssn', 'address', 'city']) 
 )
 print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
+### Note: LEAVE ZIP Code!
 
 #%%
 ### 3. Manual/Visual checks:
@@ -1231,8 +1214,9 @@ df_12LL_ChildERInj_2 = (
     ### 1. Strip surrounding whitespace:
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
     ### 2. Find & replace "null" values:
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', list_12LL_values_to_find_and_replace, pd.NA)
     ### 3. Add nanoseconds to datetimes missing them:
+    .replace({col:regex_12LL_dates_to_fix for col in list_12LL_date_cols_2}, regex_12LL_dates_replacement, regex=True) 
     ### 4. Set data types:
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_2)
     ### 5v2. Column agency set to "ll":
@@ -1241,13 +1225,15 @@ df_12LL_ChildERInj_2 = (
     .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
     ### 7v2. Create project_id column:
     .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
-    ### new8. Reorder columns:
-    [['project_id', 'agency', 'family_id', 'tgt_id', 'funding', 'reason', 'date']]
-    ### new9. Filter dates:
+    ### new8. Filter dates: Only want current FY for Form 2 Construct 8.
     .query('date >= @date_fy_start')
+    ### new9. Add year & quarter columns AFTER filter:
+    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
     ### new10. Sort rows:
     .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
-    ### new11. Rename columns:
+    ### new11. Reorder columns:
+    [['project_id', 'year', 'quarter', 'agency', 'family_id', 'tgt_id', 'funding', 'reason', 'date']]
+    ### new12. Rename columns:
     .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'reason': 'ERVisitReason', 'date': 'IncidentDate'})
 )
 
@@ -1260,8 +1246,9 @@ df_12LL_MaternalIns_3 = (
     ### 1. Strip surrounding whitespace:
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
     ### 2. Find & replace "null" values:
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', list_12LL_values_to_find_and_replace, pd.NA)
     ### 3. Add nanoseconds to datetimes missing them:
+    .replace({col:regex_12LL_dates_to_fix for col in list_12LL_date_cols_3}, regex_12LL_dates_replacement, regex=True) 
     ### 4. Set data types:
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_3)
     ### 5v2. Column agency set to "ll":
@@ -1270,12 +1257,14 @@ df_12LL_MaternalIns_3 = (
     .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
     ### 7v2. Create project_id column:
     .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
-    ### new8. Reorder columns:
-    [['project_id', 'agency', 'family_id', 'tgt_id', 'funding', 'insurance', 'date']]
-    ### Note: Do NOT filter dates.
+    ### Note: Do NOT filter dates. Need insurance change dates before current FY for Form 2 Construct 16.
+    ### new9. Add year & quarter columns AFTER filter:
+    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
     ### new10. Sort rows:
     .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
-    ### new11. Rename columns:
+    ### new11. Reorder columns:
+    [['project_id', 'year', 'quarter', 'agency', 'family_id', 'tgt_id', 'funding', 'insurance', 'date']]
+    ### new12. Rename columns:
     .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'insurance': 'AD1PrimaryIns', 'date': 'AD1InsChangeDate'})
 )
 
@@ -1288,8 +1277,9 @@ df_12LL_WellChildVisits_4 = (
     ### 1. Strip surrounding whitespace:
     .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
     ### 2. Find & replace "null" values:
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', ['null'], pd.NA)
+    .pipe(fn_find_and_replace_value_in_df, 'family_id', list_12LL_values_to_find_and_replace, pd.NA)
     ### 3. Add nanoseconds to datetimes missing them:
+    .replace({col:regex_12LL_dates_to_fix for col in list_12LL_date_cols_4}, regex_12LL_dates_replacement, regex=True) 
     ### 4. Set data types:
     .pipe(fn_apply_dtypes, dict_12LL_col_dtypes_4)
     ### 5v2. Column agency set to "ll":
@@ -1298,13 +1288,15 @@ df_12LL_WellChildVisits_4 = (
     .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
     ### 7v2. Create project_id column:
     .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
-    ### new8. Reorder columns:
-    [['project_id', 'agency', 'family_id', 'tgt_id', 'funding', 'date']]
-    ### new9. Filter dates:
-    .query('date >= @date_fy_start')
+    ### new8. Filter dates: Filter out bad data earlier than "2017-10-01". Need WCVisits before current FY for Form 2 Construct 4: ### TODO: Check C04.
+    .query('date >= "2017-10-01"') 
+    ### new9. Add year & quarter columns AFTER filter:
+    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
     ### new10. Sort rows:
     .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
-    ### new11. Rename columns:
+    ### new11. Reorder columns:
+    [['project_id', 'year', 'quarter', 'agency', 'family_id', 'tgt_id', 'funding', 'date']]
+    ### new12. Rename columns:
     .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'date': 'WellVisitDate'})
 )
 
@@ -1336,8 +1328,6 @@ inspect_df(df_12LL_WellChildVisits_4)
 ### Compare to files here: 
     ### U:\Working\nehv_ds_data_files\2mid\1main\1.2LL\previous\before restructure\Y13Q1 (Oct 2023 - Dec 2023) 
     ### U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\previous\after restructuring\Y13Q1 (Oct 2023 - Dec 2023) 
-
-### TODO: AFTER restructuring, add year & quarter variables.
 
 
 #%%###################################
@@ -1431,6 +1421,7 @@ df_12LL_pivoted_WellChildVisits_4
 ### >>> WRITE OUT FILES   
 #####################################################
 
+### TODO: Check that date formats written out without timestamps.
 
 df_12LL_BaseTable.to_csv(Path(path_12LL_dir_output, 'df_12LL_BaseTable.csv'), index = False)
 df_12LL_pivoted_ChildERInj_2.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_ChildERInj_2.csv'), index = False)

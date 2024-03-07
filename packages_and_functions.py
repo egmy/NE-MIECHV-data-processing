@@ -185,7 +185,8 @@ def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_
     string_of_values_to_find = list_of_values_to_find
     string_of_values_to_find = '|'.join(list_of_values_to_find) ### Changes it to a string. Only adds "|" if multiple values.
     ###print(string_of_values_to_find)
-    ####
+    ##########
+    ### Print out details about values found:
     fn_list = []
     for col_index, col in enumerate(fdf.columns):
         if (fdf[col].astype('string').str.lower().isin(list_of_values_to_find).any()):
@@ -198,10 +199,18 @@ def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_
                 ,'ids': fdf.loc[fdf[col].astype('string').str.lower().isin(list_of_values_to_find)][one_id_var].tolist() 
             }) 
     print('These values were replaced: ', fn_list)
-    ###
+    ##########
+    ### Make the change:
     ### TODO: At the moment, searching is case-insensitive. Could make option for case sensitive.
+    ### TODO: At the moment, the entire cell must match. Could make an option for matching with substrings.
     fdf = fdf.replace(fr'(?i)^({string_of_values_to_find})$', replacement_value, regex=True)
     return fdf
+
+def fn_find_and_count_value_in_df(fdf, list_of_values_to_find=['Unrecognized Value']):
+    list_of_values_to_find = [str(x).lower() for x in list_of_values_to_find]
+    return pd.Series(fdf.values.flatten()).astype('string').str.lower().isin(list_of_values_to_find).sum() 
+    ### TODO: At the moment, searching is case-insensitive. Could make option for case sensitive.
+    ### TODO: At the moment, the entire cell must match. Could make an option for matching with substrings.
 
 def fn_print_and_return_object(object):
     print(object)
