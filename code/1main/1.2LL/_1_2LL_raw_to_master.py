@@ -366,10 +366,8 @@ df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
 print('Strip surrounding whitespace')
 df_12LL_after_BaseTable = (
     df_12LL_after_BaseTable
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
-
-### TODO: "FutureWarning: DataFrame.applymap has been deprecated. Use DataFrame.map instead."
 
 #%%
 ### 3. Manual/Visual checks:
@@ -861,12 +859,6 @@ else:
     raise Exception('**Test 3 Failed: Not exactly one more column named "project_id".')
 ### ________________________________
 
-if (True): #TODO
-    print('Passed Test 4:')
-else:
-    raise Exception('**Test 4 Failed:')
-### ________________________________
-
 print('All tests passed!')
 print(f'Rows: {len(df_12LL_after_BaseTable)}')
 print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
@@ -892,7 +884,7 @@ print((
 #%%###################################
 ### <> 8. Filter out families that discharged before the current reporting year (using "discharge_dt"). 
 
-### TODO ASKJOE: Filtering rows (parent-child combinations), not really families.
+### Note: Filtering rows (parent-child combinations), not really families.
 
 #%%
 ### 1. Test that DFs identical:
@@ -964,12 +956,6 @@ if (all(df_12LL_before_BaseTable[~df_12LL_before_BaseTable.index.isin(df_12LL_af
     print('Passed Test 5: All rows filtered out had "discharge_dt" dates before the Fiscal Year start date.')
 else:
     raise Exception('**Test 5 Failed: At least one row filtered out had a "discharge_dt" date not before the Fiscal Year start date.')
-### ________________________________
-
-if (True): #TODO
-    print('Passed Test 6:')
-else:
-    raise Exception('**Test 6 Failed:')
 ### ________________________________
 
 print('All tests passed!')
@@ -1179,12 +1165,6 @@ else:
     raise Exception('**Test 4 Failed: Variables to delete not present before or present after.')
 ### ________________________________
 
-if (True): #TODO
-    print('Passed Test 5:')
-else:
-    raise Exception('**Test 5 Failed:')
-### ________________________________
-
 print('All tests passed!')
 print(f'Rows: {len(df_12LL_after_BaseTable)}')
 print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
@@ -1206,13 +1186,17 @@ df_12LL_BaseTable = df_12LL_after_BaseTable.copy()
 
 
 
+### TODO: add year & quarter columns.
+### NOTE for 1.3 step: intention is to have all quarters represented in DS, but NO data from previous FYs. Purpose: allow local users to check & clean their data throughout the year.
+
+
 ### !>>> 
 #%%###################################
 ### <> df_12LL_2: 'KU_CHILDERINJ'.
 df_12LL_ChildERInj_2 = (
     df_12LL_allstring_2
     ### 1. Strip surrounding whitespace:
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
     ### 2. Find & replace "null" values:
     .pipe(fn_find_and_replace_value_in_df, 'family_id', list_12LL_values_to_find_and_replace, pd.NA)
     ### 3. Add nanoseconds to datetimes missing them:
@@ -1227,6 +1211,7 @@ df_12LL_ChildERInj_2 = (
     .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
     ### new8. Filter dates: Only want current FY for Form 2 Construct 8.
     .query('date >= @date_fy_start')
+    ### TODO: filter column reason to only accept "ER Visit".
     ### new9. Add year & quarter columns AFTER filter:
     .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
     ### new10. Sort rows:
@@ -1244,7 +1229,7 @@ df_12LL_ChildERInj_2 = (
 df_12LL_MaternalIns_3 = (
     df_12LL_allstring_3
     ### 1. Strip surrounding whitespace:
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
     ### 2. Find & replace "null" values:
     .pipe(fn_find_and_replace_value_in_df, 'family_id', list_12LL_values_to_find_and_replace, pd.NA)
     ### 3. Add nanoseconds to datetimes missing them:
@@ -1267,6 +1252,7 @@ df_12LL_MaternalIns_3 = (
     ### new12. Rename columns:
     .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'insurance': 'AD1PrimaryIns', 'date': 'AD1InsChangeDate'})
 )
+### TODO ASKJOE: from instructions "Insert a column B and enter this formula =COUNTIF($A$2:A2,A2) and move to column 4"
 
 
 
@@ -1275,7 +1261,7 @@ df_12LL_MaternalIns_3 = (
 df_12LL_WellChildVisits_4 = (
     df_12LL_allstring_4
     ### 1. Strip surrounding whitespace:
-    .applymap(lambda cell: cell.strip(), na_action='ignore').astype('string')
+    .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
     ### 2. Find & replace "null" values:
     .pipe(fn_find_and_replace_value_in_df, 'family_id', list_12LL_values_to_find_and_replace, pd.NA)
     ### 3. Add nanoseconds to datetimes missing them:
@@ -1421,12 +1407,12 @@ df_12LL_pivoted_WellChildVisits_4
 ### >>> WRITE OUT FILES   
 #####################################################
 
-### TODO: Check that date formats written out without timestamps.
+### Note: Date columns written out without timestamps.
 
-df_12LL_BaseTable.to_csv(Path(path_12LL_dir_output, 'df_12LL_BaseTable.csv'), index = False)
-df_12LL_pivoted_ChildERInj_2.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_ChildERInj_2.csv'), index = False)
-df_12LL_pivoted_MaternalIns_3.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_MaternalIns_3.csv'), index = False)
-df_12LL_pivoted_WellChildVisits_4.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_WellChildVisits_4.csv'), index = False)
+df_12LL_BaseTable.to_csv(Path(path_12LL_dir_output, 'df_12LL_BaseTable.csv'), index = False, date_format="%m/%d/%Y")
+df_12LL_pivoted_ChildERInj_2.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_ChildERInj_2.csv'), index = False, date_format="%m/%d/%Y")
+df_12LL_pivoted_MaternalIns_3.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_MaternalIns_3.csv'), index = False, date_format="%m/%d/%Y")
+df_12LL_pivoted_WellChildVisits_4.to_csv(Path(path_12LL_dir_output, 'df_12LL_pivoted_WellChildVisits_4.csv'), index = False, date_format="%m/%d/%Y")
 
 
 
@@ -1439,8 +1425,8 @@ df_12LL_pivoted_WellChildVisits_4.to_csv(Path(path_12LL_dir_output, 'df_12LL_piv
 
 # %%
 ### TODO:
-    ### - Remove duplciate rows.
-    ### look up "logger"
+    ### Remove duplciate rows (like how tried in 1.4 code).
+    ### see if "logger" package would be useful.
 
 
 
