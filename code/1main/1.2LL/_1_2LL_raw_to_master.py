@@ -318,11 +318,11 @@ df_12LL_allstring_2 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_r
 df_12LL_allstring_3 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_3)
 df_12LL_allstring_4 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_4)
 
-### Backup:
-df_12LL_1 = df_12LL_allstring_1.copy()
-df_12LL_2 = df_12LL_allstring_2.copy()
-df_12LL_3 = df_12LL_allstring_3.copy()
-df_12LL_4 = df_12LL_allstring_4.copy()
+# ### Backup:
+# df_12LL_1 = df_12LL_allstring_1.copy()
+# df_12LL_2 = df_12LL_allstring_2.copy()
+# df_12LL_3 = df_12LL_allstring_3.copy()
+# df_12LL_4 = df_12LL_allstring_4.copy()
 
 # #%% 
 # ### Test if all read in as strings:
@@ -330,6 +330,7 @@ df_12LL_4 = df_12LL_allstring_4.copy()
 # print(df_12LL_allstring_2.dtypes.to_string())
 # print(df_12LL_allstring_3.dtypes.to_string())
 # print(df_12LL_allstring_4.dtypes.to_string())
+
 
 
 #%%##############################################!>>>
@@ -788,7 +789,7 @@ else:
 #     raise Exception('**Test 5 Failed:')
 ### ________________________________
 
-### Test 6: show that all before 0's are now NA -- filtering on those indicies?
+### Test 6: show that all before 0's are now NA -- filtering on those indices?
 if (True): #TODO
     print('Passed Test 4:')
 else:
@@ -1112,6 +1113,12 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 ### <> NOTE: CREATE CFS ID File here.
 
 
+### TODO: put in documentation:
+### tgt = child
+### mob = primary caregiver
+### fob = secondary caregiver
+### Expectation of target children: only first child (unless multiples); secondary children not tracked.
+
 
 ######################################
 #%%###################################
@@ -1175,6 +1182,83 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 
 
 
+######################################
+#%%###################################
+### <> 12. Create year & quarter columns (after all filtering)
+
+#%%
+### 1. Test that DFs identical:
+df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)
+
+#%%
+### 2. Make change:
+print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
+print('Create year & quarter columns') 
+df_12LL_after_BaseTable = (
+    df_12LL_after_BaseTable
+    ### Add year & quarter columns AFTER all filters:
+    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
+)
+print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
+
+#%%
+### 3. Manual/Visual checks:
+print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}')
+
+### #%%
+### ### See differences:
+### df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable) ### Can't because columns different.
+
+#%% 
+inspect_col(df_12LL_after_BaseTable['year'])
+#%%
+inspect_col(df_12LL_after_BaseTable['quarter'])
+
+#%%
+### 4. Programmatically test change:
+print('For change "Create year & quarter columns"...') 
+### ________________________________
+
+### Note: Should have no new NA because new column should be entirely filled.
+if (df_12LL_before_BaseTable.isna().sum().sum() == df_12LL_after_BaseTable.isna().sum().sum()):
+    print('Passed Test 1: Number of NA unchanged.')
+else:
+    raise Exception('**Test 1 Failed: Number of NA has changed.')
+### ________________________________
+
+if (len(df_12LL_before_BaseTable) == len(df_12LL_after_BaseTable)): 
+    print('Passed Test 2: Number of rows unchanged.')
+else:
+    raise Exception('**Test 2 Failed: Number of rows has changed.')
+### ________________________________
+
+if ((len(df_12LL_before_BaseTable.columns) + 2 == len(df_12LL_after_BaseTable.columns))
+    and (sorted([*df_12LL_before_BaseTable] + ['year', 'quarter']) == sorted([*df_12LL_after_BaseTable]))): 
+    print('Passed Test 3: Exactly 2 more columns named "year" & "quarter".')
+else:
+    raise Exception('**Test 3 Failed: Not exactly 2 more columns named "year" & "quarter".')
+### ________________________________
+
+print('All tests passed!')
+print(f'Rows: {len(df_12LL_after_BaseTable)}')
+print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
+
+#%%
+### 5. Make DFs identical:
+df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
+
+
+
+######################################
+#%%###################################
+### <> 13. Reorder columns 
+
+df_12LL_after_BaseTable = df_12LL_after_BaseTable[['project_id', 'year', 'quarter'] + [c for c in df_12LL_after_BaseTable.columns if c not in ['project_id', 'year', 'quarter']]]
+
+### TODO: check number of columns.
+
+
+
 #%%###################################
 ### <> df_12LL_BaseTable
 df_12LL_BaseTable = df_12LL_after_BaseTable.copy()
@@ -1185,8 +1269,7 @@ df_12LL_BaseTable = df_12LL_after_BaseTable.copy()
 ### <> NOTE: Previously, FW & LL combined before the following restructuring and joining.
 
 
-
-### TODO: add year & quarter columns.
+### TODO: add to 1.3:
 ### NOTE for 1.3 step: intention is to have all quarters represented in DS, but NO data from previous FYs. Purpose: allow local users to check & clean their data throughout the year.
 
 
@@ -1211,7 +1294,8 @@ df_12LL_ChildERInj_2 = (
     .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
     ### new8. Filter dates: Only want current FY for Form 2 Construct 8.
     .query('date >= @date_fy_start')
-    ### TODO: filter column reason to only accept "ER Visit".
+    ### TODO: rename section?: filter column reason to only accept "ER Visit".
+    .query('reason == "ER Visit"')
     ### new9. Add year & quarter columns AFTER filter:
     .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
     ### new10. Sort rows:
@@ -1252,7 +1336,9 @@ df_12LL_MaternalIns_3 = (
     ### new12. Rename columns:
     .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'insurance': 'AD1PrimaryIns', 'date': 'AD1InsChangeDate'})
 )
-### TODO ASKJOE: from instructions "Insert a column B and enter this formula =COUNTIF($A$2:A2,A2) and move to column 4"
+### from instructions "Insert a column B and enter this formula =COUNTIF($A$2:A2,A2) and move to column 4". 
+### Answer: probably not needed. Was a count of rows per person.
+### TODO: check later in code & see if a count column like this is needed.
 
 
 
@@ -1275,6 +1361,7 @@ df_12LL_WellChildVisits_4 = (
     ### 7v2. Create project_id column:
     .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
     ### new8. Filter dates: Filter out bad data earlier than "2017-10-01". Need WCVisits before current FY for Form 2 Construct 4: ### TODO: Check C04.
+        ### TODO: Add to wiki NE doc notably what is being filtered out & what is being kept. Just overview.
     .query('date >= "2017-10-01"') 
     ### new9. Add year & quarter columns AFTER filter:
     .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
@@ -1321,7 +1408,7 @@ inspect_df(df_12LL_WellChildVisits_4)
 
 ### Pivot the DataFrame:
 df_12LL_pivoted_ChildERInj_2 = df_12LL_ChildERInj_2.pivot_table(
-    index=['ProjectID', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
     ,columns=df_12LL_ChildERInj_2.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['ERVisitReason', 'IncidentDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
@@ -1350,7 +1437,7 @@ df_12LL_pivoted_ChildERInj_2
 
 ### Pivot the DataFrame:
 df_12LL_pivoted_MaternalIns_3 = df_12LL_MaternalIns_3.pivot_table(
-    index=['ProjectID', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
     ,columns=df_12LL_MaternalIns_3.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['AD1PrimaryIns', 'AD1InsChangeDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
@@ -1379,27 +1466,27 @@ df_12LL_pivoted_MaternalIns_3
 
 ### Pivot the DataFrame:
 df_12LL_pivoted_WellChildVisits_4 = df_12LL_WellChildVisits_4.pivot_table(
-    index=['ProjectID', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
     ,columns=df_12LL_WellChildVisits_4.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['WellVisitDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
 )
-df_12LL_pivoted_WellChildVisits_4
+# df_12LL_pivoted_WellChildVisits_4
 
 #%%
 ### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
 df_12LL_pivoted_WellChildVisits_4 = df_12LL_pivoted_WellChildVisits_4.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
-df_12LL_pivoted_WellChildVisits_4
+# df_12LL_pivoted_WellChildVisits_4
 
 #%%
 ### Flatten the column MultiIndex & rename columns in the style of SPSS:
 df_12LL_pivoted_WellChildVisits_4.columns = [f'{col[0]}.{col[1]}' for col in df_12LL_pivoted_WellChildVisits_4.columns]
-df_12LL_pivoted_WellChildVisits_4
+# df_12LL_pivoted_WellChildVisits_4
 
 #%%
 ### Reset row & column indices:
 df_12LL_pivoted_WellChildVisits_4 = df_12LL_pivoted_WellChildVisits_4.reset_index()
-df_12LL_pivoted_WellChildVisits_4
+# df_12LL_pivoted_WellChildVisits_4
 
 
 
@@ -1417,8 +1504,49 @@ df_12LL_pivoted_WellChildVisits_4.to_csv(Path(path_12LL_dir_output, 'df_12LL_piv
 
 
 #%%##############################################!>>>
+### >>> Remove old objects  
+#####################################################
+
+#%%
+[o for o in list(globals().keys()) if o.startswith(('date', 'int', 'path', 'str'))]
+### Keep.
+
+#%%
+# [o for o in list(globals().keys()) if o.startswith('df')]
+#%%
+del df_12LL_allstring_1, df_12LL_allstring_2, df_12LL_allstring_3, df_12LL_allstring_4, df_12LL_before_BaseTable, df_12LL_after_BaseTable, df_12LL_ChildERInj_2, df_12LL_MaternalIns_3, df_12LL_WellChildVisits_4 
+
+#%%
+# [o for o in list(globals().keys()) if o.startswith('dict')]
+#%%
+del dict_12LL_col_dtypes_1, dict_12LL_col_dtypes_2, dict_12LL_col_dtypes_3, dict_12LL_col_dtypes_4 
+
+#%%
+# [o for o in list(globals().keys()) if o.startswith('list')]
+#%%
+del list_path_12LL_input_raw_sheets, list_12LL_col_detail_1, list_12LL_date_cols_1, list_12LL_col_detail_2, list_12LL_date_cols_2, list_12LL_col_detail_3, list_12LL_date_cols_3, list_12LL_col_detail_4, list_12LL_date_cols_4, list_12LL_values_to_find_and_replace 
+
+#%%
+# [o for o in list(globals().keys()) if o.startswith(('regex', 'xlsx'))]
+#%%
+del xlsx_12LL, regex_12LL_dates_to_fix, regex_12LL_dates_replacement 
+
+#%%
+### Is what's left over what is wanted?:
+[o for o in list(globals().keys()) if o.startswith(('df', 'dict', 'list', 'regex', 'xlsx'))]
+### Should only be:
+# ['df_12LL_BaseTable',
+#  'df_12LL_pivoted_ChildERInj_2',
+#  'df_12LL_pivoted_MaternalIns_3',
+#  'df_12LL_pivoted_WellChildVisits_4']
+
+
+
+#%%##############################################!>>>
 ### >>> END 
 #################################################!>>>
+
+print('Congrats! You ran 1.2LL!')
 
 
 
