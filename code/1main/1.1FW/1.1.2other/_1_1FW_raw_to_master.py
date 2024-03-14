@@ -38,8 +38,8 @@ print('File that is running: ', os.path.basename(__file__))
 
 #%%
 ### The following is run if running this file by itself interactively (& ignored when run from RUNME):
-if (os.path.basename(__file__) == '_1_2LL_raw_to_master.py'):
-    from _1_1_FW_RUNME import * 
+if (os.path.basename(__file__) == '_1_1FW_raw_to_master.py'):
+    from _1_1FW_RUNME import * 
     print('Imported "_1_1_FW_RUNME"')
 else:
     print("Did NOT run RUNME again... because it's already running!")
@@ -60,7 +60,7 @@ else:
 
 #######################
 #%%### df_12LL_1: 'KU_BASETABLE'.
-list_12LL_col_detail_1 = [
+list_12FW_col_detail_1 = [
     ['site_id', 'string']
     ,['worker_id', 'string']
     ,['family_id', 'string']
