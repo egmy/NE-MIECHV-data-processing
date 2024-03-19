@@ -99,6 +99,7 @@ path_11FW_dir_output = Path(path_11FW_files_base, '9out', str_nehv_quarter)
 # path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_231001.xlsx')
 path_11FW_input_raw = Path(path_11FW_dir_input, 'Flatfile_CHSR_240102.xlsx')
 
+
 list_path_11FW_input_raw_sheets = [
     'KU_BASETABLE' # 1.
     ,'KU_CHILDERINJ' # 2.
@@ -107,7 +108,7 @@ list_path_11FW_input_raw_sheets = [
 ]
 
 ### Output:
-path_12LL_output = Path(path_11FW_dir_output, 'LL_before_combining_with_FW.csv')
+path_11FW_output = Path(path_11FW_dir_output, 'LL_before_combining_with_FW.csv')
 
 ###########################
 ### Comparison Files ###
