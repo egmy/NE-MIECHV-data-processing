@@ -55,6 +55,7 @@ else:
 #%%### df_11FW_4: 'Adult Activities Query.xlsx'.
 #%%### df_11FW_5: 'Child Activities Query.xlsx'.
 
+
 #######################
 
 ### List = [name, dtype]
@@ -118,96 +119,94 @@ list_11FW_date_cols_3 = [key for key, value in dict_11FW_col_dtypes_3.items() if
 import pandas as pd
 df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Adult Activities Query.xlsx') # can also index sheet by name or fetch all sheets
 list_11FW_col_detail_4 = df.columns.tolist()
+for x in list_11FW_col_detail_4:
+    print("['{}',],".format(x))
 
-
-per_column = zip(*list_11FW_col_detail_4)
-per_column=list(per_column)
-print(per_column)
 list_11FW_col_detail_4= [
 
-    ['Project ID'],
-    ['agency'],
-    ['FamilyNumber'],
-    ['ChildNumber'],
-    ['TGT DOB-CR'],
-    ['EDCDate'],
-    ['MinOfHVDate'],
-    ['TERMINATION STATUS'],
-    ['TERMINATION DATE'],
-    ['Pregnancystatus'],
-    ['MaxOfHVDate'],
-    ['MaxOfVISIT NUMBER'],
-    ['BehaviorNumer'],
-    ['BehaviorDenom'],
-    ['Home Visits Prenatal'],
-    ['Home Visits Total'],
-    ['MOBDOB'],
-    ['FOBDOB'],
-    ['MinEducationDate'],
-    ['AD1MinEdu'],
-    ['MinEduEnroll'],
-    ['MaxEduDate'],
-    ['AD1MaxEdu'],
-    ['MaxEduEnroll'],
-    ['TobaccoUseDate'],
-    ['TobaccoRefDate'],
-    ['AssessAfraid'],
-    ['AssessPolice'],
-    ['AssessIPV'],
-    ['IPV Assess Date'],
-    ['IPVRefDate'],
-    ['PostpartumCheckupDate'],
-    ['MinOfCESDDATE'],
-    ['CESDTotal'],
-    ['MinOfMHRefDate'],
-    ['MaxCHEEERSDate'],
-    ['AD2EduDateMax'],
-    ['AD2EDLevel'],
-    ['AD2InSchool'],
-    ['MaxOfMaxOfAD2InsChangeDate'],
-    ['AD2InsPrimary'],
-    ['MaxOfAD1EmpChangeDate'],
-    ['AD1EmpStatus'],
-    ['MaxOfAD2EmplChangeDate'],
-    ['AD2EmployStatus'],
-    ['MaxOfMaxOfAD1MSChangeDate'],
-    ['Adult1MaritalStatus'],
-    ['MaxOfAD2MSChangeDate'],
-    ['Adult2MaritalStatus'],
-    ['ANNUAL INCOME'],
-    ['POVERTY LEVEL'],
-    ['TYPE HOUSING'],
-    ['HomelessStatus'],
-    ['HousingStatus'],
-    ['HistoryInterWelfareAdult'],
-    ['MOB SUBSTANCE ABUSE'],
-    ['FOB SUBSTANCE ABUSE'],
-    ['TobaccoUseInHome'],
-    ['LowAchievement'],
-    ['NTChildLowAchievement'],
-    ['NTChildDevDelay'],
-    ['Military'],
-    ['Adult1Gender'],
-    ['Adult1TGTRelation'],
-    ['MOB ETHNIC'],
-    ['MOBRaceWhite'],
-    ['MOBRaceBlack'],
-    ['MOBRaceIndianAlaskan'],
-    ['MOBRaceAsian'],
-    ['MOBRaceHawaiianPacific'],
-    ['MOBRaceOther'],
-    ['FOB INVOLVED'],
-    ['Adult2Gender'],
-    ['Adult2TGTRelation'],
-    ['FOB ETHNICITY'],
-    ['FOBRaceWhite'],
-    ['FOBRaceBlack'],
-    ['FOBRaceIndianAlaskan'],
-    ['FOBRaceAsian'],
-    ['FOBRaceHawaiianPacific'],
-    ['FOBRaceOther'],
-    ['MOB ZIP'],
-    ['Adaptation']
+    ['Project ID','string'],
+    ['agency','string'],
+    ['FamilyNumber','Int64'],
+    ['ChildNumber','Int64'],
+    ['TGT DOB-CR','datetime64[ns]'],
+    ['EDCDate','datetime64[ns]'],
+    ['MinOfHVDate', 'datetime64[ns]'],
+    ['TERMINATION STATUS', 'string'],
+    ['TERMINATION DATE','datetime64[ns]'],
+    ['Pregnancystatus','Int64'],
+    ['MaxOfHVDate', 'datetime64[ns]'],
+    ['MaxOfVISIT NUMBER','Int64'],
+    ['BehaviorNumer', 'Int64'],
+    ['BehaviorDenom','Int64'],
+    ['Home Visits Prenatal','Int64'],
+    ['Home Visits Total','Int64'],
+    ['MOBDOB','datetime64[ns]'],
+    ['FOBDOB','datetime64[ns]'],
+    ['MinEducationDate','datetime64[ns]'],
+    ['AD1MinEdu','string'],
+    ['MinEduEnroll','string'],
+    ['MaxEduDate','datetime64[ns]'],
+    ['AD1MaxEdu','string'],
+    ['MaxEduEnroll','string'],
+    ['TobaccoUseDate', 'datetime64[ns]'],
+    ['TobaccoRefDate','datetime64[ns]'],
+    ['AssessAfraid', 'boolean'],
+    ['AssessPolice','boolean'],
+    ['AssessIPV', 'boolean'],
+    ['IPV Assess Date','datetime64[ns]'],
+    ['IPVRefDate','datetime64[ns]'],
+    ['PostpartumCheckupDate','datetime64[ns]'],
+    ['MinOfCESDDATE','datetime64[ns]'],
+    ['CESDTotal','Int64'],
+    ['MinOfMHRefDate','datetime64[ns]'],
+    ['MaxCHEEERSDate','datetime64[ns]'],
+    ['AD2EduDateMax','datetime64[ns]'],
+    ['AD2EDLevel','string'],
+    ['AD2InSchool','string'],
+    ['MaxOfMaxOfAD2InsChangeDate','datetime64[ns]'],
+    ['AD2InsPrimary','string'],
+    ['MaxOfAD1EmpChangeDate','datetime64[ns]'],
+    ['AD1EmpStatus','string'],
+    ['MaxOfAD2EmplChangeDate','datetime64[ns]'],
+    ['AD2EmployStatus','string'],
+    ['MaxOfMaxOfAD1MSChangeDate','datetime64[ns]'],
+    ['Adult1MaritalStatus','string'],
+    ['MaxOfAD2MSChangeDate','datetime64[ns]'],
+    ['Adult2MaritalStatus','string'],
+    ['ANNUAL INCOME','Float64'],
+    ['POVERTY LEVEL','Float64'],
+    ['TYPE HOUSING','string'],
+    ['HomelessStatus','string'],
+    ['HousingStatus','string'],
+    ['HistoryInterWelfareAdult','boolean'],
+    ['MOB SUBSTANCE ABUSE','boolean'],
+    ['FOB SUBSTANCE ABUSE','boolean'],
+    ['TobaccoUseInHome','string'],
+    ['LowAchievement','string'],
+    ['NTChildLowAchievement','string'],
+    ['NTChildDevDelay','string'],
+    ['Military','string'],
+    ['Adult1Gender','string'],
+    ['Adult1TGTRelation','string'],
+    ['MOB ETHNIC','string'],
+    ['MOBRaceWhite','boolean'],
+    ['MOBRaceBlack','boolean'],
+    ['MOBRaceIndianAlaskan','boolean'],
+    ['MOBRaceAsian','boolean'],
+    ['MOBRaceHawaiianPacific','boolean'],
+    ['MOBRaceOther','boolean'],
+    ['FOB INVOLVED','boolean'],
+    ['Adult2Gender','string'],
+    ['Adult2TGTRelation','string'],
+    ['FOB ETHNICITY','string'],
+    ['FOBRaceWhite','boolean'],
+    ['FOBRaceBlack','boolean'],
+    ['FOBRaceIndianAlaskan','boolean'],
+    ['FOBRaceAsian','boolean'],
+    ['FOBRaceHawaiianPacific','boolean'],
+    ['FOBRaceOther','boolean'],
+    ['MOB ZIP','Int64'],
+    ['Adaptation','string'], ##not sure about this one, all values seem to be 'NA'
     
     ]
 
@@ -222,13 +221,101 @@ list_11FW_date_cols_4 = [key for key, value in dict_11FW_col_dtypes_4.items() if
 
 
 #%%### df_11FW_5: 'Child Activities Query.xlsx'.
+import pandas as pd
+df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Child Activities Query.xlsx') # can also index sheet by name or fetch all sheets
+list_11FW_col_detail_5 = df.columns.tolist()
+for x in list_11FW_col_detail_5:
+    print("['{}',],".format(x))
 list_11FW_col_detail_5 = [
-    ['family_id', 'string']
-    ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
-    ,['funding', 'string']
-    ,['date', 'datetime64[ns]']
+    ['Project ID','string'],
+    ['agency','string'],
+    ['FAMILY NUMBER','Int64'],
+    ['ChildNumber','Int64'],
+    ['MinOfHVDate','datetime64[ns]'],
+    ['TERMINATION DATE','datetime64[ns]'],
+    ['TERMINATION STATUS','string'],
+    ['MaxOfHVDate','datetime64[ns]'],
+    ['TGT DOB-CR','datetime64[ns]'],
+    ['EDCDate','datetime64[ns]'],
+    ['MinHVDateBFYes','datetime64[ns]'],
+    ['BreastFeeding','Int64'],
+    ['MinOfDateDiscontinueBF','datetime64[ns]'],
+    ['SafeSleepDate','datetime64[ns]'],
+    ['SafeSleepPartialDate','datetime64[ns]'],
+    ['ASQ9MoDate','datetime64[ns]'],
+    ['ASQ9MoTiming','Int64'],
+    ['ASQ9MoCom','Int64'],
+    ['ASQ9MoGross','Int64'],
+    ['ASQ9MoFine','Int64'],
+    ['ASQ9MoProblem','Int64'],
+    ['ASQ9MoPersonal','Int64'],
+    ['ASQ18MoDate','datetime64[ns]'],
+    ['ASQ18MoTiming','Int64'],
+    ['ASQ18MoCom','Int64'],
+    ['ASQ18MoGross','Int64'],
+    ['ASQ18MoFine', 'Int64'],
+    ['ASQ18MoProblem','Int64'],
+    ['ASQ18MoPersonal','Int64'],
+    ['ASQ24MoDate','datetime64[ns]'],
+    ['ASQ24MoTiming','Int64'],
+    ['ASQ24MoCom','Int64'],
+    ['ASQ24MoGross','Int64'],
+    ['ASQ24MoFine','Int64'],
+    ['ASQ24MoProblem','Int64'],
+    ['ASQ24MoPersonal','Int64'],
+    ['ASQ30MoDate','datetime64[ns]'],
+    ['ASQ30MoTiming','Int64'],
+    ['ASQ30MoCom','Int64'],
+    ['ASQ30MoGross','Int64'],
+    ['ASQ30MoFine','Int64'],
+    ['ASQ30MoProblem','Int64'],
+    ['ASQ30MoPersonal','Int64'],
+    ['MaxOfReadToChild','Int64'],
+    ['MaxEarlyLiteracyDate','datetime64[ns]'],
+    ['BehaviorDenom','Int64'],
+    ['BehaviorNumer','Int64'],
+    ['TGTInsureChangeDate','datetime64[ns]'],
+    ['CHINSPrimaryIns','string'],
+    ['MOB LANGUAGE','string'],
+    ['ChildMedCareSource', 'string'],
+    ['ChildDentalCareSource','string'],
+    ['NTChildDevDelay','string'],
+    ['NTChildLowAchievement','string'],
+    ['HistoryInterWelfareChild','boolean'],
+    ['ASQ9MoRefDate','datetime64[ns]'],
+    ['ASQ9MoRefLocation','string'],
+    ['ASQ9MoRefEIDate','datetime64[ns]'],
+    ['ASQ9MoRefCSDate','datetime64[ns]'],
+    ['ASQ18MoRefDate','datetime64[ns]'],
+    ['ASQ18MoRefLocation','string'],
+    ['ASQ18MoEIDate','datetime64[ns]'],
+    ['ASQ18MoCSDate','datetime64[ns]'],
+    ['ASQ24MoRefDate''datetime64[ns]',],
+    ['ASQ24MoRefLocation','string'],
+    ['ASQ24MoEIDate','datetime64[ns]'],
+    ['ASQ24MoCSDate','datetime64[ns]'],
+    ['ASQ30MoRefDate','datetime64[ns]'],
+    ['ASQ30MoRefLocation','string'],
+    ['ASQ30MoEIDate','datetime64[ns]'],
+    ['ASQ30MoCSDate','datetime64[ns]'],
+    ['TGT GENDER','string'],
+    ['TGT ETHNICITY','string'],
+    ['TGTRaceWhite','boolean'],
+    ['TGTRaceBlack','boolean'],
+    ['TGTRaceIndianAlaskan','boolean'],
+    ['TGTRaceAsian','boolean'],
+    ['TGTRaceHawaiianPacific','boolean'],
+    ['TGTRaceOther','boolean'],
+    ['Adaptation','string'], #Also NA values
+    ['12 - 09 ASQ3_WhyNotDone','string'],
+    ['12 - 18 ASQ3_WhyNotDone','string'],
+    ['12 - 24 ASQ3_WhyNotDone','string'],
+    ['12 - 30 ASQ3_WhyNotDone','string'],
+    ['GESTATIONAL AGE','string'],
+
+
 ]
-#%%### df_11FW_4: 'Child Activities Query.xlsx'.
+#%%### df_11FW_5: 'Child Activities Query.xlsx'.
 dict_11FW_col_dtypes_5 = {x[0]:x[1] for x in list_11FW_col_detail_5}
 print(dict_11FW_col_dtypes_5)
 print(collections.Counter(list(dict_11FW_col_dtypes_5.values())))
@@ -236,6 +323,107 @@ print(collections.Counter(list(dict_11FW_col_dtypes_5.values())))
 list_11FW_date_cols_5 = [key for key, value in dict_11FW_col_dtypes_5.items() if value == 'datetime64[ns]'] 
 
 
+
+#%%### df_11FW_6: 'Adult UNCOPE Query.xlsx'.
+import pandas as pd
+df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Adult UNCOPE Query.xlsx') # can also index sheet by name or fetch all sheets
+list_11FW_col_detail_6 = df.columns.tolist()
+for x in list_11FW_col_detail_6:
+    print("['{}',],".format(x))
+
+list_11FW_col_detail_6 = [
+
+    ['Project ID','string'],
+    ['agency','string'],
+    ['FamilyNumber','Int64'],
+    ['ChildNumber','Int64'],
+    ['TGT DOB-CR','datetime64[ns]'],
+    ['MinOfHVDate','datetime64[ns]'],
+    ['TERMINATION STATUS','string'],
+    ['TERMINATION DATE','datetime64[ns]'],
+    ['Pregnancystatus','boolean'], ## this is a 0/1 value
+    ['MaxOfHVDate','datetime64[ns]'],
+    ['MaxOfVISIT NUMBER','Int64'],
+    ['Home Visits Prenatal','Int64'],
+    ['Home Visits Total','Int64'],
+    ['HistoryInterWelfareAdult','boolean'],
+    ['MOB SUBSTANCE ABUSE','boolean'],
+    ['FOB SUBSTANCE ABUSE','boolean'],
+    ['DATEUNCOPE','datetime64[ns]'],
+    ['U', 'string'], ##these are yes/no values, so could be boolean?
+    ['N','string'],
+    ['C','string'],
+    ['O','string'],
+    ['P','string'],
+    ['E','string'],
+    ['ReferralDATE','datetime64[ns]'],
+    ['Category','string'],
+
+
+]
+#%%### df_11FW_6: 'Adult UNCOPE Query.xlsx'.
+dict_11FW_col_dtypes_6 = {x[0]:x[1] for x in list_11FW_col_detail_6}
+print(dict_11FW_col_dtypes_6)
+print(collections.Counter(list(dict_11FW_col_dtypes_6.values())))
+### List of date columns:
+list_11FW_date_cols_6 = [key for key, value in dict_11FW_col_dtypes_6.items() if value == 'datetime64[ns]'] 
+
+
+
+
+#%%### df_11FW_7: 'F1 - Home Visit Type Query.xlsx'.
+import pandas as pd
+df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\F1 - Home Visit Type Query.xlsx') # can also index sheet by name or fetch all sheets
+list_11FW_col_detail_7 = df.columns.tolist()
+for x in list_11FW_col_detail_7:
+    print("['{}',],".format(x))
+
+list_11FW_col_detail_7 = [
+    ['Project ID','string'],
+    ['agency','string'],
+    ['FAMILY NUMBER','Int64'],
+    ['HomeVisitTypeIP','Int64'],
+    ['HomeVisitTypeAll','Int64'],
+
+]
+#%%### df_11FW_7: 'F1 - Home Visit Type Query.xlsx'.
+dict_11FW_col_dtypes_7 = {x[0]:x[1] for x in list_11FW_col_detail_7}
+print(dict_11FW_col_dtypes_7)
+print(collections.Counter(list(dict_11FW_col_dtypes_7.values())))
+### List of date columns:
+list_11FW_date_cols_7 = [key for key, value in dict_11FW_col_dtypes_7.items() if value == 'datetime64[ns]'] 
+
+
+
+
+
+
+#%%### df_11FW_8: 'Referral Exclusions 1 thru 6.xlsx'.
+import pandas as pd
+df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Referral Exclusions 1 thru 6.xlsx') # can also index sheet by name or fetch all sheets
+list_11FW_col_detail_8 = df.columns.tolist()
+for x in list_11FW_col_detail_8:
+    print("['{}',],".format(x))
+
+list_11FW_col_detail_8 = [
+    ['Project ID','string'],
+    ['agency','string'],
+    ['FAMILY NUMBER','Int64'],
+    ['ChildNumber','Int64'],
+    ['need_ex1','string'],
+    ['need_ex2','string'],
+    ['need_ex3','string'],
+    ['need_ex4','string'],
+    ['need_ex5','string'],
+    ['need_ex6','string'],
+
+]
+#%%### df_11FW_8: 'Referral Exclusions 1 thru 6.xlsx'.
+dict_11FW_col_dtypes_8 = {x[0]:x[1] for x in list_11FW_col_detail_7}
+print(dict_11FW_col_dtypes_8)
+print(collections.Counter(list(dict_11FW_col_dtypes_8.values())))
+### List of date columns:
+list_11FW_date_cols_8 = [key for key, value in dict_11FW_col_dtypes_8.items() if value == 'datetime64[ns]'] 
 
 #%%##############################################!>>>
 ### >>> READ 
