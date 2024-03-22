@@ -54,6 +54,10 @@ else:
 #%%### df_11FW_3: '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx'.
 #%%### df_11FW_4: 'Adult Activities Query.xlsx'.
 #%%### df_11FW_5: 'Child Activities Query.xlsx'.
+#%%### df_11FW_6: 'Adult UNCOPE Query.xlsx'.
+#%%### df_11FW_7: 'F1 - Home Visit Type Query.xlsx'.
+#%%### df_11FW_8: 'Referral Exclusions 1 thru 6.xlsx'.
+
 
 
 #######################
@@ -227,6 +231,7 @@ list_11FW_col_detail_5 = df.columns.tolist()
 for x in list_11FW_col_detail_5:
     print("['{}',],".format(x))
 list_11FW_col_detail_5 = [
+    
     ['Project ID','string'],
     ['agency','string'],
     ['FAMILY NUMBER','Int64'],
@@ -290,7 +295,7 @@ list_11FW_col_detail_5 = [
     ['ASQ18MoRefLocation','string'],
     ['ASQ18MoEIDate','datetime64[ns]'],
     ['ASQ18MoCSDate','datetime64[ns]'],
-    ['ASQ24MoRefDate''datetime64[ns]',],
+    ['ASQ24MoRefDate''datetime64[ns]'],
     ['ASQ24MoRefLocation','string'],
     ['ASQ24MoEIDate','datetime64[ns]'],
     ['ASQ24MoCSDate','datetime64[ns]'],
@@ -311,11 +316,12 @@ list_11FW_col_detail_5 = [
     ['12 - 18 ASQ3_WhyNotDone','string'],
     ['12 - 24 ASQ3_WhyNotDone','string'],
     ['12 - 30 ASQ3_WhyNotDone','string'],
-    ['GESTATIONAL AGE','string'],
-
+    ['GESTATIONAL AGE','string']
 
 ]
 #%%### df_11FW_5: 'Child Activities Query.xlsx'.
+for x in list_11FW_col_detail_5:
+    print(x[1])
 dict_11FW_col_dtypes_5 = {x[0]:x[1] for x in list_11FW_col_detail_5}
 print(dict_11FW_col_dtypes_5)
 print(collections.Counter(list(dict_11FW_col_dtypes_5.values())))
@@ -431,22 +437,29 @@ list_11FW_date_cols_8 = [key for key, value in dict_11FW_col_dtypes_8.items() if
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx_11FW = pd.ExcelFile(path_11FW_input_raw)
+xlsx_11FW_input_well_child = pd.ExcelFile(path_11FW_input_well_child)
+xlsx_11FW_input_child_injury = pd.ExcelFile(path_11FW_input_child_injury)
+xlsx_11FW_input_cg_ins = pd.ExcelFile(path_11FW_input_cg_ins)
+xlsx_11FW_input_adult_act = pd.ExcelFile(path_11FW_input_adult_act)
+xlsx_11FW_input_child_act = pd.ExcelFile(path_11FW_input_child_act)
+xlsx_11FW_input_adult_uncope = pd.ExcelFile(path_11FW_input_adult_uncope)
+xlsx_11FW_input_home_visit = pd.ExcelFile(path_11FW_input_home_visit)
+xlsx_11FW_input_ref_excl = pd.ExcelFile(path_11FW_input_ref_excl)
 
-#%% 
-### CHECK that all list_path_11FW_input_raw_sheets same as xlsx.sheet_names:
-print(sorted(list_path_11FW_input_raw_sheets))
-print(sorted(xlsx_11FW.sheet_names))
-sorted(list_path_11FW_input_raw_sheets) == sorted(xlsx_11FW.sheet_names)
 
 #%%###################################
 ### READ in all sheets as strings.
 
 ### Read in EVERYTHING as a string WITH pd.NA for empty cells:
-df_11FW_allstring_1 = pd.read_excel(xlsx_11FW, sheet_name=list_path_11FW_input_raw_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_1)
-df_11FW_allstring_2 = pd.read_excel(xlsx_11FW, sheet_name=list_path_11FW_input_raw_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_2)
-df_11FW_allstring_3 = pd.read_excel(xlsx_11FW, sheet_name=list_path_11FW_input_raw_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_3)
-df_11FW_allstring_4 = pd.read_excel(xlsx_11FW, sheet_name=list_path_11FW_input_raw_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_4)
+df_11FW_allstring_1 = pd.read_excel(xlsx_11FW_input_well_child, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_1)
+df_11FW_allstring_2 = pd.read_excel(xlsx_11FW_input_child_injury, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_2)
+df_11FW_allstring_3 = pd.read_excel(xlsx_11FW_input_cg_ins, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_3)
+df_11FW_allstring_4 = pd.read_excel(xlsx_11FW_input_adult_act, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_4)
+df_11FW_allstring_5 = pd.read_excel(xlsx_11FW_input_child_act, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_5)
+df_11FW_allstring_6 = pd.read_excel(xlsx_11FW_input_adult_uncope, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_6)
+df_11FW_allstring_7 = pd.read_excel(xlsx_11FW_input_home_visit, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_7)
+df_11FW_allstring_8 = pd.read_excel(xlsx_11FW_input_ref_excl, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_8)
+
 
 # ### Backup:
 # df_11FW_1 = df_11FW_allstring_1.copy()
