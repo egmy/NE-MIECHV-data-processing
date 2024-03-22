@@ -228,6 +228,7 @@ list_11FW_date_cols_4 = [key for key, value in dict_11FW_col_dtypes_4.items() if
 import pandas as pd
 df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Child Activities Query.xlsx') # can also index sheet by name or fetch all sheets
 list_11FW_col_detail_5 = df.columns.tolist()
+print(len(list_11FW_col_detail_5))
 for x in list_11FW_col_detail_5:
     print("['{}',],".format(x))
 list_11FW_col_detail_5 = [
@@ -295,7 +296,7 @@ list_11FW_col_detail_5 = [
     ['ASQ18MoRefLocation','string'],
     ['ASQ18MoEIDate','datetime64[ns]'],
     ['ASQ18MoCSDate','datetime64[ns]'],
-    ['ASQ24MoRefDate''datetime64[ns]'],
+    ['ASQ24MoRefDate','datetime64[ns]'],
     ['ASQ24MoRefLocation','string'],
     ['ASQ24MoEIDate','datetime64[ns]'],
     ['ASQ24MoCSDate','datetime64[ns]'],
@@ -316,12 +317,13 @@ list_11FW_col_detail_5 = [
     ['12 - 18 ASQ3_WhyNotDone','string'],
     ['12 - 24 ASQ3_WhyNotDone','string'],
     ['12 - 30 ASQ3_WhyNotDone','string'],
-    ['GESTATIONAL AGE','string']
+    ['GESTATIONAL AGE','string'],
 
 ]
 #%%### df_11FW_5: 'Child Activities Query.xlsx'.
+print(len(list_11FW_col_detail_5))
 for x in list_11FW_col_detail_5:
-    print(x[1])
+    print(x[0],x[1])
 dict_11FW_col_dtypes_5 = {x[0]:x[1] for x in list_11FW_col_detail_5}
 print(dict_11FW_col_dtypes_5)
 print(collections.Counter(list(dict_11FW_col_dtypes_5.values())))

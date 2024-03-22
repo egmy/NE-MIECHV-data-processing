@@ -96,16 +96,16 @@ path_11FW_dir_output = Path(path_11FW_files_base, '9out', str_nehv_quarter)
 ### Input:
 ### U:\Working\Tableau\Y## (<date_range>)\Y##Q# (<date_range>)\LLCHD ### oldest file.
 ### U:\SFTP ### Should see same file here.
-# path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_231001.xlsx')
-path_11FW_input_raw = Path(path_11FW_dir_input, 'Flatfile_CHSR_240102.xlsx')
+# path_11FW_input_raw = Path(path_11FW_dir_input, 'Flatfile_CHSR_231001.xlsx')
+path_11FW_input_well_child = Path(path_11FW_dir_input, '04 Well Child v2 no MAX - use this one.xlsx')
+path_11FW_input_child_injury = Path(path_11FW_dir_input, '08 Child ER Injury.xlsx')
+path_11FW_input_cg_ins = Path(path_11FW_dir_input, '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx')
+path_11FW_input_adult_act = Path(path_11FW_dir_input, 'Adult Activities Query.xlsx')
+path_11FW_input_adult_uncope = Path(path_11FW_dir_input, 'Adult UNCOPE Query.xlsx')
+path_11FW_input_child_act = Path(path_11FW_dir_input, 'Child Activities Query.xlsx')
+path_11FW_input_home_visit = Path(path_11FW_dir_input, 'F1 - Home Visit Type Query.xlsx')
+path_11FW_input_ref_excl = Path(path_11FW_dir_input, 'Referral Exclusions 1 thru 6.xlsx')
 
-
-list_path_11FW_input_raw_sheets = [
-    'KU_BASETABLE' # 1.
-    ,'KU_CHILDERINJ' # 2.
-    ,'KU_MATERNALINS' # 3.
-    ,'KU_WELLCHILDVISITS' # 4.
-]
 
 ### Output:
 path_11FW_output = Path(path_11FW_dir_output, 'LL_before_combining_with_FW.csv')
