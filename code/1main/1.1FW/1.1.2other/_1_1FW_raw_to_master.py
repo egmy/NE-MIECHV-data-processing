@@ -461,23 +461,6 @@ df_11FW_allstring_5 = pd.read_excel(xlsx_11FW_input_child_act, keep_default_na=F
 df_11FW_allstring_6 = pd.read_excel(xlsx_11FW_input_adult_uncope, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_6)
 df_11FW_allstring_7 = pd.read_excel(xlsx_11FW_input_home_visit, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_7)
 df_11FW_allstring_8 = pd.read_excel(xlsx_11FW_input_ref_excl, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_8)
-
-
-# ### Backup:
-# df_11FW_1 = df_11FW_allstring_1.copy()
-# df_11FW_2 = df_11FW_allstring_2.copy()
-# df_11FW_3 = df_11FW_allstring_3.copy()
-# df_11FW_4 = df_11FW_allstring_4.copy()
-
-# #%% 
-# ### Test if all read in as strings:
-# print(df_11FW_allstring_1.dtypes.to_string())
-# print(df_11FW_allstring_2.dtypes.to_string())
-# print(df_11FW_allstring_3.dtypes.to_string())
-# print(df_11FW_allstring_4.dtypes.to_string())
-
-
-
 #%%##############################################!>>>
 ### >>> CLEAN 
 #####################################################
@@ -485,17 +468,24 @@ df_11FW_allstring_8 = pd.read_excel(xlsx_11FW_input_ref_excl, keep_default_na=Fa
 
 
 #%%###################################
-### >>> df_11FW_1: 'KU_BASETABLE'.
+### >>> df_11FW_5: 'Child Activity Export'.
 
 #%%###################################
 ### <> Before & After 
-### df_11FW_1: 'KU_BASETABLE'.
 
-df_11FW_before_BaseTable = df_11FW_allstring_1.copy()
-df_11FW_after_BaseTable = df_11FW_allstring_1.copy() 
+df_11FW_before_child_act = df_11FW_allstring_5.copy()
+df_11FW_after_child_act = df_11FW_allstring_5.copy() 
+
+#%%###################################
+### >>> df_11FW_4: 'Adult Activity Export'.
+df_11FW_adult_act=df_11FW_allstring_4.copy()
+
+#%%###################################
+### >>> df_11FW_8: 'Referral Exclusions 1 thru 6'.
+df_11FW_ref_excl=df_11FW_allstring_8.copy()
 
 #%% ### If needed, fo rtesting:
-# df_11FW_after_BaseTable = df_11FW_before_BaseTable.copy() 
+# df_11FW_after_child_act = df_11FW_before_child_act.copy() 
 
 
 
@@ -505,55 +495,56 @@ df_11FW_after_BaseTable = df_11FW_allstring_1.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
+
 
 #%%
 ### 2. Make change:
 print('Strip surrounding whitespace')
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 #%%
 ### See differences:
-df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable)
+df_11FW_before_child_act.compare(df_11FW_after_child_act)
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Strip surrounding whitespace"...') 
 ### ________________________________
 
-if (df_11FW_before_BaseTable.isna().sum().sum() == df_11FW_after_BaseTable.isna().sum().sum()):
+if (df_11FW_before_child_act.isna().sum().sum() == df_11FW_after_child_act.isna().sum().sum()):
     print('Passed Test 1: Number of NA unchanged.')
 else:
     raise Exception('**Test 1 Failed: Number of NA has changed.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -563,14 +554,14 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 #%%
 ### 2. Make change:
 print('Find & replace "null" values')
 list_11FW_values_to_find_and_replace = ['null'] 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .pipe(fn_find_and_replace_value_in_df, one_id_var='family_id', list_of_values_to_find=list_11FW_values_to_find_and_replace, replacement_value=pd.NA)
 )
 ### Note: ### TODO: At the moment, searching is case-insensitive. Could make option for case sensitive.
@@ -578,42 +569,42 @@ df_11FW_after_BaseTable = (
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
-# print(f'{len(df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable)) == 0}')
-# print(f'{df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
-# print(f'{assert_frame_equal(df_11FW_before_BaseTable, df_11FW_after_BaseTable) is None}')
+# print(f'{len(df_11FW_before_child_act.compare(df_11FW_after_child_act)) == 0}')
+# print(f'{df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
+# print(f'{assert_frame_equal(df_11FW_before_child_act, df_11FW_after_child_act) is None}')
 
 #%%
 ### See differences:
-df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable)
+df_11FW_before_child_act.compare(df_11FW_after_child_act)
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Find & replace "null" values"...') 
 ### ________________________________
 
-if (df_11FW_before_BaseTable.isna().sum().sum() <= df_11FW_after_BaseTable.isna().sum().sum()):
+if (df_11FW_before_child_act.isna().sum().sum() <= df_11FW_after_child_act.isna().sum().sum()):
     print('Passed Test 1: There are more NA after (unless no change).')
 else:
     raise Exception('**Test 1 Failed: Fewer NA after.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-if ((fn_find_and_count_value_in_df(df_11FW_before_BaseTable, list_11FW_values_to_find_and_replace) >= 0)
-    and (fn_find_and_count_value_in_df(df_11FW_after_BaseTable, list_11FW_values_to_find_and_replace) == 0)): 
+if ((fn_find_and_count_value_in_df(df_11FW_before_child_act, list_11FW_values_to_find_and_replace) >= 0)
+    and (fn_find_and_count_value_in_df(df_11FW_after_child_act, list_11FW_values_to_find_and_replace) == 0)): 
     print('Passed Test 4: Values to find NOT found after, but maybe found before.')
 else:
     raise Exception('**Test 4 Failed: Vales to find found after.')
@@ -627,12 +618,12 @@ else:
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -642,7 +633,7 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 #%%
 ### 2. Make change:
@@ -654,8 +645,8 @@ print('Add nanoseconds to datetimes strings missing them')
 regex_11FW_dates_to_fix = r'(^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$)' 
 regex_11FW_dates_replacement = r'\1.000000000' ### 9 zeros for nanoseconds! 
 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_1}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
 )
 ### Format causing errors: "2019-12-04 17:48:04" (missing nanoseconds).
@@ -663,17 +654,17 @@ df_11FW_after_BaseTable = (
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 #%%
 ### See differences:
-df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable)
+df_11FW_before_child_act.compare(df_11FW_after_child_act)
 
 #%%
 print((
-    df_11FW_before_BaseTable
+    df_11FW_before_child_act
     ### Compare: Keep shape so ID column not dropped when the same. Keep equal so can see ID values.
-    # .compare(df_11FW_after_BaseTable, keep_shape=True, keep_equal=True) 
+    # .compare(df_11FW_after_child_act, keep_shape=True, keep_equal=True) 
     ### Select desired columns:
     .loc[:, ['c_fundingdate', 'mob_living_arrangement_dt', 'fob_edu_dt', 'mcafss_edu_dt1', 'mcafss_edu_dt2', 'hlth_insure_tgt_dt']]
     ### Keep rows where columns different:
@@ -685,20 +676,20 @@ print((
 print('For change "Add nanoseconds to datetimes strings missing them"...') 
 ### ________________________________
 
-if (df_11FW_before_BaseTable.isna().sum().sum() == df_11FW_after_BaseTable.isna().sum().sum()):
+if (df_11FW_before_child_act.isna().sum().sum() == df_11FW_after_child_act.isna().sum().sum()):
     print('Passed Test 1: Number of NA unchanged.')
 else:
     raise Exception('**Test 1 Failed: Number of NA has changed.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
@@ -712,12 +703,12 @@ else:
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -727,55 +718,55 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 #%%
 ### 2. Make change:
 print('Set data types') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_1)
 )
 ### Note: Needed to edit date strings above before applying dtypes.
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 #%%
 ### See differences:
-df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable)
+df_11FW_before_child_act.compare(df_11FW_after_child_act)
 
 #%%
 ### Check if data types changed:
-print(df_11FW_before_BaseTable.dtypes.to_string())
+print(df_11FW_before_child_act.dtypes.to_string())
 print('-------------------------------------')
-print(df_11FW_after_BaseTable.dtypes.to_string())
+print(df_11FW_after_child_act.dtypes.to_string())
 # print('-------------------------------------')
 # print(df_11FW_allstring_1.dtypes.to_string())
 
 #%%
-df_11FW_before_BaseTable.dtypes.to_string() == df_11FW_after_BaseTable.dtypes.to_string()
+df_11FW_before_child_act.dtypes.to_string() == df_11FW_after_child_act.dtypes.to_string()
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Set data types"...') 
 ### ________________________________
 
-if (df_11FW_before_BaseTable.isna().sum().sum() == df_11FW_after_BaseTable.isna().sum().sum()):
+if (df_11FW_before_child_act.isna().sum().sum() == df_11FW_after_child_act.isna().sum().sum()):
     print('Passed Test 1: Number of NA unchanged.')
 else:
     raise Exception('**Test 1 Failed: Number of NA has changed.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
@@ -789,79 +780,40 @@ else:
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
 ######################################
 #%%###################################
-### <> 5. Column site_id set to "ll" 
+### <> 5. Remove any rows with a discharge date (TERMINATION DATE) before the current reporting year and rows that do not have a first home visit date (MinOfHVDate). 
+
 
 #%%
-### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+### 1. Make change:
+print('Remove expired TERMINATION DATE.') 
+df_11FW_after_child_act = (
+    df_11FW_after_child_act['TERMINATION DATE'].dt.year>=2024
+)
+df_11FW_after_child_act=df_11FW_after_child_act['TERMINATION DATE'].astype('datetime64[ns]')
 
-#%%
-### 2. Make change:
-print('Column site_id should now be all "ll".') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
-    .assign(site_id = 'll').astype({'site_id': 'string'})
+print('Remove rows that do not have a first home visit date (MinOfHVDate).') 
+df_11FW_after_child_act = (
+    df_11FW_after_child_act['MinOfHVDate'].dropna(subset=['MinOfHVDate'], inplace=True).astype('datetime64[ns]')
 )
 
 #%%
-### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
-
-#%%
 ### See differences:
-df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable)
-
-#%%
-compare_col(df_11FW_before_BaseTable, df_11FW_after_BaseTable, 'site_id', 'value_counts')
-
-#%%
-### 4. Programmatically test change:
-print('For change "Column site_id set to "ll""...') 
-### ________________________________
-
-if (df_11FW_before_BaseTable.isna().sum().sum() == df_11FW_after_BaseTable.isna().sum().sum()):
-    print('Passed Test 1: Number of NA unchanged.')
-else:
-    raise Exception('**Test 1 Failed: Number of NA has changed.')
-### ________________________________
-
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
-    print('Passed Test 2: Number of rows unchanged.')
-else:
-    raise Exception('**Test 2 Failed: Number of rows has changed.')
-### ________________________________
-
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
-    print('Passed Test 3: Number and names of columns unchanged.')
-else:
-    raise Exception('**Test 3 Failed: Number or names of columns has changed.')
-### ________________________________
-
-if ((all(df_11FW_before_BaseTable['site_id']=='01')) and (all(df_11FW_after_BaseTable['site_id']=='ll'))): 
-    print('Passed Test 4: site_id is "01" before and "ll" after.')
-else:
-    raise Exception('**Test 4 Failed: site_id is either not "01" before or not "ll" after.')
-### ________________________________
-
-print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+df_11FW_before_child_act.compare(df_11FW_after_child_act)
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -880,55 +832,54 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 #%%
 ### 2. Make change:
 print('All NAs in column tgt_id should be replaced with "0".') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
-    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
+df_11FW_after_child_act = (
+    df_11FW_after_child_act['tgt_id'].fillna('0').astype('string')
 )
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 #%%
 ### See differences:
-df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable)
+df_11FW_before_child_act.compare(df_11FW_after_child_act)
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Column tgt_id fill NA with "0""...') 
 ### ________________________________
 
-if (df_11FW_before_BaseTable.isna().sum().sum() > df_11FW_after_BaseTable.isna().sum().sum()):
+if (df_11FW_before_child_act.isna().sum().sum() > df_11FW_after_child_act.isna().sum().sum()):
     print('Passed Test 1: Now less NA.')
 else:
     raise Exception('**Test 1 Failed: Number of NA not less.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-if (df_11FW_after_BaseTable['tgt_id'].isna().sum() == 0): 
+if (df_11FW_after_child_act['tgt_id'].isna().sum() == 0): 
     print('Passed Test 4: Column tgt_id has no NA after change.')
 else:
     raise Exception('**Test 4 Failed: Column tgt_id does have NA after change.')
 ### ________________________________
 
-# if (df_11FW_before_BaseTable['tgt_id'].isna().sum() == df_11FW_after_BaseTable['tgt_id']): #TODO
+# if (df_11FW_before_child_act['tgt_id'].isna().sum() == df_11FW_after_child_act['tgt_id']): #TODO
 #     print('Passed Test 5: Number of NA before equals number of 0 after... (maybe below better)')
 # else:
 #     raise Exception('**Test 5 Failed:')
@@ -942,12 +893,12 @@ else:
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -957,28 +908,28 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 #%%
 ### 2. Make change:
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 print('Create project_id column') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .assign(project_id = lambda df: (df['site_id'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
 )
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 ### #%%
 ### ### See differences:
-### df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable) ### Can't because columns different.
+### df_11FW_before_child_act.compare(df_11FW_after_child_act) ### Can't because columns different.
 
 #%% 
-inspect_col(df_11FW_after_BaseTable['project_id'])
+inspect_col(df_11FW_after_child_act['project_id'])
 
 #%%
 ### 4. Programmatically test change:
@@ -986,32 +937,32 @@ print('For change "Create project_id column"...')
 ### ________________________________
 
 ### Note: Should have no new NA because new column should be entirely filled.
-if (df_11FW_before_BaseTable.isna().sum().sum() == df_11FW_after_BaseTable.isna().sum().sum()):
+if (df_11FW_before_child_act.isna().sum().sum() == df_11FW_after_child_act.isna().sum().sum()):
     print('Passed Test 1: Number of NA unchanged.')
 else:
     raise Exception('**Test 1 Failed: Number of NA has changed.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) + 1 == len(df_11FW_after_BaseTable.columns))
-    and (sorted([*df_11FW_before_BaseTable] + ['project_id']) == sorted([*df_11FW_after_BaseTable]))): 
+if ((len(df_11FW_before_child_act.columns) + 1 == len(df_11FW_after_child_act.columns))
+    and (sorted([*df_11FW_before_child_act] + ['project_id']) == sorted([*df_11FW_after_child_act]))): 
     print('Passed Test 3: Exactly one more column with name "project_id".')
 else:
     raise Exception('**Test 3 Failed: Not exactly one more column named "project_id".')
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -1019,7 +970,7 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 #%%
 ### Review columns that will be used to filter rows:
 print((
-    df_11FW_before_BaseTable
+    df_11FW_before_child_act
     .loc[:, ['project_id', 'discharge_dt', 'last_home_visit', 'home_visits_num']]
     .dtypes
 ).to_string())
@@ -1034,36 +985,36 @@ print((
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 # #%%
-# df_11FW_after_BaseTable['discharge_dt'].dtypes
+# df_11FW_after_child_act['discharge_dt'].dtypes
 
 # #%%
-# print(df_11FW_before_BaseTable.dtypes.to_string())
+# print(df_11FW_before_child_act.dtypes.to_string())
 # print('-------------------------------------')
-# print(df_11FW_after_BaseTable.dtypes.to_string())
+# print(df_11FW_after_child_act.dtypes.to_string())
 
 # discharge_dt                  datetime64[ns]
 
 #%%
 ### 2. Make change:
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
 print('Filter "discharge_dt" to remove families discharged before current reporting year') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     ### Keep both later dates AND where NO discharge date:
     .query('discharge_dt >= @date_fy_start or discharge_dt.isna()')
 )
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 # #%%
 # ### See differences:
-# df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable) ### Cannot .compare when different rows.
+# df_11FW_before_child_act.compare(df_11FW_after_child_act) ### Cannot .compare when different rows.
 
 #%%
 ### 4. Programmatically test change:
@@ -1071,46 +1022,46 @@ print('For change "Filter "discharge_dt" to remove families discharged before cu
 ### ________________________________
 
 # ### Don't use Test 1: Because removing rows, NA might be very different.
-# if (df_11FW_before_BaseTable.isna().sum().sum() == df_11FW_after_BaseTable.isna().sum().sum()):
+# if (df_11FW_before_child_act.isna().sum().sum() == df_11FW_after_child_act.isna().sum().sum()):
 #     print('Passed Test 1: Number of NA unchanged.')
 # else:
 #     raise Exception('**Test 1 Failed: Number of NA has changed.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) >= len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) >= len(df_11FW_after_child_act)): 
     print('Passed Test 2: Rows have been removed (unless no change).')
 else:
     raise Exception('**Test 2 Failed: Greater number of rows after.')
 ### TODO: More specific test of row numbers?
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-if (all((df_11FW_after_BaseTable['discharge_dt'] >= date_fy_start) | pd.isna(df_11FW_after_BaseTable['discharge_dt']))
-    and all(~(df_11FW_after_BaseTable['discharge_dt'] < date_fy_start))): 
+if (all((df_11FW_after_child_act['discharge_dt'] >= date_fy_start) | pd.isna(df_11FW_after_child_act['discharge_dt']))
+    and all(~(df_11FW_after_child_act['discharge_dt'] < date_fy_start))): 
     print('Passed Test 4: After change, all "discharge_dt" dates on or after the Fiscal Year start date (or are NA).')
 else:
     raise Exception('**Test 4 Failed: After change, at least one "discharge_dt" date before the Fiscal Year start date.')
 ### ________________________________
 
-if (all(df_11FW_before_BaseTable[~df_11FW_before_BaseTable.index.isin(df_11FW_after_BaseTable.index)]['discharge_dt'] < date_fy_start)): 
+if (all(df_11FW_before_child_act[~df_11FW_before_child_act.index.isin(df_11FW_after_child_act.index)]['discharge_dt'] < date_fy_start)): 
     print('Passed Test 5: All rows filtered out had "discharge_dt" dates before the Fiscal Year start date.')
 else:
     raise Exception('**Test 5 Failed: At least one row filtered out had a "discharge_dt" date not before the Fiscal Year start date.')
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -1123,65 +1074,65 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 # #%%
-# inspect_col(df_11FW_after_BaseTable['last_home_visit'])
+# inspect_col(df_11FW_after_child_act['last_home_visit'])
 
 #%%
 ### 2. Make change:
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
 print('Filter "last_home_visit" to remove families without a home visit in the current fiscal year') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .query('last_home_visit >= @date_fy_start and last_home_visit < @date_fy_end_day_after')
 )
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Filter "last_home_visit" to remove families without a home visit in the current fiscal year"...') 
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) >= len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) >= len(df_11FW_after_child_act)): 
     print('Passed Test 2: Rows have been removed (unless no change).')
 else:
     raise Exception('**Test 2 Failed: Greater number of rows after.')
 ### TODO: More specific test of row numbers?
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-if (all((df_11FW_after_BaseTable['last_home_visit'] >= date_fy_start) & (df_11FW_after_BaseTable['last_home_visit'] < date_fy_end_day_after))
-    and all(~((df_11FW_after_BaseTable['last_home_visit'] < date_fy_start) | (df_11FW_after_BaseTable['last_home_visit'] >= date_fy_end_day_after)))): 
+if (all((df_11FW_after_child_act['last_home_visit'] >= date_fy_start) & (df_11FW_after_child_act['last_home_visit'] < date_fy_end_day_after))
+    and all(~((df_11FW_after_child_act['last_home_visit'] < date_fy_start) | (df_11FW_after_child_act['last_home_visit'] >= date_fy_end_day_after)))): 
     print('Passed Test 4: After change, all "last_home_visit" dates within the Fiscal Year.')
 else:
     raise Exception('**Test 4 Failed: After change, at least one "last_home_visit" date outside the Fiscal Year.')
 ### ________________________________
 
-if (all((df_11FW_before_BaseTable[~df_11FW_before_BaseTable.index.isin(df_11FW_after_BaseTable.index)]['last_home_visit'] < date_fy_start)
-    | (df_11FW_before_BaseTable[~df_11FW_before_BaseTable.index.isin(df_11FW_after_BaseTable.index)]['last_home_visit'] >= date_fy_end_day_after))): 
+if (all((df_11FW_before_child_act[~df_11FW_before_child_act.index.isin(df_11FW_after_child_act.index)]['last_home_visit'] < date_fy_start)
+    | (df_11FW_before_child_act[~df_11FW_before_child_act.index.isin(df_11FW_after_child_act.index)]['last_home_visit'] >= date_fy_end_day_after))): 
     print('Passed Test 5: All rows filtered out had "last_home_visit" dates outside the Fiscal Year.')
 else:
     raise Exception('**Test 5 Failed: At least one row filtered out had a "last_home_visit" within the Fiscal Year.')
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -1193,65 +1144,65 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 # #%%
-# inspect_col(df_11FW_after_BaseTable['home_visits_num']) ### Int64.
+# inspect_col(df_11FW_after_child_act['home_visits_num']) ### Int64.
 
 #%%
 ### 2. Make change:
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
 print('Filter "home_visits_num" to remove families without a home visit') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .query('home_visits_num > 0')
 )
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
 ### Note: By this filter, all families to remove should have been removed above.
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Filter "home_visits_num" to remove families without a home visit"...') 
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) >= len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) >= len(df_11FW_after_child_act)): 
     print('Passed Test 2: Rows have been removed (unless no change).')
 else:
     raise Exception('**Test 2 Failed: Greater number of rows after.')
 ### TODO: More specific test of row numbers?
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) == len(df_11FW_after_BaseTable.columns))
-    and ([*df_11FW_before_BaseTable] == [*df_11FW_after_BaseTable])): 
+if ((len(df_11FW_before_child_act.columns) == len(df_11FW_after_child_act.columns))
+    and ([*df_11FW_before_child_act] == [*df_11FW_after_child_act])): 
     print('Passed Test 3: Number and names of columns unchanged.')
 else:
     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
-if (all(df_11FW_after_BaseTable['home_visits_num'] > 0)
-    and all(~(df_11FW_after_BaseTable['home_visits_num'] <= 0))): 
+if (all(df_11FW_after_child_act['home_visits_num'] > 0)
+    and all(~(df_11FW_after_child_act['home_visits_num'] <= 0))): 
     print('Passed Test 4: After change, all "home_visits_num" numbers greater than 0.')
 else:
     raise Exception('**Test 4 Failed: After change, at least one "home_visits_num" number less than or equal to 0.')
 ### ________________________________
 
-if (all(df_11FW_before_BaseTable[~df_11FW_before_BaseTable.index.isin(df_11FW_after_BaseTable.index)]['home_visits_num'] <= 0)): 
+if (all(df_11FW_before_child_act[~df_11FW_before_child_act.index.isin(df_11FW_after_child_act.index)]['home_visits_num'] <= 0)): 
     print('Passed Test 5: All rows filtered out had "home_visits_num" numbers less than or equal to 0.')
 else:
     raise Exception('**Test 5 Failed: At least one row filtered out had a "home_visits_num" number greater than 0.')
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -1271,59 +1222,59 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 #%%
 ### Search for specific columns:
 ### Want to remove: first and last name of tgt, mob, and fob; SSNs of tgt, mob, and fob; address; city; and worker_id. (Leave ZIP).
-list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_after_BaseTable]))
+list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_after_child_act]))
 
 #%%
 ### 2. Make change:
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 print('Remove identifying variables') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     .drop(columns=['worker_id', 'tgt_first_name', 'tgt_last_name', 'tgt_ssn', 'mob_first_name', 'mob_last_name', 'mob_ssn', 'fob_first_name', 'fob_last_name', 'fob_ssn', 'address', 'city']) 
 )
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 ### Note: LEAVE ZIP Code!
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 #%%
 ### 4. Programmatically test change:
 print('For change "Remove identifying variables"...') 
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable.columns) >= len(df_11FW_after_BaseTable.columns)):
+if (len(df_11FW_before_child_act.columns) >= len(df_11FW_after_child_act.columns)):
     print('Passed Test 3: Columns have been removed (unless no change).')
 else:
     raise Exception('**Test 3 Failed: Greater number of columns after.')
 ### ________________________________
 
-if ((len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_before_BaseTable]))) >= 0)
-    and (len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_after_BaseTable]))) == 0)): 
+if ((len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_before_child_act]))) >= 0)
+    and (len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_after_child_act]))) == 0)): 
     print('Passed Test 4: Variables to delete possibly present before but definitely not after.')
 else:
     raise Exception('**Test 4 Failed: Variables to delete not present before or present after.')
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -1333,31 +1284,31 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 
 #%%
 ### 1. Test that DFs identical:
-df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)
+df_11FW_before_child_act.equals(df_11FW_after_child_act)
 
 #%%
 ### 2. Make change:
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 print('Create year & quarter columns') 
-df_11FW_after_BaseTable = (
-    df_11FW_after_BaseTable
+df_11FW_after_child_act = (
+    df_11FW_after_child_act
     ### Add year & quarter columns AFTER all filters:
     .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
 )
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_BaseTable.equals(df_11FW_after_BaseTable)}')
+print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_after_child_act)}')
 
 ### #%%
 ### ### See differences:
-### df_11FW_before_BaseTable.compare(df_11FW_after_BaseTable) ### Can't because columns different.
+### df_11FW_before_child_act.compare(df_11FW_after_child_act) ### Can't because columns different.
 
 #%% 
-inspect_col(df_11FW_after_BaseTable['year'])
+inspect_col(df_11FW_after_child_act['year'])
 #%%
-inspect_col(df_11FW_after_BaseTable['quarter'])
+inspect_col(df_11FW_after_child_act['quarter'])
 
 #%%
 ### 4. Programmatically test change:
@@ -1365,32 +1316,32 @@ print('For change "Create year & quarter columns"...')
 ### ________________________________
 
 ### Note: Should have no new NA because new column should be entirely filled.
-if (df_11FW_before_BaseTable.isna().sum().sum() == df_11FW_after_BaseTable.isna().sum().sum()):
+if (df_11FW_before_child_act.isna().sum().sum() == df_11FW_after_child_act.isna().sum().sum()):
     print('Passed Test 1: Number of NA unchanged.')
 else:
     raise Exception('**Test 1 Failed: Number of NA has changed.')
 ### ________________________________
 
-if (len(df_11FW_before_BaseTable) == len(df_11FW_after_BaseTable)): 
+if (len(df_11FW_before_child_act) == len(df_11FW_after_child_act)): 
     print('Passed Test 2: Number of rows unchanged.')
 else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_11FW_before_BaseTable.columns) + 2 == len(df_11FW_after_BaseTable.columns))
-    and (sorted([*df_11FW_before_BaseTable] + ['year', 'quarter']) == sorted([*df_11FW_after_BaseTable]))): 
+if ((len(df_11FW_before_child_act.columns) + 2 == len(df_11FW_after_child_act.columns))
+    and (sorted([*df_11FW_before_child_act] + ['year', 'quarter']) == sorted([*df_11FW_after_child_act]))): 
     print('Passed Test 3: Exactly 2 more columns named "year" & "quarter".')
 else:
     raise Exception('**Test 3 Failed: Not exactly 2 more columns named "year" & "quarter".')
 ### ________________________________
 
 print('All tests passed!')
-print(f'Rows: {len(df_11FW_after_BaseTable)}')
-print(f'Columns: {len(df_11FW_after_BaseTable.columns)}')
+print(f'Rows: {len(df_11FW_after_child_act)}')
+print(f'Columns: {len(df_11FW_after_child_act.columns)}')
 
 #%%
 ### 5. Make DFs identical:
-df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy() 
+df_11FW_before_child_act = df_11FW_after_child_act.copy() 
 
 
 
@@ -1398,15 +1349,15 @@ df_11FW_before_BaseTable = df_11FW_after_BaseTable.copy()
 #%%###################################
 ### <> 13. Reorder columns 
 
-df_11FW_after_BaseTable = df_11FW_after_BaseTable[['project_id', 'year', 'quarter'] + [c for c in df_11FW_after_BaseTable.columns if c not in ['project_id', 'year', 'quarter']]]
+df_11FW_after_child_act = df_11FW_after_child_act[['project_id', 'year', 'quarter'] + [c for c in df_11FW_after_child_act.columns if c not in ['project_id', 'year', 'quarter']]]
 
 ### TODO: check number of columns.
 
 
 
 #%%###################################
-### <> df_11FW_BaseTable
-df_11FW_BaseTable = df_11FW_after_BaseTable.copy()
+### <> df_11FW_child_act
+df_11FW_child_act = df_11FW_after_child_act.copy()
 
 
 
@@ -1524,9 +1475,9 @@ df_11FW_WellChildVisits_4 = (
 ### <> Inspect DFs
 
 #%%
-# inspect_df(df_11FW_BaseTable)
+# inspect_df(df_11FW_child_act)
 # ### Counts of dtypes:
-# print(collections.Counter(df_11FW_BaseTable.dtypes))
+# print(collections.Counter(df_11FW_child_act.dtypes))
 
 #%%
 inspect_df(df_11FW_ChildERInj_2)
@@ -1641,7 +1592,7 @@ df_11FW_pivoted_WellChildVisits_4 = df_11FW_pivoted_WellChildVisits_4.reset_inde
 
 ### Note: Date columns written out without timestamps.
 
-df_11FW_BaseTable.to_csv(Path(path_11FW_dir_output, 'df_11FW_BaseTable.csv'), index = False, date_format="%m/%d/%Y")
+df_11FW_child_act.to_csv(Path(path_11FW_dir_output, 'df_11FW_child_act.csv'), index = False, date_format="%m/%d/%Y")
 df_11FW_pivoted_ChildERInj_2.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_ChildERInj_2.csv'), index = False, date_format="%m/%d/%Y")
 df_11FW_pivoted_MaternalIns_3.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_MaternalIns_3.csv'), index = False, date_format="%m/%d/%Y")
 df_11FW_pivoted_WellChildVisits_4.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_WellChildVisits_4.csv'), index = False, date_format="%m/%d/%Y")
@@ -1659,7 +1610,7 @@ df_11FW_pivoted_WellChildVisits_4.to_csv(Path(path_11FW_dir_output, 'df_11FW_piv
 #%%
 # [o for o in list(globals().keys()) if o.startswith('df')]
 #%%
-del df_11FW_allstring_1, df_11FW_allstring_2, df_11FW_allstring_3, df_11FW_allstring_4, df_11FW_before_BaseTable, df_11FW_after_BaseTable, df_11FW_ChildERInj_2, df_11FW_MaternalIns_3, df_11FW_WellChildVisits_4 
+del df_11FW_allstring_1, df_11FW_allstring_2, df_11FW_allstring_3, df_11FW_allstring_4, df_11FW_before_child_act, df_11FW_after_child_act, df_11FW_ChildERInj_2, df_11FW_MaternalIns_3, df_11FW_WellChildVisits_4 
 
 #%%
 # [o for o in list(globals().keys()) if o.startswith('dict')]
@@ -1680,7 +1631,7 @@ del xlsx_11FW, regex_11FW_dates_to_fix, regex_11FW_dates_replacement
 ### Is what's left over what is wanted?:
 [o for o in list(globals().keys()) if o.startswith(('df', 'dict', 'list', 'regex', 'xlsx'))]
 ### Should only be:
-# ['df_11FW_BaseTable',
+# ['df_11FW_child_act',
 #  'df_11FW_pivoted_ChildERInj_2',
 #  'df_11FW_pivoted_MaternalIns_3',
 #  'df_11FW_pivoted_WellChildVisits_4']
