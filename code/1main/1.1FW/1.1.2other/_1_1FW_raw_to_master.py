@@ -57,8 +57,8 @@ else:
 #%%### df_11FW_6: 'Adult UNCOPE Query.xlsx'.
 #%%### df_11FW_7: 'F1 - Home Visit Type Query.xlsx'.
 #%%### df_11FW_8: 'Referral Exclusions 1 thru 6.xlsx'.
-
-
+#%%###
+pd.set_option('display.max_columns', None)
 
 #######################
 
@@ -477,6 +477,8 @@ df_11FW_child_act = df_11FW_allstring_5.copy()
 df_11FW_adult_act=df_11FW_allstring_4.copy()
 ### >>> df_11FW_8: 'Referral Exclusions 1 thru 6'.
 df_11FW_ref_excl=df_11FW_allstring_8.copy()
+### >>> df_11FW_6: 'Adult UNCOPE Query.xlsx'.
+df_11FW_adult_uncope=df_11FW_allstring_6.copy()
 
 #%%### 1. Strip surrounding whitespace
 df_11FW_child_act = (
@@ -487,6 +489,9 @@ df_11FW_adult_act = (
 )
 df_11FW_ref_excl = (
     df_11FW_ref_excl.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+df_11FW_adult_uncope = (
+    df_11FW_adult_uncope.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
 
 #%%### 2. Find & replace "null" values  
@@ -500,6 +505,10 @@ df_11FW_adult_act.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_
 df_11FW_ref_excl= (
 df_11FW_ref_excl.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
 )
+df_11FW_adult_uncope= (
+df_11FW_adult_uncope.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
+)
+
 
 #%%### 3. Add nanoseconds to strings of datetimes missing them   
 regex_11FW_dates_to_fix = r'(^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$)' 
@@ -516,6 +525,10 @@ df_11FW_adult_act = (
 df_11FW_ref_excl = (
     df_11FW_ref_excl
     .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_8}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
+)
+df_11FW_adult_uncope = (
+    df_11FW_adult_uncope
+    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_6}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
 )
 
 
@@ -534,6 +547,10 @@ df_11FW_ref_excl = (
     .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_8) ### Checking all date columns.
 )
 
+df_11FW_adult_uncope = (
+    df_11FW_adult_uncope
+    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_6) ### Checking all date columns.
+)
 ######################################
 
 
@@ -614,6 +631,18 @@ df_11FW_child_act
 ######################################
 ### >>> 'Child Activity Export' ZIP Code change. --MOB ZIP already brought over so not necessary
 
+
+######################################
+### >>> 'Adult UNCOPE Query' Inclusion.
+#%%### 1. - Take UNCOPE columns and insert into Adult Activities
+df_11FW_adult_uncope_columns = df_11FW_adult_uncope.filter(['Project ID','ChildNumber','agency','DATEUNCOPE', 'U', 'N', 'C', 'O', 'P', 'E', 'ReferralDATE', 'Category'])
+df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_adult_uncope_columns, on=['Project ID','ChildNumber','agency'], how='left')
+df_11FW_adult_act
+
+######################################
+### >>> 'Adult UNCOPE Query' Inclusion.
+#%%### 1. - Take UNCOPE columns and insert into Adult Activities
+#%%### 1. - drop irrelevant columns
 
 ### TODO: put in documentation:
 ### tgt = child
