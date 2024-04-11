@@ -479,6 +479,14 @@ df_11FW_adult_act=df_11FW_allstring_4.copy()
 df_11FW_ref_excl=df_11FW_allstring_8.copy()
 ### >>> df_11FW_6: 'Adult UNCOPE Query.xlsx'.
 df_11FW_adult_uncope=df_11FW_allstring_6.copy()
+### >>> df_11FW_7: 'F1 - Home Visit Type Query.xlsx'.
+df_11FW_home_visit=df_11FW_allstring_7.copy()
+### >>> df_11FW_1: 'F1 - Home Visit Type Query.xlsx'.
+df_11FW_well_child=df_11FW_allstring_1.copy()
+### >>> df_11FW_2: 'F1 - Home Visit Type Query.xlsx'.
+df_11FW_child_injury=df_11FW_allstring_2.copy()
+### >>> df_11FW_3: '08 Child ER Injury.xlsx'.
+df_11FW_cg_ins=df_11FW_allstring_3.copy()
 
 #%%### 1. Strip surrounding whitespace
 df_11FW_child_act = (
@@ -492,6 +500,18 @@ df_11FW_ref_excl = (
 )
 df_11FW_adult_uncope = (
     df_11FW_adult_uncope.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+df_11FW_home_visit = (
+    df_11FW_home_visit.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+df_11FW_well_child = (
+    df_11FW_well_child.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+df_11FW_child_injury = (
+    df_11FW_child_injury.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+df_11FW_cg_ins = (
+    df_11FW_cg_ins.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
 
 #%%### 2. Find & replace "null" values  
@@ -507,6 +527,18 @@ df_11FW_ref_excl.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_v
 )
 df_11FW_adult_uncope= (
 df_11FW_adult_uncope.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
+)
+df_11FW_home_visit= (
+df_11FW_home_visit.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
+)
+df_11FW_well_child= (
+df_11FW_well_child.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
+)
+df_11FW_child_injury= (
+df_11FW_child_injury.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
+)
+df_11FW_cg_ins= (
+df_11FW_cg_ins.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
 )
 
 
@@ -530,6 +562,22 @@ df_11FW_adult_uncope = (
     df_11FW_adult_uncope
     .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_6}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
 )
+df_11FW_home_visit = (
+    df_11FW_home_visit
+    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_7}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
+)
+df_11FW_well_child = (
+    df_11FW_well_child
+    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_1}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
+)
+df_11FW_child_injury = (
+    df_11FW_child_injury
+    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_2}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
+)
+df_11FW_cg_ins = (
+    df_11FW_cg_ins
+    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_3}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
+)
 
 
 #%%### 4. Set data types  
@@ -550,6 +598,26 @@ df_11FW_ref_excl = (
 df_11FW_adult_uncope = (
     df_11FW_adult_uncope
     .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_6) ### Checking all date columns.
+)
+
+df_11FW_home_visit = (
+    df_11FW_home_visit
+    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_7) ### Checking all date columns.
+)
+
+df_11FW_well_child = (
+    df_11FW_well_child
+    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_1) ### Checking all date columns.
+)
+
+df_11FW_child_injury = (
+    df_11FW_child_injury
+    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_2) ### Checking all date columns.
+)
+
+df_11FW_cg_ins = (
+    df_11FW_cg_ins
+    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_3) ### Checking all date columns.
 )
 ######################################
 
@@ -607,26 +675,18 @@ df_11FW_adult_act['MaxOfHVDate'].astype('datetime64[ns]')
 #%%### 1. - Use VLOOKUP to pull exclusions 1, 2, 3, 5 , and 6 into the Adult Activity spreadsheet (Note: Exclusion 4 is on the Child Activity export)
 
 # Merge the DataFrames based on the common column ('Project ID')
-df_11FW_adult_act= pd.merge(df_11FW_adult_act, df_11FW_ref_excl, on=['Project ID', 'ChildNumber', 'agency'], how='left')
+df_11FW_ref_excl_columns_a = df_11FW_ref_excl.filter(['Project ID','need_ex1','need_ex2', 'need_ex3', 'need_ex5', 'need_ex6' ])
+df_11FW_adult_act= pd.merge(df_11FW_adult_act, df_11FW_ref_excl_columns_a, on=['Project ID'], how='left')
 print(df_11FW_adult_act.columns)
 df_11FW_adult_act
-
-#%% Exclusion 4 not needed so drop exclusion 4
-df_11FW_adult_act=df_11FW_adult_act.drop(['need_ex4'], axis=1)
-df_11FW_adult_act
-
 
 ######################################
 ### >>> 'Referral Exclusions 1 thru 6' VLOOKUP with 'Child Activity Export'.
 #%%### 1. - Use VLOOKUP to pull exclusion 4 into the Child Activity spreadsheet
 
 # Merge the DataFrames based on the common column ('Project ID')
-
-df_11FW_child_act = pd.merge(df_11FW_child_act, df_11FW_ref_excl, on=['Project ID','ChildNumber','agency'], how='left')
-
-# drop irrelevant columns
-df_11FW_child_act = df_11FW_child_act.drop(['need_ex1', 'need_ex2', 'need_ex3', 'need_ex5', 'need_ex6'], axis=1)
-df_11FW_child_act
+df_11FW_ref_excl_columns_c = df_11FW_ref_excl.filter(['Project ID','need_ex4'])
+df_11FW_child_act = pd.merge(df_11FW_child_act, df_11FW_ref_excl_columns_c, on=['Project ID'], how='left')
 
 ######################################
 ### >>> 'Child Activity Export' ZIP Code change. --MOB ZIP already brought over so not necessary
@@ -635,14 +695,19 @@ df_11FW_child_act
 ######################################
 ### >>> 'Adult UNCOPE Query' Inclusion.
 #%%### 1. - Take UNCOPE columns and insert into Adult Activities
-df_11FW_adult_uncope_columns = df_11FW_adult_uncope.filter(['Project ID','ChildNumber','agency','DATEUNCOPE', 'U', 'N', 'C', 'O', 'P', 'E', 'ReferralDATE', 'Category'])
-df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_adult_uncope_columns, on=['Project ID','ChildNumber','agency'], how='left')
+df_11FW_adult_uncope_columns = df_11FW_adult_uncope.filter(['Project ID','DATEUNCOPE', 'U', 'N', 'C', 'O', 'P', 'E', 'ReferralDATE', 'Category'])
+df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_adult_uncope_columns, on=['Project ID'], how='left')
 df_11FW_adult_act
 
 ######################################
-### >>> 'Adult UNCOPE Query' Inclusion.
-#%%### 1. - Take UNCOPE columns and insert into Adult Activities
-#%%### 1. - drop irrelevant columns
+### >>> Virtual Visits' Inclusion.
+#%%### 1. - Take Virtual Visit columns and insert into Adult Activities
+df_11FW_home_visit_columns = df_11FW_home_visit.filter(['Project ID','HomeVisitTypeIP', 'HomeVisitTypeAll' ])
+df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_home_visit_columns, on=['Project ID'], how='left')
+df_11FW_adult_act
+#%%### 2. - Subtract new columns in adult to create column ‘HomeVisitTypeV’
+df_11FW_adult_act['HomeVisitTypeV'] = df_11FW_adult_act['HomeVisitTypeAll'] - df_11FW_adult_act['HomeVisitTypeIP']
+df_11FW_adult_act
 
 ### TODO: put in documentation:
 ### tgt = child
@@ -650,280 +715,15 @@ df_11FW_adult_act
 ### fob = secondary caregiver
 ### Expectation of target children: only first child (unless multiples); secondary children not tracked.
 
-
-######################################
-#%%###################################
-### <> 11. Remove identifying variables 
-
-#%%
-### 1. Test that DFs identical:
-df_11FW_before_child_act.equals(df_11FW_child_act)
-
-#%%
-### Search for specific columns:
-### Want to remove: first and last name of tgt, mob, and fob; SSNs of tgt, mob, and fob; address; city; and worker_id. (Leave ZIP).
-list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_child_act]))
-
-#%%
-### 2. Make change:
-print(f'Columns: {len(df_11FW_child_act.columns)}')
-print('Remove identifying variables') 
-df_11FW_child_act = (
-    df_11FW_child_act
-    .drop(columns=['worker_id', 'tgt_first_name', 'tgt_last_name', 'tgt_ssn', 'mob_first_name', 'mob_last_name', 'mob_ssn', 'fob_first_name', 'fob_last_name', 'fob_ssn', 'address', 'city']) 
-)
-print(f'Columns: {len(df_11FW_child_act.columns)}')
-### Note: LEAVE ZIP Code!
-
-#%%
-### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_child_act)}')
-
-#%%
-### 4. Programmatically test change:
-print('For change "Remove identifying variables"...') 
-### ________________________________
-
-if (len(df_11FW_before_child_act) == len(df_11FW_child_act)): 
-    print('Passed Test 2: Number of rows unchanged.')
-else:
-    raise Exception('**Test 2 Failed: Number of rows has changed.')
-### ________________________________
-
-if (len(df_11FW_before_child_act.columns) >= len(df_11FW_child_act.columns)):
-    print('Passed Test 3: Columns have been removed (unless no change).')
-else:
-    raise Exception('**Test 3 Failed: Greater number of columns after.')
-### ________________________________
-
-if ((len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_before_child_act]))) >= 0)
-    and (len(list(filter(lambda col: re.search(r'(?i)(name|ssn|address|worker|((?<!ethni)city))', col), [*df_11FW_child_act]))) == 0)): 
-    print('Passed Test 4: Variables to delete possibly present before but definitely not after.')
-else:
-    raise Exception('**Test 4 Failed: Variables to delete not present before or present after.')
-### ________________________________
-
-print('All tests passed!')
-print(f'Rows: {len(df_11FW_child_act)}')
-print(f'Columns: {len(df_11FW_child_act.columns)}')
-
-#%%
-### 5. Make DFs identical:
-df_11FW_before_child_act = df_11FW_child_act.copy() 
-
-
-
-######################################
-#%%###################################
-### <> 12. Create year & quarter columns (after all filtering)
-
-#%%
-### 1. Test that DFs identical:
-df_11FW_before_child_act.equals(df_11FW_child_act)
-
-#%%
-### 2. Make change:
-print(f'Columns: {len(df_11FW_child_act.columns)}')
-print('Create year & quarter columns') 
-df_11FW_child_act = (
-    df_11FW_child_act
-    ### Add year & quarter columns AFTER all filters:
-    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
-)
-print(f'Columns: {len(df_11FW_child_act.columns)}')
-
-#%%
-### 3. Manual/Visual checks:
-print(f'Still equal?: {df_11FW_before_child_act.equals(df_11FW_child_act)}')
-
-### #%%
-### ### See differences:
-### df_11FW_before_child_act.compare(df_11FW_child_act) ### Can't because columns different.
-
-#%% 
-inspect_col(df_11FW_child_act['year'])
-#%%
-inspect_col(df_11FW_child_act['quarter'])
-
-#%%
-### 4. Programmatically test change:
-print('For change "Create year & quarter columns"...') 
-### ________________________________
-
-### Note: Should have no new NA because new column should be entirely filled.
-if (df_11FW_before_child_act.isna().sum().sum() == df_11FW_child_act.isna().sum().sum()):
-    print('Passed Test 1: Number of NA unchanged.')
-else:
-    raise Exception('**Test 1 Failed: Number of NA has changed.')
-### ________________________________
-
-if (len(df_11FW_before_child_act) == len(df_11FW_child_act)): 
-    print('Passed Test 2: Number of rows unchanged.')
-else:
-    raise Exception('**Test 2 Failed: Number of rows has changed.')
-### ________________________________
-
-if ((len(df_11FW_before_child_act.columns) + 2 == len(df_11FW_child_act.columns))
-    and (sorted([*df_11FW_before_child_act] + ['year', 'quarter']) == sorted([*df_11FW_child_act]))): 
-    print('Passed Test 3: Exactly 2 more columns named "year" & "quarter".')
-else:
-    raise Exception('**Test 3 Failed: Not exactly 2 more columns named "year" & "quarter".')
-### ________________________________
-
-print('All tests passed!')
-print(f'Rows: {len(df_11FW_child_act)}')
-print(f'Columns: {len(df_11FW_child_act.columns)}')
-
-#%%
-### 5. Make DFs identical:
-df_11FW_before_child_act = df_11FW_child_act.copy() 
-
-
-
-######################################
-#%%###################################
-### <> 13. Reorder columns 
-
-df_11FW_child_act = df_11FW_child_act[['project_id', 'year', 'quarter'] + [c for c in df_11FW_child_act.columns if c not in ['project_id', 'year', 'quarter']]]
-
-### TODO: check number of columns.
-
-
-
-#%%###################################
-### <> df_11FW_child_act
-df_11FW_child_act = df_11FW_child_act.copy()
-
-
-
-#%%
-### <> NOTE: Previously, FW & LL combined before the following restructuring and joining.
-
-
-### TODO: add to 1.3:
-### NOTE for 1.3 step: intention is to have all quarters represented in DS, but NO data from previous FYs. Purpose: allow local users to check & clean their data throughout the year.
-
-
-### !>>> 
-#%%###################################
-### <> df_11FW_2: 'KU_CHILDERINJ'.
-df_11FW_ChildERInj_2 = (
-    df_11FW_allstring_2
-    ### 1. Strip surrounding whitespace:
-    .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    ### 2. Find & replace "null" values:
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', list_11FW_values_to_find_and_replace, pd.NA)
-    ### 3. Add nanoseconds to datetimes missing them:
-    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_2}, regex_11FW_dates_replacement, regex=True) 
-    ### 4. Set data types:
-    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_2)
-    ### 5v2. Column agency set to "ll":
-    .assign(agency = 'll').astype({'agency': 'string'})
-    ### 6. Column tgt_id fill NA with "0":
-    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
-    ### 7v2. Create project_id column:
-    .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
-    ### new8. Filter dates: Only want current FY for Form 2 Construct 8.
-    .query('date >= @date_fy_start')
-    ### TODO: rename section?: filter column reason to only accept "ER Visit".
-    .query('reason == "ER Visit"')
-    ### new9. Add year & quarter columns AFTER filter:
-    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
-    ### new10. Sort rows:
-    .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
-    ### new11. Reorder columns:
-    [['project_id', 'year', 'quarter', 'agency', 'family_id', 'tgt_id', 'funding', 'reason', 'date']]
-    ### new12. Rename columns:
-    .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'reason': 'ERVisitReason', 'date': 'IncidentDate'})
-)
-
-
-
-#%%###################################
-### <> df_11FW_3: 'KU_MATERNALINS'.
-df_11FW_MaternalIns_3 = (
-    df_11FW_allstring_3
-    ### 1. Strip surrounding whitespace:
-    .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    ### 2. Find & replace "null" values:
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', list_11FW_values_to_find_and_replace, pd.NA)
-    ### 3. Add nanoseconds to datetimes missing them:
-    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_3}, regex_11FW_dates_replacement, regex=True) 
-    ### 4. Set data types:
-    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_3)
-    ### 5v2. Column agency set to "ll":
-    .assign(agency = 'll').astype({'agency': 'string'})
-    ### 6. Column tgt_id fill NA with "0":
-    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
-    ### 7v2. Create project_id column:
-    .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
-    ### Note: Do NOT filter dates. Need insurance change dates before current FY for Form 2 Construct 16.
-    ### new9. Add year & quarter columns AFTER filter:
-    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
-    ### new10. Sort rows:
-    .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
-    ### new11. Reorder columns:
-    [['project_id', 'year', 'quarter', 'agency', 'family_id', 'tgt_id', 'funding', 'insurance', 'date']]
-    ### new12. Rename columns:
-    .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'insurance': 'AD1PrimaryIns', 'date': 'AD1InsChangeDate'})
-)
-### from instructions "Insert a column B and enter this formula =COUNTIF($A$2:A2,A2) and move to column 4". 
-### Answer: probably not needed. Was a count of rows per person.
-### TODO: check later in code & see if a count column like this is needed.
-
-
-
-#%%###################################
-### <> df_11FW_4: 'KU_WELLCHILDVISITS'.
-df_11FW_WellChildVisits_4 = (
-    df_11FW_allstring_4
-    ### 1. Strip surrounding whitespace:
-    .map(lambda cell: cell.strip(), na_action='ignore').astype('string')
-    ### 2. Find & replace "null" values:
-    .pipe(fn_find_and_replace_value_in_df, 'family_id', list_11FW_values_to_find_and_replace, pd.NA)
-    ### 3. Add nanoseconds to datetimes missing them:
-    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_4}, regex_11FW_dates_replacement, regex=True) 
-    ### 4. Set data types:
-    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_4)
-    ### 5v2. Column agency set to "ll":
-    .assign(agency = 'll').astype({'agency': 'string'})
-    ### 6. Column tgt_id fill NA with "0":
-    .assign(tgt_id = lambda df: (df['tgt_id'].fillna('0')).astype('string')) 
-    ### 7v2. Create project_id column:
-    .assign(project_id = lambda df: (df['agency'] + df['family_id'] + '-' + df['tgt_id']).astype('string'))
-    ### new8. Filter dates: Filter out bad data earlier than "2017-10-01". Need WCVisits before current FY for Form 2 Construct 4: ### TODO: Check C04.
-        ### TODO: Add to wiki NE doc notably what is being filtered out & what is being kept. Just overview.
-    .query('date >= "2017-10-01"') 
-    ### new9. Add year & quarter columns AFTER filter:
-    .assign(year = int_nehv_year, quarter = int_nehv_quarter).astype({'year': 'Int64', 'quarter': 'Int64'})
-    ### new10. Sort rows:
-    .sort_values(by=['project_id', 'date'], na_position='first', ignore_index=True)
-    ### new11. Reorder columns:
-    [['project_id', 'year', 'quarter', 'agency', 'family_id', 'tgt_id', 'funding', 'date']]
-    ### new12. Rename columns:
-    .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'date': 'WellVisitDate'})
-)
-
-
-
 #%%###################################
 ### <> Inspect DFs
 
 #%%
-# inspect_df(df_11FW_child_act)
-# ### Counts of dtypes:
-# print(collections.Counter(df_11FW_child_act.dtypes))
-
+inspect_df(df_11FW_child_act)
 #%%
-inspect_df(df_11FW_ChildERInj_2)
-
+inspect_df(df_11FW_adult_act)
 #%%
-inspect_df(df_11FW_MaternalIns_3)
-
-#%%
-inspect_df(df_11FW_WellChildVisits_4)
-
-
+inspect_df(df_11FW_child_injury)
 
 #%%##############################################!>>>
 ### >>> RESTRUCTURING  
@@ -933,91 +733,96 @@ inspect_df(df_11FW_WellChildVisits_4)
     ### U:\Working\nehv_ds_data_files\2mid\1main\1.2LL\previous\before restructure\Y13Q1 (Oct 2023 - Dec 2023) 
     ### U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\previous\after restructuring\Y13Q1 (Oct 2023 - Dec 2023) 
 
-
 #%%###################################
-### <> ChildERInj 
+### <> 08 Child ER Injury.xlsx
 
+### Add funding column:
+df_11FW_child_injury['funding']='fixthislater'
 ### Pivot the DataFrame:
-df_11FW_pivoted_ChildERInj_2 = df_11FW_ChildERInj_2.pivot_table(
-    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
-    ,columns=df_11FW_ChildERInj_2.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
+df_11FW_pivoted_child_injury = df_11FW_child_injury.pivot_table(
+    index=['Project ID', 'agency', 'FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    ,columns=df_11FW_child_injury.groupby(['Project ID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['ERVisitReason', 'IncidentDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
 )
-df_11FW_pivoted_ChildERInj_2
+df_11FW_pivoted_child_injury
 
 #%%
 ### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
-df_11FW_pivoted_ChildERInj_2 = df_11FW_pivoted_ChildERInj_2.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
-df_11FW_pivoted_ChildERInj_2
+df_11FW_pivoted_child_injury = df_11FW_pivoted_child_injury.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
+df_11FW_pivoted_child_injury
 
 #%%
 ### Flatten the column MultiIndex & rename columns in the style of SPSS:
-df_11FW_pivoted_ChildERInj_2.columns = [f'{col[0]}.{col[1]}' for col in df_11FW_pivoted_ChildERInj_2.columns]
-df_11FW_pivoted_ChildERInj_2
+df_11FW_pivoted_child_injury.columns = [f'{col[0]}.{col[1]}' for col in df_11FW_pivoted_child_injury.columns]
+df_11FW_pivoted_child_injury
 
 #%%
 ### Reset row & column indices:
-df_11FW_pivoted_ChildERInj_2 = df_11FW_pivoted_ChildERInj_2.reset_index()
-df_11FW_pivoted_ChildERInj_2
+df_11FW_pivoted_child_injury = df_11FW_pivoted_child_injury.reset_index()
+df_11FW_pivoted_child_injury
 
 
 
 #%%###################################
-### <> MaternalIns 
+### <> Caregiver Insurance v2 - USE THIS ONE.xlsx
 
+### Add funding column:
+df_11FW_cg_ins['funding']='fixthislater'
 ### Pivot the DataFrame:
-df_11FW_pivoted_MaternalIns_3 = df_11FW_MaternalIns_3.pivot_table(
+df_11FW_pivoted_cg_ins = df_11FW_cg_ins.pivot_table(
     index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
-    ,columns=df_11FW_MaternalIns_3.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
+    ,columns=df_11FW_cg_ins.groupby(['Project ID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['AD1PrimaryIns', 'AD1InsChangeDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
 )
-df_11FW_pivoted_MaternalIns_3
+df_11FW_pivoted_cg_ins
 
 #%%
 ### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
-df_11FW_pivoted_MaternalIns_3 = df_11FW_pivoted_MaternalIns_3.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
-df_11FW_pivoted_MaternalIns_3
+df_11FW_pivoted_cg_ins = df_11FW_pivoted_cg_ins.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
+df_11FW_pivoted_cg_ins
 
 #%%
 ### Flatten the column MultiIndex & rename columns in the style of SPSS:
-df_11FW_pivoted_MaternalIns_3.columns = [f'{col[0]}.{col[1]}' for col in df_11FW_pivoted_MaternalIns_3.columns]
-df_11FW_pivoted_MaternalIns_3
+df_11FW_pivoted_cg_ins.columns = [f'{col[0]}.{col[1]}' for col in df_11FW_pivoted_cg_ins.columns]
+df_11FW_pivoted_cg_ins
 
 #%%
 ### Reset row & column indices:
-df_11FW_pivoted_MaternalIns_3 = df_11FW_pivoted_MaternalIns_3.reset_index()
-df_11FW_pivoted_MaternalIns_3
+df_11FW_pivoted_cg_ins = df_11FW_pivoted_cg_ins.reset_index()
+df_11FW_pivoted_cg_ins
 
 
 
 #%%###################################
 ### <> WellChildVisits 
 
+### Add funding column:
+df_11FW_well_child['funding']='fixthislater'
 ### Pivot the DataFrame:
-df_11FW_pivoted_WellChildVisits_4 = df_11FW_WellChildVisits_4.pivot_table(
-    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
-    ,columns=df_11FW_WellChildVisits_4.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
+df_11FW_pivoted_well_child = df_11FW_well_child.pivot_table(
+    index=['ProjectID', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    ,columns=df_11FW_well_child.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['WellVisitDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
 )
-# df_11FW_pivoted_WellChildVisits_4
+# df_11FW_pivoted_well_child
 
 #%%
 ### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
-df_11FW_pivoted_WellChildVisits_4 = df_11FW_pivoted_WellChildVisits_4.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
-# df_11FW_pivoted_WellChildVisits_4
+df_11FW_pivoted_well_child = df_11FW_pivoted_well_child.sort_index(axis=1, level=0, ascending=False).sort_index(axis=1, level=1, sort_remaining=False) 
+# df_11FW_pivoted_well_child
 
 #%%
 ### Flatten the column MultiIndex & rename columns in the style of SPSS:
-df_11FW_pivoted_WellChildVisits_4.columns = [f'{col[0]}.{col[1]}' for col in df_11FW_pivoted_WellChildVisits_4.columns]
-# df_11FW_pivoted_WellChildVisits_4
+df_11FW_pivoted_well_child.columns = [f'{col[0]}.{col[1]}' for col in df_11FW_pivoted_well_child.columns]
+# df_11FW_pivoted_well_child
 
 #%%
 ### Reset row & column indices:
-df_11FW_pivoted_WellChildVisits_4 = df_11FW_pivoted_WellChildVisits_4.reset_index()
-# df_11FW_pivoted_WellChildVisits_4
+df_11FW_pivoted_well_child = df_11FW_pivoted_well_child.reset_index()
+# df_11FW_pivoted_well_child
 
 
 
@@ -1028,9 +833,9 @@ df_11FW_pivoted_WellChildVisits_4 = df_11FW_pivoted_WellChildVisits_4.reset_inde
 ### Note: Date columns written out without timestamps.
 
 df_11FW_child_act.to_csv(Path(path_11FW_dir_output, 'df_11FW_child_act.csv'), index = False, date_format="%m/%d/%Y")
-df_11FW_pivoted_ChildERInj_2.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_ChildERInj_2.csv'), index = False, date_format="%m/%d/%Y")
-df_11FW_pivoted_MaternalIns_3.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_MaternalIns_3.csv'), index = False, date_format="%m/%d/%Y")
-df_11FW_pivoted_WellChildVisits_4.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_WellChildVisits_4.csv'), index = False, date_format="%m/%d/%Y")
+df_11FW_pivoted_child_injury.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_child_injury.csv'), index = False, date_format="%m/%d/%Y")
+df_11FW_pivoted_cg_ins.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_cg_ins.csv'), index = False, date_format="%m/%d/%Y")
+df_11FW_pivoted_well_child.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_well_child.csv'), index = False, date_format="%m/%d/%Y")
 
 
 
@@ -1045,7 +850,7 @@ df_11FW_pivoted_WellChildVisits_4.to_csv(Path(path_11FW_dir_output, 'df_11FW_piv
 #%%
 # [o for o in list(globals().keys()) if o.startswith('df')]
 #%%
-del df_11FW_allstring_1, df_11FW_allstring_2, df_11FW_allstring_3, df_11FW_allstring_4, df_11FW_before_child_act, df_11FW_child_act, df_11FW_ChildERInj_2, df_11FW_MaternalIns_3, df_11FW_WellChildVisits_4 
+del df_11FW_allstring_1, df_11FW_allstring_2, df_11FW_allstring_3, df_11FW_allstring_4,  df_11FW_child_act, df_11FW_child_injury, df_11FW_cg_ins, df_11FW_well_child
 
 #%%
 # [o for o in list(globals().keys()) if o.startswith('dict')]
@@ -1055,21 +860,21 @@ del dict_11FW_col_dtypes_1, dict_11FW_col_dtypes_2, dict_11FW_col_dtypes_3, dict
 #%%
 # [o for o in list(globals().keys()) if o.startswith('list')]
 #%%
-del list_path_11FW_input_raw_sheets, list_11FW_col_detail_1, list_11FW_date_cols_1, list_11FW_col_detail_2, list_11FW_date_cols_2, list_11FW_col_detail_3, list_11FW_date_cols_3, list_11FW_col_detail_4, list_11FW_date_cols_4, list_11FW_values_to_find_and_replace 
+del list_11FW_col_detail_1, list_11FW_date_cols_1, list_11FW_col_detail_2, list_11FW_date_cols_2, list_11FW_col_detail_3, list_11FW_date_cols_3, list_11FW_col_detail_4, list_11FW_date_cols_4, list_11FW_values_to_find_and_replace 
 
 #%%
 # [o for o in list(globals().keys()) if o.startswith(('regex', 'xlsx'))]
 #%%
-del xlsx_11FW, regex_11FW_dates_to_fix, regex_11FW_dates_replacement 
+del  regex_11FW_dates_to_fix, regex_11FW_dates_replacement 
 
 #%%
 ### Is what's left over what is wanted?:
 [o for o in list(globals().keys()) if o.startswith(('df', 'dict', 'list', 'regex', 'xlsx'))]
 ### Should only be:
 # ['df_11FW_child_act',
-#  'df_11FW_pivoted_ChildERInj_2',
-#  'df_11FW_pivoted_MaternalIns_3',
-#  'df_11FW_pivoted_WellChildVisits_4']
+#  'df_11FW_pivoted_child_injury',
+#  'df_11FW_pivoted_cg_ins',
+#  'df_11FW_pivoted_well_child']
 
 
 
@@ -1077,7 +882,7 @@ del xlsx_11FW, regex_11FW_dates_to_fix, regex_11FW_dates_replacement
 ### >>> END 
 #################################################!>>>
 
-print('Congrats! You ran 1.2LL!')
+print('Congrats! You ran 1.1.2 FW!')
 
 
 
