@@ -606,41 +606,30 @@ df_11FW_cg_ins = (
 ## 
 
 #%%### 1. Remove any rows with a discharge date (TERMINATION DATE) before the current reporting year 
-df_11FW_child_act = df_11FW_child_act[df_11FW_child_act['TERMINATION DATE'] >= pd.Timestamp(f'2023-01-01')]
+df_11FW_child_act = df_11FW_child_act[(df_11FW_child_act['TERMINATION DATE'] >= pd.Timestamp(f'2023-10-01')) | (df_11FW_child_act['TERMINATION DATE'].isna())]
 df_11FW_child_act['TERMINATION DATE'].astype('datetime64[ns]')
-
-df_11FW_child_act
-#%%### 2. Remove rows that do not have a first home visit date OR Max Visit Number is 0 or blank 
-df_11FW_before_child_act=df_11FW_child_act.copy()
-df_11FW_after_child_act=df_11FW_child_act.copy()
-
-df_11FW_after_child_act=df_11FW_after_child_act.dropna(subset=['MinOfHVDate'],inplace=False)
-df_11FW_after_child_act = (
-    df_11FW_adult_act.dropna(subset=['MaxOfVISIT NUMBER'], inplace=False)
-)
-if (df_11FW_before_child_act.equals(df_11FW_after_child_act)):
-    print('error, columns unchanged')
-else:
-    df_11FW_child_act=df_11FW_after_child_act.copy()
-
+df_11FW_child_act.columns
+#%%### 2. Remove rows that do not have a first home visit date
+df_11FW_child_act=df_11FW_child_act.dropna(subset=['MinOfHVDate'],inplace=False)
 #%%### 3. Remove any rows with a MaxofHVDate before the current report year 
 df_11FW_before_child_act=df_11FW_child_act.copy()
 
-df_11FW_before_child_act = df_11FW_after_child_act[df_11FW_after_child_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-01-01')]
-df_11FW_after_child_act['MaxOfHVDate'].astype('datetime64[ns]')
+df_11FW_child_act = df_11FW_child_act[df_11FW_child_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-10-01')]
+df_11FW_child_act['MaxOfHVDate'].astype('datetime64[ns]')
 
-if (df_11FW_before_child_act.equals(df_11FW_after_child_act)):
-    print('error, columns unchanged')
-else:
-    df_11FW_child_act=df_11FW_after_child_act.copy()
-df_11FW_child_act
+# if (df_11FW_before_child_act.equals(df_11FW_after_child_act)):
+#     print('error, columns unchanged')
+# else:
+#     df_11FW_child_act=df_11FW_after_child_act.copy()
+df_11FW_child_act.columns
 
 ######################################
 ### >>> df_11FW_5: 'Adult Activity Export'.
 ##
 
 #%%### 1. 1. Remove any rows with a discharge date (TERMINATION DATE) before the current reporting year  
-df_11FW_adult_act = df_11FW_adult_act[df_11FW_adult_act['TERMINATION DATE'] >= pd.Timestamp(f'2023-01-01')]
+df_11FW_adult_act = df_11FW_adult_act[(df_11FW_adult_act['TERMINATION DATE'] >= pd.Timestamp(f'2023-10-01')) | (df_11FW_adult_act['TERMINATION DATE'].isna())]
+
 df_11FW_adult_act['TERMINATION DATE'].astype('datetime64[ns]')
 #%%### 2. Remove rows that do not have a first home visit date OR Max Visit Number is 0 or blank 
 df_11FW_adult_act = (
@@ -649,55 +638,69 @@ df_11FW_adult_act = (
 df_11FW_adult_act = (
     df_11FW_adult_act.dropna(subset=['MaxOfVISIT NUMBER'], inplace=False)
 )
-df_11FW_adult_act['MaxOfVISIT NUMBER']= (
-    df_11FW_adult_act['MaxOfVISIT NUMBER'] != '0' 
+df_11FW_adult_act= (
+    df_11FW_adult_act[df_11FW_adult_act['MaxOfVISIT NUMBER'] !=0]
 )
 df_11FW_adult_act['MaxOfVISIT NUMBER']
 #%%### 3. Remove any rows with a MaxofHVDate before the current report year 
-df_11FW_adult_act = df_11FW_adult_act[df_11FW_adult_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-01-01')]
+df_11FW_adult_act = df_11FW_adult_act[df_11FW_adult_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-10-01')]
 df_11FW_adult_act['MaxOfHVDate'].astype('datetime64[ns]')
 
 
-
-
-######################################
-### >>> 'Referral Exclusions 1 thru 6' VLOOKUP with 'Adult Activity Export'.
-#%%### 1. - Use VLOOKUP to pull exclusions 1, 2, 3, 5 , and 6 into the Adult Activity spreadsheet (Note: Exclusion 4 is on the Child Activity export)
-
-# Merge the DataFrames based on the common column ('Project ID')
-df_11FW_ref_excl_columns_a = df_11FW_ref_excl.filter(['Project ID','need_ex1','need_ex2', 'need_ex3', 'need_ex5', 'need_ex6' ])
-df_11FW_adult_act= pd.merge(df_11FW_adult_act, df_11FW_ref_excl_columns_a, on=['Project ID'], how='left')
-print(df_11FW_adult_act.columns)
-df_11FW_adult_act
 
 ######################################
 ### >>> 'Referral Exclusions 1 thru 6' VLOOKUP with 'Child Activity Export'.
 #%%### 1. - Use VLOOKUP to pull exclusion 4 into the Child Activity spreadsheet
 
 # Merge the DataFrames based on the common column ('Project ID')
-df_11FW_ref_excl_columns_c = df_11FW_ref_excl.filter(['Project ID','need_ex4'])
+df_11FW_ref_excl_columns_c = df_11FW_ref_excl[['Project ID','need_ex4']]
 df_11FW_child_act = pd.merge(df_11FW_child_act, df_11FW_ref_excl_columns_c, on=['Project ID'], how='left')
+df_11FW_child_act
+df_11FW_child_act.columns
+
+#%%### 2. -  Use VLOOKUP on Child Activity for ZIP from Adult Activity 
+
+# Merge the DataFrames based on the common column ('Project ID')
+df_11FW_adult_columns = df_11FW_adult_act[['Project ID','MOB ZIP']]
+df_11FW_child_act = pd.merge(df_11FW_child_act, df_11FW_adult_columns, on=['Project ID'], how='left')
+df_11FW_child_act
+df_11FW_child_act.columns
+
+df_11FW_child_act=df_11FW_child_act.drop_duplicates()
+
+######################################
+### >>> 'Referral Exclusions 1 thru 6' VLOOKUP with 'Adult Activity Export'.
+#%%### 1. - Use VLOOKUP to pull exclusions 1, 2, 3, 5 , and 6 into the Adult Activity spreadsheet (Note: Exclusion 4 is on the Child Activity export)
+
+# Merge the DataFrames based on the common column ('Project ID')
+df_11FW_ref_excl_columns_a = df_11FW_ref_excl[['Project ID','need_ex1','need_ex2', 'need_ex3', 'need_ex5', 'need_ex6']]
+df_11FW_adult_act= pd.merge(df_11FW_adult_act, df_11FW_ref_excl_columns_a, on=['Project ID'], how='left')
+print(df_11FW_adult_act.columns)
+df_11FW_adult_act
 
 ######################################
 ### >>> 'Child Activity Export' ZIP Code change. --MOB ZIP already brought over so not necessary
 
 
+
 ######################################
 ### >>> 'Adult UNCOPE Query' Inclusion.
 #%%### 1. - Take UNCOPE columns and insert into Adult Activities
-df_11FW_adult_uncope_columns = df_11FW_adult_uncope.filter(['Project ID','DATEUNCOPE', 'U', 'N', 'C', 'O', 'P', 'E', 'ReferralDATE', 'Category'])
+df_11FW_adult_uncope_columns = df_11FW_adult_uncope[['Project ID','DATEUNCOPE', 'U', 'N', 'C', 'O', 'P', 'E', 'ReferralDATE', 'Category']]
 df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_adult_uncope_columns, on=['Project ID'], how='left')
 df_11FW_adult_act
 
 ######################################
 ### >>> Virtual Visits' Inclusion.
 #%%### 1. - Take Virtual Visit columns and insert into Adult Activities
-df_11FW_home_visit_columns = df_11FW_home_visit.filter(['Project ID','HomeVisitTypeIP', 'HomeVisitTypeAll' ])
+df_11FW_home_visit_columns = df_11FW_home_visit[['Project ID','HomeVisitTypeIP', 'HomeVisitTypeAll']]
 df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_home_visit_columns, on=['Project ID'], how='left')
 df_11FW_adult_act
 #%%### 2. - Subtract new columns in adult to create column ‘HomeVisitTypeV’
 df_11FW_adult_act['HomeVisitTypeV'] = df_11FW_adult_act['HomeVisitTypeAll'] - df_11FW_adult_act['HomeVisitTypeIP']
 df_11FW_adult_act
+
+df_11FW_adult_act=df_11FW_adult_act.drop_duplicates()
 
 ### TODO: put in documentation:
 ### tgt = child
