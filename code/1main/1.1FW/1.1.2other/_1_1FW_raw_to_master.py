@@ -1,22 +1,4 @@
 
-
-
-
-### Process for receiving data from Lincoln Lancaster County Health Department (LL):
-    # 1. Original files transferred from external vendor (LL) to NE State, who then puts the files in folder "U:\SFTP".
-    # 2. Then we organize the files in folder "Master (Files Used For Quarterly Reports)".
-    # 3. Then we copy the files into: "U:\Working" >> "Tableau" >> year >> quarter >> "LL" folder (for example: "U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Y12Q4 (Oct 2022 - Sep 2023)\LLCHD").
-
-
-### Copying over file from: "U:\Working\Tableau\Y12 (Oct 2022 - Sept 2023)\Y12Q4 (Oct 2022 - Sep 2023)\LLCHD":
-
-### To here: "U:\Working\nehv_ds_data_files\2mid\1main\1.2LL\0in\Y12Q4 (Oct 2022 - Sep 2023)"
-
-
-
-
-
-
 ### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
 
 #%%##############################################!>>>
@@ -24,8 +6,6 @@
 #####################################################
 
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
-
-
 
 #%%##############################################!>>> 
 ### >>>  SETUP 
@@ -211,9 +191,7 @@ list_11FW_col_detail_4= [
     ['FOBRaceOther','boolean'],
     ['MOB ZIP','string'],
     ['Adaptation','string'], ##not sure about this one, all values seem to be 'NA'
-    
     ]
-
 
 
 #%%### df_11FW_4: Adult Activities Query.xlsx'.
@@ -232,7 +210,6 @@ print(len(list_11FW_col_detail_5))
 for x in list_11FW_col_detail_5:
     print("['{}',],".format(x))
 list_11FW_col_detail_5 = [
-    
     ['Project ID','string'],
     ['agency','string'],
     ['FAMILY NUMBER','Int64'],
@@ -619,11 +596,12 @@ df_11FW_cg_ins = (
     df_11FW_cg_ins
     .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_3) ### Checking all date columns.
 )
+
+#%%##############################################!>>>
+### >>> RESTRUCTURING  
+#####################################################
+
 ######################################
-
-
-######################################
-
 ### >>> df_11FW_5: 'Child Activity Export'.
 ## 
 
@@ -632,18 +610,30 @@ df_11FW_child_act = df_11FW_child_act[df_11FW_child_act['TERMINATION DATE'] >= p
 df_11FW_child_act['TERMINATION DATE'].astype('datetime64[ns]')
 
 df_11FW_child_act
-#%%### 2. Remove rows that do not have a first home visit date  
-df_11FW_child_act=df_11FW_child_act.dropna(subset=['MinOfHVDate'],inplace=False)
-df_11FW_child_act = (
+#%%### 2. Remove rows that do not have a first home visit date OR Max Visit Number is 0 or blank 
+df_11FW_before_child_act=df_11FW_child_act.copy()
+df_11FW_after_child_act=df_11FW_child_act.copy()
+
+df_11FW_after_child_act=df_11FW_after_child_act.dropna(subset=['MinOfHVDate'],inplace=False)
+df_11FW_after_child_act = (
     df_11FW_adult_act.dropna(subset=['MaxOfVISIT NUMBER'], inplace=False)
 )
-df_11FW_child_act
-#%%### 3. Remove any rows with a MaxofHVDate before the current report year 
-df_11FW_child_act = df_11FW_child_act[df_11FW_child_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-01-01')]
-df_11FW_child_act['MaxOfHVDate'].astype('datetime64[ns]')
+if (df_11FW_before_child_act.equals(df_11FW_after_child_act)):
+    print('error, columns unchanged')
+else:
+    df_11FW_child_act=df_11FW_after_child_act.copy()
 
+#%%### 3. Remove any rows with a MaxofHVDate before the current report year 
+df_11FW_before_child_act=df_11FW_child_act.copy()
+
+df_11FW_before_child_act = df_11FW_after_child_act[df_11FW_after_child_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-01-01')]
+df_11FW_after_child_act['MaxOfHVDate'].astype('datetime64[ns]')
+
+if (df_11FW_before_child_act.equals(df_11FW_after_child_act)):
+    print('error, columns unchanged')
+else:
+    df_11FW_child_act=df_11FW_after_child_act.copy()
 df_11FW_child_act
-#%%### 2. Remove rows that do not have a first home visit date  
 
 ######################################
 ### >>> df_11FW_5: 'Adult Activity Export'.
@@ -660,7 +650,7 @@ df_11FW_adult_act = (
     df_11FW_adult_act.dropna(subset=['MaxOfVISIT NUMBER'], inplace=False)
 )
 df_11FW_adult_act['MaxOfVISIT NUMBER']= (
-    df_11FW_adult_act['MaxOfVISIT NUMBER'] != '0' #currently this returns True/False
+    df_11FW_adult_act['MaxOfVISIT NUMBER'] != '0' 
 )
 df_11FW_adult_act['MaxOfVISIT NUMBER']
 #%%### 3. Remove any rows with a MaxofHVDate before the current report year 
@@ -762,8 +752,6 @@ df_11FW_pivoted_child_injury
 df_11FW_pivoted_child_injury = df_11FW_pivoted_child_injury.reset_index()
 df_11FW_pivoted_child_injury
 
-
-
 #%%###################################
 ### <> Caregiver Insurance v2 - USE THIS ONE.xlsx
 
@@ -771,7 +759,7 @@ df_11FW_pivoted_child_injury
 df_11FW_cg_ins['funding']='fixthislater'
 ### Pivot the DataFrame:
 df_11FW_pivoted_cg_ins = df_11FW_cg_ins.pivot_table(
-    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    index=['Project ID', 'agency', 'FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
     ,columns=df_11FW_cg_ins.groupby(['Project ID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['AD1PrimaryIns', 'AD1InsChangeDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
@@ -793,8 +781,6 @@ df_11FW_pivoted_cg_ins
 df_11FW_pivoted_cg_ins = df_11FW_pivoted_cg_ins.reset_index()
 df_11FW_pivoted_cg_ins
 
-
-
 #%%###################################
 ### <> WellChildVisits 
 
@@ -802,8 +788,8 @@ df_11FW_pivoted_cg_ins
 df_11FW_well_child['funding']='fixthislater'
 ### Pivot the DataFrame:
 df_11FW_pivoted_well_child = df_11FW_well_child.pivot_table(
-    index=['ProjectID', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
-    ,columns=df_11FW_well_child.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
+    index=['Project ID', 'agency','FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    ,columns=df_11FW_well_child.groupby(['Project ID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['WellVisitDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
 )
@@ -832,12 +818,11 @@ df_11FW_pivoted_well_child = df_11FW_pivoted_well_child.reset_index()
 
 ### Note: Date columns written out without timestamps.
 
+df_11FW_adult_act.to_csv(Path(path_11FW_dir_output, 'df_11FW_adult_act.csv'), index = False, date_format="%m/%d/%Y")
 df_11FW_child_act.to_csv(Path(path_11FW_dir_output, 'df_11FW_child_act.csv'), index = False, date_format="%m/%d/%Y")
 df_11FW_pivoted_child_injury.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_child_injury.csv'), index = False, date_format="%m/%d/%Y")
 df_11FW_pivoted_cg_ins.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_cg_ins.csv'), index = False, date_format="%m/%d/%Y")
 df_11FW_pivoted_well_child.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_well_child.csv'), index = False, date_format="%m/%d/%Y")
-
-
 
 #%%##############################################!>>>
 ### >>> Remove old objects  
@@ -883,9 +868,6 @@ del  regex_11FW_dates_to_fix, regex_11FW_dates_replacement
 #################################################!>>>
 
 print('Congrats! You ran 1.1.2 FW!')
-
-
-
 
 # %%
 ### TODO:
