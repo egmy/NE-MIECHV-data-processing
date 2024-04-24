@@ -678,10 +678,6 @@ df_11FW_adult_act= pd.merge(df_11FW_adult_act, df_11FW_ref_excl_columns_a, on=['
 print(df_11FW_adult_act.columns)
 df_11FW_adult_act
 
-######################################
-### >>> 'Child Activity Export' ZIP Code change. --MOB ZIP already brought over so not necessary
-
-
 
 ######################################
 ### >>> 'Adult UNCOPE Query' Inclusion.
@@ -730,7 +726,7 @@ inspect_df(df_11FW_child_injury)
 ### <> 08 Child ER Injury.xlsx
 
 ### Add funding column:
-df_11FW_child_injury['funding']='fixthislater'
+df_11FW_child_injury['funding']='addedlater'
 ### Pivot the DataFrame:
 df_11FW_pivoted_child_injury = df_11FW_child_injury.pivot_table(
     index=['Project ID', 'agency', 'FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
@@ -759,7 +755,7 @@ df_11FW_pivoted_child_injury
 ### <> Caregiver Insurance v2 - USE THIS ONE.xlsx
 
 ### Add funding column:
-df_11FW_cg_ins['funding']='fixthislater'
+df_11FW_cg_ins['funding']='addedlater'
 ### Pivot the DataFrame:
 df_11FW_pivoted_cg_ins = df_11FW_cg_ins.pivot_table(
     index=['Project ID', 'agency', 'FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
@@ -788,7 +784,7 @@ df_11FW_pivoted_cg_ins
 ### <> WellChildVisits 
 
 ### Add funding column:
-df_11FW_well_child['funding']='fixthislater'
+df_11FW_well_child['funding']='addedlater'
 ### Pivot the DataFrame:
 df_11FW_pivoted_well_child = df_11FW_well_child.pivot_table(
     index=['Project ID', 'agency','FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
