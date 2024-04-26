@@ -85,7 +85,7 @@ path_13_dir_output = Path(path_13_files_base, '9out', str_nehv_quarter)
 path_13_input_well_child_FW = Path(path_13_dir_input, 'df_11FW_pivoted_well_child.csv')
 path_13_input_well_child_LL = Path(path_13_dir_input, 'df_12LL_pivoted_WellChildVisits_4.csv')
 path_13_input_child_injury_FW = Path(path_13_dir_input, 'df_11FW_pivoted_child_injury.csv')
-path_13_input_child_injury_LL = Path(path_13_dir_input, 'df_12LL_pivoted_ChildERInj_2.csv')
+path_13LL_input_child_injury_LL = Path(path_13_dir_input, 'df_12LL_pivoted_ChildERInj_2.csv')
 path_13_input_cg_ins_FW = Path(path_13_dir_input, 'df_11FW_pivoted_cg_ins.csv')
 path_13_input_cg_ins_LL = Path(path_13_dir_input, 'df_12LL_pivoted_MaternalIns_3.csv')
 path_13_input_adult_act= Path(path_13_dir_input, 'df_11FW_adult_act.csv')
@@ -115,7 +115,7 @@ print('end setup')
 ### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
     ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
 if __name__ == "__main__":
-    exec(open(Path(path_13_code_base, '_1_3_combine.py')).read())
+    exec(open(Path(path_13_code_base, '1_3_combine.py')).read())
     print('Executed code files')
 
 
