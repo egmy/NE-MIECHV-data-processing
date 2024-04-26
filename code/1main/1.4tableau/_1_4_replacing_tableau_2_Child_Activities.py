@@ -76,7 +76,7 @@ list_14t_col_detail_tb2_2 = [
     ['FAMILY NUMBER', 'FAMILY NUMBER (ER Injury)', '', 'string'],
     ['ChildNumber', 'ChildNumber (ER Injury)', '', 'string'],
     ['funding', 'funding (ER Injury)', '', 'string'],
-    ['IncidentDate', 'Incident Date', '', 'datetime64[ns]'],
+    ['IncidentDate', 'Incident Date', '', 'string'],
     ['IncidentDate2', 'IncidentDate2', 'same', 'datetime64[ns]']
 ]
 #%%### df_14t_piece_tb2_2: 'ER Injury'.

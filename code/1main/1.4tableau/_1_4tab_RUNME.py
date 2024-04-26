@@ -103,7 +103,9 @@ from packages_and_functions import *
 # str_nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 # str_nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
 # str_nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
-str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
+#str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
+str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+
 
 # # date_fy_start = pd.Timestamp("2022-10-01")
 # # date_fy_end = pd.Timestamp("2023-09-30")
@@ -123,7 +125,7 @@ if (str_nehv_quarter == 'Y12Q1 (Oct 2022 - Dec 2023)'):
     int_fpg_increment = 4720 
 
 ### 2023: https://www.federalregister.gov/documents/2023/01/19/2023-00885/annual-update-of-the-hhs-poverty-guidelines 
-elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 2023)', 'Y12Q4 (Oct 2022 - Sep 2023)', 'Y13Q1 (Oct 2023 - Dec 2023)')):
+elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 2023)', 'Y12Q4 (Oct 2022 - Sep 2023)', 'Y13Q1 (Oct 2023 - Dec 2023), Y13Q2 (Oct 2023 - Mar 2024)')):
     ### 9440 + (5140 * [household size])
     int_fpg_base = 9440 
     int_fpg_increment = 5140 
