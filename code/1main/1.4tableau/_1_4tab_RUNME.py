@@ -33,6 +33,8 @@
     ### Also, copy file "source_input_excels_Y##Q#.txt" from previous quarter's folder into the current quarter's folder, & update file name & contents as needed (to track sources of files).
 
 ### 4. Run this "_1_4tab_RUNME.py" file:
+    ### In the upper-right corner of this file, just to the right of the triangle icon, click the dropdown arrow.
+        ### Then click "Run Current File in Interactive Window".
     ### This RUNME file will run the following 3 code files:
         ### "_1_4_replacing_tableau_2_Child_Activities.py"
         ### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"
@@ -59,9 +61,9 @@
         ### Form 2 & 4 (for example, "Nebraska Form 2 and Form 4 Y13 2022.1.5 v131 - Y13Q1.twb")
             ### data source: "Adult Activity data source Form 2 and 4"
             ### data source: "Child Activity data source Form 1 and 2 and 4"
-    ### Check that the reports read in the data sources files from folder "U:\Working\nehv_ds_data_files\3_final_output"
-    ### Check that the data sources update/refresh.
-    ### Check that there are no broken variables:
+    ### 6.1 Check that the reports read in the data sources files from folder "U:\Working\nehv_ds_data_files\3_final_output"
+    ### 6.2 Check that the data sources update/refresh.
+    ### 6.3 Check that there are no broken variables:
         ### Only in the Form 2 Child data source are there outstanding broken variables:
             ### "_C01 Child Denominator Status"
             ### "_C01 Denominator Status"
@@ -70,7 +72,7 @@
             ### "_C01 Numerator Status"
             ### "DateImp"
             ### "_C01 Label (Sum)"
-    ### Fix broken variables as needed (check with Data Team).
+    ### 6.4 Fix broken variables as needed (check with Data Team).
 
 ### 7. Let the Data Team know that reports are updated!
 
