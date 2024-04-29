@@ -3587,9 +3587,9 @@ def fn_IPV_Score_FW(fdf):
         return pd.NA 
     elif (fdf['Agency'] != "ll"):
         if (
-            fdf['Assess Afraid'] == True 
-            or fdf['Assess IPV'] == True 
-            or fdf['Assess Police'] == True
+            (False if pd.isna(fdf['Assess Afraid']) else (fdf['Assess Afraid'] == True))
+            or (False if pd.isna(fdf['Assess IPV']) else (fdf['Assess IPV'] == True))
+            or (False if pd.isna(fdf['Assess Police']) else (fdf['Assess Police'] == True))
         ):
             return "P"
         else:
@@ -3605,6 +3605,14 @@ def fn_IPV_Score_FW(fdf):
 df_14t_edits1_tb3['_IPV Score FW'] = df_14t_edits1_tb3.apply(func=fn_IPV_Score_FW, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb3['_IPV Score FW']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Agency']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Assess Afraid']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Assess IPV']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Assess Police']) 
 # #%%
 # # df_14t_comparison_csv_tb3[['_IPV Score FW']].compare(df_14t__final_from_csv_tb3[['_IPV Score FW']])
 # (
@@ -4527,3 +4535,5 @@ df_14t__final_tb3.to_csv(path_14t_output_tb3, index=False, date_format="%#m/%#d/
 
 #%%
 ### END Adult3! SUCCESS!
+print('END Adult3! SUCCESS!')
+

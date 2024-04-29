@@ -76,7 +76,7 @@ list_14t_col_detail_tb2_2 = [
     ['FAMILY NUMBER', 'FAMILY NUMBER (ER Injury)', '', 'string'],
     ['ChildNumber', 'ChildNumber (ER Injury)', '', 'string'],
     ['funding', 'funding (ER Injury)', '', 'string'],
-    ['IncidentDate', 'Incident Date', '', 'string'],
+    ['IncidentDate', 'Incident Date', '', 'datetime64[ns]'],
     ['IncidentDate2', 'IncidentDate2', 'same', 'datetime64[ns]']
 ]
 #%%### df_14t_piece_tb2_2: 'ER Injury'.
@@ -471,7 +471,7 @@ df_14t_piece_tb2_1 = (
 # inspect_df(df_14t_piece_tb2_1)
 
 #%%###################################
-### df_14t_piece_tb2_2: 'Caregiver Insurance'.
+### df_14t_piece_tb2_2: 'ER Injury'.
 df_14t_piece_tb2_2 = (
     df_14t_piece_tb2_2
     ###.astype(dict_14t_col_dtypes_tb2_2)
@@ -498,7 +498,7 @@ df_14t_piece_tb2_4 = (
 # inspect_df(df_14t_piece_tb2_4)
 
 #%%###################################
-### df_14t_piece_tb2_5: 'MOB or FOB'.
+### df_14t_piece_tb2_5: 'Well Child'.
 df_14t_piece_tb2_5 = (
     df_14t_piece_tb2_5
     ###.astype(dict_14t_col_dtypes_tb2_5)
@@ -2933,10 +2933,6 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 ### Consolidate long match-case statements with "|" (or) case statements.
 
 
-#%%
-### END Child2! SUCCESS!
-
-
 # %%
 
 
@@ -2950,4 +2946,8 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 
 
 
-# %%
+
+#%%
+### END Child2! SUCCESS!
+print('END Child2! SUCCESS!')
+

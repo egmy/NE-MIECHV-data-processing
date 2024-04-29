@@ -1408,7 +1408,7 @@ inspect_df(df_12LL_WellChildVisits_4)
 
 ### Pivot the DataFrame:
 df_12LL_pivoted_ChildERInj_2 = df_12LL_ChildERInj_2.pivot_table(
-    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted). ### NOTE: 'reason' not included because filtered above to be all the same.
     ,columns=df_12LL_ChildERInj_2.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['ERVisitReason', 'IncidentDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
