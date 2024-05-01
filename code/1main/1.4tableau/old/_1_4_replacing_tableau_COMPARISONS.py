@@ -27,15 +27,15 @@ if __name__ == "__main__":
 ### Files created for Y12Q1 by the old data sourcing process with Tableau.
 
 ###path_14t_comparison_csv_tb2 = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Child Activity Master File from Excel on NE Server.csv')
-df_14t_comparison_csv_tb2 = pd.read_csv(path_14t_comparison_csv_tb2, dtype=object, keep_default_na=False, na_values=[''])
+df_14t_comparison_csv_tb2 = pd.read_csv(path_14t_comparison_csv_tb2, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 df_14t_comparison_csv_tb2 = df_14t_comparison_csv_tb2.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 ###path_14t_comparison_csv_tb3 = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File from Excel on NE Server.csv')
-df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype=object, keep_default_na=False, na_values=[''])
+df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 df_14t_comparison_csv_tb3 = df_14t_comparison_csv_tb3.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 ###path_14t_comparison_csv_tb4 = Path('U:\\Working\\nebraska_miechv_coded_data_source\\previous\\previous_output\\Y12Q1 (Oct 2022 - Dec 2023)\\Adult Activity Master File for Form 1 from Excel on NE Server.csv')
-df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype=object, keep_default_na=False, na_values=[''])
+df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 df_14t_comparison_csv_tb4 = df_14t_comparison_csv_tb4.sort_values(by=['Project Id','Year','Quarter'], ignore_index=True)
 
 

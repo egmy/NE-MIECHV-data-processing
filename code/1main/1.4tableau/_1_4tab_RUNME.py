@@ -33,13 +33,18 @@
     ### Also, copy file "source_input_excels_Y##Q#.txt" from previous quarter's folder into the current quarter's folder, & update file name & contents as needed (to track sources of files).
 
 ### 4. Run this "_1_4tab_RUNME.py" file:
-    ### In the upper-right corner of this file, just to the right of the triangle icon, click the dropdown arrow.
-        ### Then click "Run Current File in Interactive Window".
     ### This RUNME file will run the following 3 code files:
         ### "_1_4_replacing_tableau_2_Child_Activities.py"
         ### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"
         ### "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"
-    ### Check output of sections 'Identify/FLAG "Unrecognized Value"' to see if any adjustment is needed in the code (check with Data Team).
+    ### 4.1 Run this file:
+        ### In the upper-right corner of this file, just to the right of the triangle icon, click the dropdown arrow.
+        ### Then click "Run Current File in Interactive Window".
+    ### 4.2 Check output of data type conversions to make sure all columns transform correctly. 
+        ### ** If any columns fail to convert to their intended data type, check with Data Team.
+            ### An error would have output like: "Error for column:  <column>" & "Attempted dtype:  <dtype>".
+    ### 4.3 Check output of sections 'Identify/FLAG "Unrecognized Value"' to see if any adjustment is needed in the code. 
+        ### ** If any "Unrecognized Value"s found, check with Data Team.
 
 ### 5. Update the Tableau Reports' data source files:
     ### 5.1 Backup old data source files:

@@ -19,6 +19,14 @@ print('Version Of Numpy: ' + np.version.version)
 ### From 1.2LL:
 from pandas.testing import assert_frame_equal
 
+
+#%%##################################################
+### KEY VALUES ###
+#####################################################
+
+list_na_values_to_read = ['', ' ']
+
+
 #%%##################################################
 ### UTILITY FUNCTIONS ###
 #####################################################
@@ -113,6 +121,8 @@ def fn_apply_dtypes(fdf, dict_col_dtypes):
             try:
                 fdf[column] = pd.to_datetime(fdf[column])
                 ### Because .astype() cannot handle a 'string' dtype with multiple date formats, but .to_datetime() can!
+                ### Well, actually, there are some limitations: If the formats are too different, even pd.to_datetime() can't reconcile them.
+                ### Adding argument `format='mixed'` might help (looks at each cell individually), but could cause problem if month & day are not consistently in order across the varying formats.
             except Exception as e:
                 print('Error for column: ', column)
                 print('Attempted dtype: ', dict_col_dtypes[column])
@@ -144,6 +154,22 @@ def fn_apply_dtypes(fdf, dict_col_dtypes):
                 print('Attempted dtype: ', dict_col_dtypes[column])
                 print(e, '\n')
     print(f'Data types changed to dictionary specifications.')
+    return fdf 
+
+### Function designed to turn a Pandas DataFrame whose columns are all dtype 'string' into dtypes specified in a dictionary.
+def fn_fix_mixed_date_dtypes(fdf, dict_col_dtypes):
+    for column in fdf.columns:
+        if (dict_col_dtypes[column] == 'datetime64[ns]'):
+            try:
+                fdf[column] = pd.to_datetime(fdf[column], format='mixed')
+                ### Because .astype() cannot handle a 'string' dtype with multiple date formats, but .to_datetime() can!
+                ### Well, actually, there are some limitations: If the formats are too different, even pd.to_datetime() can't reconcile them.
+                ### Adding argument `format='mixed'` might help (looks at each cell individually), but could cause problem if month & day are not consistently in order across the varying formats.
+            except Exception as e:
+                print('Error for column: ', column)
+                print('Attempted dtype: ', dict_col_dtypes[column])
+                print(e, '\n')
+    print(f"Date columns changed with `format='mixed'`. Each cell is considered separately & it is assumed that month comes first before day (e.g., 3/4/24 is in March).")
     return fdf 
 
 def fn_find_unrecognized_value(fdf):

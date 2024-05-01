@@ -33,7 +33,7 @@ bool_14t_deduplicate_tb2 = False
 
 ### As of Y13Q1, there is no comparison file because we are only using this python code!
 
-### df_14t_comparison_csv_tb2 = pd.read_csv(path_14t_comparison_csv_tb2, dtype=object, keep_default_na=False, na_values=[''])
+### df_14t_comparison_csv_tb2 = pd.read_csv(path_14t_comparison_csv_tb2, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 ### print(f'df_14t_comparison_csv_tb2 Rows: {len(df_14t_comparison_csv_tb2)}')
 
 ### #%%
@@ -434,21 +434,21 @@ sorted(list_path_14t_data_source_sheets_tb2) == [x for x in sorted(xlsx_14t_tb2.
 
 #%%
 ### READ all sheets:
-# df_14t_piece_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb2_1)
-# df_14t_piece_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb2_2)
-# df_14t_piece_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=dict_14t_col_dtypes_tb2_3) ### object not string because code can't handle NA's until end.
-# df_14t_piece_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=dict_14t_col_dtypes_tb2_4)
-# df_14t_piece_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb2_5)
+# df_14t_piece_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb2_1)
+# df_14t_piece_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb2_2)
+# df_14t_piece_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=list_na_values_to_read, dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=dict_14t_col_dtypes_tb2_3) ### object not string because code can't handle NA's until end.
+# df_14t_piece_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=list_na_values_to_read, dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=dict_14t_col_dtypes_tb2_4)
+# df_14t_piece_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb2_5)
 
 #%%###################################
 ### READ in all sheets as strings.
 
 ### To read in EVERYTHING as a string WITH NA:
-df_14t_allstring_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_1)
-df_14t_allstring_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_2)
-df_14t_allstring_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_3)
-df_14t_allstring_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_4)
-df_14t_allstring_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_5)
+df_14t_allstring_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_1)
+df_14t_allstring_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_2)
+df_14t_allstring_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_3)
+df_14t_allstring_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_4)
+df_14t_allstring_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_5)
 
 df_14t_piece_tb2_1 = df_14t_allstring_tb2_1.copy()
 df_14t_piece_tb2_2 = df_14t_allstring_tb2_2.copy()
@@ -488,6 +488,14 @@ df_14t_piece_tb2_3 = (
 ) 
 # inspect_df(df_14t_piece_tb2_3)
 
+### Expected column errors:
+
+### Y13Q2:
+### TGTInsureChangeDate reading in wrong does not seem to affect it & not used in either report.
+# Error for column:  TGTInsureChangeDate
+# Attempted dtype:  datetime64[ns]
+# unconverted data remains when parsing with format "%Y-%m-%d %H:%M:%S": ".540000", at position 43. You might want to try:
+
 #%%###################################
 ### df_14t_piece_tb2_4: 'LLCHD'.
 df_14t_piece_tb2_4 = (
@@ -496,6 +504,14 @@ df_14t_piece_tb2_4 = (
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_4)
 )
 # inspect_df(df_14t_piece_tb2_4)
+
+### Expected column errors:
+
+### Y13Q2:
+### fob_living_arrangement_dt reading in wrong does not seem to affect it & not used in either report.
+# Error for column:  fob_living_arrangement_dt
+# Attempted dtype:  datetime64[ns]
+# unconverted data remains when parsing with format "%Y-%m-%d %H:%M:%S": ".253000000", at position 104. You might want to try:
 
 #%%###################################
 ### df_14t_piece_tb2_5: 'Well Child'.
@@ -2696,7 +2712,7 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 
 # #%%
 # ### Read back in df for comparison.
-# df_14t__final_from_csv_tb2 = pd.read_csv(path_14t_output_tb2, dtype=object, keep_default_na=False, na_values=[''])
+# df_14t__final_from_csv_tb2 = pd.read_csv(path_14t_output_tb2, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 
 # #%%##################################################
 # ### COMPARE CSVs ###

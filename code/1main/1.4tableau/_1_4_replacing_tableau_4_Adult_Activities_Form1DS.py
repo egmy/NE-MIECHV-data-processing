@@ -33,8 +33,8 @@ bool_14t_deduplicate_tb4 = False
 
 ### As of Y13Q1, there is no comparison file because we are only using this python code!
 
-### # df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='string', keep_default_na=False, na_values=[''])
-### df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='object', keep_default_na=False, na_values=[''])
+### # df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='string', keep_default_na=False, na_values=list_na_values_to_read)
+### df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='object', keep_default_na=False, na_values=list_na_values_to_read)
 ### print(f'df_14t_comparison_csv_tb4 Rows: {len(df_14t_comparison_csv_tb4)}')
 
 ### #%%
@@ -308,7 +308,7 @@ list_14t_col_detail_tb4_4 = [
     ['fob_living_arrangement', 'Fob Living Arrangement', '', 'Int64'],
     ['fob_living_arrangement_dt', 'Fob Living Arrangement Dt', '', 'datetime64[ns]'],
     ['fob_edu_dt', 'Fob Edu Dt', '', 'datetime64[ns]'],
-    ['fob_edu', 'Fob Edu', '', 'string'], ### In Tableau Y12Q2 is integer, but should be string.
+    ['fob_edu', 'Fob Edu', '', 'string'], 
     ['fob_employ_dt', 'Fob Employ Dt', '', 'datetime64[ns]'],
     ['fob_employ', 'Fob Employ', '', 'Int64'],
     ['fob_involved', 'Fob Involved1', '', 'string'],
@@ -449,22 +449,22 @@ sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)
 #%%###################################
 ### READ all sheets:
 
-# df_14t_piece_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_1)
+# df_14t_piece_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_1)
 
 # #%%
-# df_14t_piece_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_2)
+# df_14t_piece_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_2)
 # ### ValueError: Unable to convert column AD1InsChangeDate.9 to type datetime64[ns].
 
 # #%%
-# df_14t_piece_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_3)
+# df_14t_piece_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_3)
 # ### ValueError: False cannot be cast to bool.
 
 # #%%
-# df_14t_piece_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_4)
+# df_14t_piece_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_4)
 # ### ValueError: Unable to parse string "HS Grad" at position 0.
 
 # #%%
-# df_14t_piece_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_5)
+# df_14t_piece_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_5)
 
 #%%###################################
 ### READ in all sheets as strings.
@@ -477,11 +477,11 @@ sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)
 ### df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], na_filter=False, keep_default_na=False, dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
 
 ### To read in EVERYTHING as a string WITH NA:
-df_14t_allstring_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_1)
-df_14t_allstring_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_2)
-df_14t_allstring_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_3)
-df_14t_allstring_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_4)
-df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
+df_14t_allstring_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_1)
+df_14t_allstring_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_2)
+df_14t_allstring_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_3)
+df_14t_allstring_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_4)
+df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
 
 df_14t_piece_tb4_1 = df_14t_allstring_tb4_1.copy()
 df_14t_piece_tb4_2 = df_14t_allstring_tb4_2.copy()
@@ -493,45 +493,6 @@ df_14t_piece_tb4_5 = df_14t_allstring_tb4_5.copy()
 #%%##################################################
 ### CLEAN ###
 #####################################################
-
-# def fn_try_astype(fdf, dict_col_dtypes):
-#     for column in fdf.columns:
-#         try:
-#             fdf[column] = fdf[column].astype(dict_col_dtypes[column])
-#         except Exception as e:
-#             print('Error for column: ', column)
-#             print('Attempted dtype: ', dict_col_dtypes[column])
-#             print(e, '\n')
-
-### See function "fn_apply_dtypes".
-
-#%%###################################
-### Testing
-
-# # inspect_col(df_14t_piece_tb4_2['AD1InsChangeDate.1'])
-# ### In df_14t_piece_tb4_2 tab "Caregiver Insurance", dates columns have 2 conflicting formats.
-
-# #%%
-# # print(df_14t_piece_tb4_2.dtypes.to_string())
-# #%%
-# # fn_try_astype(df_14t_piece_tb4_2, dict_14t_col_dtypes_tb4_2)
-# # fn_apply_dtypes(df_14t_piece_tb4_2, dict_14t_col_dtypes_tb4_2)
-# #%%
-# # print(df_14t_piece_tb4_2.dtypes.to_string())
-
-# #%%
-# # fn_try_astype(df_14t_piece_tb4_3, dict_14t_col_dtypes_tb4_3)
-# # fn_apply_dtypes(df_14t_piece_tb4_3, dict_14t_col_dtypes_tb4_3)
-# #%%
-# # print(df_14t_piece_tb4_3.dtypes.to_string())
-# #%%
-# # inspect_df(df_14t_piece_tb4_3)
-
-# #%%
-# # fn_try_astype(df_14t_piece_tb4_4, dict_14t_col_dtypes_tb4_4)
-# # fn_apply_dtypes(df_14t_piece_tb4_4, dict_14t_col_dtypes_tb4_4)
-# #%%
-# # print(df_14t_piece_tb4_4.dtypes.to_string())
 
 #%%###################################
 ### df_14t_piece_tb4_1: 'Project ID'.
@@ -547,37 +508,11 @@ df_14t_piece_tb4_1 = (
 df_14t_piece_tb4_2 = (
     df_14t_piece_tb4_2
     ###.astype(dict_14t_col_dtypes_tb4_2)
+    .pipe(fn_print_fstring_and_return_df, 'Fixing date columns:')
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb4_2)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_2)
 )
 # inspect_df(df_14t_piece_tb4_2)
-
-# Error for column:  AD1InsChangeDate.9
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Unknown present at position 1 
-
-# Error for column:  AD1InsChangeDate.10
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
-# Error for column:  AD1InsChangeDate.11
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: None present at position 1 
-
-# Error for column:  AD1InsChangeDate.12
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
-# Error for column:  AD1InsChangeDate.13
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: None present at position 1 
-
-# Error for column:  AD1InsChangeDate.14
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Unknown present at position 1 
-
-# Error for column:  AD1InsChangeDate.15
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
 
 #%%###################################
 ### df_14t_piece_tb4_3: 'Family Wise'.
@@ -588,27 +523,6 @@ df_14t_piece_tb4_3 = (
 ) 
 # inspect_df(df_14t_piece_tb4_3)
 
-#%%
-### Y12Q4: KeyError: 'HomeVisitTypeIP' ### FIXED, DONE: Checked Tableau wb & added above. New variablea Y12Q4.
-### Y12Q4: KeyError: 'HomeVisitTypeV' ### FIXED, DONE: Checked Tableau wb & added above. New variablea Y12Q4.
-
-#%%
-### Y12Q4:
-[x[0] for x in list_14t_col_detail_tb4_3] == [*df_14t_piece_tb4_3]
-#%%
-set([x[0] for x in list_14t_col_detail_tb4_3]).symmetric_difference([*df_14t_piece_tb4_3])
-### Y12Q4: {'HomeVisitTypeAll', 'HomeVisitTypeIP'} ## new vars.
-
-#%%
-### Test:
-# (
-#     df_14t_piece_tb4_3
-#     ###.astype(dict_14t_col_dtypes_tb4_3)
-#     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_3)
-#     .loc[:, [k for k, v in dict_14t_col_dtypes_tb4_3.items() if v == 'boolean']]
-#     .pipe(fn_all_value_counts)
-# ) 
-
 #%%###################################
 ### df_14t_piece_tb4_4: 'LLCHD'.
 df_14t_piece_tb4_4 = (
@@ -617,10 +531,6 @@ df_14t_piece_tb4_4 = (
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_4)
 )
 # inspect_df(df_14t_piece_tb4_4)
-
-# Error for column:  fob_edu
-# Attempted dtype:  Int64
-# could not convert string to float: 'HS Grad' 
 
 #%%###################################
 ### df_14t_piece_tb4_5: 'MOB or FOB'.
@@ -4962,8 +4872,8 @@ df_14t__final_tb4.to_csv(path_14t_output_tb4, index=False, date_format="%#m/%#d/
 
 # #%%
 # ### Read back in df for comparison.
-# # df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='string', keep_default_na=False, na_values=[''])
-# df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='object', keep_default_na=False, na_values=[''])
+# # df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='string', keep_default_na=False, na_values=list_na_values_to_read)
+# df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='object', keep_default_na=False, na_values=list_na_values_to_read)
 
 
 # #%%##################################################

@@ -313,10 +313,10 @@ sorted(list_path_12LL_input_raw_sheets) == sorted(xlsx_12LL.sheet_names)
 ### READ in all sheets as strings.
 
 ### Read in EVERYTHING as a string WITH pd.NA for empty cells:
-df_12LL_allstring_1 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_1)
-df_12LL_allstring_2 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_2)
-df_12LL_allstring_3 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_3)
-df_12LL_allstring_4 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_4)
+df_12LL_allstring_1 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_1)
+df_12LL_allstring_2 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_2)
+df_12LL_allstring_3 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_3)
+df_12LL_allstring_4 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_4)
 
 # ### Backup:
 # df_12LL_1 = df_12LL_allstring_1.copy()
