@@ -24,8 +24,10 @@ if (os.path.basename(__file__) == '_1_4_replacing_tableau_3_Adult_Activities_For
 else:
     print("Did NOT run RUNME again... because it's already running!")
 
+print('____________\n')
+
 #%%
-bool_14t_deduplicate_tb3 = False
+bool_14t_deduplicate_tb3 = bool_14t_deduplicate  
 
 #%%##################################################
 ### Comparison File ###
@@ -68,8 +70,8 @@ dict_14t_colnames_tb3_1 = {x[0]:x[1] for x in list_14t_col_detail_tb3_1 if x[2] 
 # dict_14t_colnames_tb3_1
 #%%### df_14t_piece_tb3_1: 'Project ID'.
 dict_14t_col_dtypes_tb3_1 = {x[0]:x[3] for x in list_14t_col_detail_tb3_1}
-print(dict_14t_col_dtypes_tb3_1)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_1.values())))
+# print(dict_14t_col_dtypes_tb3_1)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_1.values())))
 
 #######################
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
@@ -119,8 +121,8 @@ dict_14t_colnames_tb3_2 = {x[0]:x[1] for x in list_14t_col_detail_tb3_2 if x[2] 
 # dict_14t_colnames_tb3_2
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
 dict_14t_col_dtypes_tb3_2 = {x[0]:x[3] for x in list_14t_col_detail_tb3_2}
-print(dict_14t_col_dtypes_tb3_2)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_2.values())))
+# print(dict_14t_col_dtypes_tb3_2)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_2.values())))
 
 #######################
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
@@ -233,8 +235,8 @@ dict_14t_colnames_tb3_3 = {x[0]:x[1] for x in list_14t_col_detail_tb3_3 if x[2] 
 # dict_14t_colnames_tb3_3
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
 dict_14t_col_dtypes_tb3_3 = {x[0]:x[3] for x in list_14t_col_detail_tb3_3}
-print(dict_14t_col_dtypes_tb3_3)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_3.values())))
+# print(dict_14t_col_dtypes_tb3_3)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_3.values())))
 
 #######################
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
@@ -412,8 +414,8 @@ dict_14t_colnames_tb3_4 = {x[0]:x[1] for x in list_14t_col_detail_tb3_4 if x[2] 
 # dict_14t_colnames_tb3_4
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
 dict_14t_col_dtypes_tb3_4 = {x[0]:x[3] for x in list_14t_col_detail_tb3_4}
-print(dict_14t_col_dtypes_tb3_4)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_4.values())))
+# print(dict_14t_col_dtypes_tb3_4)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_4.values())))
 
 
 #%%##################################################
@@ -426,9 +428,15 @@ xlsx_14t_tb3 = pd.ExcelFile(path_14t_data_source_file_tb3)
 
 #%% 
 ### CHECK that all list_path_14t_data_source_sheets_tb3 same as xlsx.sheet_names (different order ok):
-print(sorted(list_path_14t_data_source_sheets_tb3))
-print([x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB'])
-sorted(list_path_14t_data_source_sheets_tb3) == [x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB']
+# print(sorted(list_path_14t_data_source_sheets_tb3))
+# print([x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB'])
+
+if (sorted(list_path_14t_data_source_sheets_tb3) == [x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB']): 
+    print('Passed Check that all Excel sheet names as expected.')
+else:
+    raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+print('____________\n')
 
 #%%
 ### READ all sheets:
@@ -457,41 +465,44 @@ df_14t_piece_tb3_4 = df_14t_allstring_tb3_4.copy()
 
 #%%###################################
 ### df_14t_piece_tb3_1: 'Project ID'.
+print("Sheet 'Project ID':")
 df_14t_piece_tb3_1 = (
     df_14t_piece_tb3_1
-    ###.astype(dict_14t_col_dtypes_tb3_1)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_1)
 )
 # inspect_df(df_14t_piece_tb3_1)
 
 #%%###################################
 ### df_14t_piece_tb3_2: 'Caregiver Insurance'.
+print("Sheet 'Caregiver Insurance':")
 df_14t_piece_tb3_2 = (
     df_14t_piece_tb3_2
-    ###.astype(dict_14t_col_dtypes_tb3_2)
-    .pipe(fn_print_fstring_and_return_df, 'Fixing date columns:')
-    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb3_2)
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb3_2) ### Fixing date columns.
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_2)
 )
 # inspect_df(df_14t_piece_tb3_2)
 
 #%%###################################
 ### df_14t_piece_tb3_3: 'Family Wise'.
+print("Sheet 'Family Wise':")
 df_14t_piece_tb3_3 = (
     df_14t_piece_tb3_3
-    ###.astype(dict_14t_col_dtypes_tb3_3)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_3)
 ) 
 # inspect_df(df_14t_piece_tb3_3)
 
 #%%###################################
 ### df_14t_piece_tb3_4: 'LLCHD'.
+print("Sheet 'LLCHD':")
 df_14t_piece_tb3_4 = (
     df_14t_piece_tb3_4
-    ###.astype(dict_14t_col_dtypes_tb3_4)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_4)
 )
 # inspect_df(df_14t_piece_tb3_4)
+
+#%%###################################
+
+print('____________\n')
 
 #%%###################################
 ### Review each sheet:
@@ -571,6 +582,7 @@ df_14t_piece_tb3_1
 ### Test
 len(df_14t_bf_ddup_tb3_1) - len(df_14t_piece_tb3_1) == len(df_14t_bf_ddup_tb3_1[df_14t_bf_ddup_tb3_1.duplicated()])
 #%%### df_14t_piece_tb3_1: 'Project ID'. 
+print('Project ID:')
 if (len(df_14t_bf_ddup_tb3_1) != len(df_14t_piece_tb3_1)):
     print(f'{len(df_14t_bf_ddup_tb3_1) - len(df_14t_piece_tb3_1)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_1) == len(df_14t_piece_tb3_1)):
@@ -597,6 +609,7 @@ df_14t_piece_tb3_2
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
 len(df_14t_bf_ddup_tb3_2) - len(df_14t_piece_tb3_2) == len(df_14t_bf_ddup_tb3_2[df_14t_bf_ddup_tb3_2.duplicated()])
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
+print('Caregiver Insurance:')
 if (len(df_14t_bf_ddup_tb3_2) != len(df_14t_piece_tb3_2)):
     print(f'{len(df_14t_bf_ddup_tb3_2) - len(df_14t_piece_tb3_2)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_2) == len(df_14t_piece_tb3_2)):
@@ -623,6 +636,7 @@ df_14t_piece_tb3_3
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
 len(df_14t_bf_ddup_tb3_3) - len(df_14t_piece_tb3_3) == len(df_14t_bf_ddup_tb3_3[df_14t_bf_ddup_tb3_3.duplicated()])
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
+print('Family Wise:')
 if (len(df_14t_bf_ddup_tb3_3) != len(df_14t_piece_tb3_3)):
     print(f'{len(df_14t_bf_ddup_tb3_3) - len(df_14t_piece_tb3_3)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_3) == len(df_14t_piece_tb3_3)):
@@ -634,9 +648,10 @@ else:
 ### join columns: ['Project ID1','year (Family Wise)','quarter (Family Wise)']
 ### Show rows where join columns are same BUT some other columns are not:
 cols_14t_forJoin_tb3_3 = ['Project ID1','year (Family Wise)','quarter (Family Wise)']
+
 # print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].to_string())
 # print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].sort_values(by=cols_14t_forJoin_tb3_3, ignore_index=True).to_string())
-print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].query('`quarter (Family Wise)` == 4').sort_values(by=cols_14t_forJoin_tb3_3, ignore_index=True).to_string())
+# print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].query('`quarter (Family Wise)` == 4').sort_values(by=cols_14t_forJoin_tb3_3, ignore_index=True).to_string())
 
 ### Y12Q4: FULL: mostly groups of 4 rows. Some groups of 2 rows: ph535-1, ph548-1.
 ### Y12Q4: after filter to Y12Q4, only 28 rows.
@@ -653,14 +668,14 @@ TESTdf_14t_piece_tb3_3 = df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_
 # print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[6:12], col].value_counts(dropna=False)) != 1)])
 # print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
 
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:2], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[2:4], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[4:8], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[8:12], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[16:20], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[20:24], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[24:28], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:2], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[2:4], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[4:8], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[8:12], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[16:20], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[20:24], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[24:28], col].value_counts(dropna=False)) != 1)])
 
 # #%%### Change row indicies in 2 places:
 # TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:4], cols_14t_forJoin_tb3_3 + [col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:4], col].value_counts(dropna=False)) != 1)]]
@@ -699,6 +714,7 @@ df_14t_piece_tb3_4
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
 len(df_14t_bf_ddup_tb3_4) - len(df_14t_piece_tb3_4) == len(df_14t_bf_ddup_tb3_4[df_14t_bf_ddup_tb3_4.duplicated()])
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
+print('LLCHD:')
 if (len(df_14t_bf_ddup_tb3_4) != len(df_14t_piece_tb3_4)):
     print(f'{len(df_14t_bf_ddup_tb3_4) - len(df_14t_piece_tb3_4)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_4) == len(df_14t_piece_tb3_4)):
@@ -710,6 +726,9 @@ else:
 ### join columns: ['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
 ### Show rows where join columns are same BUT some other columns are not:
 df_14t_piece_tb3_4[df_14t_piece_tb3_4[['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']].duplicated(keep=False)]
+
+#######################
+print('____________\n')
 
 
 #%%##################################################
@@ -773,8 +792,11 @@ df_14t_base_tb3 = (
     )
 ) 
 
-print(f'df_14t_base_tb3 Rows: {len(df_14t_base_tb3)}')
+print(f'After join: df_14t_base_tb3 Rows: {len(df_14t_base_tb3)}')
+print('____________\n')
+
 ### Y12Q4: if NOT deduplicated = . If deduplicated = .
+
 
 ##################################################################################################
 ##################################################################################################
@@ -4018,14 +4040,13 @@ df_14t_edits1_tb3['_TGT 3 Month Date'] = (df_14t_edits1_tb3['_TGT DOB'] + pd.Dat
 # df_14t_edits1_tb3.query('@df_14t_edits1_tb3 == "Unrecognized Value"')
 
 #%%
-# list_14t_unrecognized_values_tb3 = fn_find_unrecognized_value(df_14t_edits1_tb3)
-list_14t_unrecognized_values_tb3 = fn_find_unrecognized_value(df_14t_edits1_tb3.query(f'`Year` == 12 & `Quarter` == 4'))
+print(f'Columns that have "Unrecognized Value":')
+list_14t_unrecognized_values_tb3 = fn_find_value(df_14t_edits1_tb3.query(f'`Year` == {int_nehv_year} & `Quarter` == {int_nehv_quarter}'), if_print=True)
 
-#%%
-len(list_14t_unrecognized_values_tb3)
-#%%
-### Columns that have "Unrecognized Value":
-[x['col'] for x in list_14t_unrecognized_values_tb3]
+# #%%
+# len(list_14t_unrecognized_values_tb3)
+# #%%
+# print(f'Columns that have "Unrecognized Value":\n{[x['col'] for x in list_14t_unrecognized_values_tb3]}')
 
 #%%
 ### Look at one column:
@@ -4048,6 +4069,9 @@ len(list_14t_unrecognized_values_tb3)
 
 
 ### !TESTRUNHERE!
+
+print('____________\n')
+
 
 ##################################################################################################
 ##################################################################################################

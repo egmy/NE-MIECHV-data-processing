@@ -24,8 +24,10 @@ if (os.path.basename(__file__) == '_1_4_replacing_tableau_4_Adult_Activities_For
 else:
     print("Did NOT run RUNME again... because it's already running!")
 
+print('____________\n')
+
 #%%
-bool_14t_deduplicate_tb4 = False
+bool_14t_deduplicate_tb4 = bool_14t_deduplicate  
 
 #%%##################################################
 ### Comparison File ###
@@ -70,8 +72,8 @@ dict_14t_colnames_tb4_1 = {x[0]:x[1] for x in list_14t_col_detail_tb4_1 if x[2] 
 # dict_14t_colnames_tb4_1
 #%%### df_14t_piece_tb4_1: 'Project ID'.
 dict_14t_col_dtypes_tb4_1 = {x[0]:x[3] for x in list_14t_col_detail_tb4_1}
-print(dict_14t_col_dtypes_tb4_1)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_1.values())))
+# print(dict_14t_col_dtypes_tb4_1)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_1.values())))
 
 #######################
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
@@ -121,8 +123,8 @@ dict_14t_colnames_tb4_2 = {x[0]:x[1] for x in list_14t_col_detail_tb4_2 if x[2] 
 # dict_14t_colnames_tb4_2
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
 dict_14t_col_dtypes_tb4_2 = {x[0]:x[3] for x in list_14t_col_detail_tb4_2}
-print(dict_14t_col_dtypes_tb4_2)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_2.values())))
+# print(dict_14t_col_dtypes_tb4_2)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_2.values())))
 
 #######################
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
@@ -235,8 +237,8 @@ dict_14t_colnames_tb4_3 = {x[0]:x[1] for x in list_14t_col_detail_tb4_3 if x[2] 
 # dict_14t_colnames_tb4_3
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
 dict_14t_col_dtypes_tb4_3 = {x[0]:x[3] for x in list_14t_col_detail_tb4_3}
-print(dict_14t_col_dtypes_tb4_3)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_3.values())))
+# print(dict_14t_col_dtypes_tb4_3)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_3.values())))
 
 #######################
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
@@ -414,8 +416,8 @@ dict_14t_colnames_tb4_4 = {x[0]:x[1] for x in list_14t_col_detail_tb4_4 if x[2] 
 # dict_14t_colnames_tb4_4
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
 dict_14t_col_dtypes_tb4_4 = {x[0]:x[3] for x in list_14t_col_detail_tb4_4}
-print(dict_14t_col_dtypes_tb4_4)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_4.values())))
+# print(dict_14t_col_dtypes_tb4_4)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_4.values())))
 
 #######################
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
@@ -428,8 +430,8 @@ dict_14t_colnames_tb4_5 = {x[0]:x[1] for x in list_14t_col_detail_tb4_5 if x[2] 
 # dict_14t_colnames_tb4_5
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
 dict_14t_col_dtypes_tb4_5 = {x[0]:x[3] for x in list_14t_col_detail_tb4_5}
-print(dict_14t_col_dtypes_tb4_5)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_5.values())))
+# print(dict_14t_col_dtypes_tb4_5)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_5.values())))
 
 
 #%%##################################################
@@ -442,9 +444,15 @@ xlsx_14t_tb4 = pd.ExcelFile(path_14t_data_source_file_tb4)
 
 #%% 
 ### CHECK that all list_path_14t_data_source_sheets_tb4 same as xlsx.sheet_names (different order ok):
-print(sorted(list_path_14t_data_source_sheets_tb4))
-print(sorted(xlsx_14t_tb4.sheet_names))
-sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)
+# print(sorted(list_path_14t_data_source_sheets_tb4))
+# print(sorted(xlsx_14t_tb4.sheet_names))
+
+if (sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)): 
+    print('Passed Check that all Excel sheet names as expected.')
+else:
+    raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+print('____________\n')
 
 #%%###################################
 ### READ all sheets:
@@ -496,51 +504,53 @@ df_14t_piece_tb4_5 = df_14t_allstring_tb4_5.copy()
 
 #%%###################################
 ### df_14t_piece_tb4_1: 'Project ID'.
+print("Sheet 'Project ID':")
 df_14t_piece_tb4_1 = (
     df_14t_piece_tb4_1
-    ###.astype(dict_14t_col_dtypes_tb4_1)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_1)
 )
 # inspect_df(df_14t_piece_tb4_1)
 
 #%%###################################
 ### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+print("Sheet 'Caregiver Insurance':")
 df_14t_piece_tb4_2 = (
     df_14t_piece_tb4_2
-    ###.astype(dict_14t_col_dtypes_tb4_2)
-    .pipe(fn_print_fstring_and_return_df, 'Fixing date columns:')
-    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb4_2)
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb4_2) ### Fixing date columns.
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_2)
 )
 # inspect_df(df_14t_piece_tb4_2)
 
 #%%###################################
 ### df_14t_piece_tb4_3: 'Family Wise'.
+print("Sheet 'Family Wise':")
 df_14t_piece_tb4_3 = (
     df_14t_piece_tb4_3
-    ###.astype(dict_14t_col_dtypes_tb4_3)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_3)
 ) 
 # inspect_df(df_14t_piece_tb4_3)
 
 #%%###################################
 ### df_14t_piece_tb4_4: 'LLCHD'.
+print("Sheet 'LLCHD':")
 df_14t_piece_tb4_4 = (
     df_14t_piece_tb4_4
-    ###.astype(dict_14t_col_dtypes_tb4_4)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_4)
 )
 # inspect_df(df_14t_piece_tb4_4)
 
 #%%###################################
 ### df_14t_piece_tb4_5: 'MOB or FOB'.
+print("Sheet 'MOB or FOB':")
 df_14t_piece_tb4_5 = (
     df_14t_piece_tb4_5
-    ###.astype(dict_14t_col_dtypes_tb4_5)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_5)
 )
 # inspect_df(df_14t_piece_tb4_5)
 
+#%%###################################
+
+print('____________\n')
 
 #%%###################################
 
@@ -642,6 +652,7 @@ df_14t_piece_tb4_1
 ### Test
 len(df_14t_bf_ddup_tb4_1) - len(df_14t_piece_tb4_1) == len(df_14t_bf_ddup_tb4_1[df_14t_bf_ddup_tb4_1.duplicated()])
 #%%### df_14t_piece_tb4_1: 'Project ID'. 
+print('Project ID:')
 if (len(df_14t_bf_ddup_tb4_1) != len(df_14t_piece_tb4_1)):
     print(f'{len(df_14t_bf_ddup_tb4_1) - len(df_14t_piece_tb4_1)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_1) == len(df_14t_piece_tb4_1)):
@@ -668,6 +679,7 @@ df_14t_piece_tb4_2
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
 len(df_14t_bf_ddup_tb4_2) - len(df_14t_piece_tb4_2) == len(df_14t_bf_ddup_tb4_2[df_14t_bf_ddup_tb4_2.duplicated()])
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+print('Caregiver Insurance:')
 if (len(df_14t_bf_ddup_tb4_2) != len(df_14t_piece_tb4_2)):
     print(f'{len(df_14t_bf_ddup_tb4_2) - len(df_14t_piece_tb4_2)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_2) == len(df_14t_piece_tb4_2)):
@@ -694,6 +706,7 @@ df_14t_piece_tb4_3
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
 len(df_14t_bf_ddup_tb4_3) - len(df_14t_piece_tb4_3) == len(df_14t_bf_ddup_tb4_3[df_14t_bf_ddup_tb4_3.duplicated()])
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
+print('Family Wise:')
 if (len(df_14t_bf_ddup_tb4_3) != len(df_14t_piece_tb4_3)):
     print(f'{len(df_14t_bf_ddup_tb4_3) - len(df_14t_piece_tb4_3)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_3) == len(df_14t_piece_tb4_3)):
@@ -720,6 +733,7 @@ df_14t_piece_tb4_4
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
 len(df_14t_bf_ddup_tb4_4) - len(df_14t_piece_tb4_4) == len(df_14t_bf_ddup_tb4_4[df_14t_bf_ddup_tb4_4.duplicated()])
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
+print('LLCHD:')
 if (len(df_14t_bf_ddup_tb4_4) != len(df_14t_piece_tb4_4)):
     print(f'{len(df_14t_bf_ddup_tb4_4) - len(df_14t_piece_tb4_4)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_4) == len(df_14t_piece_tb4_4)):
@@ -746,6 +760,7 @@ df_14t_piece_tb4_5
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
 len(df_14t_bf_ddup_tb4_5) - len(df_14t_piece_tb4_5) == len(df_14t_bf_ddup_tb4_5[df_14t_bf_ddup_tb4_5.duplicated()])
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+print('MOB or FOB:')
 if (len(df_14t_bf_ddup_tb4_5) != len(df_14t_piece_tb4_5)):
     print(f'{len(df_14t_bf_ddup_tb4_5) - len(df_14t_piece_tb4_5)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_5) == len(df_14t_piece_tb4_5)):
@@ -757,6 +772,10 @@ else:
 ### join columns: ['join id (MOB or FOB)']
 ### Show rows where join columns are same BUT some other columns are not:
 df_14t_piece_tb4_5[df_14t_piece_tb4_5[['join id (MOB or FOB)']].duplicated(keep=False)]
+
+#######################
+print('____________\n')
+
 
 #%%##################################################
 ### JOIN ###
@@ -797,6 +816,9 @@ df_14t_base_tb4= (
         # ,validate='one_to_one'
     )
 ) 
+
+print(f'After join: df_14t_base_tb4 Rows: {len(df_14t_base_tb4)}')
+print('____________\n')
 
 
 ##################################################################################################
@@ -4037,17 +4059,17 @@ df_14t_edits1_tb4['_T17 Discharge Reason'] = df_14t_edits1_tb4.apply(func=fn_T17
 # inspect_col(df_14t_edits1_tb4['Discharge Dt']) 
 
 #%%
-print(df_14t_edits1_tb4[['source', 'Termination Date', 'Termination Status', 'Discharge Dt', 'Discharge Reason', '_T17 Discharge Reason']]
-    .assign(**{
-        'Termination Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Date'])), 'date', '.'))
-        # ,'Termination Status': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Status'])), 'st', '.'))
-        ,'Discharge Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Dt'])), 'date', '.'))
-        # ,'Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Reason'])), 'st', '.'))
-        # ,'_T17 Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_T17 Discharge Reason'])), 'st', '.'))
-    })
-    .drop_duplicates(ignore_index=True)
-    .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
-)
+# print(df_14t_edits1_tb4[['source', 'Termination Date', 'Termination Status', 'Discharge Dt', 'Discharge Reason', '_T17 Discharge Reason']]
+#     .assign(**{
+#         'Termination Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Date'])), 'date', '.'))
+#         # ,'Termination Status': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Status'])), 'st', '.'))
+#         ,'Discharge Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Dt'])), 'date', '.'))
+#         # ,'Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Reason'])), 'st', '.'))
+#         # ,'_T17 Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_T17 Discharge Reason'])), 'st', '.'))
+#     })
+#     .drop_duplicates(ignore_index=True)
+#     .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
+# )
 ### TODO ASKJOE: Ask about LL reason with no date.
 
 
@@ -4789,14 +4811,13 @@ df_14t_edits1_tb4['_T20 CG Insurance Status'] = df_14t_edits1_tb4.apply(func=fn_
 ### Across many variables.
 
 #%%
-# list_14t_unrecognized_values_tb4 = fn_find_unrecognized_value(df_14t_edits1_tb4)
-list_14t_unrecognized_values_tb4 = fn_find_unrecognized_value(df_14t_edits1_tb4.query(f'`Year` == 12 & `Quarter` == 4'))
+print(f'Columns that have "Unrecognized Value":')
+list_14t_unrecognized_values_tb4 = fn_find_value(df_14t_edits1_tb4.query(f'`Year` == {int_nehv_year} & `Quarter` == {int_nehv_quarter}'), if_print=True)
 
-#%%
-len(list_14t_unrecognized_values_tb4)
-#%%
-### Columns that have "Unrecognized Value":
-[x['col'] for x in list_14t_unrecognized_values_tb4]
+# #%%
+# len(list_14t_unrecognized_values_tb4)
+# #%%
+# print(f'Columns that have "Unrecognized Value":\n{[x['col'] for x in list_14t_unrecognized_values_tb4]}')
 
 #%%
 ### Look at one column:
@@ -4810,6 +4831,7 @@ len(list_14t_unrecognized_values_tb4)
 
 ### !TESTRUNHERE!
 
+print('____________\n')
 
 
 #%%##################################################

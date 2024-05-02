@@ -17,7 +17,8 @@
 
 ### 2. Update this RUNME file's key values:
     ### 2.1 Below, make a new line for object "str_nehv_quarter" & set to the same text name of the new quarter used for folders above.
-    ### 2.2 Update Federal Poverty Guidelines:
+    ### 2.2 Update "int_nehv_quarter" & "int_nehv_year" to match new quarter.
+    ### 2.3 Update Federal Poverty Guidelines:
         ### If new quarter is in the same calendar year as last quarter, add quarter's name to the "str_nehv_quarter in (...)" clause.
         ### If new quarter is in a new calendar year, copy the previous year's code chunk & adapt it:
             ### Find the new year's "int_fpg_base" & "int_fpg_increment" values here:
@@ -113,11 +114,17 @@ from packages_and_functions import *
 #str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
 str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
 
+int_nehv_year = 13 
+
+# int_nehv_quarter = 1 
+int_nehv_quarter = 2 
+
 # # date_fy_start = pd.Timestamp("2022-10-01")
 # # date_fy_end = pd.Timestamp("2023-09-30")
 # date_fy_start = pd.Timestamp("2023-10-01")
 # date_fy_end = pd.Timestamp("2024-09-30")
 
+bool_14t_deduplicate = True  
 
 #%%########################
 ### Federal Poverty Guidelines

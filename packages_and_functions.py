@@ -186,7 +186,7 @@ def fn_find_unrecognized_value(fdf):
     print(fn_list)
     return fn_list 
 
-def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='mandatory', list_of_other_vars=[None]):
+def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='Project Id', list_of_other_vars=[None], if_print=False, if_print_dfs=False):
     if (list_of_other_vars[0] is None):
         vars_to_select = [one_id_var]
     else:
@@ -202,7 +202,15 @@ def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='mandatory
                 ,'col_row_ids': fdf.query(f'`{col}` == @value_to_find')[one_id_var].tolist() 
                 ,'col_df': fdf[vars_to_select + [col]].query(f'`{col}` == @value_to_find') 
             }) 
-    print(fn_list)
+    ####
+    if (if_print):
+        for list_index, col in enumerate(fn_list):
+            print({k: fn_list[list_index][k] for k in fn_list[list_index] if k != 'col_df'})
+    ####
+    if (if_print_dfs):
+        for list_index, col in enumerate(fn_list):
+            print(fn_list[list_index]['col_df'])
+    ####
     return fn_list 
 
 def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_to_find=['Unrecognized Value'], replacement_value=pd.NA):
