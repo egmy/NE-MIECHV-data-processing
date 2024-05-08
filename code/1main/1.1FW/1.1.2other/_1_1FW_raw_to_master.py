@@ -430,14 +430,14 @@ xlsx_11FW_input_ref_excl = pd.ExcelFile(path_11FW_input_ref_excl)
 ### READ in all sheets as strings.
 
 ### Read in EVERYTHING as a string WITH pd.NA for empty cells:
-df_11FW_allstring_1 = pd.read_excel(xlsx_11FW_input_well_child, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_1)
-df_11FW_allstring_2 = pd.read_excel(xlsx_11FW_input_child_injury, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_2)
-df_11FW_allstring_3 = pd.read_excel(xlsx_11FW_input_cg_ins, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_3)
-df_11FW_allstring_4 = pd.read_excel(xlsx_11FW_input_adult_act, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_4)
-df_11FW_allstring_5 = pd.read_excel(xlsx_11FW_input_child_act, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_5)
-df_11FW_allstring_6 = pd.read_excel(xlsx_11FW_input_adult_uncope, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_6)
-df_11FW_allstring_7 = pd.read_excel(xlsx_11FW_input_home_visit, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_7)
-df_11FW_allstring_8 = pd.read_excel(xlsx_11FW_input_ref_excl, keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_11FW_col_dtypes_8)
+df_11FW_allstring_1 = pd.read_excel(xlsx_11FW_input_well_child, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_1)
+df_11FW_allstring_2 = pd.read_excel(xlsx_11FW_input_child_injury, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_2)
+df_11FW_allstring_3 = pd.read_excel(xlsx_11FW_input_cg_ins, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_3)
+df_11FW_allstring_4 = pd.read_excel(xlsx_11FW_input_adult_act, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_4)
+df_11FW_allstring_5 = pd.read_excel(xlsx_11FW_input_child_act, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_5)
+df_11FW_allstring_6 = pd.read_excel(xlsx_11FW_input_adult_uncope, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_6)
+df_11FW_allstring_7 = pd.read_excel(xlsx_11FW_input_home_visit, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_7)
+df_11FW_allstring_8 = pd.read_excel(xlsx_11FW_input_ref_excl, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_8)
 #%%##############################################!>>>
 ### >>> CLEAN 
 #####################################################

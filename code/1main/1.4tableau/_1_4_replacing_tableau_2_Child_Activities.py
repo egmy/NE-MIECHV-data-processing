@@ -24,8 +24,10 @@ if (os.path.basename(__file__) == '_1_4_replacing_tableau_2_Child_Activities.py'
 else:
     print("Did NOT run RUNME again... because it's already running!")
 
+print('____________\n')
+
 #%%
-bool_14t_deduplicate_tb2 = False
+bool_14t_deduplicate_tb2 = bool_14t_deduplicate  
 
 #%%##################################################
 ### Comparison File ###
@@ -33,7 +35,7 @@ bool_14t_deduplicate_tb2 = False
 
 ### As of Y13Q1, there is no comparison file because we are only using this python code!
 
-### df_14t_comparison_csv_tb2 = pd.read_csv(path_14t_comparison_csv_tb2, dtype=object, keep_default_na=False, na_values=[''])
+### df_14t_comparison_csv_tb2 = pd.read_csv(path_14t_comparison_csv_tb2, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 ### print(f'df_14t_comparison_csv_tb2 Rows: {len(df_14t_comparison_csv_tb2)}')
 
 ### #%%
@@ -63,8 +65,8 @@ dict_14t_colnames_tb2_1 = {x[0]:x[1] for x in list_14t_col_detail_tb2_1 if x[2] 
 # dict_14t_colnames_tb2_1
 #%%### df_14t_piece_tb2_1: 'Project ID'.
 dict_14t_col_dtypes_tb2_1 = {x[0]:x[3] for x in list_14t_col_detail_tb2_1}
-print(dict_14t_col_dtypes_tb2_1)
-print(collections.Counter(list(dict_14t_col_dtypes_tb2_1.values())))
+# print(dict_14t_col_dtypes_tb2_1)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb2_1.values())))
 
 #######################
 #%%### df_14t_piece_tb2_2: 'ER Injury'.
@@ -84,8 +86,8 @@ dict_14t_colnames_tb2_2 = {x[0]:x[1] for x in list_14t_col_detail_tb2_2 if x[2] 
 # dict_14t_colnames_tb2_2
 #%%### df_14t_piece_tb2_2: 'ER Injury'.
 dict_14t_col_dtypes_tb2_2 = {x[0]:x[3] for x in list_14t_col_detail_tb2_2}
-print(dict_14t_col_dtypes_tb2_2)
-print(collections.Counter(list(dict_14t_col_dtypes_tb2_2.values())))
+# print(dict_14t_col_dtypes_tb2_2)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb2_2.values())))
 
 #######################
 #%%### df_14t_piece_tb2_3: 'Family Wise'.
@@ -190,8 +192,8 @@ dict_14t_colnames_tb2_3 = {x[0]:x[1] for x in list_14t_col_detail_tb2_3 if x[2] 
 # dict_14t_colnames_tb2_3
 #%%### df_14t_piece_tb2_3: 'Family Wise'.
 dict_14t_col_dtypes_tb2_3 = {x[0]:x[3] for x in list_14t_col_detail_tb2_3}
-print(dict_14t_col_dtypes_tb2_3)
-print(collections.Counter(list(dict_14t_col_dtypes_tb2_3.values())))
+# print(dict_14t_col_dtypes_tb2_3)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb2_3.values())))
 
 #######################
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
@@ -369,8 +371,8 @@ dict_14t_colnames_tb2_4 = {x[0]:x[1] for x in list_14t_col_detail_tb2_4 if x[2] 
 # dict_14t_colnames_tb2_4
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
 dict_14t_col_dtypes_tb2_4 = {x[0]:x[3] for x in list_14t_col_detail_tb2_4}
-print(dict_14t_col_dtypes_tb2_4)
-print(collections.Counter(list(dict_14t_col_dtypes_tb2_4.values())))
+# print(dict_14t_col_dtypes_tb2_4)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb2_4.values())))
 
 #######################
 #%%### df_14t_piece_tb2_5: 'Well Child'.
@@ -414,8 +416,8 @@ dict_14t_colnames_tb2_5 = {x[0]:x[1] for x in list_14t_col_detail_tb2_5 if x[2] 
 # dict_14t_colnames_tb2_5
 #%%### df_14t_piece_tb2_5: 'Well Child'.
 dict_14t_col_dtypes_tb2_5 = {x[0]:x[3] for x in list_14t_col_detail_tb2_5}
-print(dict_14t_col_dtypes_tb2_5)
-print(collections.Counter(list(dict_14t_col_dtypes_tb2_5.values())))
+# print(dict_14t_col_dtypes_tb2_5)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb2_5.values())))
 
 
 #%%##################################################
@@ -428,27 +430,33 @@ xlsx_14t_tb2 = pd.ExcelFile(path_14t_data_source_file_tb2)
 
 #%% 
 ### CHECK that all list_path_14t_data_source_sheets_tb2 same as xlsx.sheet_names (different order ok):
-print(sorted(list_path_14t_data_source_sheets_tb2))
-print([x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File'])
-sorted(list_path_14t_data_source_sheets_tb2) == [x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File']
+# print(sorted(list_path_14t_data_source_sheets_tb2))
+# print([x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File'])
+
+if (sorted(list_path_14t_data_source_sheets_tb2) == [x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File']): 
+    print('Passed Check that all Excel sheet names as expected.')
+else:
+    raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+print('____________\n')
 
 #%%
 ### READ all sheets:
-# df_14t_piece_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb2_1)
-# df_14t_piece_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb2_2)
-# df_14t_piece_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=[''], dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=dict_14t_col_dtypes_tb2_3) ### object not string because code can't handle NA's until end.
-# df_14t_piece_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=[''], dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=dict_14t_col_dtypes_tb2_4)
-# df_14t_piece_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb2_5)
+# df_14t_piece_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb2_1)
+# df_14t_piece_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb2_2)
+# df_14t_piece_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=list_na_values_to_read, dtype={'BreastFeeding':'string', 'ReadTellStorySing':'string'})#, dtype=dict_14t_col_dtypes_tb2_3) ### object not string because code can't handle NA's until end.
+# df_14t_piece_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=list_na_values_to_read, dtype={'asq3_referral_9mm': 'datetime64[ns]'})#, dtype=dict_14t_col_dtypes_tb2_4)
+# df_14t_piece_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb2_5)
 
 #%%###################################
 ### READ in all sheets as strings.
 
 ### To read in EVERYTHING as a string WITH NA:
-df_14t_allstring_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_1)
-df_14t_allstring_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_2)
-df_14t_allstring_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_3)
-df_14t_allstring_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_4)
-df_14t_allstring_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb2_5)
+df_14t_allstring_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_1)
+df_14t_allstring_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_2)
+df_14t_allstring_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_3)
+df_14t_allstring_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_4)
+df_14t_allstring_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_5)
 
 df_14t_piece_tb2_1 = df_14t_allstring_tb2_1.copy()
 df_14t_piece_tb2_2 = df_14t_allstring_tb2_2.copy()
@@ -463,33 +471,42 @@ df_14t_piece_tb2_5 = df_14t_allstring_tb2_5.copy()
 
 #%%###################################
 ### df_14t_piece_tb2_1: 'Project ID'.
+print("Sheet 'Project ID':")
 df_14t_piece_tb2_1 = (
     df_14t_piece_tb2_1
-    ###.astype(dict_14t_col_dtypes_tb2_1)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_1)
 )
 # inspect_df(df_14t_piece_tb2_1)
 
 #%%###################################
-### df_14t_piece_tb2_2: 'Caregiver Insurance'.
+### df_14t_piece_tb2_2: 'ER Injury'.
+print("Sheet 'ER Injury':")
 df_14t_piece_tb2_2 = (
     df_14t_piece_tb2_2
-    ###.astype(dict_14t_col_dtypes_tb2_2)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_2)
 )
 # inspect_df(df_14t_piece_tb2_2)
 
 #%%###################################
 ### df_14t_piece_tb2_3: 'Family Wise'.
+print("Sheet 'Family Wise':")
 df_14t_piece_tb2_3 = (
     df_14t_piece_tb2_3
-    ###.astype(dict_14t_col_dtypes_tb2_3)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_3)
 ) 
 # inspect_df(df_14t_piece_tb2_3)
 
+### Expected column errors:
+
+### Y13Q2:
+### TGTInsureChangeDate reading in wrong does not seem to affect it & not used in either report.
+# Error for column:  TGTInsureChangeDate
+# Attempted dtype:  datetime64[ns]
+# unconverted data remains when parsing with format "%Y-%m-%d %H:%M:%S": ".540000", at position 43. You might want to try:
+
 #%%###################################
 ### df_14t_piece_tb2_4: 'LLCHD'.
+print("Sheet 'LLCHD':")
 df_14t_piece_tb2_4 = (
     df_14t_piece_tb2_4
     ###.astype(dict_14t_col_dtypes_tb2_4)
@@ -497,15 +514,27 @@ df_14t_piece_tb2_4 = (
 )
 # inspect_df(df_14t_piece_tb2_4)
 
+### Expected column errors:
+
+### Y13Q2:
+### fob_living_arrangement_dt reading in wrong does not seem to affect it & not used in either report.
+# Error for column:  fob_living_arrangement_dt
+# Attempted dtype:  datetime64[ns]
+# unconverted data remains when parsing with format "%Y-%m-%d %H:%M:%S": ".253000000", at position 104. You might want to try:
+
 #%%###################################
-### df_14t_piece_tb2_5: 'MOB or FOB'.
+### df_14t_piece_tb2_5: 'Well Child'.
+print("Sheet 'Well Child':")
 df_14t_piece_tb2_5 = (
     df_14t_piece_tb2_5
-    ###.astype(dict_14t_col_dtypes_tb2_5)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_5)
 )
 # inspect_df(df_14t_piece_tb2_5)
 
+
+#%%###################################
+
+print('____________\n')
 
 #%%###################################
 ### Review each sheet:
@@ -599,6 +628,7 @@ df_14t_piece_tb2_1
 ### Test
 len(df_14t_bf_ddup_tb2_1) - len(df_14t_piece_tb2_1) == len(df_14t_bf_ddup_tb2_1[df_14t_bf_ddup_tb2_1.duplicated()])
 #%%### df_14t_piece_tb2_1: 'Project ID'. 
+print('Project ID:')
 if (len(df_14t_bf_ddup_tb2_1) != len(df_14t_piece_tb2_1)):
     print(f'{len(df_14t_bf_ddup_tb2_1) - len(df_14t_piece_tb2_1)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb2_1) == len(df_14t_piece_tb2_1)):
@@ -626,6 +656,7 @@ df_14t_piece_tb2_2
 #%%### df_14t_piece_tb2_2: 'ER Injury'.
 len(df_14t_bf_ddup_tb2_2) - len(df_14t_piece_tb2_2) == len(df_14t_bf_ddup_tb2_2[df_14t_bf_ddup_tb2_2.duplicated()])
 #%%### df_14t_piece_tb2_2: 'ER Injury'.
+print('ER Injury:')
 if (len(df_14t_bf_ddup_tb2_2) != len(df_14t_piece_tb2_2)):
     print(f'{len(df_14t_bf_ddup_tb2_2) - len(df_14t_piece_tb2_2)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb2_2) == len(df_14t_piece_tb2_2)):
@@ -653,6 +684,7 @@ df_14t_piece_tb2_3
 #%%### df_14t_piece_tb2_3: 'Family Wise'.
 len(df_14t_bf_ddup_tb2_3) - len(df_14t_piece_tb2_3) == len(df_14t_bf_ddup_tb2_3[df_14t_bf_ddup_tb2_3.duplicated()])
 #%%### df_14t_piece_tb2_3: 'Family Wise'.
+print('Family Wise:')
 if (len(df_14t_bf_ddup_tb2_3) != len(df_14t_piece_tb2_3)):
     print(f'{len(df_14t_bf_ddup_tb2_3) - len(df_14t_piece_tb2_3)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb2_3) == len(df_14t_piece_tb2_3)):
@@ -668,8 +700,8 @@ df_14t_piece_tb2_3[df_14t_piece_tb2_3[cols_14t_forJoin_tb2_3].duplicated(keep=Fa
 
 #%%
 TESTdf_14t_piece_tb2_3 = df_14t_piece_tb2_3[df_14t_piece_tb2_3[cols_14t_forJoin_tb2_3].duplicated(keep=False)]
-print([col for col in [col for col in [*TESTdf_14t_piece_tb2_3] if col not in cols_14t_forJoin_tb2_3] if (len(TESTdf_14t_piece_tb2_3.loc[TESTdf_14t_piece_tb2_3.index[0:2], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb2_3] if col not in cols_14t_forJoin_tb2_3] if (len(TESTdf_14t_piece_tb2_3.loc[TESTdf_14t_piece_tb2_3.index[2:4], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb2_3] if col not in cols_14t_forJoin_tb2_3] if (len(TESTdf_14t_piece_tb2_3.loc[TESTdf_14t_piece_tb2_3.index[0:2], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb2_3] if col not in cols_14t_forJoin_tb2_3] if (len(TESTdf_14t_piece_tb2_3.loc[TESTdf_14t_piece_tb2_3.index[2:4], col].value_counts(dropna=False)) != 1)])
 
 #%%
 TESTdf_14t_piece_tb2_3.loc[TESTdf_14t_piece_tb2_3.index[0:2], cols_14t_forJoin_tb2_3 + [col for col in [col for col in [*TESTdf_14t_piece_tb2_3] if col not in cols_14t_forJoin_tb2_3] if (len(TESTdf_14t_piece_tb2_3.loc[TESTdf_14t_piece_tb2_3.index[0:2], col].value_counts(dropna=False)) != 1)]]
@@ -691,6 +723,7 @@ df_14t_piece_tb2_4
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
 len(df_14t_bf_ddup_tb2_4) - len(df_14t_piece_tb2_4) == len(df_14t_bf_ddup_tb2_4[df_14t_bf_ddup_tb2_4.duplicated()])
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
+print('LLCHD:')
 if (len(df_14t_bf_ddup_tb2_4) != len(df_14t_piece_tb2_4)):
     print(f'{len(df_14t_bf_ddup_tb2_4) - len(df_14t_piece_tb2_4)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb2_4) == len(df_14t_piece_tb2_4)):
@@ -717,6 +750,7 @@ df_14t_piece_tb2_5
 #%%### df_14t_piece_tb2_5: 'Well Child'.
 len(df_14t_bf_ddup_tb2_5) - len(df_14t_piece_tb2_5) == len(df_14t_bf_ddup_tb2_5[df_14t_bf_ddup_tb2_5.duplicated()])
 #%%### df_14t_piece_tb2_5: 'Well Child'.
+print('Well Child:')
 if (len(df_14t_bf_ddup_tb2_5) != len(df_14t_piece_tb2_5)):
     print(f'{len(df_14t_bf_ddup_tb2_5) - len(df_14t_piece_tb2_5)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb2_5) == len(df_14t_piece_tb2_5)):
@@ -728,6 +762,10 @@ else:
 ### join columns: ['Project ID1','year (Well Child)','quarter (Well Child)'] 
 ### Show rows where join columns are same BUT some other columns are not:
 df_14t_piece_tb2_5[df_14t_piece_tb2_5[['Project ID1','year (Well Child)','quarter (Well Child)']].duplicated(keep=False)]
+
+#######################
+print('____________\n')
+
 
 #%%##################################################
 ### JOIN ###
@@ -804,6 +842,9 @@ df_14t_base_tb2 = (
         ### ,validate='one_to_many'
     )
 )
+
+print(f'After join: df_14t_base_tb2 Rows: {len(df_14t_base_tb2)}')
+print('____________\n')
 
 ### Note: FW & LLCHD are created first.
 ### There could be duplicates in the FW table.
@@ -1258,30 +1299,32 @@ df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Sa
 ### Check FW:
 # print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
 # print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
+
 #%%
-print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
-# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
-# print(df_14t_edits1_tb2[['source', '_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
-# print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
-    .assign(**{
-        # 'Safe Sleep Yes': lambda df: pd.isna(df['Safe Sleep Yes'])
-        # ,'Safe Sleep Yes Dt': lambda df: pd.isna(df['Safe Sleep Yes Dt'])
-        # ,'Safe Sleep Date': lambda df: pd.isna(df['Safe Sleep Date'])
-        # ,'Safe Sleep Partial Date': lambda df: pd.isna(df['Safe Sleep Partial Date'])
-        # ,'_C7 Safe Sleep Partial Date': lambda df: pd.isna(df['_C7 Safe Sleep Partial Date'])
-        # ,'_C7 Safe Sleep Date': lambda df: pd.isna(df['_C7 Safe Sleep Date'])
-        ###
-        # '_Agency': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: df['_Agency'] == 'll'), 'll', 'fw'))
-        'Safe Sleep Yes': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes'])), 'Y', '.'))
-        ,'Safe Sleep Yes Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes Dt'])), 'date', '.'))
-        ,'Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Date'])), 'date', '.'))
-        ,'Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Partial Date'])), 'date', '.'))
-        ,'_C7 Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Partial Date'])), 'date', '.'))
-        ,'_C7 Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Date'])), 'date', '.'))
-    })
-    .drop_duplicates(ignore_index=True)
-    .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
-)
+# print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
+# # print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
+# # print(df_14t_edits1_tb2[['source', '_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
+# # print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
+#     .assign(**{
+#         # 'Safe Sleep Yes': lambda df: pd.isna(df['Safe Sleep Yes'])
+#         # ,'Safe Sleep Yes Dt': lambda df: pd.isna(df['Safe Sleep Yes Dt'])
+#         # ,'Safe Sleep Date': lambda df: pd.isna(df['Safe Sleep Date'])
+#         # ,'Safe Sleep Partial Date': lambda df: pd.isna(df['Safe Sleep Partial Date'])
+#         # ,'_C7 Safe Sleep Partial Date': lambda df: pd.isna(df['_C7 Safe Sleep Partial Date'])
+#         # ,'_C7 Safe Sleep Date': lambda df: pd.isna(df['_C7 Safe Sleep Date'])
+#         ###
+#         # '_Agency': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: df['_Agency'] == 'll'), 'll', 'fw'))
+#         'Safe Sleep Yes': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes'])), 'Y', '.'))
+#         ,'Safe Sleep Yes Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes Dt'])), 'date', '.'))
+#         ,'Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Date'])), 'date', '.'))
+#         ,'Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Partial Date'])), 'date', '.'))
+#         ,'_C7 Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Partial Date'])), 'date', '.'))
+#         ,'_C7 Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Date'])), 'date', '.'))
+#     })
+#     .drop_duplicates(ignore_index=True)
+#     .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
+# )
+
 ### RESOLVED: Discuss what logic is needed. NOTE: "partial date" is BOTH yes & no, it seems.
 #### Decision: 12/21/23: 
     ### LL: yes: = Y+date, no= NULL+date, missingg = both NULL
@@ -2615,14 +2658,13 @@ df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_fir
 ### Across many variables.
 
 #%%
-# list_14t_unrecognized_values_tb2 = fn_find_unrecognized_value(df_14t_edits1_tb2)
-list_14t_unrecognized_values_tb2 = fn_find_unrecognized_value(df_14t_edits1_tb2.query(f'`Year` == 12 & `Quarter` == 4'))
+print(f'Columns that have "Unrecognized Value":')
+list_14t_unrecognized_values_tb2 = fn_find_value(df_14t_edits1_tb2.query(f'`Year` == {int_nehv_year} & `Quarter` == {int_nehv_quarter}'), if_print=True)
 
-#%%
-len(list_14t_unrecognized_values_tb2)
-#%%
-### Columns that have "Unrecognized Value":
-[x['col'] for x in list_14t_unrecognized_values_tb2]
+# #%%
+# len(list_14t_unrecognized_values_tb2)
+# #%%
+# print(f'Columns that have "Unrecognized Value":\n{[x['col'] for x in list_14t_unrecognized_values_tb2]}')
 
 #%%
 ### Look at one column:
@@ -2637,6 +2679,8 @@ len(list_14t_unrecognized_values_tb2)
 # [x for x in list_14t_unrecognized_values_tb2 if x["col"] == '_T1 Tgt Gender'] 
 
 ### !TESTRUNHERE!
+
+print('____________\n')
 
 
 #%%##################################################
@@ -2696,7 +2740,7 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 
 # #%%
 # ### Read back in df for comparison.
-# df_14t__final_from_csv_tb2 = pd.read_csv(path_14t_output_tb2, dtype=object, keep_default_na=False, na_values=[''])
+# df_14t__final_from_csv_tb2 = pd.read_csv(path_14t_output_tb2, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 
 # #%%##################################################
 # ### COMPARE CSVs ###
@@ -2933,10 +2977,6 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 ### Consolidate long match-case statements with "|" (or) case statements.
 
 
-#%%
-### END Child2! SUCCESS!
-
-
 # %%
 
 
@@ -2950,4 +2990,8 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 
 
 
-# %%
+
+#%%
+### END Child2! SUCCESS!
+print('END Child2! SUCCESS!')
+

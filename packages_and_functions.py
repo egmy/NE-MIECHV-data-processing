@@ -19,6 +19,14 @@ print('Version Of Numpy: ' + np.version.version)
 ### From 1.2LL:
 from pandas.testing import assert_frame_equal
 
+
+#%%##################################################
+### KEY VALUES ###
+#####################################################
+
+list_na_values_to_read = ['', ' ']
+
+
 #%%##################################################
 ### UTILITY FUNCTIONS ###
 #####################################################
@@ -113,6 +121,8 @@ def fn_apply_dtypes(fdf, dict_col_dtypes):
             try:
                 fdf[column] = pd.to_datetime(fdf[column])
                 ### Because .astype() cannot handle a 'string' dtype with multiple date formats, but .to_datetime() can!
+                ### Well, actually, there are some limitations: If the formats are too different, even pd.to_datetime() can't reconcile them.
+                ### Adding argument `format='mixed'` might help (looks at each cell individually), but could cause problem if month & day are not consistently in order across the varying formats.
             except Exception as e:
                 print('Error for column: ', column)
                 print('Attempted dtype: ', dict_col_dtypes[column])
@@ -146,6 +156,22 @@ def fn_apply_dtypes(fdf, dict_col_dtypes):
     print(f'Data types changed to dictionary specifications.')
     return fdf 
 
+### Function designed to turn a Pandas DataFrame whose columns are all dtype 'string' into dtypes specified in a dictionary.
+def fn_fix_mixed_date_dtypes(fdf, dict_col_dtypes):
+    for column in fdf.columns:
+        if (dict_col_dtypes[column] == 'datetime64[ns]'):
+            try:
+                fdf[column] = pd.to_datetime(fdf[column], format='mixed')
+                ### Because .astype() cannot handle a 'string' dtype with multiple date formats, but .to_datetime() can!
+                ### Well, actually, there are some limitations: If the formats are too different, even pd.to_datetime() can't reconcile them.
+                ### Adding argument `format='mixed'` might help (looks at each cell individually), but could cause problem if month & day are not consistently in order across the varying formats.
+            except Exception as e:
+                print('Error for column: ', column)
+                print('Attempted dtype: ', dict_col_dtypes[column])
+                print(e, '\n')
+    print(f"Date columns changed with `format='mixed'`. Each cell is considered separately & it is assumed that month comes first before day (e.g., 3/4/24 is in March).")
+    return fdf 
+
 def fn_find_unrecognized_value(fdf):
     fn_list = []
     for col_index, col in enumerate(fdf.columns):
@@ -160,7 +186,7 @@ def fn_find_unrecognized_value(fdf):
     print(fn_list)
     return fn_list 
 
-def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='mandatory', list_of_other_vars=[None]):
+def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='Project Id', list_of_other_vars=[None], if_print=False, if_print_dfs=False):
     if (list_of_other_vars[0] is None):
         vars_to_select = [one_id_var]
     else:
@@ -176,7 +202,15 @@ def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='mandatory
                 ,'col_row_ids': fdf.query(f'`{col}` == @value_to_find')[one_id_var].tolist() 
                 ,'col_df': fdf[vars_to_select + [col]].query(f'`{col}` == @value_to_find') 
             }) 
-    print(fn_list)
+    ####
+    if (if_print):
+        for list_index, col in enumerate(fn_list):
+            print({k: fn_list[list_index][k] for k in fn_list[list_index] if k != 'col_df'})
+    ####
+    if (if_print_dfs):
+        for list_index, col in enumerate(fn_list):
+            print(fn_list[list_index]['col_df'])
+    ####
     return fn_list 
 
 def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_to_find=['Unrecognized Value'], replacement_value=pd.NA):

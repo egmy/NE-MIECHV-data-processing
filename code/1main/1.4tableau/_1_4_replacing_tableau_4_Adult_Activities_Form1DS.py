@@ -24,8 +24,10 @@ if (os.path.basename(__file__) == '_1_4_replacing_tableau_4_Adult_Activities_For
 else:
     print("Did NOT run RUNME again... because it's already running!")
 
+print('____________\n')
+
 #%%
-bool_14t_deduplicate_tb4 = False
+bool_14t_deduplicate_tb4 = bool_14t_deduplicate  
 
 #%%##################################################
 ### Comparison File ###
@@ -33,8 +35,8 @@ bool_14t_deduplicate_tb4 = False
 
 ### As of Y13Q1, there is no comparison file because we are only using this python code!
 
-### # df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='string', keep_default_na=False, na_values=[''])
-### df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='object', keep_default_na=False, na_values=[''])
+### # df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='string', keep_default_na=False, na_values=list_na_values_to_read)
+### df_14t_comparison_csv_tb4 = pd.read_csv(path_14t_comparison_csv_tb4, dtype='object', keep_default_na=False, na_values=list_na_values_to_read)
 ### print(f'df_14t_comparison_csv_tb4 Rows: {len(df_14t_comparison_csv_tb4)}')
 
 ### #%%
@@ -70,8 +72,8 @@ dict_14t_colnames_tb4_1 = {x[0]:x[1] for x in list_14t_col_detail_tb4_1 if x[2] 
 # dict_14t_colnames_tb4_1
 #%%### df_14t_piece_tb4_1: 'Project ID'.
 dict_14t_col_dtypes_tb4_1 = {x[0]:x[3] for x in list_14t_col_detail_tb4_1}
-print(dict_14t_col_dtypes_tb4_1)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_1.values())))
+# print(dict_14t_col_dtypes_tb4_1)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_1.values())))
 
 #######################
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
@@ -121,8 +123,8 @@ dict_14t_colnames_tb4_2 = {x[0]:x[1] for x in list_14t_col_detail_tb4_2 if x[2] 
 # dict_14t_colnames_tb4_2
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
 dict_14t_col_dtypes_tb4_2 = {x[0]:x[3] for x in list_14t_col_detail_tb4_2}
-print(dict_14t_col_dtypes_tb4_2)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_2.values())))
+# print(dict_14t_col_dtypes_tb4_2)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_2.values())))
 
 #######################
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
@@ -235,8 +237,8 @@ dict_14t_colnames_tb4_3 = {x[0]:x[1] for x in list_14t_col_detail_tb4_3 if x[2] 
 # dict_14t_colnames_tb4_3
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
 dict_14t_col_dtypes_tb4_3 = {x[0]:x[3] for x in list_14t_col_detail_tb4_3}
-print(dict_14t_col_dtypes_tb4_3)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_3.values())))
+# print(dict_14t_col_dtypes_tb4_3)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_3.values())))
 
 #######################
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
@@ -308,7 +310,7 @@ list_14t_col_detail_tb4_4 = [
     ['fob_living_arrangement', 'Fob Living Arrangement', '', 'Int64'],
     ['fob_living_arrangement_dt', 'Fob Living Arrangement Dt', '', 'datetime64[ns]'],
     ['fob_edu_dt', 'Fob Edu Dt', '', 'datetime64[ns]'],
-    ['fob_edu', 'Fob Edu', '', 'string'], ### In Tableau Y12Q2 is integer, but should be string.
+    ['fob_edu', 'Fob Edu', '', 'string'], 
     ['fob_employ_dt', 'Fob Employ Dt', '', 'datetime64[ns]'],
     ['fob_employ', 'Fob Employ', '', 'Int64'],
     ['fob_involved', 'Fob Involved1', '', 'string'],
@@ -414,8 +416,8 @@ dict_14t_colnames_tb4_4 = {x[0]:x[1] for x in list_14t_col_detail_tb4_4 if x[2] 
 # dict_14t_colnames_tb4_4
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
 dict_14t_col_dtypes_tb4_4 = {x[0]:x[3] for x in list_14t_col_detail_tb4_4}
-print(dict_14t_col_dtypes_tb4_4)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_4.values())))
+# print(dict_14t_col_dtypes_tb4_4)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_4.values())))
 
 #######################
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
@@ -428,8 +430,8 @@ dict_14t_colnames_tb4_5 = {x[0]:x[1] for x in list_14t_col_detail_tb4_5 if x[2] 
 # dict_14t_colnames_tb4_5
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
 dict_14t_col_dtypes_tb4_5 = {x[0]:x[3] for x in list_14t_col_detail_tb4_5}
-print(dict_14t_col_dtypes_tb4_5)
-print(collections.Counter(list(dict_14t_col_dtypes_tb4_5.values())))
+# print(dict_14t_col_dtypes_tb4_5)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb4_5.values())))
 
 
 #%%##################################################
@@ -442,29 +444,35 @@ xlsx_14t_tb4 = pd.ExcelFile(path_14t_data_source_file_tb4)
 
 #%% 
 ### CHECK that all list_path_14t_data_source_sheets_tb4 same as xlsx.sheet_names (different order ok):
-print(sorted(list_path_14t_data_source_sheets_tb4))
-print(sorted(xlsx_14t_tb4.sheet_names))
-sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)
+# print(sorted(list_path_14t_data_source_sheets_tb4))
+# print(sorted(xlsx_14t_tb4.sheet_names))
+
+if (sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)): 
+    print('Passed Check that all Excel sheet names as expected.')
+else:
+    raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+print('____________\n')
 
 #%%###################################
 ### READ all sheets:
 
-# df_14t_piece_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_1)
+# df_14t_piece_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_1)
 
 # #%%
-# df_14t_piece_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_2)
+# df_14t_piece_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_2)
 # ### ValueError: Unable to convert column AD1InsChangeDate.9 to type datetime64[ns].
 
 # #%%
-# df_14t_piece_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_3)
+# df_14t_piece_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_3)
 # ### ValueError: False cannot be cast to bool.
 
 # #%%
-# df_14t_piece_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_4)
+# df_14t_piece_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_4)
 # ### ValueError: Unable to parse string "HS Grad" at position 0.
 
 # #%%
-# df_14t_piece_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=[''], dtype=dict_14t_col_dtypes_tb4_5)
+# df_14t_piece_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=list_na_values_to_read, dtype=dict_14t_col_dtypes_tb4_5)
 
 #%%###################################
 ### READ in all sheets as strings.
@@ -477,11 +485,11 @@ sorted(list_path_14t_data_source_sheets_tb4) == sorted(xlsx_14t_tb4.sheet_names)
 ### df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], na_filter=False, keep_default_na=False, dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
 
 ### To read in EVERYTHING as a string WITH NA:
-df_14t_allstring_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_1)
-df_14t_allstring_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_2)
-df_14t_allstring_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_3)
-df_14t_allstring_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_4)
-df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
+df_14t_allstring_tb4_1 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_1)
+df_14t_allstring_tb4_2 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_2)
+df_14t_allstring_tb4_3 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_3)
+df_14t_allstring_tb4_4 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_4)
+df_14t_allstring_tb4_5 = pd.read_excel(xlsx_14t_tb4, sheet_name=list_path_14t_data_source_sheets_tb4[4], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb4_5)
 
 df_14t_piece_tb4_1 = df_14t_allstring_tb4_1.copy()
 df_14t_piece_tb4_2 = df_14t_allstring_tb4_2.copy()
@@ -494,143 +502,55 @@ df_14t_piece_tb4_5 = df_14t_allstring_tb4_5.copy()
 ### CLEAN ###
 #####################################################
 
-# def fn_try_astype(fdf, dict_col_dtypes):
-#     for column in fdf.columns:
-#         try:
-#             fdf[column] = fdf[column].astype(dict_col_dtypes[column])
-#         except Exception as e:
-#             print('Error for column: ', column)
-#             print('Attempted dtype: ', dict_col_dtypes[column])
-#             print(e, '\n')
-
-### See function "fn_apply_dtypes".
-
-#%%###################################
-### Testing
-
-# # inspect_col(df_14t_piece_tb4_2['AD1InsChangeDate.1'])
-# ### In df_14t_piece_tb4_2 tab "Caregiver Insurance", dates columns have 2 conflicting formats.
-
-# #%%
-# # print(df_14t_piece_tb4_2.dtypes.to_string())
-# #%%
-# # fn_try_astype(df_14t_piece_tb4_2, dict_14t_col_dtypes_tb4_2)
-# # fn_apply_dtypes(df_14t_piece_tb4_2, dict_14t_col_dtypes_tb4_2)
-# #%%
-# # print(df_14t_piece_tb4_2.dtypes.to_string())
-
-# #%%
-# # fn_try_astype(df_14t_piece_tb4_3, dict_14t_col_dtypes_tb4_3)
-# # fn_apply_dtypes(df_14t_piece_tb4_3, dict_14t_col_dtypes_tb4_3)
-# #%%
-# # print(df_14t_piece_tb4_3.dtypes.to_string())
-# #%%
-# # inspect_df(df_14t_piece_tb4_3)
-
-# #%%
-# # fn_try_astype(df_14t_piece_tb4_4, dict_14t_col_dtypes_tb4_4)
-# # fn_apply_dtypes(df_14t_piece_tb4_4, dict_14t_col_dtypes_tb4_4)
-# #%%
-# # print(df_14t_piece_tb4_4.dtypes.to_string())
-
 #%%###################################
 ### df_14t_piece_tb4_1: 'Project ID'.
+print("Sheet 'Project ID':")
 df_14t_piece_tb4_1 = (
     df_14t_piece_tb4_1
-    ###.astype(dict_14t_col_dtypes_tb4_1)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_1)
 )
 # inspect_df(df_14t_piece_tb4_1)
 
 #%%###################################
 ### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+print("Sheet 'Caregiver Insurance':")
 df_14t_piece_tb4_2 = (
     df_14t_piece_tb4_2
-    ###.astype(dict_14t_col_dtypes_tb4_2)
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb4_2) ### Fixing date columns.
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_2)
 )
 # inspect_df(df_14t_piece_tb4_2)
 
-# Error for column:  AD1InsChangeDate.9
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Unknown present at position 1 
-
-# Error for column:  AD1InsChangeDate.10
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
-# Error for column:  AD1InsChangeDate.11
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: None present at position 1 
-
-# Error for column:  AD1InsChangeDate.12
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
-# Error for column:  AD1InsChangeDate.13
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: None present at position 1 
-
-# Error for column:  AD1InsChangeDate.14
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Unknown present at position 1 
-
-# Error for column:  AD1InsChangeDate.15
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
 #%%###################################
 ### df_14t_piece_tb4_3: 'Family Wise'.
+print("Sheet 'Family Wise':")
 df_14t_piece_tb4_3 = (
     df_14t_piece_tb4_3
-    ###.astype(dict_14t_col_dtypes_tb4_3)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_3)
 ) 
 # inspect_df(df_14t_piece_tb4_3)
 
-#%%
-### Y12Q4: KeyError: 'HomeVisitTypeIP' ### FIXED, DONE: Checked Tableau wb & added above. New variablea Y12Q4.
-### Y12Q4: KeyError: 'HomeVisitTypeV' ### FIXED, DONE: Checked Tableau wb & added above. New variablea Y12Q4.
-
-#%%
-### Y12Q4:
-[x[0] for x in list_14t_col_detail_tb4_3] == [*df_14t_piece_tb4_3]
-#%%
-set([x[0] for x in list_14t_col_detail_tb4_3]).symmetric_difference([*df_14t_piece_tb4_3])
-### Y12Q4: {'HomeVisitTypeAll', 'HomeVisitTypeIP'} ## new vars.
-
-#%%
-### Test:
-# (
-#     df_14t_piece_tb4_3
-#     ###.astype(dict_14t_col_dtypes_tb4_3)
-#     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_3)
-#     .loc[:, [k for k, v in dict_14t_col_dtypes_tb4_3.items() if v == 'boolean']]
-#     .pipe(fn_all_value_counts)
-# ) 
-
 #%%###################################
 ### df_14t_piece_tb4_4: 'LLCHD'.
+print("Sheet 'LLCHD':")
 df_14t_piece_tb4_4 = (
     df_14t_piece_tb4_4
-    ###.astype(dict_14t_col_dtypes_tb4_4)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_4)
 )
 # inspect_df(df_14t_piece_tb4_4)
 
-# Error for column:  fob_edu
-# Attempted dtype:  Int64
-# could not convert string to float: 'HS Grad' 
-
 #%%###################################
 ### df_14t_piece_tb4_5: 'MOB or FOB'.
+print("Sheet 'MOB or FOB':")
 df_14t_piece_tb4_5 = (
     df_14t_piece_tb4_5
-    ###.astype(dict_14t_col_dtypes_tb4_5)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb4_5)
 )
 # inspect_df(df_14t_piece_tb4_5)
 
+#%%###################################
+
+print('____________\n')
 
 #%%###################################
 
@@ -732,6 +652,7 @@ df_14t_piece_tb4_1
 ### Test
 len(df_14t_bf_ddup_tb4_1) - len(df_14t_piece_tb4_1) == len(df_14t_bf_ddup_tb4_1[df_14t_bf_ddup_tb4_1.duplicated()])
 #%%### df_14t_piece_tb4_1: 'Project ID'. 
+print('Project ID:')
 if (len(df_14t_bf_ddup_tb4_1) != len(df_14t_piece_tb4_1)):
     print(f'{len(df_14t_bf_ddup_tb4_1) - len(df_14t_piece_tb4_1)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_1) == len(df_14t_piece_tb4_1)):
@@ -758,6 +679,7 @@ df_14t_piece_tb4_2
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
 len(df_14t_bf_ddup_tb4_2) - len(df_14t_piece_tb4_2) == len(df_14t_bf_ddup_tb4_2[df_14t_bf_ddup_tb4_2.duplicated()])
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
+print('Caregiver Insurance:')
 if (len(df_14t_bf_ddup_tb4_2) != len(df_14t_piece_tb4_2)):
     print(f'{len(df_14t_bf_ddup_tb4_2) - len(df_14t_piece_tb4_2)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_2) == len(df_14t_piece_tb4_2)):
@@ -784,6 +706,7 @@ df_14t_piece_tb4_3
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
 len(df_14t_bf_ddup_tb4_3) - len(df_14t_piece_tb4_3) == len(df_14t_bf_ddup_tb4_3[df_14t_bf_ddup_tb4_3.duplicated()])
 #%%### df_14t_piece_tb4_3: 'Family Wise'.
+print('Family Wise:')
 if (len(df_14t_bf_ddup_tb4_3) != len(df_14t_piece_tb4_3)):
     print(f'{len(df_14t_bf_ddup_tb4_3) - len(df_14t_piece_tb4_3)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_3) == len(df_14t_piece_tb4_3)):
@@ -810,6 +733,7 @@ df_14t_piece_tb4_4
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
 len(df_14t_bf_ddup_tb4_4) - len(df_14t_piece_tb4_4) == len(df_14t_bf_ddup_tb4_4[df_14t_bf_ddup_tb4_4.duplicated()])
 #%%### df_14t_piece_tb4_4: 'LLCHD'.
+print('LLCHD:')
 if (len(df_14t_bf_ddup_tb4_4) != len(df_14t_piece_tb4_4)):
     print(f'{len(df_14t_bf_ddup_tb4_4) - len(df_14t_piece_tb4_4)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_4) == len(df_14t_piece_tb4_4)):
@@ -836,6 +760,7 @@ df_14t_piece_tb4_5
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
 len(df_14t_bf_ddup_tb4_5) - len(df_14t_piece_tb4_5) == len(df_14t_bf_ddup_tb4_5[df_14t_bf_ddup_tb4_5.duplicated()])
 #%%### df_14t_piece_tb4_5: 'MOB or FOB'.
+print('MOB or FOB:')
 if (len(df_14t_bf_ddup_tb4_5) != len(df_14t_piece_tb4_5)):
     print(f'{len(df_14t_bf_ddup_tb4_5) - len(df_14t_piece_tb4_5)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb4_5) == len(df_14t_piece_tb4_5)):
@@ -847,6 +772,10 @@ else:
 ### join columns: ['join id (MOB or FOB)']
 ### Show rows where join columns are same BUT some other columns are not:
 df_14t_piece_tb4_5[df_14t_piece_tb4_5[['join id (MOB or FOB)']].duplicated(keep=False)]
+
+#######################
+print('____________\n')
+
 
 #%%##################################################
 ### JOIN ###
@@ -887,6 +816,9 @@ df_14t_base_tb4= (
         # ,validate='one_to_one'
     )
 ) 
+
+print(f'After join: df_14t_base_tb4 Rows: {len(df_14t_base_tb4)}')
+print('____________\n')
 
 
 ##################################################################################################
@@ -4127,17 +4059,17 @@ df_14t_edits1_tb4['_T17 Discharge Reason'] = df_14t_edits1_tb4.apply(func=fn_T17
 # inspect_col(df_14t_edits1_tb4['Discharge Dt']) 
 
 #%%
-print(df_14t_edits1_tb4[['source', 'Termination Date', 'Termination Status', 'Discharge Dt', 'Discharge Reason', '_T17 Discharge Reason']]
-    .assign(**{
-        'Termination Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Date'])), 'date', '.'))
-        # ,'Termination Status': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Status'])), 'st', '.'))
-        ,'Discharge Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Dt'])), 'date', '.'))
-        # ,'Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Reason'])), 'st', '.'))
-        # ,'_T17 Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_T17 Discharge Reason'])), 'st', '.'))
-    })
-    .drop_duplicates(ignore_index=True)
-    .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
-)
+# print(df_14t_edits1_tb4[['source', 'Termination Date', 'Termination Status', 'Discharge Dt', 'Discharge Reason', '_T17 Discharge Reason']]
+#     .assign(**{
+#         'Termination Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Date'])), 'date', '.'))
+#         # ,'Termination Status': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Termination Status'])), 'st', '.'))
+#         ,'Discharge Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Dt'])), 'date', '.'))
+#         # ,'Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Discharge Reason'])), 'st', '.'))
+#         # ,'_T17 Discharge Reason': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_T17 Discharge Reason'])), 'st', '.'))
+#     })
+#     .drop_duplicates(ignore_index=True)
+#     .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
+# )
 ### TODO ASKJOE: Ask about LL reason with no date.
 
 
@@ -4879,14 +4811,13 @@ df_14t_edits1_tb4['_T20 CG Insurance Status'] = df_14t_edits1_tb4.apply(func=fn_
 ### Across many variables.
 
 #%%
-# list_14t_unrecognized_values_tb4 = fn_find_unrecognized_value(df_14t_edits1_tb4)
-list_14t_unrecognized_values_tb4 = fn_find_unrecognized_value(df_14t_edits1_tb4.query(f'`Year` == 12 & `Quarter` == 4'))
+print(f'Columns that have "Unrecognized Value":')
+list_14t_unrecognized_values_tb4 = fn_find_value(df_14t_edits1_tb4.query(f'`Year` == {int_nehv_year} & `Quarter` == {int_nehv_quarter}'), if_print=True)
 
-#%%
-len(list_14t_unrecognized_values_tb4)
-#%%
-### Columns that have "Unrecognized Value":
-[x['col'] for x in list_14t_unrecognized_values_tb4]
+# #%%
+# len(list_14t_unrecognized_values_tb4)
+# #%%
+# print(f'Columns that have "Unrecognized Value":\n{[x['col'] for x in list_14t_unrecognized_values_tb4]}')
 
 #%%
 ### Look at one column:
@@ -4900,6 +4831,7 @@ len(list_14t_unrecognized_values_tb4)
 
 ### !TESTRUNHERE!
 
+print('____________\n')
 
 
 #%%##################################################
@@ -4962,8 +4894,8 @@ df_14t__final_tb4.to_csv(path_14t_output_tb4, index=False, date_format="%#m/%#d/
 
 # #%%
 # ### Read back in df for comparison.
-# # df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='string', keep_default_na=False, na_values=[''])
-# df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='object', keep_default_na=False, na_values=[''])
+# # df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='string', keep_default_na=False, na_values=list_na_values_to_read)
+# df_14t__final_from_csv_tb4 = pd.read_csv(path_14t_output_tb4, dtype='object', keep_default_na=False, na_values=list_na_values_to_read)
 
 
 # #%%##################################################
@@ -5320,3 +5252,5 @@ df_14t__final_tb4.to_csv(path_14t_output_tb4, index=False, date_format="%#m/%#d/
 
 #%%
 ### END Adult4! SUCCESS!
+print('END Adult4! SUCCESS!')
+

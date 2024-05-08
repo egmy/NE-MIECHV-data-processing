@@ -313,10 +313,10 @@ sorted(list_path_12LL_input_raw_sheets) == sorted(xlsx_12LL.sheet_names)
 ### READ in all sheets as strings.
 
 ### Read in EVERYTHING as a string WITH pd.NA for empty cells:
-df_12LL_allstring_1 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_1)
-df_12LL_allstring_2 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_2)
-df_12LL_allstring_3 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_3)
-df_12LL_allstring_4 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_12LL_col_dtypes_4)
+df_12LL_allstring_1 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_1)
+df_12LL_allstring_2 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_2)
+df_12LL_allstring_3 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_3)
+df_12LL_allstring_4 = pd.read_excel(xlsx_12LL, sheet_name=list_path_12LL_input_raw_sheets[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_12LL_col_dtypes_4)
 
 # ### Backup:
 # df_12LL_1 = df_12LL_allstring_1.copy()
@@ -1408,7 +1408,7 @@ inspect_df(df_12LL_WellChildVisits_4)
 
 ### Pivot the DataFrame:
 df_12LL_pivoted_ChildERInj_2 = df_12LL_ChildERInj_2.pivot_table(
-    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
+    index=['ProjectID', 'year', 'quarter', 'agency', 'FAMILYNUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted). ### NOTE: 'reason' not included because filtered above to be all the same.
     ,columns=df_12LL_ChildERInj_2.groupby(['ProjectID']).cumcount() + 1 ### Cumulative count of rows within groupings so groups of data stack vertically. DF should be sorted beforehand. 
     ,values=['ERVisitReason', 'IncidentDate'] ### Columns that change.
     ,aggfunc='first' ### To use the values themselves and not an aggregation.

@@ -24,8 +24,10 @@ if (os.path.basename(__file__) == '_1_4_replacing_tableau_3_Adult_Activities_For
 else:
     print("Did NOT run RUNME again... because it's already running!")
 
+print('____________\n')
+
 #%%
-bool_14t_deduplicate_tb3 = False
+bool_14t_deduplicate_tb3 = bool_14t_deduplicate  
 
 #%%##################################################
 ### Comparison File ###
@@ -33,8 +35,8 @@ bool_14t_deduplicate_tb3 = False
 
 ### As of Y13Q1, there is no comparison file because we are only using this python code!
 
-### # df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='string', keep_default_na=False, na_values=[''])
-### df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='object', keep_default_na=False, na_values=[''])
+### # df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='string', keep_default_na=False, na_values=list_na_values_to_read)
+### df_14t_comparison_csv_tb3 = pd.read_csv(path_14t_comparison_csv_tb3, dtype='object', keep_default_na=False, na_values=list_na_values_to_read)
 ### print(f'df_14t_comparison_csv_tb3 Rows: {len(df_14t_comparison_csv_tb3)}')
 
 ### #%%
@@ -68,8 +70,8 @@ dict_14t_colnames_tb3_1 = {x[0]:x[1] for x in list_14t_col_detail_tb3_1 if x[2] 
 # dict_14t_colnames_tb3_1
 #%%### df_14t_piece_tb3_1: 'Project ID'.
 dict_14t_col_dtypes_tb3_1 = {x[0]:x[3] for x in list_14t_col_detail_tb3_1}
-print(dict_14t_col_dtypes_tb3_1)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_1.values())))
+# print(dict_14t_col_dtypes_tb3_1)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_1.values())))
 
 #######################
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
@@ -119,8 +121,8 @@ dict_14t_colnames_tb3_2 = {x[0]:x[1] for x in list_14t_col_detail_tb3_2 if x[2] 
 # dict_14t_colnames_tb3_2
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
 dict_14t_col_dtypes_tb3_2 = {x[0]:x[3] for x in list_14t_col_detail_tb3_2}
-print(dict_14t_col_dtypes_tb3_2)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_2.values())))
+# print(dict_14t_col_dtypes_tb3_2)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_2.values())))
 
 #######################
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
@@ -233,8 +235,8 @@ dict_14t_colnames_tb3_3 = {x[0]:x[1] for x in list_14t_col_detail_tb3_3 if x[2] 
 # dict_14t_colnames_tb3_3
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
 dict_14t_col_dtypes_tb3_3 = {x[0]:x[3] for x in list_14t_col_detail_tb3_3}
-print(dict_14t_col_dtypes_tb3_3)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_3.values())))
+# print(dict_14t_col_dtypes_tb3_3)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_3.values())))
 
 #######################
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
@@ -412,8 +414,8 @@ dict_14t_colnames_tb3_4 = {x[0]:x[1] for x in list_14t_col_detail_tb3_4 if x[2] 
 # dict_14t_colnames_tb3_4
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
 dict_14t_col_dtypes_tb3_4 = {x[0]:x[3] for x in list_14t_col_detail_tb3_4}
-print(dict_14t_col_dtypes_tb3_4)
-print(collections.Counter(list(dict_14t_col_dtypes_tb3_4.values())))
+# print(dict_14t_col_dtypes_tb3_4)
+# print(collections.Counter(list(dict_14t_col_dtypes_tb3_4.values())))
 
 
 #%%##################################################
@@ -426,27 +428,31 @@ xlsx_14t_tb3 = pd.ExcelFile(path_14t_data_source_file_tb3)
 
 #%% 
 ### CHECK that all list_path_14t_data_source_sheets_tb3 same as xlsx.sheet_names (different order ok):
-print(sorted(list_path_14t_data_source_sheets_tb3))
-print([x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB'])
-sorted(list_path_14t_data_source_sheets_tb3) == [x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB']
+# print(sorted(list_path_14t_data_source_sheets_tb3))
+# print([x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB'])
+
+if (sorted(list_path_14t_data_source_sheets_tb3) == [x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB']): 
+    print('Passed Check that all Excel sheet names as expected.')
+else:
+    raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+print('____________\n')
 
 #%%
 ### READ all sheets:
-### df_14t_piece_tb3_1 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[0], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb3_1)
-### df_14t_piece_tb3_2 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[1], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb3_2)
-### df_14t_piece_tb3_3 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[2], keep_default_na=False, na_values=[''])#, dtype={'FOBRaceAsian': 'boolean', 'FOBRaceBlack': 'boolean', 'FOBRaceHawaiianPacific': 'boolean', 'FOBRaceIndianAlaskan': 'boolean', 'FOBRaceOther': 'boolean', 'FOBRaceWhite': 'boolean'})#, dtype=dict_14t_col_dtypes_tb3_3)
-### df_14t_piece_tb3_4 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[3], keep_default_na=False, na_values=[''])#, dtype=dict_14t_col_dtypes_tb3_4)
-
-### TODO: Fix data types. Problem: Boolean's cannot have NA.
+### df_14t_piece_tb3_1 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[0], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb3_1)
+### df_14t_piece_tb3_2 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[1], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb3_2)
+### df_14t_piece_tb3_3 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[2], keep_default_na=False, na_values=list_na_values_to_read)#, dtype={'FOBRaceAsian': 'boolean', 'FOBRaceBlack': 'boolean', 'FOBRaceHawaiianPacific': 'boolean', 'FOBRaceIndianAlaskan': 'boolean', 'FOBRaceOther': 'boolean', 'FOBRaceWhite': 'boolean'})#, dtype=dict_14t_col_dtypes_tb3_3)
+### df_14t_piece_tb3_4 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[3], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb3_4)
 
 #%%###################################
 ### READ in all sheets as strings.
 
 ### To read in EVERYTHING as a string WITH NA:
-df_14t_allstring_tb3_1 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[0], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb3_1)
-df_14t_allstring_tb3_2 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[1], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb3_2)
-df_14t_allstring_tb3_3 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[2], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb3_3)
-df_14t_allstring_tb3_4 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[3], keep_default_na=False, na_values=[''], dtype='string')# dtype=dict_14t_col_dtypes_tb3_4)
+df_14t_allstring_tb3_1 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_1)
+df_14t_allstring_tb3_2 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_2)
+df_14t_allstring_tb3_3 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_3)
+df_14t_allstring_tb3_4 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_4)
 
 df_14t_piece_tb3_1 = df_14t_allstring_tb3_1.copy()
 df_14t_piece_tb3_2 = df_14t_allstring_tb3_2.copy()
@@ -459,67 +465,44 @@ df_14t_piece_tb3_4 = df_14t_allstring_tb3_4.copy()
 
 #%%###################################
 ### df_14t_piece_tb3_1: 'Project ID'.
+print("Sheet 'Project ID':")
 df_14t_piece_tb3_1 = (
     df_14t_piece_tb3_1
-    ###.astype(dict_14t_col_dtypes_tb3_1)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_1)
 )
 # inspect_df(df_14t_piece_tb3_1)
 
 #%%###################################
 ### df_14t_piece_tb3_2: 'Caregiver Insurance'.
+print("Sheet 'Caregiver Insurance':")
 df_14t_piece_tb3_2 = (
     df_14t_piece_tb3_2
-    ###.astype(dict_14t_col_dtypes_tb3_2)
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb3_2) ### Fixing date columns.
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_2)
 )
 # inspect_df(df_14t_piece_tb3_2)
 
-# Error for column:  AD1InsChangeDate.9
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Unknown present at position 1 
-
-# Error for column:  AD1InsChangeDate.10
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
-# Error for column:  AD1InsChangeDate.11
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: None present at position 1 
-
-# Error for column:  AD1InsChangeDate.12
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
-# Error for column:  AD1InsChangeDate.13
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: None present at position 1 
-
-# Error for column:  AD1InsChangeDate.14
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Unknown present at position 1 
-
-# Error for column:  AD1InsChangeDate.15
-# Attempted dtype:  datetime64[ns]
-# Unknown string format: Medicaid present at position 1 
-
 #%%###################################
 ### df_14t_piece_tb3_3: 'Family Wise'.
+print("Sheet 'Family Wise':")
 df_14t_piece_tb3_3 = (
     df_14t_piece_tb3_3
-    ###.astype(dict_14t_col_dtypes_tb3_3)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_3)
 ) 
 # inspect_df(df_14t_piece_tb3_3)
 
 #%%###################################
 ### df_14t_piece_tb3_4: 'LLCHD'.
+print("Sheet 'LLCHD':")
 df_14t_piece_tb3_4 = (
     df_14t_piece_tb3_4
-    ###.astype(dict_14t_col_dtypes_tb3_4)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_4)
 )
 # inspect_df(df_14t_piece_tb3_4)
+
+#%%###################################
+
+print('____________\n')
 
 #%%###################################
 ### Review each sheet:
@@ -599,6 +582,7 @@ df_14t_piece_tb3_1
 ### Test
 len(df_14t_bf_ddup_tb3_1) - len(df_14t_piece_tb3_1) == len(df_14t_bf_ddup_tb3_1[df_14t_bf_ddup_tb3_1.duplicated()])
 #%%### df_14t_piece_tb3_1: 'Project ID'. 
+print('Project ID:')
 if (len(df_14t_bf_ddup_tb3_1) != len(df_14t_piece_tb3_1)):
     print(f'{len(df_14t_bf_ddup_tb3_1) - len(df_14t_piece_tb3_1)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_1) == len(df_14t_piece_tb3_1)):
@@ -625,6 +609,7 @@ df_14t_piece_tb3_2
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
 len(df_14t_bf_ddup_tb3_2) - len(df_14t_piece_tb3_2) == len(df_14t_bf_ddup_tb3_2[df_14t_bf_ddup_tb3_2.duplicated()])
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
+print('Caregiver Insurance:')
 if (len(df_14t_bf_ddup_tb3_2) != len(df_14t_piece_tb3_2)):
     print(f'{len(df_14t_bf_ddup_tb3_2) - len(df_14t_piece_tb3_2)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_2) == len(df_14t_piece_tb3_2)):
@@ -651,6 +636,7 @@ df_14t_piece_tb3_3
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
 len(df_14t_bf_ddup_tb3_3) - len(df_14t_piece_tb3_3) == len(df_14t_bf_ddup_tb3_3[df_14t_bf_ddup_tb3_3.duplicated()])
 #%%### df_14t_piece_tb3_3: 'Family Wise'.
+print('Family Wise:')
 if (len(df_14t_bf_ddup_tb3_3) != len(df_14t_piece_tb3_3)):
     print(f'{len(df_14t_bf_ddup_tb3_3) - len(df_14t_piece_tb3_3)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_3) == len(df_14t_piece_tb3_3)):
@@ -662,9 +648,10 @@ else:
 ### join columns: ['Project ID1','year (Family Wise)','quarter (Family Wise)']
 ### Show rows where join columns are same BUT some other columns are not:
 cols_14t_forJoin_tb3_3 = ['Project ID1','year (Family Wise)','quarter (Family Wise)']
+
 # print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].to_string())
 # print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].sort_values(by=cols_14t_forJoin_tb3_3, ignore_index=True).to_string())
-print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].query('`quarter (Family Wise)` == 4').sort_values(by=cols_14t_forJoin_tb3_3, ignore_index=True).to_string())
+# print(df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_tb3_3].duplicated(keep=False)].query('`quarter (Family Wise)` == 4').sort_values(by=cols_14t_forJoin_tb3_3, ignore_index=True).to_string())
 
 ### Y12Q4: FULL: mostly groups of 4 rows. Some groups of 2 rows: ph535-1, ph548-1.
 ### Y12Q4: after filter to Y12Q4, only 28 rows.
@@ -681,14 +668,14 @@ TESTdf_14t_piece_tb3_3 = df_14t_piece_tb3_3[df_14t_piece_tb3_3[cols_14t_forJoin_
 # print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[6:12], col].value_counts(dropna=False)) != 1)])
 # print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
 
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:2], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[2:4], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[4:8], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[8:12], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[16:20], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[20:24], col].value_counts(dropna=False)) != 1)])
-print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[24:28], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:2], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[2:4], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[4:8], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[8:12], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[12:16], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[16:20], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[20:24], col].value_counts(dropna=False)) != 1)])
+# print([col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[24:28], col].value_counts(dropna=False)) != 1)])
 
 # #%%### Change row indicies in 2 places:
 # TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:4], cols_14t_forJoin_tb3_3 + [col for col in [col for col in [*TESTdf_14t_piece_tb3_3] if col not in cols_14t_forJoin_tb3_3] if (len(TESTdf_14t_piece_tb3_3.loc[TESTdf_14t_piece_tb3_3.index[0:4], col].value_counts(dropna=False)) != 1)]]
@@ -727,6 +714,7 @@ df_14t_piece_tb3_4
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
 len(df_14t_bf_ddup_tb3_4) - len(df_14t_piece_tb3_4) == len(df_14t_bf_ddup_tb3_4[df_14t_bf_ddup_tb3_4.duplicated()])
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
+print('LLCHD:')
 if (len(df_14t_bf_ddup_tb3_4) != len(df_14t_piece_tb3_4)):
     print(f'{len(df_14t_bf_ddup_tb3_4) - len(df_14t_piece_tb3_4)} duplicate rows dropped.')
 elif (len(df_14t_bf_ddup_tb3_4) == len(df_14t_piece_tb3_4)):
@@ -738,6 +726,9 @@ else:
 ### join columns: ['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']
 ### Show rows where join columns are same BUT some other columns are not:
 df_14t_piece_tb3_4[df_14t_piece_tb3_4[['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)']].duplicated(keep=False)]
+
+#######################
+print('____________\n')
 
 
 #%%##################################################
@@ -801,8 +792,11 @@ df_14t_base_tb3 = (
     )
 ) 
 
-print(f'df_14t_base_tb3 Rows: {len(df_14t_base_tb3)}')
+print(f'After join: df_14t_base_tb3 Rows: {len(df_14t_base_tb3)}')
+print('____________\n')
+
 ### Y12Q4: if NOT deduplicated = . If deduplicated = .
+
 
 ##################################################################################################
 ##################################################################################################
@@ -3587,9 +3581,9 @@ def fn_IPV_Score_FW(fdf):
         return pd.NA 
     elif (fdf['Agency'] != "ll"):
         if (
-            fdf['Assess Afraid'] == True 
-            or fdf['Assess IPV'] == True 
-            or fdf['Assess Police'] == True
+            (False if pd.isna(fdf['Assess Afraid']) else (fdf['Assess Afraid'] == True))
+            or (False if pd.isna(fdf['Assess IPV']) else (fdf['Assess IPV'] == True))
+            or (False if pd.isna(fdf['Assess Police']) else (fdf['Assess Police'] == True))
         ):
             return "P"
         else:
@@ -3605,6 +3599,14 @@ def fn_IPV_Score_FW(fdf):
 df_14t_edits1_tb3['_IPV Score FW'] = df_14t_edits1_tb3.apply(func=fn_IPV_Score_FW, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb3['_IPV Score FW']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Agency']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Assess Afraid']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Assess IPV']) 
+# #%%
+# inspect_col(df_14t_edits1_tb3['Assess Police']) 
 # #%%
 # # df_14t_comparison_csv_tb3[['_IPV Score FW']].compare(df_14t__final_from_csv_tb3[['_IPV Score FW']])
 # (
@@ -4038,14 +4040,13 @@ df_14t_edits1_tb3['_TGT 3 Month Date'] = (df_14t_edits1_tb3['_TGT DOB'] + pd.Dat
 # df_14t_edits1_tb3.query('@df_14t_edits1_tb3 == "Unrecognized Value"')
 
 #%%
-# list_14t_unrecognized_values_tb3 = fn_find_unrecognized_value(df_14t_edits1_tb3)
-list_14t_unrecognized_values_tb3 = fn_find_unrecognized_value(df_14t_edits1_tb3.query(f'`Year` == 12 & `Quarter` == 4'))
+print(f'Columns that have "Unrecognized Value":')
+list_14t_unrecognized_values_tb3 = fn_find_value(df_14t_edits1_tb3.query(f'`Year` == {int_nehv_year} & `Quarter` == {int_nehv_quarter}'), if_print=True)
 
-#%%
-len(list_14t_unrecognized_values_tb3)
-#%%
-### Columns that have "Unrecognized Value":
-[x['col'] for x in list_14t_unrecognized_values_tb3]
+# #%%
+# len(list_14t_unrecognized_values_tb3)
+# #%%
+# print(f'Columns that have "Unrecognized Value":\n{[x['col'] for x in list_14t_unrecognized_values_tb3]}')
 
 #%%
 ### Look at one column:
@@ -4068,6 +4069,9 @@ len(list_14t_unrecognized_values_tb3)
 
 
 ### !TESTRUNHERE!
+
+print('____________\n')
+
 
 ##################################################################################################
 ##################################################################################################
@@ -4139,7 +4143,7 @@ df_14t__final_tb3.to_csv(path_14t_output_tb3, index=False, date_format="%#m/%#d/
 
 # #%%
 # ### Read back in df for comparison.
-# df_14t__final_from_csv_tb3 = pd.read_csv(path_14t_output_tb3, dtype=object, keep_default_na=False, na_values=[''])
+# df_14t__final_from_csv_tb3 = pd.read_csv(path_14t_output_tb3, dtype=object, keep_default_na=False, na_values=list_na_values_to_read)
 
 # #%%##################################################
 # ### COMPARE CSVs ###
@@ -4527,3 +4531,5 @@ df_14t__final_tb3.to_csv(path_14t_output_tb3, index=False, date_format="%#m/%#d/
 
 #%%
 ### END Adult3! SUCCESS!
+print('END Adult3! SUCCESS!')
+
