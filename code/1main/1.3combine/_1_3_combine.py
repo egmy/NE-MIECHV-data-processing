@@ -122,7 +122,7 @@ frames=[df_13_cg_ins_LL, df_13_cg_ins_FW]
 df_13_cg_ins=pd.concat(frames)
 
 
-#%%### 4. restructure to combine frames for wll child and ER Injury sheets for Adult Activity
+#%%### 4. restructure to combine frames for well child and ER Injury sheets for Adult Activity
 df_13_well_child_FW.rename(columns={"Project ID": "ProjectID"}, inplace=True)
 df_13_well_child_FW.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=True)
 
@@ -139,7 +139,7 @@ df_13_child_injury=pd.concat(frames)
 
 
 
-#%%### 4. Create FOB and DOB sheet for Adult Activity
+#%%### 5. Create FOB and DOB sheet for Adult Activity
 df_13_mob_fob=pd.DataFrame({
     "join_id": [1, 1],
     "MOB_or_FOB": ["MOB", "FOB"]
@@ -151,9 +151,9 @@ print(int_nehv_quarter)
 
 ## change this method to read-in old files and append new ones, then rewrite
 
-#%%### 5. if not 1st quarter, write to existing files
+#%%### 6. if not 1st quarter, write to existing files
 if int_nehv_quarter!=1:
-    ### 6. Pull from existing file and append new quarter to old file, write new combined to output location for Child file
+    ### 7. Pull from existing file and append new quarter to old file, write new combined to output location for Child file
     df_13_child_base_table_previous = pd.read_excel(path_child_master_file, sheet_name='LLCHD', keep_default_na=False, na_values=[''])
     df_13_child_base_table = pd.concat([df_13_child_base_table_previous, df_13_base_table], ignore_index=True)
     df_13_child_base_table = df_13_child_base_table.drop_duplicates()
@@ -174,7 +174,7 @@ if int_nehv_quarter!=1:
     df_child_project_id = pd.concat([df_13_child_id_previous, df_child_project_id], ignore_index=True)
     df_child_project_id = df_child_project_id.drop_duplicates()
 
-    ### 7. repeat for Adult files
+    ### 8. repeat for Adult files
     df_13_adult_base_table_previous = pd.read_excel(path_adult_master_file, sheet_name='LLCHD', keep_default_na=False, na_values=[''])
     df_13_adult_base_table = pd.concat([df_13_adult_base_table_previous, df_13_base_table], ignore_index=True)
     df_13_adult_base_table = df_13_adult_base_table.drop_duplicates()
@@ -192,7 +192,7 @@ if int_nehv_quarter!=1:
     df_13_cg_ins = df_13_cg_ins.drop_duplicates()
 
 
-
+### 8. Otherwise, if Q1, write to new file 
     with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_13_child_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
@@ -222,14 +222,6 @@ else:
         df_adult_project_id.to_excel(writer, index=False, sheet_name='Project ID')
         df_13_mob_fob.to_excel(writer, index=False, sheet_name='MOB or FOB')
         df_13_cg_ins.to_excel(writer,index=False, sheet_name='Caregiver Insurance')
-
-
-
-#%%##############################################!>>>
-### >>> WRITE OUT FILES   
-#####################################################
-
-### Note: Date columns written out without timestamps.
 
 #%%##############################################!>>>
 ### >>> Remove old objects  
