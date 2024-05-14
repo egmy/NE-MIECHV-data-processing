@@ -192,7 +192,7 @@ if int_nehv_quarter!=1:
     df_13_cg_ins = df_13_cg_ins.drop_duplicates()
 
 
-### 8. Otherwise, if Q1, write to new file 
+
     with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_13_child_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
@@ -207,7 +207,7 @@ if int_nehv_quarter!=1:
         df_adult_project_id.to_excel(writer, index=False, sheet_name='Project ID')
         df_13_mob_fob.to_excel(writer, index=False, sheet_name='MOB or FOB')
         df_13_cg_ins.to_excel(writer,index=False, sheet_name='Caregiver Insurance')
-
+### 8. Otherwise, if Q1, write to new file 
 else:
     with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
