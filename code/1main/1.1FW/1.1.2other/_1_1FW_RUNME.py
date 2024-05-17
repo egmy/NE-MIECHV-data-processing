@@ -50,6 +50,8 @@ path_11FW_dir_output = Path(path_11FW_files_base, '9out', str_nehv_quarter)
 
 ###########################
 
+### TODO Y13Q2: ASKJOE: Are there 2 new files for input? (so total 10?)
+
 ### Input:
 ### U:\Working\Tableau\Y## (<date_range>)\Y##Q# (<date_range>)\LLCHD ### oldest file.
 ### U:\SFTP ### Should see same file here.
@@ -66,10 +68,6 @@ path_11FW_input_ref_excl = Path(path_11FW_dir_input, 'Referral Exclusions 1 thru
 
 ### Output:
 path_11FW_output = Path(path_11FW_dir_output, 'LL_before_combining_with_FW.csv')
-
-###########################
-### Comparison Files ###
-### Files created for selected quarter by the old data sourcing process.
 
 
 #%%##################################################
@@ -99,4 +97,6 @@ print('end file :)')
 
 
 # %%
+
+### TODO: Update 1.1.2 for Q2, AND make sure <Q1 still works.
 

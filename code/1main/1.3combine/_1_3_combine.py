@@ -56,8 +56,11 @@ df_13_base_table = pd.read_csv(path_13_input_base_table, keep_default_na=False, 
 ######################################
 #%%### 1. Add 'year' and 'quarter' columns to all FamilyWise dataframes
 
-int_nehv_quarter = 2
-str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+# int_nehv_quarter = 2
+# str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+
+#%%
+### TODO: Move creation of year & quarter columns to 1.1.2.
 
 df_13_child_act.insert(loc=1, column='year', value=int_nehv_year)
 df_13_child_act.insert(loc=2, column='quarter', value=int_nehv_quarter)
@@ -80,27 +83,35 @@ df_13_cg_ins_FW.insert(loc=2, column='quarter', value=int_nehv_quarter)
 #%%### 2. Create Project ID sheet for adult and child sheets
 child_frames = [df_13_child_act[['Project ID']], df_13_base_table[['project_id']]]
 df_child_project_id=pd.concat(child_frames)
-df_child_project_id['project_id_new']=df_child_project_id['Project ID'].astype(str) + df_child_project_id['project_id'].astype(str)
-df_child_project_id['project_id_new'] = df_child_project_id['project_id_new'].str.replace('nan', '', regex=True)
+
+#%%
+df_child_project_id['project_id_new']=df_child_project_id['Project ID'].combine_first(df_child_project_id['project_id']).astype('string') 
+
+#%%
 df_child_project_id = df_child_project_id.drop(columns=['project_id', 'Project ID'])
 df_child_project_id.rename(columns={"project_id_new": "project_id"}, inplace=True)
 
 
+#%%
 df_child_project_id['year']=int_nehv_year
 df_child_project_id['quarter']=int_nehv_quarter
 
 adult_frames = [df_13_adult_act[['Project ID']], df_13_base_table[['project_id']]]
 df_adult_project_id=pd.concat(adult_frames)
-df_adult_project_id['project_id_new']=df_adult_project_id['Project ID'].astype(str) + df_adult_project_id['project_id'].astype(str)
-df_adult_project_id['project_id_new'] = df_adult_project_id['project_id_new'].str.replace('nan', '', regex=True)
+#%%
+df_adult_project_id['project_id_new']=df_adult_project_id['Project ID'].combine_first(df_adult_project_id['project_id']).astype('string')
+#%%
 df_adult_project_id = df_adult_project_id.drop(columns=['project_id', 'Project ID'])
 df_adult_project_id.rename(columns={"project_id_new": "project_id"}, inplace=True)
 
+#%%
 
 df_adult_project_id['year']=int_nehv_year
 df_adult_project_id['quarter']=int_nehv_quarter
 df_adult_project_id['join_id']=1
 
+#%%
+### Reading previous quarter's Master Files:
 path_master_file=Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau')
 path_13_master_input = Path(path_master_file, '0in', str_nehv_quarter)
 
@@ -192,7 +203,7 @@ if int_nehv_quarter!=1:
     df_13_cg_ins = df_13_cg_ins.drop_duplicates()
 
 
-### 8. Otherwise, if Q1, write to new file 
+
     with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_13_child_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
@@ -209,6 +220,7 @@ if int_nehv_quarter!=1:
         df_13_cg_ins.to_excel(writer,index=False, sheet_name='Caregiver Insurance')
 
 else:
+    ### 8. Otherwise, if Q1, write to new file 
     with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_13_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
@@ -222,6 +234,7 @@ else:
         df_adult_project_id.to_excel(writer, index=False, sheet_name='Project ID')
         df_13_mob_fob.to_excel(writer, index=False, sheet_name='MOB or FOB')
         df_13_cg_ins.to_excel(writer,index=False, sheet_name='Caregiver Insurance')
+
 
 #%%##############################################!>>>
 ### >>> Remove old objects  

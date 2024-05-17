@@ -25,6 +25,9 @@ from RUNME import *
 ### PATHS ###
 #####################################################
 
+### TODO: Bring up all 1.3 paths to here.
+### TODO: Also, keep 1.3 siloed: Only read in & out of 1.3 folders. Manually copy files as needed between silos. (We'll use other code to copy between silos.)
+
 path_13_code_base = Path.cwd()
 #U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\0in\Y13Q1 (Oct 2023 - Dec 2023)
 path_13_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
@@ -83,3 +86,4 @@ print('end file :)')
 
 # %%
 
+### TODO: Test that 1.4 works with 1.3 output.
