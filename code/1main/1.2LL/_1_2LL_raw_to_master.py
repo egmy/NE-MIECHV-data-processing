@@ -17,7 +17,7 @@
 
 
 
-### Purpose: In the Nebraska MIECHV data sourcing process, replace the steps currently completed by Tableau.
+### Purpose: In the Nebraska MIECHV data sourcing process, ...
 
 #%%##############################################!>>>
 ### >>>  INSTRUCTIONS 
@@ -241,8 +241,8 @@ list_12LL_col_detail_1 = [
 ]
 #%%### df_12LL_1: 'KU_BASETABLE'.
 dict_12LL_col_dtypes_1 = {x[0]:x[1] for x in list_12LL_col_detail_1}
-print(dict_12LL_col_dtypes_1)
-print(collections.Counter(list(dict_12LL_col_dtypes_1.values())))
+# print(dict_12LL_col_dtypes_1)
+# print(collections.Counter(list(dict_12LL_col_dtypes_1.values())))
 ### List of date columns:
 list_12LL_date_cols_1 = [key for key, value in dict_12LL_col_dtypes_1.items() if value == 'datetime64[ns]'] 
 
@@ -257,8 +257,8 @@ list_12LL_col_detail_2 = [
 ]
 #%%### df_12LL_2: 'KU_CHILDERINJ'.
 dict_12LL_col_dtypes_2 = {x[0]:x[1] for x in list_12LL_col_detail_2}
-print(dict_12LL_col_dtypes_2)
-print(collections.Counter(list(dict_12LL_col_dtypes_2.values())))
+# print(dict_12LL_col_dtypes_2)
+# print(collections.Counter(list(dict_12LL_col_dtypes_2.values())))
 ### List of date columns:
 list_12LL_date_cols_2 = [key for key, value in dict_12LL_col_dtypes_2.items() if value == 'datetime64[ns]'] 
 
@@ -273,8 +273,8 @@ list_12LL_col_detail_3 = [
 ]
 #%%### df_12LL_3: 'KU_MATERNALINS'.
 dict_12LL_col_dtypes_3 = {x[0]:x[1] for x in list_12LL_col_detail_3}
-print(dict_12LL_col_dtypes_3)
-print(collections.Counter(list(dict_12LL_col_dtypes_3.values())))
+# print(dict_12LL_col_dtypes_3)
+# print(collections.Counter(list(dict_12LL_col_dtypes_3.values())))
 ### List of date columns:
 list_12LL_date_cols_3 = [key for key, value in dict_12LL_col_dtypes_3.items() if value == 'datetime64[ns]'] 
 
@@ -288,8 +288,8 @@ list_12LL_col_detail_4 = [
 ]
 #%%### df_12LL_4: 'KU_WELLCHILDVISITS'.
 dict_12LL_col_dtypes_4 = {x[0]:x[1] for x in list_12LL_col_detail_4}
-print(dict_12LL_col_dtypes_4)
-print(collections.Counter(list(dict_12LL_col_dtypes_4.values())))
+# print(dict_12LL_col_dtypes_4)
+# print(collections.Counter(list(dict_12LL_col_dtypes_4.values())))
 ### List of date columns:
 list_12LL_date_cols_4 = [key for key, value in dict_12LL_col_dtypes_4.items() if value == 'datetime64[ns]'] 
 
@@ -305,9 +305,14 @@ xlsx_12LL = pd.ExcelFile(path_12LL_input_raw)
 
 #%% 
 ### CHECK that all list_path_12LL_input_raw_sheets same as xlsx.sheet_names:
-print(sorted(list_path_12LL_input_raw_sheets))
-print(sorted(xlsx_12LL.sheet_names))
-sorted(list_path_12LL_input_raw_sheets) == sorted(xlsx_12LL.sheet_names)
+# print(sorted(list_path_12LL_input_raw_sheets))
+# print(sorted(xlsx_12LL.sheet_names))
+if (sorted(list_path_12LL_input_raw_sheets) == sorted(xlsx_12LL.sheet_names)):
+    print('Passed Check that all Excel sheet names as expected.')
+else:
+    raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+print('____________\n')
 
 #%%###################################
 ### READ in all sheets as strings.
@@ -410,6 +415,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -489,6 +495,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -525,15 +532,15 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
-print((
-    df_12LL_before_BaseTable
-    ### Compare: Keep shape so ID column not dropped when the same. Keep equal so can see ID values.
-    # .compare(df_12LL_after_BaseTable, keep_shape=True, keep_equal=True) 
-    ### Select desired columns:
-    .loc[:, ['c_fundingdate', 'mob_living_arrangement_dt', 'fob_edu_dt', 'mcafss_edu_dt1', 'mcafss_edu_dt2', 'hlth_insure_tgt_dt']]
-    ### Keep rows where columns different:
-    # .loc[lambda df: df.apply(fn_keep_row_differences, variable2compare=str_col_to_compare, axis=1), :] 
-).to_string())
+# print((
+#     df_12LL_before_BaseTable
+#     ### Compare: Keep shape so ID column not dropped when the same. Keep equal so can see ID values.
+#     # .compare(df_12LL_after_BaseTable, keep_shape=True, keep_equal=True) 
+#     ### Select desired columns:
+#     .loc[:, ['c_fundingdate', 'mob_living_arrangement_dt', 'fob_edu_dt', 'mcafss_edu_dt1', 'mcafss_edu_dt2', 'hlth_insure_tgt_dt']]
+#     ### Keep rows where columns different:
+#     # .loc[lambda df: df.apply(fn_keep_row_differences, variable2compare=str_col_to_compare, axis=1), :] 
+# ).to_string())
 
 #%%
 ### 4. Programmatically test change:
@@ -574,6 +581,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -603,11 +611,11 @@ df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
 ### Check if data types changed:
-print(df_12LL_before_BaseTable.dtypes.to_string())
-print('-------------------------------------')
-print(df_12LL_after_BaseTable.dtypes.to_string())
+# print(df_12LL_before_BaseTable.dtypes.to_string())
 # print('-------------------------------------')
-# print(df_12LL_allstring_1.dtypes.to_string())
+# print(df_12LL_after_BaseTable.dtypes.to_string())
+# # print('-------------------------------------')
+# # print(df_12LL_allstring_1.dtypes.to_string())
 
 #%%
 df_12LL_before_BaseTable.dtypes.to_string() == df_12LL_after_BaseTable.dtypes.to_string()
@@ -651,6 +659,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -678,7 +687,7 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
-compare_col(df_12LL_before_BaseTable, df_12LL_after_BaseTable, 'site_id', 'value_counts')
+# compare_col(df_12LL_before_BaseTable, df_12LL_after_BaseTable, 'site_id', 'value_counts')
 
 #%%
 ### 4. Programmatically test change:
@@ -718,6 +727,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -804,6 +814,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -833,7 +844,7 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 ### df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable) ### Can't because columns different.
 
 #%% 
-inspect_col(df_12LL_after_BaseTable['project_id'])
+# inspect_col(df_12LL_after_BaseTable['project_id'])
 
 #%%
 ### 4. Programmatically test change:
@@ -873,12 +884,13 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 ######################################
 #%%
 ### Review columns that will be used to filter rows:
-print((
-    df_12LL_before_BaseTable
-    .loc[:, ['project_id', 'discharge_dt', 'last_home_visit', 'home_visits_num']]
-    .dtypes
-).to_string())
+# print((
+#     df_12LL_before_BaseTable
+#     .loc[:, ['project_id', 'discharge_dt', 'last_home_visit', 'home_visits_num']]
+#     .dtypes
+# ).to_string())
 
+print('____________\n')
 
 
 ######################################
@@ -967,6 +979,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -1038,6 +1051,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -1119,6 +1133,8 @@ df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy()
 ### fob = secondary caregiver
 ### Expectation of target children: only first child (unless multiples); secondary children not tracked.
 
+print('____________\n')
+
 
 ######################################
 #%%###################################
@@ -1180,6 +1196,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -1210,9 +1227,9 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 ### df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable) ### Can't because columns different.
 
 #%% 
-inspect_col(df_12LL_after_BaseTable['year'])
+# inspect_col(df_12LL_after_BaseTable['year'])
 #%%
-inspect_col(df_12LL_after_BaseTable['quarter'])
+# inspect_col(df_12LL_after_BaseTable['quarter'])
 
 #%%
 ### 4. Programmatically test change:
@@ -1247,6 +1264,7 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 ### 5. Make DFs identical:
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
+print('____________\n')
 
 
 ######################################
@@ -1378,19 +1396,19 @@ df_12LL_WellChildVisits_4 = (
 #%%###################################
 ### <> Inspect DFs
 
-#%%
-# inspect_df(df_12LL_BaseTable)
-# ### Counts of dtypes:
-# print(collections.Counter(df_12LL_BaseTable.dtypes))
+# #%%
+# # inspect_df(df_12LL_BaseTable)
+# # ### Counts of dtypes:
+# # print(collections.Counter(df_12LL_BaseTable.dtypes))
 
-#%%
-inspect_df(df_12LL_ChildERInj_2)
+# #%%
+# inspect_df(df_12LL_ChildERInj_2)
 
-#%%
-inspect_df(df_12LL_MaternalIns_3)
+# #%%
+# inspect_df(df_12LL_MaternalIns_3)
 
-#%%
-inspect_df(df_12LL_WellChildVisits_4)
+# #%%
+# inspect_df(df_12LL_WellChildVisits_4)
 
 
 
