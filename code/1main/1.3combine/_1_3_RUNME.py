@@ -59,10 +59,17 @@ if (str_nehv_quarter == 'Y12Q1 (Oct 2022 - Dec 2023)'):
     int_fpg_increment = 4720 
 
 ### 2023: https://www.federalregister.gov/documents/2023/01/19/2023-00885/annual-update-of-the-hhs-poverty-guidelines 
-elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 2023)', 'Y12Q4 (Oct 2022 - Sep 2023)', 'Y13Q1 (Oct 2023 - Dec 2023)', 'Y13Q2 (Oct 2023 - Mar 2024)')):
+elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun 2023)', 'Y12Q4 (Oct 2022 - Sep 2023)', 'Y13Q1 (Oct 2023 - Dec 2023)')):
     ### 9440 + (5140 * [household size])
     int_fpg_base = 9440 
     int_fpg_increment = 5140 
+
+### 2024: https://www.govinfo.gov/content/pkg/FR-2024-01-17/pdf/2024-00796.pdf 
+elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)')):
+    ### 9680 + (5380 * [household size])
+    int_fpg_base = 9680 
+    int_fpg_increment = 5380 
+
 
 #%%##################################################
 ### PATHS ###
@@ -96,9 +103,6 @@ path_13_input_base_table = Path(path_13_dir_input, 'df_12LL_BaseTable.csv')
 ### Output:
 path_13_output = Path(path_13_dir_output, 'LL and FW combined.csv')
 
-###########################
-### Comparison Files ###
-### Files created for selected quarter by the old data sourcing process.
 
 
 #%%##################################################

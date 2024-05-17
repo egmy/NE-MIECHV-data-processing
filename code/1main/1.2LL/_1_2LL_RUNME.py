@@ -79,6 +79,13 @@ elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun
     int_fpg_base = 9440 
     int_fpg_increment = 5140 
 
+### 2024: https://www.govinfo.gov/content/pkg/FR-2024-01-17/pdf/2024-00796.pdf 
+elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)')):
+    ### 9680 + (5380 * [household size])
+    int_fpg_base = 9680 
+    int_fpg_increment = 5380 
+
+
 #%%##################################################
 ### PATHS ###
 #####################################################
