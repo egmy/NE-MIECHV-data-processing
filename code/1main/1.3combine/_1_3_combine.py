@@ -57,7 +57,7 @@ df_13_base_table = pd.read_csv(path_13_input_base_table, keep_default_na=False, 
 #%%### 1. Add 'year' and 'quarter' columns to all FamilyWise dataframes
 
 # int_nehv_quarter = 2
-# str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+#\ str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
 
 #%%
 ### TODO: Move creation of year & quarter columns to 1.1.2.
@@ -110,20 +110,6 @@ df_adult_project_id['year']=int_nehv_year
 df_adult_project_id['quarter']=int_nehv_quarter
 df_adult_project_id['join_id']=1
 
-#%%
-### Reading previous quarter's Master Files:
-path_master_file=Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau')
-path_13_master_input = Path(path_master_file, '0in', str_nehv_quarter)
-
-path_child_master_file= Path(path_13_master_input, 'Child Activity Master File.xlsx')
-df_child_master_file = pd.read_excel(path_child_master_file)
-
-
-path_adult_master_file= Path(path_13_master_input, 'Adult Activity Master File.xlsx')
-df_adult_master_file = pd.read_excel(path_adult_master_file)
-
-print(df_adult_master_file)
-
 #%%### 3. restructure to combine frames for caregiver insurance sheet for Adult Activity
 df_13_cg_ins_FW.rename(columns={"Project ID": "ProjectID"}, inplace=True)
 df_13_cg_ins_FW.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=True)
@@ -139,14 +125,17 @@ df_13_well_child_FW.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=Tr
 
 frames=[df_13_well_child_LL, df_13_well_child_FW]
 
-df_13_well_child=pd.concat(frames)
+df_13_well_child=pd.concat([df_13_well_child_LL, df_13_well_child_FW])
 
 df_13_child_injury_FW.rename(columns={"Project ID": "ProjectID"}, inplace=True)
 df_13_child_injury_FW.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=True)
+df_13_child_injury_FW.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace=True)
+df_13_child_injury_FW.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
 
-frames=[df_13_child_injury_FW, df_13_child_injury_LL]
 
-df_13_child_injury=pd.concat(frames)
+df_13_child_injury_LL.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace=True)
+df_13_child_injury_LL.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
+df_13_child_injury=pd.concat([df_13_child_injury_FW, df_13_child_injury_LL])
 
 
 
@@ -164,6 +153,19 @@ print(int_nehv_quarter)
 
 #%%### 6. if not 1st quarter, write to existing files
 if int_nehv_quarter!=1:
+    
+    ### Reading previous quarter's Master Files:
+    path_13_master_input=Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau\\0in\\Y13Q1 (Oct 2023 - Dec 2023)')
+    #path_13_master_input = Path(path_master_file, '0in', 'Y13Q1 (Oct 2023 - Dec 2023)')
+
+    path_child_master_file= Path(path_13_master_input, 'Child Activity Master File.xlsx')
+    df_child_master_file = pd.read_excel(path_child_master_file)
+
+
+    path_adult_master_file= Path(path_13_master_input, 'Adult Activity Master File.xlsx')
+    df_adult_master_file = pd.read_excel(path_adult_master_file)
+
+
     ### 7. Pull from existing file and append new quarter to old file, write new combined to output location for Child file
     df_13_child_base_table_previous = pd.read_excel(path_child_master_file, sheet_name='LLCHD', keep_default_na=False, na_values=[''])
     df_13_child_base_table = pd.concat([df_13_child_base_table_previous, df_13_base_table], ignore_index=True)
@@ -174,11 +176,13 @@ if int_nehv_quarter!=1:
     df_13_child_act = df_13_child_act.drop_duplicates()
 
     df_13_well_child_previous = pd.read_excel(path_child_master_file, sheet_name='Well Child', keep_default_na=False, na_values=[''])
-    df_13_well_child = pd.concat([df_13_well_child_previous, df_13_adult_act], ignore_index=True)
+    df_13_well_child = pd.concat([df_13_well_child_previous, df_13_well_child], ignore_index=True)
     df_13_well_child = df_13_well_child.drop_duplicates()
 
     df_13_child_injury_previous = pd.read_excel(path_child_master_file, sheet_name='ER Injury', keep_default_na=False, na_values=[''])
-    df_13_child_injury = pd.concat([df_13_child_injury_previous, df_13_adult_act], ignore_index=True)
+    df_13_child_injury_previous.rename(columns={"Project ID": "ProjectID"}, inplace=True)
+    df_13_child_injury_previous.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=True)
+    df_13_child_injury = pd.concat([df_13_child_injury_previous, df_13_child_injury], ignore_index=True)
     df_13_child_injury  = df_13_child_injury.drop_duplicates()
 
     df_13_child_id_previous = pd.read_excel(path_child_master_file, sheet_name='Project ID', keep_default_na=False, na_values=[''])

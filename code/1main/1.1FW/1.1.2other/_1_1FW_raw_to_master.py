@@ -87,6 +87,7 @@ list_11FW_col_detail_3 = [
     ,['agency', 'string'] 
     ,['FAMILY NUMBER', 'Int64']
     ,['ChildNumber', 'Int64'] 
+    ,['funding', 'string']
     ,['AD1InsChange', 'Int64']
     ,['AD1InsChangeDate', 'datetime64[ns]']
     ,['AD1PrimaryIns', 'string']
@@ -101,10 +102,13 @@ list_11FW_date_cols_3 = [key for key, value in dict_11FW_col_dtypes_3.items() if
 #######################
 #%%### df_11FW_4: 'Adult Activities Query.xlsx'.
 import pandas as pd
-df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Adult Activities Query.xlsx') # can also index sheet by name or fetch all sheets
-list_11FW_col_detail_4 = df.columns.tolist()
-for x in list_11FW_col_detail_4:
-    print("['{}',],".format(x))
+
+#The below code helps me read in the column names in the right format, so use it if the columns change, otherwise it's not needed
+
+# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Adult Activities Query.xlsx') # can also index sheet by name or fetch all sheets
+# list_11FW_col_detail_4 = df.columns.tolist()
+# for x in list_11FW_col_detail_4:
+#     print("['{}',],".format(x))
 
 list_11FW_col_detail_4= [
 
@@ -204,11 +208,11 @@ list_11FW_date_cols_4 = [key for key, value in dict_11FW_col_dtypes_4.items() if
 
 #%%### df_11FW_5: 'Child Activities Query.xlsx'.
 import pandas as pd
-df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Child Activities Query.xlsx') # can also index sheet by name or fetch all sheets
-list_11FW_col_detail_5 = df.columns.tolist()
-print(len(list_11FW_col_detail_5))
-for x in list_11FW_col_detail_5:
-    print("['{}',],".format(x))
+# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Child Activities Query.xlsx') # can also index sheet by name or fetch all sheets
+# list_11FW_col_detail_5 = df.columns.tolist()
+# print(len(list_11FW_col_detail_5))
+# for x in list_11FW_col_detail_5:
+#     print("['{}',],".format(x))
 list_11FW_col_detail_5 = [
     ['Project ID','string'],
     ['agency','string'],
@@ -311,10 +315,10 @@ list_11FW_date_cols_5 = [key for key, value in dict_11FW_col_dtypes_5.items() if
 
 #%%### df_11FW_6: 'Adult UNCOPE Query.xlsx'.
 import pandas as pd
-df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Adult UNCOPE Query.xlsx') # can also index sheet by name or fetch all sheets
-list_11FW_col_detail_6 = df.columns.tolist()
-for x in list_11FW_col_detail_6:
-    print("['{}',],".format(x))
+# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Adult UNCOPE Query.xlsx') # can also index sheet by name or fetch all sheets
+# list_11FW_col_detail_6 = df.columns.tolist()
+# for x in list_11FW_col_detail_6:
+#     print("['{}',],".format(x))
 
 list_11FW_col_detail_6 = [
 
@@ -358,10 +362,10 @@ list_11FW_date_cols_6 = [key for key, value in dict_11FW_col_dtypes_6.items() if
 
 #%%### df_11FW_7: 'F1 - Home Visit Type Query.xlsx'.
 import pandas as pd
-df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\F1 - Home Visit Type Query.xlsx') # can also index sheet by name or fetch all sheets
-list_11FW_col_detail_7 = df.columns.tolist()
-for x in list_11FW_col_detail_7:
-    print("['{}',],".format(x))
+# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\F1 - Home Visit Type Query.xlsx') # can also index sheet by name or fetch all sheets
+# list_11FW_col_detail_7 = df.columns.tolist()
+# for x in list_11FW_col_detail_7:
+#     print("['{}',],".format(x))
 
 list_11FW_col_detail_7 = [
     ['Project ID','string'],
@@ -385,10 +389,10 @@ list_11FW_date_cols_7 = [key for key, value in dict_11FW_col_dtypes_7.items() if
 
 #%%### df_11FW_8: 'Referral Exclusions 1 thru 6.xlsx'.
 import pandas as pd
-df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Referral Exclusions 1 thru 6.xlsx') # can also index sheet by name or fetch all sheets
-list_11FW_col_detail_8 = df.columns.tolist()
-for x in list_11FW_col_detail_8:
-    print("['{}',],".format(x))
+# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Referral Exclusions 1 thru 6.xlsx') # can also index sheet by name or fetch all sheets
+# list_11FW_col_detail_8 = df.columns.tolist()
+# for x in list_11FW_col_detail_8:
+#     print("['{}',],".format(x))
 
 list_11FW_col_detail_8 = [
     ['Project ID','string'],
@@ -410,6 +414,35 @@ print(collections.Counter(list(dict_11FW_col_dtypes_8.values())))
 ### List of date columns:
 list_11FW_date_cols_8 = [key for key, value in dict_11FW_col_dtypes_8.items() if value == 'datetime64[ns]'] 
 
+
+#%%### df_11FW_9: '14 IPV FROG - use this one'.
+import pandas as pd
+# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q2 (Oct 2023 - Mar 2024)\\14 IPV Screen FROG - use this one.xlsx') # can also index sheet by name or fetch all sheets
+# list_11FW_col_detail_8 = df.columns.tolist()
+# for x in list_11FW_col_detail_8:
+#     print("['{}',],".format(x))
+
+list_11FW_col_detail_9 = [
+    ['Project ID','string'],
+    ['agency','string'],
+    ['FN - COUNTY CODE','Int64'],
+    ['FN - PROGRAM WITHIN COUNTY', 'Int64'],
+    ['FAMILY NUMBER','Int64'],
+    ['A1IPV','boolean'],
+    ['A1Police','boolean'],
+    ['A1Afraid','boolean'],
+    ['MOB ASSESSMENT DATE','datetime64[ns]'],
+
+]
+
+#%%### df_11FW_9: '14 IPV FROG - use this one'.
+dict_11FW_col_dtypes_9 = {x[0]:x[1] for x in list_11FW_col_detail_9}
+print(dict_11FW_col_dtypes_9)
+print(collections.Counter(list(dict_11FW_col_dtypes_9.values())))
+### List of date columns:
+list_11FW_date_cols_9 = [key for key, value in dict_11FW_col_dtypes_9.items() if value == 'datetime64[ns]'] 
+
+
 #%%##############################################!>>>
 ### >>> READ 
 #####################################################
@@ -424,6 +457,7 @@ xlsx_11FW_input_child_act = pd.ExcelFile(path_11FW_input_child_act)
 xlsx_11FW_input_adult_uncope = pd.ExcelFile(path_11FW_input_adult_uncope)
 xlsx_11FW_input_home_visit = pd.ExcelFile(path_11FW_input_home_visit)
 xlsx_11FW_input_ref_excl = pd.ExcelFile(path_11FW_input_ref_excl)
+xlsx_11FW_input_frog = pd.ExcelFile(path_11FW_input_frog)
 
 
 #%%###################################
@@ -438,6 +472,7 @@ df_11FW_allstring_5 = pd.read_excel(xlsx_11FW_input_child_act, keep_default_na=F
 df_11FW_allstring_6 = pd.read_excel(xlsx_11FW_input_adult_uncope, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_6)
 df_11FW_allstring_7 = pd.read_excel(xlsx_11FW_input_home_visit, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_7)
 df_11FW_allstring_8 = pd.read_excel(xlsx_11FW_input_ref_excl, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_8)
+df_11FW_allstring_9 = pd.read_excel(xlsx_11FW_input_frog, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_11FW_col_dtypes_9)
 #%%##############################################!>>>
 ### >>> CLEAN 
 #####################################################
@@ -464,6 +499,9 @@ df_11FW_well_child=df_11FW_allstring_1.copy()
 df_11FW_child_injury=df_11FW_allstring_2.copy()
 ### >>> df_11FW_3: '08 Child ER Injury.xlsx'.
 df_11FW_cg_ins=df_11FW_allstring_3.copy()
+### >>> df_11FW_9: '14 IPV FROG - use this one'.
+df_11FW_adult_frog=df_11FW_allstring_9.copy()
+
 
 #%%### 1. Strip surrounding whitespace
 df_11FW_child_act = (
@@ -490,6 +528,10 @@ df_11FW_child_injury = (
 df_11FW_cg_ins = (
     df_11FW_cg_ins.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
+df_11FW_adult_frog = (
+    df_11FW_adult_frog.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
+)
+
 
 #%%### 2. Find & replace "null" values  
 list_11FW_values_to_find_and_replace= ['null']
@@ -516,6 +558,9 @@ df_11FW_child_injury.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11
 )
 df_11FW_cg_ins= (
 df_11FW_cg_ins.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
+)
+df_11FW_adult_frog= (
+df_11FW_adult_frog.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_11FW_values_to_find_and_replace, pd.NA)
 )
 
 
@@ -554,6 +599,10 @@ df_11FW_child_injury = (
 df_11FW_cg_ins = (
     df_11FW_cg_ins
     .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_3}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
+)
+df_11FW_adult_frog = (
+    df_11FW_adult_frog
+    .replace({col:regex_11FW_dates_to_fix for col in list_11FW_date_cols_9}, regex_11FW_dates_replacement, regex=True) ### Checking all date columns.
 )
 
 
@@ -595,6 +644,11 @@ df_11FW_child_injury = (
 df_11FW_cg_ins = (
     df_11FW_cg_ins
     .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_3) ### Checking all date columns.
+)
+
+df_11FW_adult_frog = (
+    df_11FW_adult_frog
+    .pipe(fn_apply_dtypes, dict_11FW_col_dtypes_9) ### Checking all date columns.
 )
 
 #%%##############################################!>>>
@@ -684,6 +738,14 @@ df_11FW_adult_act
 #%%### 1. - Take UNCOPE columns and insert into Adult Activities
 df_11FW_adult_uncope_columns = df_11FW_adult_uncope[['Project ID','DATEUNCOPE', 'U', 'N', 'C', 'O', 'P', 'E', 'ReferralDATE', 'Category']]
 df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_adult_uncope_columns, on=['Project ID'], how='left')
+df_11FW_adult_act
+
+
+######################################
+### >>> '14 IPV Screen FROG - use this one.xlsx' Inclusion.
+#%%### 1. - Take FROG columns and insert into Adult Activities
+df_11FW_adult_frog_columns = df_11FW_adult_frog[['Project ID','A1IPV', 'A1Police', 'A1Afraid', 'MOB ASSESSMENT DATE']]
+df_11FW_adult_act = pd.merge(df_11FW_adult_act, df_11FW_adult_frog_columns, on=['Project ID'], how='left')
 df_11FW_adult_act
 
 ######################################

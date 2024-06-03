@@ -31,6 +31,7 @@ from RUNME import *
 path_13_code_base = Path.cwd()
 #U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\0in\Y13Q1 (Oct 2023 - Dec 2023)
 path_13_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
+str_nehv_quarter='Y13Q2 (Oct 2023 - Mar 2024)'
 
 path_13_dir_input = Path(path_13_files_base, '0in', str_nehv_quarter)
 path_13_dir_mid = Path(path_13_files_base, '2mid', str_nehv_quarter)
