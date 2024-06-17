@@ -54,33 +54,8 @@ df_13_base_table = pd.read_csv(path_13_input_base_table, keep_default_na=False, 
 #####################################################
 
 ######################################
-#%%### 1. Add 'year' and 'quarter' columns to all FamilyWise dataframes
 
-# int_nehv_quarter = 2
-#\ str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
-
-#%%
-### TODO: Move creation of year & quarter columns to 1.1.2.
-
-df_13_child_act.insert(loc=1, column='year', value=int_nehv_year)
-df_13_child_act.insert(loc=2, column='quarter', value=int_nehv_quarter)
-
-df_13_adult_act.insert(loc=1, column='year', value=int_nehv_year)
-df_13_adult_act.insert(loc=2, column='quarter', value=int_nehv_quarter)
-
-df_13_well_child_FW.insert(loc=1, column='year', value=int_nehv_year)
-df_13_well_child_FW.insert(loc=2, column='quarter', value=int_nehv_quarter)
-
-df_13_child_injury_FW.insert(loc=1, column='year', value=int_nehv_year)
-df_13_child_injury_FW.insert(loc=2, column='quarter', value=int_nehv_quarter)
-
-df_13_cg_ins_FW.insert(loc=1, column='year', value=int_nehv_year)
-df_13_cg_ins_FW.insert(loc=2, column='quarter', value=int_nehv_quarter)
-
-
-
-
-#%%### 2. Create Project ID sheet for adult and child sheets
+#%%### 1. Create Project ID sheet for adult and child sheets
 child_frames = [df_13_child_act[['Project ID']], df_13_base_table[['project_id']]]
 df_child_project_id=pd.concat(child_frames)
 
@@ -110,7 +85,7 @@ df_adult_project_id['year']=int_nehv_year
 df_adult_project_id['quarter']=int_nehv_quarter
 df_adult_project_id['join_id']=1
 
-#%%### 3. restructure to combine frames for caregiver insurance sheet for Adult Activity
+#%%### 2. restructure to combine frames for caregiver insurance sheet for Adult Activity
 df_13_cg_ins_FW.rename(columns={"Project ID": "ProjectID"}, inplace=True)
 df_13_cg_ins_FW.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=True)
 
@@ -119,7 +94,7 @@ frames=[df_13_cg_ins_LL, df_13_cg_ins_FW]
 df_13_cg_ins=pd.concat(frames)
 
 
-#%%### 4. restructure to combine frames for well child and ER Injury sheets for Adult Activity
+#%%### 3. restructure to combine frames for well child and ER Injury sheets for Adult Activity
 df_13_well_child_FW.rename(columns={"Project ID": "ProjectID"}, inplace=True)
 df_13_well_child_FW.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=True)
 
@@ -137,9 +112,10 @@ df_13_child_injury_LL.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace
 df_13_child_injury_LL.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
 df_13_child_injury=pd.concat([df_13_child_injury_FW, df_13_child_injury_LL])
 
+df_13_adult_act.rename(columns={"EDCDate": "EDC Date"}, inplace=True)
 
 
-#%%### 5. Create FOB and DOB sheet for Adult Activity
+#%%### 4. Create FOB and DOB sheet for Adult Activity
 df_13_mob_fob=pd.DataFrame({
     "join_id": [1, 1],
     "MOB_or_FOB": ["MOB", "FOB"]
@@ -151,7 +127,7 @@ print(int_nehv_quarter)
 
 ## change this method to read-in old files and append new ones, then rewrite
 
-#%%### 6. if not 1st quarter, write to existing files
+#%%### 5. if not 1st quarter, write to existing files
 if int_nehv_quarter!=1:
     
     ### Reading previous quarter's Master Files:
@@ -166,7 +142,7 @@ if int_nehv_quarter!=1:
     df_adult_master_file = pd.read_excel(path_adult_master_file)
 
 
-    ### 7. Pull from existing file and append new quarter to old file, write new combined to output location for Child file
+    ### 6. Pull from existing file and append new quarter to old file, write new combined to output location for Child file
     df_13_child_base_table_previous = pd.read_excel(path_child_master_file, sheet_name='LLCHD', keep_default_na=False, na_values=[''])
     df_13_child_base_table = pd.concat([df_13_child_base_table_previous, df_13_base_table], ignore_index=True)
     df_13_child_base_table = df_13_child_base_table.drop_duplicates()
@@ -189,7 +165,7 @@ if int_nehv_quarter!=1:
     df_child_project_id = pd.concat([df_13_child_id_previous, df_child_project_id], ignore_index=True)
     df_child_project_id = df_child_project_id.drop_duplicates()
 
-    ### 8. repeat for Adult files
+    ### 7. repeat for Adult files
     df_13_adult_base_table_previous = pd.read_excel(path_adult_master_file, sheet_name='LLCHD', keep_default_na=False, na_values=[''])
     df_13_adult_base_table = pd.concat([df_13_adult_base_table_previous, df_13_base_table], ignore_index=True)
     df_13_adult_base_table = df_13_adult_base_table.drop_duplicates()

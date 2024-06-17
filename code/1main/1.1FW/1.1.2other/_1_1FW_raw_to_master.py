@@ -871,6 +871,25 @@ df_11FW_pivoted_well_child.columns = [f'{col[0]}.{col[1]}' for col in df_11FW_pi
 df_11FW_pivoted_well_child = df_11FW_pivoted_well_child.reset_index()
 # df_11FW_pivoted_well_child
 
+#%%
+###: Create year & quarter columns.
+# int_nehv_quarter = 2
+#\ str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+
+df_11FW_child_act.insert(loc=1, column='year', value=int_nehv_year)
+df_11FW_child_act.insert(loc=2, column='quarter', value=int_nehv_quarter)
+
+df_11FW_adult_act.insert(loc=1, column='year', value=int_nehv_year)
+df_11FW_adult_act.insert(loc=2, column='quarter', value=int_nehv_quarter)
+
+df_11FW_pivoted_well_child.insert(loc=1, column='year', value=int_nehv_year)
+df_11FW_pivoted_well_child.insert(loc=2, column='quarter', value=int_nehv_quarter)
+
+df_11FW_pivoted_child_injury.insert(loc=1, column='year', value=int_nehv_year)
+df_11FW_pivoted_child_injury.insert(loc=2, column='quarter', value=int_nehv_quarter)
+
+df_11FW_pivoted_cg_ins.insert(loc=1, column='year', value=int_nehv_year)
+df_11FW_pivoted_cg_ins.insert(loc=2, column='quarter', value=int_nehv_quarter)
 
 
 #%%##############################################!>>>
