@@ -1432,6 +1432,7 @@ df_12LL_pivoted_ChildERInj_2 = df_12LL_ChildERInj_2.pivot_table(
     ,aggfunc='first' ### To use the values themselves and not an aggregation.
 )
 df_12LL_pivoted_ChildERInj_2
+### TODO ASKJOE: Do we need col 'ERVisitReason'? Joe does not keep.
 
 #%%
 ### Reorder exploded columns (while all other columns still in the row index & while column names still a MultiIndex):
