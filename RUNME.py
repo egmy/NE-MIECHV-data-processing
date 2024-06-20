@@ -45,7 +45,7 @@ from packages_and_functions import *
 # str_nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 # str_nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
 # str_nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
-# str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
+previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
 str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
 
 int_nehv_year = 13 

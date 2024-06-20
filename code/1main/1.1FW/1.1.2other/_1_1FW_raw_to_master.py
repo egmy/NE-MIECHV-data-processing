@@ -681,7 +681,7 @@ df_11FW_child_act.columns
 ### >>> df_11FW_5: 'Adult Activity Export'.
 ##
 
-#%%### 1. 1. Remove any rows with a discharge date (TERMINATION DATE) before the current reporting year  
+#%%### 1. Remove any rows with a discharge date (TERMINATION DATE) before the current reporting year  
 df_11FW_adult_act = df_11FW_adult_act[(df_11FW_adult_act['TERMINATION DATE'] >= pd.Timestamp(f'2023-10-01')) | (df_11FW_adult_act['TERMINATION DATE'].isna())]
 
 df_11FW_adult_act['TERMINATION DATE'].astype('datetime64[ns]')
@@ -789,6 +789,7 @@ inspect_df(df_11FW_child_injury)
 
 ### Add funding column:
 df_11FW_child_injury['funding']='addedlater'
+df_11FW_child_injury=df_11FW_child_injury.query('IncidentDate >= @date_fy_start')
 ### Pivot the DataFrame:
 df_11FW_pivoted_child_injury = df_11FW_child_injury.pivot_table(
     index=['Project ID', 'agency', 'FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
@@ -847,6 +848,7 @@ df_11FW_pivoted_cg_ins
 
 ### Add funding column:
 df_11FW_well_child['funding']='addedlater'
+df_11FW_well_child= df_11FW_well_child[df_11FW_well_child['WellVisitDate'] >= pd.Timestamp(f'2017-10-01')]
 ### Pivot the DataFrame:
 df_11FW_pivoted_well_child = df_11FW_well_child.pivot_table(
     index=['Project ID', 'agency','FAMILY NUMBER', 'ChildNumber', 'funding'] ### All columns that do not change (if not listed will be deleted).
@@ -873,8 +875,8 @@ df_11FW_pivoted_well_child = df_11FW_pivoted_well_child.reset_index()
 
 #%%
 ###: Create year & quarter columns.
-# int_nehv_quarter = 2
-#\ str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+#int_nehv_quarter = 2
+#str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
 
 df_11FW_child_act.insert(loc=1, column='year', value=int_nehv_year)
 df_11FW_child_act.insert(loc=2, column='quarter', value=int_nehv_quarter)

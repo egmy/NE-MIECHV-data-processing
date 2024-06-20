@@ -131,8 +131,8 @@ print(int_nehv_quarter)
 if int_nehv_quarter!=1:
     
     ### Reading previous quarter's Master Files:
-    path_13_master_input=Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau\\0in\\Y13Q1 (Oct 2023 - Dec 2023)')
-    #path_13_master_input = Path(path_master_file, '0in', 'Y13Q1 (Oct 2023 - Dec 2023)')
+    #path_13_master_input=Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau\\0in\\Y13Q1 (Oct 2023 - Dec 2023)')
+    path_13_master_input = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau\\0in', previous_str_nehv_quarter)
 
     path_child_master_file= Path(path_13_master_input, 'Child Activity Master File.xlsx')
     df_child_master_file = pd.read_excel(path_child_master_file)
