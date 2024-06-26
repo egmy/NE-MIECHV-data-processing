@@ -24,11 +24,9 @@ from RUNME import *
 #%%##################################################
 ### PATHS ###
 #####################################################
-
 ### TODO: Bring up all 1.3 paths to here.
 ### TODO: Also, keep 1.3 siloed: Only read in & out of 1.3 folders. Manually copy files as needed between silos. (We'll use other code to copy between silos.)
-
-path_13_code_base = Path.cwd()
+path_13_code_base = path_1_3
 #U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\0in\Y13Q1 (Oct 2023 - Dec 2023)
 path_13_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
 str_nehv_quarter='Y13Q2 (Oct 2023 - Mar 2024)'
@@ -72,9 +70,8 @@ print('end setup')
 
 ### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
     ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
-if __name__ == "__main__":
-    exec(open(Path(path_13_code_base, '_1_3_combine.py')).read())
-    print('Executed code files')
+exec(open(Path(path_1_3, '_1_3_combine.py')).read())
+print('Executed code files')
 
 
 #%%##################################################

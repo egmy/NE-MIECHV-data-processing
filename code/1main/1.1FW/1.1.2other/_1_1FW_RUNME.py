@@ -40,7 +40,7 @@ from RUNME import *
 ### PATHS ###
 #####################################################
 
-path_11FW_code_base = Path.cwd()
+path_11FW_code_base = path_1_2LL
 
 path_11FW_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other')
 
@@ -84,9 +84,9 @@ print('end setup')
 
 ### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
     ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
-if __name__ == "__main__":
-    exec(open(Path(path_11FW_code_base, '_1_1FW_raw_to_master.py')).read())
-    print('Executed code files')
+
+exec(open(Path(path_1_1FW, '_1_1FW_raw_to_master.py')).read())
+print('Executed code files')
 
 
 #%%##################################################

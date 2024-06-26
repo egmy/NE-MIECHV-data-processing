@@ -34,7 +34,7 @@
 import os 
 
 #%%
-print('File that is running: ', os.path.basename(__file__))
+#print('File that is running: ', os.path.basename(__file__))
 
 #%%
 ### The following is run if running this file by itself interactively (& ignored when run from RUNME):

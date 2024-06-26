@@ -88,8 +88,66 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)')):
 ### PATHS ###
 #####################################################
 
+import sys
+import runpy
+from pathlib import Path
+
+
+home_path=Path.cwd()
+
+path_1_1FW=home_path/'code/1main/1.1FW/1.1.2other'
+path_1_1FW_RUNME=home_path/'code/1main/1.1FW/1.1.2other/_1_1FW_RUNME.py'
+
+path_1_2LL=home_path/'code/1main/1.2LL'
+path_1_2_LL_RUNME=home_path/'code/1main/1.2LL/_1_2LL_RUNME.py'
+
+path_1_3=home_path/'code/1main/1.3combine'
+path_1_3_RUNME=home_path/'code/1main/1.3combine/_1_3_RUNME.py'
+
+path_1_4=home_path/'code/1main/1.4tableau'
+path_1_4_RUNME=home_path/'code/1main/1.4tableau/_1_4tab_RUNME.py'
+
+#sys.path.insert(0, 'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other')
+
+
+#%%##################################################
+### RUN ALL STEPS ###
+#####################################################v
+#%%
+### Step 1.1 FamilyWise
+if __name__ == "__main__":
+    print('\nExecuting step 1.1FW"')
+    runpy.run_path(path_name=path_1_1FW_RUNME)
+    #exec(open(Path(path_1_1FW, '_1_1FW_RUNME.py')).read())
+    print('\nSuccessfully executed step 1.1FW!"')
+#%%
+### Step 1.2 Lincoln Lancaster
+if __name__ == "__main__":
+    print('\nExecuting step 1.2LL"')
+    runpy.run_path(path_name=path_1_2_LL_RUNME)
+    #exec(open(Path(path_1_2LL, '_1_2LL_RUNME.py')).read())
+    print('\nSuccessfully executed step 1.2LL!"')
+
+#%%
+### Step 1.3 combine
+if __name__ == "__main__":
+    print('\nExecuting step 1.3combine"')
+    runpy.run_path(path_name=path_1_3_RUNME)
+    print('\nSuccessfully executed step 1.3combine!"')
+#%%
+### Final Step 1.4 Tableau
+if __name__ == "__main__":
+    print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
+    runpy.run_path(path_name=path_1_4_RUNME)
+    #exec(open(Path(path_1_4, '_1_4tab_RUNME.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
+    print('\nYou successfully ran all steps of the NE Data cleanup process!! Congrats')
 
 
 ### TODO: Write code that (1) backs up input files into an "old" folder & (2) overwrites input files with output from previous steps.
 
 
+
+# %%
+
+# %%

@@ -917,7 +917,7 @@ df_11FW_pivoted_well_child.to_csv(Path(path_11FW_dir_output, 'df_11FW_pivoted_we
 #%%
 # [o for o in list(globals().keys()) if o.startswith('df')]
 #%%
-del df_11FW_allstring_1, df_11FW_allstring_2, df_11FW_allstring_3, df_11FW_allstring_4,  df_11FW_child_act, df_11FW_child_injury, df_11FW_cg_ins, df_11FW_well_child
+del df_11FW_allstring_1, df_11FW_allstring_2, df_11FW_allstring_3, df_11FW_allstring_4
 
 #%%
 # [o for o in list(globals().keys()) if o.startswith('dict')]
