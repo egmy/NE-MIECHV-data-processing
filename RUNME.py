@@ -92,14 +92,13 @@ import sys
 import runpy
 from pathlib import Path
 
-
 home_path=Path.cwd()
 
 path_1_1FW=home_path/'code/1main/1.1FW/1.1.2other'
 path_1_1FW_RUNME=home_path/'code/1main/1.1FW/1.1.2other/_1_1FW_RUNME.py'
 
 path_1_2LL=home_path/'code/1main/1.2LL'
-path_1_2_LL_RUNME=home_path/'code/1main/1.2LL/_1_2LL_RUNME.py'
+path_1_2LL_RUNME=home_path/'code/1main/1.2LL/_1_2LL_RUNME.py'
 
 path_1_3=home_path/'code/1main/1.3combine'
 path_1_3_RUNME=home_path/'code/1main/1.3combine/_1_3_RUNME.py'
@@ -107,29 +106,23 @@ path_1_3_RUNME=home_path/'code/1main/1.3combine/_1_3_RUNME.py'
 path_1_4=home_path/'code/1main/1.4tableau'
 path_1_4_RUNME=home_path/'code/1main/1.4tableau/_1_4tab_RUNME.py'
 
+sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_1FW), str(path_1_2LL)]
+
 #sys.path.insert(0, 'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other')
 
+#%%##################################################
+### BACKUP? and READ FROM FILE?###
+#####################################################
+read_from_file=True
+backup=False
 
 #%%##################################################
 ### RUN ALL STEPS ###
 #####################################################v
 #%%
-### Step 1.1 FamilyWise
-if __name__ == "__main__":
-    print('\nExecuting step 1.1FW"')
-    runpy.run_path(path_name=path_1_1FW_RUNME)
-    #exec(open(Path(path_1_1FW, '_1_1FW_RUNME.py')).read())
-    print('\nSuccessfully executed step 1.1FW!"')
-#%%
-### Step 1.2 Lincoln Lancaster
-if __name__ == "__main__":
-    print('\nExecuting step 1.2LL"')
-    runpy.run_path(path_name=path_1_2_LL_RUNME)
-    #exec(open(Path(path_1_2LL, '_1_2LL_RUNME.py')).read())
-    print('\nSuccessfully executed step 1.2LL!"')
 
 #%%
-### Step 1.3 combine
+### Step 1.3 combine (runs 1.1 and 1.2 from within)
 if __name__ == "__main__":
     print('\nExecuting step 1.3combine"')
     runpy.run_path(path_name=path_1_3_RUNME)

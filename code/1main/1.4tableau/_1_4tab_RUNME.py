@@ -81,11 +81,13 @@
 #####################################################
 
 from pathlib import Path
+import os
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
 #%%
 import sys
-sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+path_1_3=Path(os.path.dirname(Path.cwd()))/'1.3combine/'
+sys.path+=[(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))]
 from RUNME import * 
 
 
@@ -100,11 +102,13 @@ path_14t_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tab
 path_14t_dir_input = Path(path_14t_files_base, '0in', str_nehv_quarter)
 path_14t_dir_mid = Path(path_14t_files_base, '2mid', str_nehv_quarter)
 path_14t_dir_output = Path(path_14t_files_base, '9out', str_nehv_quarter)
+path_14t_dir_backup=Path(path_14t_files_base, 'backup')
 
 ###########################
 ### Data Source for 2nd Tableau file:
 ### path_14t_data_source_file_tb2 = 'U:\\Working\\Tableau\\Y12 (Oct 2022 - Sept 2023)\\Child Activity Master File.xlsx' 
 ### local:
+
 path_14t_data_source_file_tb2 = Path(path_14t_dir_input, 'Child Activity Master File.xlsx')
 
 list_path_14t_data_source_sheets_tb2 = [
@@ -189,13 +193,13 @@ print('end setup')
 #%%
 ### "_1_4_replacing_tableau_2_Child_Activities.py"
 print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
-exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
+exec(open(Path(path_1_4, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
 print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
 
 #%%
 ### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"
 print('\nExecuting file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
-exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
+exec(open(Path(path_1_4, '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
 print('\nExecuted file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
 
 #%%
