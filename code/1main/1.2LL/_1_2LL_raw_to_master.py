@@ -1123,8 +1123,19 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
 
+print('____________\n')
 
-### <> NOTE: CREATE CFS ID File here.
+
+######################################
+#%%###################################
+### <> CREATE CFS ID File here.
+
+df_12LL_ID_file = df_12LL_after_BaseTable.copy() 
+
+#%%
+### Write out CSV:
+df_12LL_ID_file.to_csv(Path(path_12LL_output_ID_file), index = False, date_format="%m/%d/%Y")
+
 
 
 ### TODO: put in documentation:

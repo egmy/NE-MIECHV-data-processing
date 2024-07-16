@@ -64,8 +64,13 @@ list_path_12LL_input_raw_sheets = [
     ,'KU_WELLCHILDVISITS' # 4.
 ]
 
+###########################
+
 ### Output:
 path_12LL_output = Path(path_12LL_dir_output, 'LL_before_combining_with_FW.csv')
+
+path_12LL_output_ID_file = Path(path_12LL_files_base, 'LL ID File base', str_nehv_quarter, 'LL ID File base.csv')
+### Will copy to: "U:\Working\nehv_ds_data_files\2mid\2CFS\2.1forCFS\2.1.2LL\Y13Q2 (Oct 2023 - Mar 2024)"
 
 
 #%%##################################################
