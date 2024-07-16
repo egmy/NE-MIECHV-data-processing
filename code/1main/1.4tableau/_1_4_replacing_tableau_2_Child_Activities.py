@@ -71,11 +71,11 @@ dict_14t_col_dtypes_tb2_1 = {x[0]:x[3] for x in list_14t_col_detail_tb2_1}
 #######################
 #%%### df_14t_piece_tb2_2: 'ER Injury'.
 list_14t_col_detail_tb2_2 = [
-    ['Project ID', 'Project ID (ER Injury)', '', 'string'],
+    ['ProjectID', 'Project ID (ER Injury)', '', 'string'],
     ['year', 'year (ER Injury)', '', 'Int64'],
     ['quarter', 'quarter (ER Injury)', '', 'Int64'],
     ['agency', 'agency (ER Injury)', '', 'string'],
-    ['FAMILY NUMBER', 'FAMILY NUMBER (ER Injury)', '', 'string'],
+    ['FAMILYNUMBER', 'FAMILY NUMBER (ER Injury)', '', 'string'],
     ['ChildNumber', 'ChildNumber (ER Injury)', '', 'string'],
     ['funding', 'funding (ER Injury)', '', 'string'],
     ['IncidentDate', 'Incident Date', '', 'datetime64[ns]'],
@@ -365,6 +365,10 @@ list_14t_col_detail_tb2_4 = [
     ,['need_exclusion5', 'Need Exclusion5', '', 'string']
     ,['need_exclusion6', 'Need Exclusion6', '', 'string']
     ,['Has_ChildWelfareAdaptation', 'Has ChildWelfareAdaptation', '', 'string']
+    ,['CaseProgramID', 'Case Program ID', '', 'string'] ### Could be 'Int64'; however, ids left as strings.
+    ,['case_id','Case ID', '', 'string']
+    ,['tgt_identifier', 'TGT Identifier', '', 'string']
+    ,['cci_dt', 'CCI Dt', '', 'datetime64[ns]']
 ]
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
 dict_14t_colnames_tb2_4 = {x[0]:x[1] for x in list_14t_col_detail_tb2_4 if x[2] != 'same' and x[0] != x[1]}
@@ -1161,16 +1165,23 @@ df_14t_edits1_tb2['_Enroll 6 Month Date'] = (df_14t_edits1_tb2['_Enroll'] + pd.D
 
 def fn_TGT_EDC_Date(fdf):
     ### LLCHD.
-    if (fdf['Dt Edc'].date() == pd.Timestamp("1900-01-01").date()):
-        return pd.NaT 
+    #if (fdf['Dt Edc'] is pd.NaT) or (fdf['Dt Edc'] == "1900-01-01"):
+    # return pd.NaT 
     ### FW.
-    elif (fdf['EDC Date'].date() == pd.Timestamp("1900-01-01").date()):
-        return pd.NaT 
-    else:
-        if (fdf['Dt Edc'] is not pd.NaT):
-            return fdf['Dt Edc']
+    try:
+        dt_date_value=pd.to_datetime(fdf['Dt Edc'])
+        edc_date_value = pd.to_datetime(fdf['EDC Date'])
+        if (dt_date_value == pd.Timestamp("1900-01-01")):
+            return pd.NaT 
+        elif (edc_date_value == pd.Timestamp("1900-01-01")):
+            return pd.NaT 
         else:
-            return fdf['EDC Date']
+            if (fdf['Dt Edc'] is not pd.NaT):
+                return fdf['Dt Edc']
+            else:
+                return fdf['EDC Date']
+    except ValueError:
+        return pd.NaT
     ###########
     ### /// Tableau Calculation:
     ### IF [Dt Edc] = DATE(1/1/1900) THEN NULL //LLCHD
@@ -1190,17 +1201,21 @@ df_14t_edits1_tb2['_TGT EDC Date'] = df_14t_edits1_tb2.apply(func=fn_TGT_EDC_Dat
 #%%###################################
 
 def fn_TGT_DOB(fdf):
-    ### LLCHD.
-    if (fdf['Tgt Dob'].date() == pd.Timestamp("1900-01-01").date()):
-        return pd.NaT 
-    ### FW.
-    elif (fdf['Tgt Dob-Cr'].date() == pd.Timestamp("1900-01-01").date()):
-        return pd.NaT 
-    else:
-        if (fdf['Tgt Dob'] is not pd.NaT):
-            return fdf['Tgt Dob']
+    try:
+        tgt_dob_date_value=pd.to_datetime(fdf['Tgt Dob'])
+        tgt_cr_date_value = pd.to_datetime(fdf['Tgt Dob-Cr'])
+        if (tgt_dob_date_value == pd.Timestamp("1900-01-01")):
+            return pd.NaT 
+        elif (tgt_cr_date_value == pd.Timestamp("1900-01-01")):
+            return pd.NaT 
         else:
-            return fdf['Tgt Dob-Cr']
+            if (fdf['Tgt Dob'] is not pd.NaT):
+                return fdf['Tgt Dob']
+            else:
+                return fdf['Tgt Dob-Cr']
+    except ValueError:
+        return pd.NaT
+    ### LLCHD.
     ###########
     ### /// Tableau Calculation:
     ### IF [Tgt Dob] = DATE(1/1/1900) THEN NULL //LLCHD
@@ -1382,6 +1397,8 @@ df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['_C7 Safe Sleep
 ### RESOLVED: Ask Joe why ALL values are the same. Fixed: no longer.
 ### RESOLVED: need to check values for FW reasons. Fixed: now accepting strings.
 def fn_Discharge_Reason(fdf):
+    fdf['Discharge Dt']=pd.to_datetime(fdf['Discharge Dt'])
+    fdf['Termination Date']=pd.to_datetime(fdf['Termination Date'])
     ### LLCHD, see full reasons below.
     if (fdf['Discharge Dt'] is not pd.NaT):
         match fdf['Discharge Reason']: 

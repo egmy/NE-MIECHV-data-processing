@@ -104,13 +104,60 @@ df_13_child_injury_FW.rename(columns={"Project ID": "ProjectID"}, inplace=True)
 df_13_child_injury_FW.rename(columns={"FAMILY NUMBER": "FAMILYNUMBER"}, inplace=True)
 df_13_child_injury_FW.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace=True)
 df_13_child_injury_FW.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
+df_13_child_injury_FW=df_13_child_injury_FW.drop(columns={"ERVisitReason"})
 
 
 df_13_child_injury_LL.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace=True)
 df_13_child_injury_LL.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
+df_13_child_injury_LL=df_13_child_injury_LL.drop(columns={"ERVisitReason"})
 df_13_child_injury=pd.concat([df_13_child_injury_FW, df_13_child_injury_LL])
 
 df_13_adult_act.rename(columns={"EDCDate": "EDC Date"}, inplace=True)
+df_13_adult_act.rename(columns={"need_ex1": "need_exclusion1"}, inplace=True)
+df_13_adult_act.rename(columns={"need_ex2": "need_exclusion2"}, inplace=True)
+df_13_adult_act.rename(columns={"need_ex2": "need_exclusion2"}, inplace=True)
+df_13_adult_act.rename(columns={"need_ex3": "need_exclusion3"}, inplace=True)
+df_13_adult_act.rename(columns={"need_ex5": "need_exclusion5"}, inplace=True)
+df_13_adult_act.rename(columns={"need_ex6": "need_exclusion6"}, inplace=True)
+df_13_adult_act.rename(columns={"Home Visits Prenatal": "HomeVisitsPrenatal"}, inplace=True)
+df_13_adult_act['IPVRefDate']=pd.to_datetime(df_13_adult_act['IPVRefDate'])
+df_13_adult_act.rename(columns={"ReferralDATE": "IPVRefDate"}, inplace=True)
+df_13_adult_act.rename(columns={"Category": "UNCOPERefCategory"}, inplace=True)
+df_13_adult_act.rename(columns={"Home Visits Total": "HomeVisitsTotal"}, inplace=True)
+df_13_adult_act.rename(columns={"A1IPV": "AssessIPV"}, inplace=True)
+df_13_adult_act.rename(columns={"A1Police": "AssessPolice"}, inplace=True)
+df_13_adult_act.rename(columns={"A1Afraid": "AssessAfraid"}, inplace=True)
+df_13_adult_act.rename(columns={"MOB ASSESSMENT DATE": "IPV Assess Date"}, inplace=True)
+def same_merge(x): return ','.join(x[x.notnull()].astype(str))
+df_13_adult_act = df_13_adult_act.groupby(level=0, axis=1).apply(lambda x: x.apply(same_merge, axis=1))
+
+def keep_last_item(cell_value):
+    # Split the cell value by comma and strip any leading/trailing spaces
+    if not pd.isna(cell_value):  # Check if cell_value is not NaN or NaT
+            items = [item.strip() for item in str(cell_value).split(',') if item.strip()]
+            return items[-1] if items else np.nan  # Return last item or NaN if no items after stripping
+    else:
+        return pd.NA
+def last_item_merge(x):
+    return x.apply(keep_last_item)
+
+df_13_adult_act = df_13_adult_act.apply(last_item_merge)
+df_13_adult_act['AssessIPV'] = df_13_adult_act['AssessIPV'].astype(str).replace({'True': True, 'False': False})
+df_13_adult_act['AssessIPV'] = df_13_adult_act['AssessIPV'].astype('Int64')
+df_13_adult_act['AssessPolice'] = df_13_adult_act['AssessPolice'].astype(str).replace({'True': True, 'False': False})
+df_13_adult_act['AssessPolice'] = df_13_adult_act['AssessPolice'].astype('Int64')
+df_13_adult_act['AssessAfraid'] = df_13_adult_act['AssessAfraid'].astype(str).replace({'True': True, 'False': False})
+df_13_adult_act['AssessAfraid'] = df_13_adult_act['AssessAfraid'].astype('Int64')
+
+
+
+df_13_child_act.rename(columns={"MaxOfHVDate": "MaxofHVDate"}, inplace=True)
+df_13_child_act.rename(columns={"EDCDate": "EDC Date"}, inplace=True)
+df_13_child_act.rename(columns={"MOB ZIP": "ZIP Code"}, inplace=True)
+df_13_child_act['ZIP Code'] = pd.to_numeric(df_13_child_act['ZIP Code'], errors='coerce')
+df_13_child_act.rename(columns={"MaxOfReadToChild": "ReadTellStorySing"}, inplace=True)
+df_13_child_act.rename(columns={"TGT GENDER": "TGT Gender"}, inplace=True)
+df_13_child_act.rename(columns={"need_ex4": "need_exclusion4"}, inplace=True)
 
 
 #%%### 4. Create FOB and DOB sheet for Adult Activity

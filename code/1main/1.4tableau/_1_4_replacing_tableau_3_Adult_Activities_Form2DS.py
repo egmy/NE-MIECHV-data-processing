@@ -407,7 +407,11 @@ list_14t_col_detail_tb3_4 = [
     ['need_exclusion4', 'Need Exclusion4', '', 'string'],
     ['need_exclusion5', 'need exclusion5 (LLCHD)', '', 'string'],
     ['need_exclusion6', 'need_exclusion6', 'same', 'string'],
-    ['Has_ChildWelfareAdaptation', 'Has_ChildWelfareAdaptation', 'same', 'string']
+    ['Has_ChildWelfareAdaptation', 'Has_ChildWelfareAdaptation', 'same', 'string'],
+    ['CaseProgramID', 'Case Program ID', '', 'string'],
+    ['case_id', 'Case ID', '', 'string'],
+    ['tgt_identifier', 'TGT identifier', '', 'string'],
+    ['cci_dt', 'CCI Dt', '', 'string']
 ]
 #%%### df_14t_piece_tb3_4: 'LLCHD'.
 dict_14t_colnames_tb3_4 = {x[0]:x[1] for x in list_14t_col_detail_tb3_4 if x[2] != 'same' and x[0] != x[1]}
@@ -487,6 +491,7 @@ df_14t_piece_tb3_2 = (
 print("Sheet 'Family Wise':")
 df_14t_piece_tb3_3 = (
     df_14t_piece_tb3_3
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb3_3)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_3)
 ) 
 # inspect_df(df_14t_piece_tb3_3)
@@ -496,6 +501,7 @@ df_14t_piece_tb3_3 = (
 print("Sheet 'LLCHD':")
 df_14t_piece_tb3_4 = (
     df_14t_piece_tb3_4
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb3_4)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb3_4)
 )
 # inspect_df(df_14t_piece_tb3_4)
