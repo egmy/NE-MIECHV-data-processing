@@ -31,22 +31,21 @@ from pathlib import Path
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
 #%%
-import sys
-sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
-from RUNME import * 
+if __name__ == "__main__":
+    import sys
+    sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+    from RUNME import * 
 
 
 #%%##################################################
 ### PATHS ###
 #####################################################
 
-path_11FW_code_base = path_1_2LL
+path_112FW_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other')
 
-path_11FW_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other')
-
-path_11FW_dir_input = Path(path_11FW_files_base, '0in', str_nehv_quarter)
-path_11FW_dir_mid = Path(path_11FW_files_base, '2mid', str_nehv_quarter)
-path_11FW_dir_output = Path(path_11FW_files_base, '9out', str_nehv_quarter)
+path_112FW_dir_input = Path(path_112FW_files_base, '0in', str_nehv_quarter)
+path_112FW_dir_mid = Path(path_112FW_files_base, '2mid', str_nehv_quarter)
+path_112FW_dir_output = Path(path_112FW_files_base, '9out', str_nehv_quarter)
 
 ###########################
 
@@ -55,20 +54,20 @@ path_11FW_dir_output = Path(path_11FW_files_base, '9out', str_nehv_quarter)
 ### Input:
 ### U:\Working\Tableau\Y## (<date_range>)\Y##Q# (<date_range>)\LLCHD ### oldest file.
 ### U:\SFTP ### Should see same file here.
-# path_11FW_input_raw = Path(path_11FW_dir_input, 'Flatfile_CHSR_231001.xlsx')
-path_11FW_input_well_child = Path(path_11FW_dir_input, '04 Well Child v2 no MAX - use this one.xlsx')
-path_11FW_input_child_injury = Path(path_11FW_dir_input, '08 Child ER Injury.xlsx')
-path_11FW_input_cg_ins = Path(path_11FW_dir_input, '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx')
-path_11FW_input_adult_act = Path(path_11FW_dir_input, 'Adult Activities Query.xlsx')
-path_11FW_input_adult_uncope = Path(path_11FW_dir_input, 'Adult UNCOPE Query.xlsx')
-path_11FW_input_child_act = Path(path_11FW_dir_input, 'Child Activities Query.xlsx')
-path_11FW_input_home_visit = Path(path_11FW_dir_input, 'F1 - Home Visit Type Query.xlsx')
-path_11FW_input_ref_excl = Path(path_11FW_dir_input, 'Referral Exclusions 1 thru 6.xlsx')
-path_11FW_input_frog = Path(path_11FW_dir_input, '14 IPV Screen FROG - use this one.xlsx')
+# path_112FW_input_raw = Path(path_112FW_dir_input, 'Flatfile_CHSR_231001.xlsx')
+path_112FW_input_well_child = Path(path_112FW_dir_input, '04 Well Child v2 no MAX - use this one.xlsx')
+path_112FW_input_child_injury = Path(path_112FW_dir_input, '08 Child ER Injury.xlsx')
+path_112FW_input_cg_ins = Path(path_112FW_dir_input, '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx')
+path_112FW_input_adult_act = Path(path_112FW_dir_input, 'Adult Activities Query.xlsx')
+path_112FW_input_adult_uncope = Path(path_112FW_dir_input, 'Adult UNCOPE Query.xlsx')
+path_112FW_input_child_act = Path(path_112FW_dir_input, 'Child Activities Query.xlsx')
+path_112FW_input_home_visit = Path(path_112FW_dir_input, 'F1 - Home Visit Type Query.xlsx')
+path_112FW_input_ref_excl = Path(path_112FW_dir_input, 'Referral Exclusions 1 thru 6.xlsx')
+path_112FW_input_frog = Path(path_112FW_dir_input, '14 IPV Screen FROG - use this one.xlsx')
 
 
 ### Output:
-path_11FW_output = Path(path_11FW_dir_output, 'LL_before_combining_with_FW.csv')
+path_112FW_output = Path(path_112FW_dir_output, 'LL_before_combining_with_FW.csv')
 
 
 #%%##################################################
@@ -85,7 +84,7 @@ print('end setup')
 ### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
     ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
 
-exec(open(Path(path_1_1FW, '_1_1FW_raw_to_master.py')).read())
+exec(open(Path(path_112FW_code_base, '_1_1_2FW_access_to_master.py')).read())
 print('Executed code files')
 
 
