@@ -20,7 +20,7 @@ print('File that is running: ', os.path.basename(__file__))
 ### The following is run if running this file by itself interactively (& ignored when run from RUNME):
 if (os.path.basename(__file__) == '_1_1_2FW_access_to_master.py'):
     from _1_1_2FW_RUNME import * 
-    print('Imported "_1_1_FW_RUNME"')
+    print('Imported "_1_1_2FW_RUNME"')
 else:
     print("Did NOT run RUNME again... because it's already running!")
 

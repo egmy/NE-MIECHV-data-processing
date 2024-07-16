@@ -31,16 +31,16 @@ from pathlib import Path
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
 #%%
-import sys
-sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
-from RUNME import * 
+import os
+if (os.path.basename(__file__) == '_1_2LL_RUNME.py'):
+    import sys
+    sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+    from RUNME import * 
 
 
 #%%##################################################
 ### PATHS ###
 #####################################################
-
-path_12LL_code_base = path_1_2LL
 
 path_12LL_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.2LL')
 
@@ -82,8 +82,9 @@ print('end setup')
 ### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
     ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
 
-exec(open(Path(path_1_2LL, '_1_2LL_raw_to_master.py')).read())
-print('Executed code files')
+if (os.path.basename(__file__) in ('_1_2LL_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
+    exec(open(Path(path_12LL_code_base, '_1_2LL_raw_to_master.py')).read())
+    print('Executed LL code files')
 
 
 #%%##################################################

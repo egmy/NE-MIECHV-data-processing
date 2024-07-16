@@ -84,16 +84,16 @@ from pathlib import Path
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
 #%%
-import sys
-sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
-from RUNME import * 
+import os
+if (os.path.basename(__file__) == '_1_4tab_RUNME.py'):
+    import sys
+    sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+    from RUNME import * 
 
 
 #%%##################################################
 ### PATHS ###
 #####################################################
-
-path_14t_code_base = path_1_4
 
 path_14t_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau')
 
@@ -188,21 +188,24 @@ print('end setup')
 
 #%%
 ### "_1_4_replacing_tableau_2_Child_Activities.py"
-print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
-exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
-print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
+if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
+    print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
+    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
 
 #%%
 ### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"
-print('\nExecuting file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
-exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
-print('\nExecuted file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
+if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
+    print('\nExecuting file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
+    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
 
 #%%
 ### "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"
-print('\nExecuting file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
-exec(open(Path(path_1_4, '_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py')).read())
-print('\nExecuted file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
+if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
+    print('\nExecuting file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
+    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
 
 
 #%%##################################################

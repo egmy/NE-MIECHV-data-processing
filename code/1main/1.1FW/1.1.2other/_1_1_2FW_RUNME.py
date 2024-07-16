@@ -31,7 +31,8 @@ from pathlib import Path
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
 #%%
-if __name__ == "__main__":
+import os
+if (os.path.basename(__file__) == '_1_1_2FW_RUNME.py'):
     import sys
     sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
     from RUNME import * 
@@ -84,8 +85,9 @@ print('end setup')
 ### The following is run if running this file by itself interactively (& ignored when run from one of the code files):
     ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
 
-exec(open(Path(path_112FW_code_base, '_1_1_2FW_access_to_master.py')).read())
-print('Executed code files')
+if (os.path.basename(__file__) in ('_1_1_2FW_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
+    exec(open(Path(path_112FW_code_base, '_1_1_2FW_access_to_master.py')).read())
+    print('Executed code files')
 
 
 #%%##################################################

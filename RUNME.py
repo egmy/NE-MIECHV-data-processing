@@ -8,7 +8,7 @@
 ### Every Quarter:
 
 ### 1. Update this RUNME file's key values:
-    ### 2.1 Below, make a new line for object "str_nehv_quarter" & set to the same text name of the new quarter used for creating input/output folders.
+    ### 2.1 Below, make a new line for objects "str_nehv_quarter" & "previous_str_nehv_quarter" -- set to the same text name of the new quarter used for creating input/output folders.
     ### 2.2 Update "int_nehv_quarter" & "int_nehv_year" & "date_fy_start" to match new quarter.
     ### 2.3 Update Federal Poverty Guidelines:
         ### If new quarter is in the same calendar year as last quarter, add quarter's name to the "str_nehv_quarter in (...)" clause.
@@ -41,17 +41,23 @@ from packages_and_functions import *
 ### KEY VALUES ###
 #####################################################
 
+repo_name = 'nehv_ds_code_repository'
+
 # str_nehv_quarter = 'Y12Q1 (Oct 2022 - Dec 2023)'
 # str_nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 # str_nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
 # str_nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
-previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
 str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+# str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
+
+previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
+# previous_str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
 
 int_nehv_year = 13 
 
 # int_nehv_quarter = 1 
 int_nehv_quarter = 2 
+# int_nehv_quarter = 3 
 
 date_fy_start = pd.Timestamp("2023-10-01") ### Midnight.
 
@@ -78,7 +84,7 @@ elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun
     int_fpg_increment = 5140 
 
 ### 2024: https://www.govinfo.gov/content/pkg/FR-2024-01-17/pdf/2024-00796.pdf 
-elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)')):
+elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun 2024)')):
     ### 9680 + (5380 * [household size])
     int_fpg_base = 9680 
     int_fpg_increment = 5380 
@@ -88,59 +94,63 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)')):
 ### PATHS ###
 #####################################################
 
-import sys
-import runpy
-from pathlib import Path
+### Paths for all sub folders & sub files.
 
+if __name__ == "__main__":
+    home_path = Path.cwd() ### Only works when running from main RUNME, otherwise Path.cwd() grabs subfolder instead of main repo directory!
+else:
+    home_path = [path for path in Path.cwd().parents if path.name == repo_name][0] ### For when running from "lower" files.
 
-home_path=Path.cwd()
+path_112FW_code_base = home_path/'code/1main/1.1FW/1.1.2other'
+path_112FW_code_RUNME = path_112FW_code_base / '_1_1_2FW_RUNME.py'
 
-path_1_1FW=home_path/'code/1main/1.1FW/1.1.2other'
-path_1_1FW_RUNME=home_path/'code/1main/1.1FW/1.1.2other/_1_1FW_RUNME.py'
+path_12LL_code_base = home_path/'code/1main/1.2LL'
+path_12LL_code_RUNME = path_12LL_code_base / '_1_2LL_RUNME.py'
 
-path_1_2LL=home_path/'code/1main/1.2LL'
-path_1_2_LL_RUNME=home_path/'code/1main/1.2LL/_1_2LL_RUNME.py'
+path_13_code_base = home_path/'code/1main/1.3combine'
+path_13_code_RUNME = path_13_code_base / '_1_3_RUNME.py'
 
-path_1_3=home_path/'code/1main/1.3combine'
-path_1_3_RUNME=home_path/'code/1main/1.3combine/_1_3_RUNME.py'
-
-path_1_4=home_path/'code/1main/1.4tableau'
-path_1_4_RUNME=home_path/'code/1main/1.4tableau/_1_4tab_RUNME.py'
+path_14t_code_base = home_path/'code/1main/1.4tableau'
+path_14t_code_RUNME = path_14t_code_base / '_1_4tab_RUNME.py'
 
 #sys.path.insert(0, 'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other')
 
 
 #%%##################################################
 ### RUN ALL STEPS ###
-#####################################################v
+#####################################################
+
 #%%
-### Step 1.1 FamilyWise
+### Step 1.1.2 FamilyWise
 if __name__ == "__main__":
-    print('\nExecuting step 1.1FW"')
-    runpy.run_path(path_name=path_1_1FW_RUNME)
-    #exec(open(Path(path_1_1FW, '_1_1FW_RUNME.py')).read())
-    print('\nSuccessfully executed step 1.1FW!"')
+    print('\nExecuting step 1.1.2FW')
+    ### runpy.run_path(path_name = path_112FW_code_RUNME)
+    exec(open(path_112FW_code_RUNME).read())
+    print('\nSuccessfully executed step 1.1.2FW!"')
+
 #%%
 ### Step 1.2 Lincoln Lancaster
 if __name__ == "__main__":
-    print('\nExecuting step 1.2LL"')
-    runpy.run_path(path_name=path_1_2_LL_RUNME)
-    #exec(open(Path(path_1_2LL, '_1_2LL_RUNME.py')).read())
+    print('\nExecuting step 1.2LL')
+    ### runpy.run_path(path_name = path_12LL_code_RUNME)
+    exec(open(path_12LL_code_RUNME).read())
     print('\nSuccessfully executed step 1.2LL!"')
 
 #%%
 ### Step 1.3 combine
 if __name__ == "__main__":
-    print('\nExecuting step 1.3combine"')
-    runpy.run_path(path_name=path_1_3_RUNME)
+    print('\nExecuting step 1.3combine')
+    ### runpy.run_path(path_name = path_13_code_RUNME)
+    exec(open(path_13_code_RUNME).read())
     print('\nSuccessfully executed step 1.3combine!"')
+
 #%%
-### Final Step 1.4 Tableau
+### Final Step 1.4 Tableau replacement
 if __name__ == "__main__":
-    print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
-    runpy.run_path(path_name=path_1_4_RUNME)
-    #exec(open(Path(path_1_4, '_1_4tab_RUNME.py')).read())
-    print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
+    print('\nExecuting step 1.4 Tableau replacement')
+    ### runpy.run_path(path_name = path_14t_code_RUNME)
+    exec(open(path_14t_code_RUNME).read())
+    print('\nSuccessfully executed step 1.4 Tableau replacement!')
     print('\nYou successfully ran all steps of the NE Data cleanup process!! Congrats')
 
 
@@ -148,6 +158,11 @@ if __name__ == "__main__":
 
 
 
-# %%
+#%%##################################################
+### END ###
+#####################################################
+
+print('Yay! You ran the main RUNME!')
 
 # %%
+
