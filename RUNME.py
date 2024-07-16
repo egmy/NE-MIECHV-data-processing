@@ -47,17 +47,17 @@ repo_name = 'nehv_ds_code_repository'
 # str_nehv_quarter = 'Y12Q2 (Oct 2022 - Mar 2023)'
 # str_nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
 # str_nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
-str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
-# str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
+# str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
 
-previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
-# previous_str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+# previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
+previous_str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
 
 int_nehv_year = 13 
 
 # int_nehv_quarter = 1 
-int_nehv_quarter = 2 
-# int_nehv_quarter = 3 
+# int_nehv_quarter = 2 
+int_nehv_quarter = 3 
 
 date_fy_start = pd.Timestamp("2023-10-01") ### Midnight.
 
@@ -165,4 +165,6 @@ if __name__ == "__main__":
 print('Yay! You ran the main RUNME!')
 
 # %%
+
+### TODO: Autogenerate in/out folders instead of needing to create them.
 

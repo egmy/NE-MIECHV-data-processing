@@ -13,6 +13,7 @@
     ### Copy that quarter's folder's name (for example, "Y13Q2 (Oct 2023 - Mar 2024)"), and create new folders in these locations:
         ### U:\Working\nehv_ds_data_files\2mid\1main\1.2LL\0in  
         ### U:\Working\nehv_ds_data_files\2mid\1main\1.2LL\9out  
+        ### U:\Working\nehv_ds_data_files\2mid\1main\1.2LL\LL_ID_File_base    
 
 ### 2. Update the main RUNME file's key values. See that file's instructions.
 
@@ -55,7 +56,9 @@ path_12LL_dir_output = Path(path_12LL_files_base, '9out', str_nehv_quarter)
 ### U:\SFTP ### Should see same file here.
 # path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_231001.xlsx')
 # path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_240102.xlsx')
-path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_240403.xlsx')
+# path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_240403.xlsx')
+path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_240702.xlsx')
+
 
 list_path_12LL_input_raw_sheets = [
     'KU_BASETABLE' # 1.
@@ -69,7 +72,7 @@ list_path_12LL_input_raw_sheets = [
 ### Output:
 path_12LL_output = Path(path_12LL_dir_output, 'LL_before_combining_with_FW.csv')
 
-path_12LL_output_ID_file = Path(path_12LL_files_base, 'LL ID File base', str_nehv_quarter, 'LL ID File base.csv')
+path_12LL_output_ID_file = Path(path_12LL_files_base, 'LL_ID_File_base', str_nehv_quarter, 'LL_ID_File_base.csv')
 ### Will copy to: "U:\Working\nehv_ds_data_files\2mid\2CFS\2.1forCFS\2.1.2LL\Y13Q2 (Oct 2023 - Mar 2024)"
 
 
