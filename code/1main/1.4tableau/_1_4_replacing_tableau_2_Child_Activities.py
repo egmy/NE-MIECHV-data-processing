@@ -487,6 +487,7 @@ df_14t_piece_tb2_1 = (
 print("Sheet 'ER Injury':")
 df_14t_piece_tb2_2 = (
     df_14t_piece_tb2_2
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb2_2)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_2)
 )
 # inspect_df(df_14t_piece_tb2_2)
@@ -496,6 +497,7 @@ df_14t_piece_tb2_2 = (
 print("Sheet 'Family Wise':")
 df_14t_piece_tb2_3 = (
     df_14t_piece_tb2_3
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb2_3)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_3)
 ) 
 # inspect_df(df_14t_piece_tb2_3)
@@ -514,6 +516,7 @@ print("Sheet 'LLCHD':")
 df_14t_piece_tb2_4 = (
     df_14t_piece_tb2_4
     ###.astype(dict_14t_col_dtypes_tb2_4)
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb2_4)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_4)
 )
 # inspect_df(df_14t_piece_tb2_4)
@@ -531,6 +534,7 @@ df_14t_piece_tb2_4 = (
 print("Sheet 'Well Child':")
 df_14t_piece_tb2_5 = (
     df_14t_piece_tb2_5
+    .pipe(fn_fix_mixed_date_dtypes, dict_14t_col_dtypes_tb2_5)
     .pipe(fn_apply_dtypes, dict_14t_col_dtypes_tb2_5)
 )
 # inspect_df(df_14t_piece_tb2_5)
