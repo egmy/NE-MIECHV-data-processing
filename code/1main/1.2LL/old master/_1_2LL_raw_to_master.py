@@ -25,7 +25,7 @@
 
 ### TODO: Instructions for how to get into environment & how to edit/run code files.
 
-
+### TODO: Add code that stops the code & flags when partners send us new columns that need to be added to our lists/dictionaries.
 
 #%%##############################################!>>> 
 ### >>>  SETUP 
@@ -64,6 +64,8 @@ list_12LL_col_detail_1 = [
     ['site_id', 'string']
     ,['worker_id', 'string']
     ,['family_id', 'string']
+    ,['CaseProgramID', 'string'] ### Could be 'Int64'; however, ids left as strings.
+    ,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_identifier', 'string']
     ,['tgt_dob', 'datetime64[ns]']
@@ -250,6 +252,7 @@ list_12LL_date_cols_1 = [key for key, value in dict_12LL_col_dtypes_1.items() if
 #%%### df_12LL_2: 'KU_CHILDERINJ'.
 list_12LL_col_detail_2 = [
     ['family_id', 'string']
+    ,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['reason', 'string']
@@ -266,6 +269,7 @@ list_12LL_date_cols_2 = [key for key, value in dict_12LL_col_dtypes_2.items() if
 #%%### df_12LL_3: 'KU_MATERNALINS'.
 list_12LL_col_detail_3 = [
     ['family_id', 'string']
+    ,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['insurance', 'string'] ### Could be 'Int64'; however, left as string because will union with FW string vars. Will be UN-coded in 1.4 code.
@@ -282,6 +286,7 @@ list_12LL_date_cols_3 = [key for key, value in dict_12LL_col_dtypes_3.items() if
 #%%### df_12LL_4: 'KU_WELLCHILDVISITS'.
 list_12LL_col_detail_4 = [
     ['family_id', 'string']
+    ,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['date', 'datetime64[ns]']
@@ -1123,8 +1128,19 @@ print(f'Columns: {len(df_12LL_after_BaseTable.columns)}')
 df_12LL_before_BaseTable = df_12LL_after_BaseTable.copy() 
 
 
+print('____________\n')
 
-### <> NOTE: CREATE CFS ID File here.
+
+######################################
+#%%###################################
+### <> CREATE CFS ID File here.
+
+df_12LL_ID_file = df_12LL_after_BaseTable.copy() 
+
+#%%
+### Write out CSV:
+df_12LL_ID_file.to_csv(Path(path_12LL_output_ID_file), index = False, date_format="%m/%d/%Y")
+
 
 
 ### TODO: put in documentation:
