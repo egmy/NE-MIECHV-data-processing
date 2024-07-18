@@ -118,7 +118,7 @@ path_14t_code_RUNME = path_14t_code_base / '_1_4tab_RUNME.py'
 #%%##################################################
 ### BACKUP? and READ FROM FILE?###
 #####################################################
-read_from_file=True
+read_from_file=False
 backup=False
 
 #%%##################################################
