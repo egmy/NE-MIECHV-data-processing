@@ -30,7 +30,6 @@
 #####################################################
 
 from packages_and_functions import * 
-import runpy
 
 
 #%%##################################################
@@ -96,11 +95,12 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun
 #####################################################
 
 ### Paths for all sub folders & sub files.
-
 if __name__ == "__main__":
     home_path = Path.cwd() ### Only works when running from main RUNME, otherwise Path.cwd() grabs subfolder instead of main repo directory!
-else:
-    home_path = [path for path in Path.cwd().parents if path.name == repo_name][0] ### For when running from "lower" files.
+# else:
+#     home_path = [path for path in Path.cwd().parents if path.name == repo_name][0] ### For when running from "lower" files.
+
+home_path = Path.cwd()
 
 path_112FW_code_base = home_path/'code/1main/1.1FW/1.1.2other'
 path_112FW_code_RUNME = path_112FW_code_base / '_1_1_2FW_RUNME.py'
@@ -116,15 +116,12 @@ path_14t_code_RUNME = path_14t_code_base / '_1_4tab_RUNME.py'
 
 #sys.path.insert(0, 'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other')
 
-#%%##################################################
-### BACKUP? and READ FROM FILE?###
-#####################################################
-read_from_file=False
-backup=False
-
+sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_112FW_code_base), str(path_12LL_code_base), str(path_13_code_base), str(path_14t_code_base)]
 #%%##################################################
 ### RUN ALL STEPS ###
 #####################################################
+
+read_from_file=False
 
 #%%
 ### Step 1.1.2 FamilyWise
@@ -138,7 +135,7 @@ if __name__ == "__main__":
 ### Step 1.2 Lincoln Lancaster
 if __name__ == "__main__":
     print('\nExecuting step 1.2LL')
-    #runpy.run_path(path_name = path_12LL_code_RUNME)
+    ### runpy.run_path(path_name = path_12LL_code_RUNME)
     exec(open(path_12LL_code_RUNME).read())
     print('\nSuccessfully executed step 1.2LL!"')
 
