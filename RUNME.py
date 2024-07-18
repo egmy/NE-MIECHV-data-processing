@@ -30,6 +30,7 @@
 #####################################################
 
 from packages_and_functions import * 
+import runpy
 
 
 #%%##################################################
@@ -137,7 +138,7 @@ if __name__ == "__main__":
 ### Step 1.2 Lincoln Lancaster
 if __name__ == "__main__":
     print('\nExecuting step 1.2LL')
-    ### runpy.run_path(path_name = path_12LL_code_RUNME)
+    #runpy.run_path(path_name = path_12LL_code_RUNME)
     exec(open(path_12LL_code_RUNME).read())
     print('\nSuccessfully executed step 1.2LL!"')
 
