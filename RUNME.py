@@ -30,6 +30,7 @@
 #####################################################
 
 from packages_and_functions import * 
+import runpy
 
 
 #%%##################################################
@@ -94,11 +95,16 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun
 ### PATHS ###
 #####################################################
 
+read_from_file=True
+
 ### Paths for all sub folders & sub files.
 if __name__ == "__main__":
     home_path = Path.cwd() ### Only works when running from main RUNME, otherwise Path.cwd() grabs subfolder instead of main repo directory!
 else:
-    home_path = [path for path in Path.cwd().parents if path.name == repo_name][0] ### For when running from "lower" files.
+    if read_from_file==False:
+        home_path = [path for path in Path.cwd().parents if path.name == repo_name][0] 
+    else:
+        home_path = Path.cwd() ### For when running from "lower" files.
 #home_path = Path.cwd()
 
 path_112FW_code_base = home_path/'code/1main/1.1FW/1.1.2other'
@@ -120,7 +126,6 @@ sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_co
 ### RUN ALL STEPS ###
 #####################################################
 
-read_from_file=True
 
 if read_from_file==True: ##run all silos separate
 ### Step 1.1.2 FamilyWise
@@ -138,8 +143,8 @@ if read_from_file==True: ##run all silos separate
     ### Step 1.3 combine
     if __name__ == "__main__":
         print('\nExecuting step 1.3combine')
-        ### runpy.run_path(path_name = path_13_code_RUNME)
-        exec(open(path_13_code_RUNME).read())
+        runpy.run_path(path_name = path_13_code_RUNME)
+        #exec(open(path_13_code_RUNME).read())
         print('\nSuccessfully executed step 1.3combine!"')
     ### Final Step 1.4 Tableau replacement
     if __name__ == "__main__":

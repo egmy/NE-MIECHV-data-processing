@@ -43,10 +43,12 @@ if (os.path.basename(__file__) == '_1_1_2FW_RUNME.py'):
 #####################################################
 
 path_112FW_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other')
+path_1_3_files_input = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
 
 path_112FW_dir_input = Path(path_112FW_files_base, '0in', str_nehv_quarter)
 path_112FW_dir_mid = Path(path_112FW_files_base, '2mid', str_nehv_quarter)
 path_112FW_dir_output = Path(path_112FW_files_base, '9out', str_nehv_quarter)
+path_1_3_dir_input = Path(path_1_3_files_input, '0in', str_nehv_quarter)
 
 ###########################
 
@@ -977,6 +979,13 @@ df_112FW_child_act.to_csv(Path(path_112FW_dir_output, 'df_112FW_child_act.csv'),
 df_112FW_pivoted_child_injury.to_csv(Path(path_112FW_dir_output, 'df_112FW_pivoted_child_injury.csv'), index = False, date_format="%m/%d/%Y")
 df_112FW_pivoted_cg_ins.to_csv(Path(path_112FW_dir_output, 'df_112FW_pivoted_cg_ins.csv'), index = False, date_format="%m/%d/%Y")
 df_112FW_pivoted_well_child.to_csv(Path(path_112FW_dir_output, 'df_112FW_pivoted_well_child.csv'), index = False, date_format="%m/%d/%Y")
+
+
+df_112FW_adult_act.to_csv(Path(path_1_3_dir_input, 'df_112FW_adult_act.csv'), index = False, date_format="%m/%d/%Y")
+df_112FW_child_act.to_csv(Path(path_1_3_dir_input, 'df_112FW_child_act.csv'), index = False, date_format="%m/%d/%Y")
+df_112FW_pivoted_child_injury.to_csv(Path(path_1_3_dir_input, 'df_112FW_pivoted_child_injury.csv'), index = False, date_format="%m/%d/%Y")
+df_112FW_pivoted_cg_ins.to_csv(Path(path_1_3_dir_input, 'df_112FW_pivoted_cg_ins.csv'), index = False, date_format="%m/%d/%Y")
+df_112FW_pivoted_well_child.to_csv(Path(path_1_3_dir_input, 'df_112FW_pivoted_well_child.csv'), index = False, date_format="%m/%d/%Y")
 
 #%%##############################################!>>>
 ### >>> Remove old objects  

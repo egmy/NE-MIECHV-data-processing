@@ -1501,10 +1501,10 @@ def fn_C2_BF_Status(fdf):
             case "-1":
                 return -1
             case _:
-                return pd.Na
+                return pd.NA
     ### add CASE for LLCHD values when they add them to their dataset.
     elif ((fdf['_Agency'] == "ll")):
-        return pd.Na
+        return pd.NA
     ###########
     ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE [Breast Feeding]  // FW

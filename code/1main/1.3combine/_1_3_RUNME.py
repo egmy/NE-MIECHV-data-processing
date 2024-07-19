@@ -39,11 +39,13 @@ if read_from_file==False:
 
 #U:\Working\nehv_ds_data_files\2mid\1main\1.3combine\0in\Y13Q1 (Oct 2023 - Dec 2023)
 path_13_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
+path_14t_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau')
 
 path_13_dir_input = Path(path_13_files_base, '0in', str_nehv_quarter)
 path_13_dir_mid = Path(path_13_files_base, '2mid', str_nehv_quarter)
 path_13_dir_output = Path(path_13_files_base, '9out', str_nehv_quarter)
 path_13_backup=Path(path_13_files_base, 'backup')
+path_14t_dir_input = Path(path_14t_files_base, '0in', str_nehv_quarter)
 
 ###########################
 
@@ -298,7 +300,22 @@ if int_nehv_quarter!=1:
 
 
 
-    with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
+    # with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
+    #     df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
+    #     df_13_child_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
+    #     df_13_well_child.to_excel(writer, index=False, sheet_name='Well Child')
+    #     df_13_child_injury.to_excel(writer, index=False, sheet_name='ER Injury')
+    #     df_child_project_id.to_excel(writer, index=False, sheet_name='Project ID')
+    
+
+    # with pd.ExcelWriter(Path(path_13_dir_output, 'Adult Activity Master File.xlsx'), engine='openpyxl') as writer:
+    #     df_13_adult_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
+    #     df_13_adult_act.to_excel(writer, index=False, sheet_name='Family Wise')
+    #     df_adult_project_id.to_excel(writer, index=False, sheet_name='Project ID')
+    #     df_13_mob_fob.to_excel(writer, index=False, sheet_name='MOB or FOB')
+    #     df_13_cg_ins.to_excel(writer,index=False, sheet_name='Caregiver Insurance')
+    ## write to 1.4 input
+    with pd.ExcelWriter(Path(path_14t_dir_input, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_13_child_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
         df_13_well_child.to_excel(writer, index=False, sheet_name='Well Child')
@@ -306,23 +323,37 @@ if int_nehv_quarter!=1:
         df_child_project_id.to_excel(writer, index=False, sheet_name='Project ID')
     
 
-    with pd.ExcelWriter(Path(path_13_dir_output, 'Adult Activity Master File.xlsx'), engine='openpyxl') as writer:
+    with pd.ExcelWriter(Path(path_14t_dir_input, 'Adult Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_adult_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
         df_13_adult_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_adult_project_id.to_excel(writer, index=False, sheet_name='Project ID')
         df_13_mob_fob.to_excel(writer, index=False, sheet_name='MOB or FOB')
         df_13_cg_ins.to_excel(writer,index=False, sheet_name='Caregiver Insurance')
-
 else:
     ### 8. Otherwise, if Q1, write to new file 
-    with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
+    # with pd.ExcelWriter(Path(path_13_dir_output, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
+    #     df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
+    #     df_13_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
+    #     df_13_well_child.to_excel(writer, index=False, sheet_name='Well Child')
+    #     df_13_child_injury.to_excel(writer, index=False, sheet_name='ER Injury')
+    #     df_child_project_id.to_excel(writer, index=False, sheet_name='Project ID')
+
+    # with pd.ExcelWriter(Path(path_13_dir_output, 'Adult Activity Master File.xlsx'), engine='openpyxl') as writer:
+    #     df_13_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
+    #     df_13_adult_act.to_excel(writer, index=False, sheet_name='Family Wise')
+    #     df_adult_project_id.to_excel(writer, index=False, sheet_name='Project ID')
+    #     df_13_mob_fob.to_excel(writer, index=False, sheet_name='MOB or FOB')
+    #     df_13_cg_ins.to_excel(writer,index=False, sheet_name='Caregiver Insurance')
+
+    ## write to 1.4 input
+    with pd.ExcelWriter(Path(path_14t_dir_input, 'Child Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_child_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_13_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
         df_13_well_child.to_excel(writer, index=False, sheet_name='Well Child')
         df_13_child_injury.to_excel(writer, index=False, sheet_name='ER Injury')
         df_child_project_id.to_excel(writer, index=False, sheet_name='Project ID')
 
-    with pd.ExcelWriter(Path(path_13_dir_output, 'Adult Activity Master File.xlsx'), engine='openpyxl') as writer:
+    with pd.ExcelWriter(Path(path_14t_dir_input, 'Adult Activity Master File.xlsx'), engine='openpyxl') as writer:
         df_13_base_table.to_excel(writer, index=False, sheet_name='LLCHD')
         df_13_adult_act.to_excel(writer, index=False, sheet_name='Family Wise')
         df_adult_project_id.to_excel(writer, index=False, sheet_name='Project ID')
