@@ -81,16 +81,18 @@
 #####################################################
 
 from pathlib import Path
+import os
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
 #%%
 import os
-if (os.path.basename(__file__) == '_1_4tab_RUNME.py'):
-    import sys
-    sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
-    from RUNME import * 
-
-
+#if (os.path.basename(__file__) == '_1_4tab_RUNME.py'):
+import sys
+path_1_3=Path(os.path.dirname(Path.cwd()))/'1.3combine/'
+sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_3)] 
+from RUNME import *
+if read_from_file==False:
+    from _1_3_RUNME import df_13_child_act, df_13_base_table, df_13_well_child, df_13_child_injury, df_child_project_id, df_13_adult_act, df_adult_project_id,df_13_mob_fob, df_13_cg_ins 
 #%%##################################################
 ### PATHS ###
 #####################################################
@@ -100,11 +102,13 @@ path_14t_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tab
 path_14t_dir_input = Path(path_14t_files_base, '0in', str_nehv_quarter)
 path_14t_dir_mid = Path(path_14t_files_base, '2mid', str_nehv_quarter)
 path_14t_dir_output = Path(path_14t_files_base, '9out', str_nehv_quarter)
+path_14t_dir_backup=Path(path_14t_files_base, 'backup')
 
 ###########################
 ### Data Source for 2nd Tableau file:
 ### path_14t_data_source_file_tb2 = 'U:\\Working\\Tableau\\Y12 (Oct 2022 - Sept 2023)\\Child Activity Master File.xlsx' 
 ### local:
+
 path_14t_data_source_file_tb2 = Path(path_14t_dir_input, 'Child Activity Master File.xlsx')
 
 list_path_14t_data_source_sheets_tb2 = [

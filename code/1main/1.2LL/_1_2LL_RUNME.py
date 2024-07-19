@@ -44,10 +44,12 @@ if (os.path.basename(__file__) == '_1_2LL_RUNME.py'):
 #####################################################
 
 path_12LL_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.2LL')
+path_1_3_files_input = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
 
 path_12LL_dir_input = Path(path_12LL_files_base, '0in', str_nehv_quarter)
 path_12LL_dir_mid = Path(path_12LL_files_base, '2mid', str_nehv_quarter)
 path_12LL_dir_output = Path(path_12LL_files_base, '9out', str_nehv_quarter)
+path_1_3_dir_input = Path(path_1_3_files_input, '0in', str_nehv_quarter)
 
 ###########################
 

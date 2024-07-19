@@ -1538,6 +1538,12 @@ df_12LL_pivoted_WellChildVisits_4.to_csv(Path(path_12LL_dir_output, 'df_12LL_piv
 
 
 
+df_12LL_BaseTable.to_csv(Path(path_1_3_dir_input, 'df_12LL_BaseTable.csv'), index = False, date_format="%m/%d/%Y")
+df_12LL_pivoted_ChildERInj_2.to_csv(Path(path_1_3_dir_input, 'df_12LL_pivoted_ChildERInj_2.csv'), index = False, date_format="%m/%d/%Y")
+df_12LL_pivoted_MaternalIns_3.to_csv(Path(path_1_3_dir_input, 'df_12LL_pivoted_MaternalIns_3.csv'), index = False, date_format="%m/%d/%Y")
+df_12LL_pivoted_WellChildVisits_4.to_csv(Path(path_1_3_dir_input, 'df_12LL_pivoted_WellChildVisits_4.csv'), index = False, date_format="%m/%d/%Y")
+
+
 #%%##############################################!>>>
 ### >>> Remove old objects  
 #####################################################

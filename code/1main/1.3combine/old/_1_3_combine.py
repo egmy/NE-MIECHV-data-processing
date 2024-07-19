@@ -37,15 +37,26 @@ pd.__version__
 ### READ in all sheets.
 
 ### Read in EVERYTHING WITH pd.NA for empty cells:
-df_13_well_child_FW = pd.read_csv(path_13_input_well_child_FW, keep_default_na=False, na_values=[''])
-df_13_well_child_LL = pd.read_csv(path_13_input_well_child_LL, keep_default_na=False, na_values=[''])
-df_13_child_injury_FW = pd.read_csv(path_13_input_child_injury_FW, keep_default_na=False, na_values=[''])
-df_13_child_injury_LL= pd.read_csv(path_13_input_child_injury_LL, keep_default_na=False, na_values=[''])
-df_13_cg_ins_FW = pd.read_csv(path_13_input_cg_ins_FW, keep_default_na=False, na_values=[''])
-df_13_cg_ins_LL = pd.read_csv(path_13_input_cg_ins_LL, keep_default_na=False, na_values=[''])
-df_13_adult_act = pd.read_csv(path_13_input_adult_act, keep_default_na=False, na_values=[''])
-df_13_child_act = pd.read_csv(path_13_input_child_act, keep_default_na=False, na_values=[''])
-df_13_base_table = pd.read_csv(path_13_input_base_table, keep_default_na=False, na_values=[''])
+if read_from_file==True:
+    df_13_well_child_FW = pd.read_csv(path_13_input_well_child_FW, keep_default_na=False, na_values=[''])
+    df_13_well_child_LL = pd.read_csv(path_13_input_well_child_LL, keep_default_na=False, na_values=[''])
+    df_13_child_injury_FW = pd.read_csv(path_13_input_child_injury_FW, keep_default_na=False, na_values=[''])
+    df_13_child_injury_LL= pd.read_csv(path_13_input_child_injury_LL, keep_default_na=False, na_values=[''])
+    df_13_cg_ins_FW = pd.read_csv(path_13_input_cg_ins_FW, keep_default_na=False, na_values=[''])
+    df_13_cg_ins_LL = pd.read_csv(path_13_input_cg_ins_LL, keep_default_na=False, na_values=[''])
+    df_13_adult_act = pd.read_csv(path_13_input_adult_act, keep_default_na=False, na_values=[''])
+    df_13_child_act = pd.read_csv(path_13_input_child_act, keep_default_na=False, na_values=[''])
+    df_13_base_table = pd.read_csv(path_13_input_base_table, keep_default_na=False, na_values=[''])
+else:
+    df_13_well_child_FW=df_112FW_pivoted_well_child 
+    df_13_well_child_LL=df_12LL_pivoted_WellChildVisits_4
+    df_13_child_injury_FW=df_112FW_pivoted_child_injury
+    df_13_child_injury_LL=df_12LL_pivoted_ChildERInj_2
+    df_13_cg_ins_FW=df_112FW_pivoted_cg_ins
+    df_13_cg_ins_LL=df_12LL_pivoted_MaternalIns_3
+    df_13_adult_act=df_112FW_adult_act
+    df_13_child_act=df_112FW_child_act
+    df_13_base_table=df_12LL_BaseTable
 
 #%%##############################################!>>>
 ### >>> COMBINING

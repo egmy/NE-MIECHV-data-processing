@@ -12,6 +12,9 @@
 #####################################################
 
 import os 
+import sys
+#path_1_3=Path(os.path.dirname(Path.cwd()))/'1.3combine/'
+#sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_3)] 
 
 #%%
 print('File that is running: ', os.path.basename(__file__))
@@ -430,19 +433,19 @@ dict_14t_col_dtypes_tb2_5 = {x[0]:x[3] for x in list_14t_col_detail_tb2_5}
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx_14t_tb2 = pd.ExcelFile(path_14t_data_source_file_tb2)
+if read_from_file==True:
+    xlsx_14t_tb2 = pd.ExcelFile(path_14t_data_source_file_tb2)
+    if (sorted(list_path_14t_data_source_sheets_tb2) == [x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File']): 
+        print('Passed Check that all Excel sheet names as expected.')
+    else:
+        raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+    print('____________\n')
 
 #%% 
 ### CHECK that all list_path_14t_data_source_sheets_tb2 same as xlsx.sheet_names (different order ok):
 # print(sorted(list_path_14t_data_source_sheets_tb2))
-# print([x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File'])
-
-if (sorted(list_path_14t_data_source_sheets_tb2) == [x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File']): 
-    print('Passed Check that all Excel sheet names as expected.')
-else:
-    raise Exception('**Check Failed: Unexpected Excel sheet names.')
-
-print('____________\n')
+# print([x for x in sorted(xlsx_14t_tb2.sheet_names) if x != 'Birth File
 
 #%%
 ### READ all sheets:
@@ -455,18 +458,31 @@ print('____________\n')
 #%%###################################
 ### READ in all sheets as strings.
 
+if read_from_file==True:
 ### To read in EVERYTHING as a string WITH NA:
-df_14t_allstring_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_1)
-df_14t_allstring_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_2)
-df_14t_allstring_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_3)
-df_14t_allstring_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_4)
-df_14t_allstring_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_5)
+    df_14t_allstring_tb2_1 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_1)
+    df_14t_allstring_tb2_2 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_2)
+    df_14t_allstring_tb2_3 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_3)
+    df_14t_allstring_tb2_4 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_4)
+    df_14t_allstring_tb2_5 = pd.read_excel(xlsx_14t_tb2, sheet_name=list_path_14t_data_source_sheets_tb2[4], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb2_5)
 
-df_14t_piece_tb2_1 = df_14t_allstring_tb2_1.copy()
-df_14t_piece_tb2_2 = df_14t_allstring_tb2_2.copy()
-df_14t_piece_tb2_3 = df_14t_allstring_tb2_3.copy()
-df_14t_piece_tb2_4 = df_14t_allstring_tb2_4.copy()
-df_14t_piece_tb2_5 = df_14t_allstring_tb2_5.copy()
+    df_14t_piece_tb2_1 = df_14t_allstring_tb2_1.copy()
+    df_14t_piece_tb2_2 = df_14t_allstring_tb2_2.copy()
+    df_14t_piece_tb2_3 = df_14t_allstring_tb2_3.copy()
+    df_14t_piece_tb2_4 = df_14t_allstring_tb2_4.copy()
+    df_14t_piece_tb2_5 = df_14t_allstring_tb2_5.copy()
+else:
+    df_14t_allstring_tb2_1 = df_child_project_id
+    df_14t_allstring_tb2_2 = df_13_child_injury
+    df_14t_allstring_tb2_3 = df_13_child_act
+    df_14t_allstring_tb2_4 = df_13_base_table
+    df_14t_allstring_tb2_5 = df_13_well_child
+
+    df_14t_piece_tb2_1 = df_14t_allstring_tb2_1.copy()
+    df_14t_piece_tb2_2 = df_14t_allstring_tb2_2.copy()
+    df_14t_piece_tb2_3 = df_14t_allstring_tb2_3.copy()
+    df_14t_piece_tb2_4 = df_14t_allstring_tb2_4.copy()
+    df_14t_piece_tb2_5 = df_14t_allstring_tb2_5.copy()
 
 
 #%%##################################################
@@ -1474,7 +1490,7 @@ df_14t_edits1_tb2['_Discharge Reason'] = df_14t_edits1_tb2.apply(func=fn_Dischar
 
 def fn_C2_BF_Status(fdf):
     ### FW.
-    if (fdf['_Agency'] != "ll"):
+    if ((fdf['_Agency'] != "ll")):
         match fdf['Breast Feeding']:  
             case "YES":
                 return 1
@@ -1485,10 +1501,10 @@ def fn_C2_BF_Status(fdf):
             case "-1":
                 return -1
             case _:
-                return pd.NA  
+                return pd.NA
     ### add CASE for LLCHD values when they add them to their dataset.
-    elif (fdf['_Agency'] == "ll"):
-        return pd.NA  
+    elif ((fdf['_Agency'] == "ll")):
+        return pd.NA
     ###########
     ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE [Breast Feeding]  // FW
@@ -1500,7 +1516,7 @@ def fn_C2_BF_Status(fdf):
     ###     END
     ### ELSEIF [_Agency] = "ll" THEN NULL  // add CASE for LLCHD values when they add them to their dataset
     ### END
-df_14t_edits1_tb2['_C2 BF Status'] = df_14t_edits1_tb2.apply(func=fn_C2_BF_Status, axis=1).astype('Int64') 
+df_14t_edits1_tb2['_C2 BF Status'] = df_14t_edits1_tb2.apply(func=fn_C2_BF_Status, axis=1).astype('Int64') #NATHAN: this function fails 'boolean value of NA is ambiguous'
     ### Data Type in Tableau: integer.
 # inspect_col(df_14t_edits1_tb2['_C2 BF Status'])
 # #%%
@@ -1625,7 +1641,7 @@ def fn_Funding(fdf):
     ###     END
     ### ELSEIF [_Agency] = "ll" THEN [Funding]
     ### END
-df_14t_edits1_tb2['_Funding'] = df_14t_edits1_tb2.apply(func=fn_Funding, axis=1).astype('string') 
+df_14t_edits1_tb2['_Funding'] = df_14t_edits1_tb2.apply(func=fn_Funding, axis=1).astype('string') #NATHAN: this function fails
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_Funding'])
 #%%

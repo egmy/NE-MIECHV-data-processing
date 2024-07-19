@@ -15,6 +15,9 @@ import os
 
 #%%
 print('File that is running: ', os.path.basename(__file__))
+import sys
+path_1_3=Path(os.path.dirname(Path.cwd()))/'1.3combine/'
+sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_3)] 
 
 #%%
 ### The following is run if running this file by itself interactively (& ignored when run from RUNME):
@@ -428,20 +431,20 @@ dict_14t_col_dtypes_tb3_4 = {x[0]:x[3] for x in list_14t_col_detail_tb3_4}
 
 #%%
 ### Performance benefit for reading in file to memory only once by creating an ExcelFile class object.
-xlsx_14t_tb3 = pd.ExcelFile(path_14t_data_source_file_tb3)
+if read_from_file==True:
+    xlsx_14t_tb3 = pd.ExcelFile(path_14t_data_source_file_tb3)
+    if (sorted(list_path_14t_data_source_sheets_tb3) == [x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB']): 
+        print('Passed Check that all Excel sheet names as expected.')
+    else:
+        raise Exception('**Check Failed: Unexpected Excel sheet names.')
+
+    print('____________\n')
+
 
 #%% 
 ### CHECK that all list_path_14t_data_source_sheets_tb3 same as xlsx.sheet_names (different order ok):
 # print(sorted(list_path_14t_data_source_sheets_tb3))
 # print([x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB'])
-
-if (sorted(list_path_14t_data_source_sheets_tb3) == [x for x in sorted(xlsx_14t_tb3.sheet_names) if x != 'MOB or FOB']): 
-    print('Passed Check that all Excel sheet names as expected.')
-else:
-    raise Exception('**Check Failed: Unexpected Excel sheet names.')
-
-print('____________\n')
-
 #%%
 ### READ all sheets:
 ### df_14t_piece_tb3_1 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[0], keep_default_na=False, na_values=list_na_values_to_read)#, dtype=dict_14t_col_dtypes_tb3_1)
@@ -453,15 +456,28 @@ print('____________\n')
 ### READ in all sheets as strings.
 
 ### To read in EVERYTHING as a string WITH NA:
-df_14t_allstring_tb3_1 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_1)
-df_14t_allstring_tb3_2 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_2)
-df_14t_allstring_tb3_3 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_3)
-df_14t_allstring_tb3_4 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_4)
+if read_from_file==True:
 
-df_14t_piece_tb3_1 = df_14t_allstring_tb3_1.copy()
-df_14t_piece_tb3_2 = df_14t_allstring_tb3_2.copy()
-df_14t_piece_tb3_3 = df_14t_allstring_tb3_3.copy()
-df_14t_piece_tb3_4 = df_14t_allstring_tb3_4.copy()
+    df_14t_allstring_tb3_1 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[0], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_1)
+    df_14t_allstring_tb3_2 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[1], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_2)
+    df_14t_allstring_tb3_3 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[2], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_3)
+    df_14t_allstring_tb3_4 = pd.read_excel(xlsx_14t_tb3, sheet_name=list_path_14t_data_source_sheets_tb3[3], keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_14t_col_dtypes_tb3_4)
+
+    df_14t_piece_tb3_1 = df_14t_allstring_tb3_1.copy()
+    df_14t_piece_tb3_2 = df_14t_allstring_tb3_2.copy()
+    df_14t_piece_tb3_3 = df_14t_allstring_tb3_3.copy()
+    df_14t_piece_tb3_4 = df_14t_allstring_tb3_4.copy()
+
+else:
+    df_14t_allstring_tb3_1 = df_adult_project_id
+    df_14t_allstring_tb3_2 = df_13_cg_ins
+    df_14t_allstring_tb3_3 = df_13_adult_act
+    df_14t_allstring_tb3_4 = df_13_base_table
+
+    df_14t_piece_tb3_1 = df_14t_allstring_tb3_1.copy()
+    df_14t_piece_tb3_2 = df_14t_allstring_tb3_2.copy()
+    df_14t_piece_tb3_3 = df_14t_allstring_tb3_3.copy()
+    df_14t_piece_tb3_4 = df_14t_allstring_tb3_4.copy()
 
 #%%##################################################
 ### CLEAN ###
