@@ -12,6 +12,7 @@
 #####################################################
 
 import os 
+from pathlib import Path
 
 #%%
 print('File that is running: ', os.path.basename(__file__))
@@ -919,9 +920,9 @@ df_14t_edits1_tb3['_C06 Tobacco Referral Date'] = df_14t_edits1_tb3['Tobacco Ref
     ### IFNULL([Tobacco Ref Date],[_C06 Tobacco Use Date])
     ### Data Type in Tableau: date.
 
-df_14t_edits1_tb3['_C10 CHEEERS'] = df_14t_edits1_tb3['Cheeers Date'].combine_first(df_14t_edits1_tb3['Max CHEEERS Date']).astype('datetime64[ns]')
+df_14t_edits1_tb3['_C10 CHEEERS'] = df_14t_edits1_tb3['Max CHEEERS Date'].astype('datetime64[ns]')
     ### IFNULL([Cheeers Date],[Max CHEEERS Date]) 
-    ### Data Type in Tableau: date.
+    ### Data Type in Tableau: date. #NATHAN: there is not a Cheeers Date in tb3
 
 df_14t_edits1_tb3['_C14 IPV Date'] = df_14t_edits1_tb3['IPV Assess Date'].combine_first(df_14t_edits1_tb3['Ipv Screen Dt']).astype('datetime64[ns]')
     ### IFNULL([IPV Assess Date],[Ipv Screen Dt]) 
@@ -3145,61 +3146,63 @@ df_14t_edits1_tb3['_FOB Relation'] = df_14t_edits1_tb3.apply(func=fn_FOB_Relatio
 def fn_T12_MOB_Housing_Status(fdf):
     ###########
     ### FW.
-    if (fdf['_Agency'] != "ll"):
-        if pd.isna(fdf['Housing Status']):
-            return "Unknown/Did Not Report"
-        else:
-            match fdf['Housing Status'].lower():
-                case "owns or shares own home, condominium, or apartment":
-                    return "Owns or shares own home, condominium, or apartment"
-                case (
-                    "rents of shares own home or apartment" | 
-                    "rents or shares own home or apartment"
-                ):
-                    return "Rents or shares own home or apartment"
-                case "lives with parent or family member":
-                    return "Lives with parent or family member"
-                case "live in public housing":
-                    return "Lives in public housing"
-                case "homeless and sharing housing":
-                    return "Homeless and sharing housing"
-                case "homeless and living in an emergency or transitional shelter":
-                    return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
-                case "some other arrangement":
-                    return "Some other arrangement"
-                case "other":
-                    return "Some other arrangement" ### Not sure this is the right category.
-                ### case pd.NA:
-                ###     return "Unknown/Did Not Report"
-                case _:
-                    return "Unrecognized Value" ### will have to add new FW values as they come in, they aren't all here.
-    ###########
+    if pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] != "ll"):
+            if pd.isna(fdf['Housing Status']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Housing Status'].lower():
+                    case "owns or shares own home, condominium, or apartment":
+                        return "Owns or shares own home, condominium, or apartment"
+                    case (
+                        "rents of shares own home or apartment" | 
+                        "rents or shares own home or apartment"
+                    ):
+                        return "Rents or shares own home or apartment"
+                    case "lives with parent or family member":
+                        return "Lives with parent or family member"
+                    case "live in public housing":
+                        return "Lives in public housing"
+                    case "homeless and sharing housing":
+                        return "Homeless and sharing housing"
+                    case "homeless and living in an emergency or transitional shelter":
+                        return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                    case "some other arrangement":
+                        return "Some other arrangement"
+                    case "other":
+                        return "Some other arrangement" ### Not sure this is the right category.
+                    ### case pd.NA:
+                    ###     return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value" ### will have to add new FW values as they come in, they aren't all here.
+        ###########
     ### LLCHD.
-    elif (fdf['_Agency'] == "ll"):
-        if pd.isna(fdf['Mob Living Arrangement']):
-            return "Unknown/Did Not Report"
-        else:
-            match fdf['Mob Living Arrangement']:
-                case 1:
-                    return "Owns or shares own home, condominium, or apartment" ### Owns or shared own home, condo, or apartment.
-                case 2:
-                    return "Rents or shares own home or apartment" ### Rents or shared own home or apartment.
-                case 3:
-                    return "Lives in public housing" ### Lives in public housing.
-                case 4:
-                    return "Lives with parent or family member" ### Lives with parent or family member.
-                case 5:
-                    return "Not homeless, some other arrangement" ### Some other arrangement.
-                case 6:
-                    return "Homeless and sharing housing" ### Homeless and sharing housing.
-                case 7:
-                    return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
-                case 8:
-                    return "Homeless, some other arrangement" ### Homeless with some other arrangement.
-                ### case pd.NA:
-                ###     return "Unknown/Did Not Report"
-                case _:
-                    return "Unrecognized Value"
+    elif pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] == "ll"):
+            if pd.isna(fdf['Mob Living Arrangement']):
+                return "Unknown/Did Not Report"
+            else:
+                match fdf['Mob Living Arrangement']:
+                    case 1:
+                        return "Owns or shares own home, condominium, or apartment" ### Owns or shared own home, condo, or apartment.
+                    case 2:
+                        return "Rents or shares own home or apartment" ### Rents or shared own home or apartment.
+                    case 3:
+                        return "Lives in public housing" ### Lives in public housing.
+                    case 4:
+                        return "Lives with parent or family member" ### Lives with parent or family member.
+                    case 5:
+                        return "Not homeless, some other arrangement" ### Some other arrangement.
+                    case 6:
+                        return "Homeless and sharing housing" ### Homeless and sharing housing.
+                    case 7:
+                        return "Homeless and living in an emergency or transition shelter" ### Homeless and living in emergency or transitional shelter.
+                    case 8:
+                        return "Homeless, some other arrangement" ### Homeless with some other arrangement.
+                    ### case pd.NA:
+                    ###     return "Unknown/Did Not Report"
+                    case _:
+                        return "Unrecognized Value"
     ###########
     ### /// Tableau Calculation:
     # IF [_Agency]<> "ll" THEN CASE [Housing Status] //FW
@@ -3250,15 +3253,16 @@ df_14t_edits1_tb3['_T14 Federal Poverty Level update'] = (int_fpg_base + (int_fp
 ### Dependent on '_T14 Federal Poverty Level update' above.
 def fn_T14_Poverty_Percent(fdf):
     ### LLCHD.
-    if (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Income'])):
-        return pd.NA  
-    elif (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Size'])):
-        return pd.NA 
-    elif (fdf['_Agency'] == "ll"):
-        return fdf['Household Income'] / fdf['_T14 Federal Poverty Level update']
-    ### FW.
-    elif (fdf['_Agency'] != "ll"):
-        return fdf['Poverty Level'] 
+    if pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Income'])):
+            return pd.NA  
+        elif (fdf['_Agency'] == "ll" and pd.isna(fdf['Household Size'])):
+            return pd.NA 
+        elif (fdf['_Agency'] == "ll"):
+            return fdf['Household Income'] / fdf['_T14 Federal Poverty Level update']
+        ### FW.
+        elif (fdf['_Agency'] != "ll"):
+            return fdf['Poverty Level'] 
     ###########
     ### /// Tableau Calculation:
     # IF [_Agency] = "ll" AND ISNULL([Household Income]) THEN NULL //LLCHD

@@ -1490,21 +1490,25 @@ df_14t_edits1_tb2['_Discharge Reason'] = df_14t_edits1_tb2.apply(func=fn_Dischar
 
 def fn_C2_BF_Status(fdf):
     ### FW.
-    if ((fdf['_Agency'] != "ll")):
-        match fdf['Breast Feeding']:  
-            case "YES":
-                return 1
-            case "1":
-                return 1
-            case "0":
-                return 0
-            case "-1":
-                return -1
-            case _:
-                return pd.NA
+    if pd.notna(fdf['_Agency']):
+        if ((fdf['_Agency'] != "ll")):
+            match fdf['Breast Feeding']: 
+                case _ if pd.isna(fdf['Breast Feeding']):
+                    return pd.NA  
+                case "YES":
+                    return 1
+                case "1":
+                    return 1
+                case "0":
+                    return 0
+                case "-1":
+                    return -1
+                case _:
+                    return pd.NA
     ### add CASE for LLCHD values when they add them to their dataset.
-    elif ((fdf['_Agency'] == "ll")):
-        return pd.NA
+    elif pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] == "ll"):
+            return pd.NA
     ###########
     ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE [Breast Feeding]  // FW
@@ -1602,32 +1606,36 @@ df_14t_edits1_tb2['_FW Gestation Age Recode'] = df_14t_edits1_tb2.apply(func=fn_
 ### TODO: Move downstream "Funding" variables ([_Funding (use this one)]) out of Form2 into this code.
 ### This variable actually NOT used in Form2. ### TODO: Check Form1.
 def fn_Funding(fdf):
-    if (fdf['_Agency'] != "ll"):
-        match fdf['Agency']:
-            case "hs":
-                return "F"
-            case "ph":
-                return "F"
-            case "nc":
-                return "F"
-            case "ps":
-                return "F"
-            case "vn":
-                return "F"
-            case "se":
-                return "F"
-            case "lb":
-                return "F" ### Added Y12.
-            case "tr":
-                return "F" ### Added Y13.
-            case "sh":
-                return "F" ### Added Y13.
-            case 'wc':
-                return 'TODO' ### See ### TODO's
-            case _:
-                return "Unrecognized Value"
-    elif (fdf['_Agency'] == "ll"):
-        return fdf['Funding']
+    if pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] != "ll"):
+            match fdf['Agency']:
+                case _ if pd.isna(fdf['Agency']):
+                    return pd.NA
+                case "hs":
+                    return "F"
+                case "ph":
+                    return "F"
+                case "nc":
+                    return "F"
+                case "ps":
+                    return "F"
+                case "vn":
+                    return "F"
+                case "se":
+                    return "F"
+                case "lb":
+                    return "F" ### Added Y12.
+                case "tr":
+                    return "F" ### Added Y13.
+                case "sh":
+                    return "F" ### Added Y13.
+                case 'wc':
+                    return 'TODO' ### See ### TODO's
+                case _:
+                    return "Unrecognized Value"
+    elif pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] == "ll"):
+            return fdf['Funding']
     ###########
     ### /// Tableau Calculation:
     ### IF [_Agency] <> "ll" THEN CASE [Agency]

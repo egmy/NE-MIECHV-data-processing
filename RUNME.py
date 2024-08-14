@@ -95,16 +95,16 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun
 ### PATHS ###
 #####################################################
 
-read_from_file=True
+read_from_file=False
 
 ### Paths for all sub folders & sub files.
 if __name__ == "__main__":
     home_path = Path.cwd() ### Only works when running from main RUNME, otherwise Path.cwd() grabs subfolder instead of main repo directory!
 else:
-    if read_from_file==False:
-        home_path = [path for path in Path.cwd().parents if path.name == repo_name][0] 
-    else:
-        home_path = Path.cwd() ### For when running from "lower" files.
+    # if read_from_file==False:
+    #     home_path = [path for path in Path.cwd().parents if path.name == repo_name][0] 
+    # else:
+    home_path = Path.cwd() ### For when running from "lower" files.
 #home_path = Path.cwd()
 
 path_112FW_code_base = home_path/'code/1main/1.1FW/1.1.2other'

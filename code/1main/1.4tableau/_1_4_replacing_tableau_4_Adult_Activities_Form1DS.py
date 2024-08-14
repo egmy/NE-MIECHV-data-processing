@@ -12,6 +12,7 @@
 #####################################################
 
 import os 
+from pathlib import Path
 
 #%%
 print('File that is running: ', os.path.basename(__file__))

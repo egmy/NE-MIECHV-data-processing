@@ -21,7 +21,6 @@ sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_co
 from RUNME import * 
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
-read_from_file=False
 #%%
 # from importlib import import_module
 # mod = import_module("_1_1FW_raw_to_master.py")
