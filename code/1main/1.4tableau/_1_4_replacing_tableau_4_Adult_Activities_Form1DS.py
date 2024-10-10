@@ -225,7 +225,7 @@ list_14t_col_detail_tb4_3 = [
     ['FOBRaceAsian', 'FOB Race Asian', '', 'boolean'],
     ['FOBRaceHawaiianPacific', 'FOB Race Hawaiian Pacific', '', 'boolean'],
     ['FOBRaceOther', 'FOB Race Other', '', 'boolean'],
-    ['MOB ZIP', 'Mob Zip', '', 'string'],
+    ['MOB ZIP', 'Mob Zip', '', 'Int64'],
     ['Adaptation', 'Adaptation', 'same', 'string'],
     ['need_exclusion1', 'Need Exclusion1', '', 'string'],
     ['need_exclusion2', 'Need Exclusion2', '', 'string'],
@@ -915,6 +915,14 @@ df_14t_edits1_tb4['_TGT ID'] = df_14t_edits1_tb4['Tgt Id'].combine_first(df_14t_
 ### 'Mob Zip' has the string value "null" that needs to be recoded. ### FY13Q1, other bad value seen.
 ### TODO ASKJOE: limit ZIP codes to first five? -- have some with the extra 4.
 ### TODO: see if ZIP should be string.
+df_14t_edits1_tb4['Mob Zip']= df_14t_edits1_tb4['Mob Zip'].replace('null', np.nan)
+df_14t_edits1_tb4['Mob Zip'] =df_14t_edits1_tb4['Mob Zip'].str.replace('_', '', regex=False)
+df_14t_edits1_tb4['Mob Zip'] = df_14t_edits1_tb4['Mob Zip'].astype('Int64')
+
+df_14t_edits1_tb4['Zip']= df_14t_edits1_tb4['Zip'].replace('null', np.nan)
+df_14t_edits1_tb4['Zip'] =df_14t_edits1_tb4['Zip'].str.replace('_', '', regex=False)
+df_14t_edits1_tb4['Zip'] = df_14t_edits1_tb4['Zip'].astype('Int64')
+
 df_14t_edits1_tb4['_Zip'] = (
     df_14t_edits1_tb4['Zip'].combine_first(df_14t_edits1_tb4['Mob Zip'])
     ### Remove all entries NOT matching the pattern:
@@ -1005,7 +1013,51 @@ df_14t_edits1_tb4['_TGT DOB'] = df_14t_edits1_tb4.apply(func=fn_TGT_DOB, axis=1)
 # #%%
 # inspect_col(df_14t_edits1_tb4['Tgt Dob-Cr'])
 
-
+def fn_Funding(fdf):
+    if pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] != "ll"):
+            match fdf['Agency']:
+                case _ if pd.isna(fdf['Agency']):
+                    return pd.NA
+                case "hs":
+                    return "F"
+                case "ph":
+                    return "F"
+                case "nc":
+                    return "F"
+                case "ps":
+                    return "F"
+                case "vn":
+                    return "F"
+                case "se":
+                    return "F"
+                case "lb":
+                    return "F" ### Added Y12.
+                case "tr":
+                    return "F" ### Added Y13.
+                case "sh":
+                    return "F" ### Added Y13.
+                case 'wc':
+                    return 'TODO' ### See ### TODO's
+                case _:
+                    return "Unrecognized Value"
+    elif pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] == "ll"):
+            return fdf['Funding']
+    ###########
+    ### /// Tableau Calculation:
+    ### IF [_Agency] <> "ll" THEN CASE [Agency]
+    ###     WHEN "hs" THEN "F"
+    ###     WHEN "ph" THEN "F"
+    ###     WHEN "nc" THEN "S"
+    ###     WHEN "ps" THEN "S"
+    ###     WHEN "vn" THEN "S"
+    ###     WHEN "se" THEN "TANF"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN [Funding]
+    ### END
+df_14t_edits1_tb4['Funding'] = df_14t_edits1_tb4.apply(func=fn_Funding, axis=1).astype('string')
 #####################################################
 #####################################################
 #####################################################

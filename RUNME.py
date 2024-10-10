@@ -49,16 +49,18 @@ repo_name = 'nehv_ds_code_repository'
 # str_nehv_quarter = 'Y12Q3 (Oct 2022 - Jun 2023)'
 # str_nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
 # str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
-str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
+# str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
+str_nehv_quarter = 'Y13Q4 (Oct 2023 - Sep 2024)'
 
 # previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
-previous_str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
+previous_str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
 
 int_nehv_year = 13 
 
 # int_nehv_quarter = 1 
 # int_nehv_quarter = 2 
-int_nehv_quarter = 3 
+int_nehv_quarter = 4 
+
 
 date_fy_start = pd.Timestamp("2023-10-01") ### Midnight.
 
@@ -85,7 +87,7 @@ elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun
     int_fpg_increment = 5140 
 
 ### 2024: https://www.govinfo.gov/content/pkg/FR-2024-01-17/pdf/2024-00796.pdf 
-elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun 2024)')):
+elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun 2024)','Y13Q4 (Oct 2023 - Sep 2024)' )):
     ### 9680 + (5380 * [household size])
     int_fpg_base = 9680 
     int_fpg_increment = 5380 
@@ -95,7 +97,7 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun
 ### PATHS ###
 #####################################################
 
-read_from_file=False
+read_from_file=True
 
 ### Paths for all sub folders & sub files.
 if __name__ == "__main__":

@@ -1242,6 +1242,52 @@ df_14t_edits1_tb3['_FOB Gender'] = df_14t_edits1_tb3.apply(func=fn_FOB_Gender, a
 # inspect_col(df_14t_edits1_tb3['Fob Involved']) 
 # inspect_col(df_14t_edits1_tb3['Adult2Gender']) 
 
+def fn_Funding(fdf):
+    if pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] != "ll"):
+            match fdf['Agency']:
+                case _ if pd.isna(fdf['Agency']):
+                    return pd.NA
+                case "hs":
+                    return "F"
+                case "ph":
+                    return "F"
+                case "nc":
+                    return "F"
+                case "ps":
+                    return "F"
+                case "vn":
+                    return "F"
+                case "se":
+                    return "F"
+                case "lb":
+                    return "F" ### Added Y12.
+                case "tr":
+                    return "F" ### Added Y13.
+                case "sh":
+                    return "F" ### Added Y13.
+                case 'wc':
+                    return 'TODO' ### See ### TODO's
+                case _:
+                    return "Unrecognized Value"
+    elif pd.notna(fdf['_Agency']):
+        if (fdf['_Agency'] == "ll"):
+            return fdf['Funding']
+    ###########
+    ### /// Tableau Calculation:
+    ### IF [_Agency] <> "ll" THEN CASE [Agency]
+    ###     WHEN "hs" THEN "F"
+    ###     WHEN "ph" THEN "F"
+    ###     WHEN "nc" THEN "S"
+    ###     WHEN "ps" THEN "S"
+    ###     WHEN "vn" THEN "S"
+    ###     WHEN "se" THEN "TANF"
+    ###     ELSE "Unrecognized Value"
+    ###     END
+    ### ELSEIF [_Agency] = "ll" THEN [Funding]
+    ### END
+df_14t_edits1_tb3['Funding'] = df_14t_edits1_tb3.apply(func=fn_Funding, axis=1).astype('string')
+
 #%%###################################
 
 def fn_T06_MOB_Ethnicity(fdf):
