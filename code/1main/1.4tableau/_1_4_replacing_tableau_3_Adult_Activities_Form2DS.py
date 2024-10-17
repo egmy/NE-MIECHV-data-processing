@@ -1267,7 +1267,11 @@ def fn_Funding(fdf):
                 case "sh":
                     return "F" ### Added Y13.
                 case 'wc':
-                    return 'TODO' ### See ### TODO's
+                    return 'TODO'
+                case 'cd': ## Added Y13Q4
+                    return "F" 
+                case 'fc': ## Added Y13Q4
+                    return "F"
                 case _:
                     return "Unrecognized Value"
     elif pd.notna(fdf['_Agency']):
@@ -1871,9 +1875,9 @@ def fn_T11_MOB_Employment(fdf):
     ### FW.
     if (pd.notna(fdf['AD1EmpStatus'])):
         match fdf['AD1EmpStatus'].lower():
-            case "employed full time" | "maternal leave, paid, full time" | "maternal leave, unpaid, full time":
+            case "employed full time" | "maternal leave, paid, full time" | "maternal leave, unpaid, full time"|"full time": #Y13Q4: added 'full time'
                 return "Employed Full Time"
-            case "employed part time" | "maternal leave, unpaid, part time" | "self-employed":
+            case "employed part time" | "maternal leave, unpaid, part time" | "self-employed"|"part time":#Y13Q4: added 'part time'
                 return "Employed Part Time"
             case (
                 "temporary disability" |
@@ -1952,9 +1956,9 @@ def fn_T11_FOB_Employment(fdf):
                 return 'Unknown/Did Not Report'
             else:
                 match fdf['AD2EmployStatus'].lower():
-                    case 'employed full time' | 'maternal leave, paid, full time' | 'maternal leave, unpaid, full time':
+                    case 'employed full time' | 'maternal leave, paid, full time' | 'maternal leave, unpaid, full time'|"full time":
                         return 'Employed Full Time'
-                    case 'employed part time' | 'maternal leave, unpaid, part time' | 'self-employed':
+                    case 'employed part time' | 'maternal leave, unpaid, part time' | 'self-employed'|"part time": #Y13Q4: added full time and part time
                         return 'Employed Part Time'
                     case (
                         'temporary disability' | ### TODO ASKJOE: new value -- I believe it goes here.
@@ -2705,9 +2709,9 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "Unknown/Did Not Report"
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP":
+        case "Medicaid" | "SCHIP"|"Medicaid/Medicare":
             return "Medicaid or CHIP"
-        case "Private" | "Other" | "Medicare":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield":
             return "Private or Other"
         case "Tri-Care":
             return "Tri-Care"
@@ -2886,13 +2890,11 @@ def fn_T20_FOB_Insurance(fdf):
                 return 'Unknown/Did Not Report'
             else:
                 match fdf['AD2InsPrimary'].lower():
-                    case 'medicaid':
+                    case 'medicaid'|"medicaid/medicare":
                         return 'Medicaid or CHIP'
-                    case 'medicare':
-                        return 'Other' ### this is what our previous syntax indicated.
                     case 'none':
                         return 'No Insurance Coverage'
-                    case 'other' | 'private':
+                    case 'other' | 'private'| 'medicaid'|'blue cross blue shield': ## Y13Q4: adding new medicaid/medicare and blue cross blue shield
                         return 'Private or Other'
                     case 'tri-care':
                         return 'Tri-Care'
@@ -2986,7 +2988,7 @@ def fn_Enroll_Preg_Status(fdf):
                 return 'Unrecognized Value'
     ###########
     else:
-        return 'Unrecognized Value' ### if not FW or LL.
+        return 'Unrecognized Value (coming in as date)' ### if not FW or LL.
     ###########
     ### /// Tableau Calculation:
     # IF [Pregnancystatus] = 0 THEN "Pregnant" //FW
@@ -3051,9 +3053,9 @@ def fn_MOB_TGT_Relation(fdf):
         match fdf['Adult1TGTRelation']:
             case _ if pd.isna(fdf['Adult1TGTRelation']):
                 return pd.NA 
-            case 'Aunt' | 'Biological mother' | 'Foster mother' | 'Grandmother'| 'Guardian' | 'MOB' | 'Mother':
+            case 'Aunt' | 'Biological mother' | 'Foster mother' | 'Grandmother'| 'Guardian' | 'MOB' | 'Mother'|'Adoptive Mother':
                 return 'MOB'
-            case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father':
+            case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father'|'Step-Father':
                 return 'FOB'
             case _:
                 return 'Unrecognized Value'
@@ -3073,6 +3075,8 @@ def fn_MOB_TGT_Relation(fdf):
                 return 'MOB'
             case 'Grandparent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
                 return 'MOB'
+            case 'Grandmother' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')): #Y13Q4: adding option for Grandmother and Other for FOB
+                return 'MOB'
             case 'Other' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
                 return 'MOB'
             ###
@@ -3083,6 +3087,8 @@ def fn_MOB_TGT_Relation(fdf):
             case 'Bio parent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
                 return 'FOB'
             case 'Grandparent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                return 'FOB'
+            case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
                 return 'FOB'
             ###
             case _:
@@ -3140,20 +3146,24 @@ def fn_FOB_Relation(fdf):
             match fdf['Adult2TGTRelation']:
                 case _ if pd.isna(fdf['Adult2TGTRelation']):
                     return pd.NA 
-                case 'Aunt' | 'Biological mother' | 'Foster mother' | 'MOB' | 'Mother':
+                case 'Aunt' | 'Biological mother' | 'Foster mother' | 'MOB' | 'Mother'|"Adoptive mother":
                     return 'MOB'
-                case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father':
+                case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father'|"Step-Father": #Y13Q4: adding "Step-Father" and "Adoptive mother" and Other for FOB
                     return 'FOB'
                 case 'Grandmother': 
-                    return 'Grandmother' ### TODO ASKJOE: Review whether should match MOB version where is 'MOB'.
-                case 'Guardian':
-                    return 'Guardian' ### TODO ASKJOE: Review whether should match MOB version where is 'MOB'.
-                case 'Other':
-                    return 'Other'
+                    return 'MOB' ###: Joe: Review whether should match MOB version where is 'MOB'.
+                case 'Guardian' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                    return 'FOB' ### Add logic check Mob Gender.
+                case 'Guardian' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                    return 'MOB' ### Add logic check Mob Gender.
+                case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                    return 'FOB'
+                case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                    return 'MOB'
                 case _:
                     return 'Unrecognized Value'
         else:
-            return 'Unrecognized Value' ### If (fdf['Fob Involved'] != True).
+            return pd.NA ### If (fdf['Fob Involved'] != True). then return nothing per Joe's instruction
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -3199,10 +3209,10 @@ def fn_T12_MOB_Housing_Status(fdf):
             else:
                 match fdf['Housing Status'].lower():
                     case "owns or shares own home, condominium, or apartment":
-                        return "Owns or shares own home, condominium, or apartment"
+                        return "Owns or shares own home, condominium, or apartment" 
                     case (
                         "rents of shares own home or apartment" | 
-                        "rents or shares own home or apartment"
+                        "rents or shares own home or apartment" |"or apartment" #Y13Q4: new option "or apartment"
                     ):
                         return "Rents or shares own home or apartment"
                     case "lives with parent or family member":

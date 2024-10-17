@@ -1315,58 +1315,12 @@ def fn_C7_Safe_Sleep_Date(fdf):
     ### IFNULL([Safe Sleep Date],[Safe Sleep Yes Dt])
 df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Safe_Sleep_Date, axis=1).astype('datetime64[ns]') 
     ### Data Type in Tableau: date.
-# inspect_col(df_14t_edits1_tb2['_C7 Safe Sleep Date'])
-# #%%
-# inspect_col(df_14t_edits1_tb2['_Agency'])
-# #%%
-# inspect_col(df_14t_edits1_tb2['Safe Sleep Yes']) ### LL.
-# #%%
-# inspect_col(df_14t_edits1_tb2['Safe Sleep Yes Dt']) ### LL.
-# #%%
-# inspect_col(df_14t_edits1_tb2['Safe Sleep Date']) ### FW.
-# #%%
-# inspect_col(df_14t_edits1_tb2['Safe Sleep Partial Date']) ### FW.
 #%%
-### Check LL:
-# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` == "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
-# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt']].query('`_Agency` == "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
-#%%
-### Check FW:
-# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
-# print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Date', 'Safe Sleep Partial Date']].query('`_Agency` != "ll"').drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
-
-#%%
-# print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
-# # print(df_14t_edits1_tb2[['_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date', '_C7 Safe Sleep Partial Date', '_C7 Safe Sleep Date']]
-# # print(df_14t_edits1_tb2[['source', '_Agency', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
-# # print(df_14t_edits1_tb2[['source', 'Safe Sleep Yes', 'Safe Sleep Yes Dt', 'Safe Sleep Date', 'Safe Sleep Partial Date']]
-#     .assign(**{
-#         # 'Safe Sleep Yes': lambda df: pd.isna(df['Safe Sleep Yes'])
-#         # ,'Safe Sleep Yes Dt': lambda df: pd.isna(df['Safe Sleep Yes Dt'])
-#         # ,'Safe Sleep Date': lambda df: pd.isna(df['Safe Sleep Date'])
-#         # ,'Safe Sleep Partial Date': lambda df: pd.isna(df['Safe Sleep Partial Date'])
-#         # ,'_C7 Safe Sleep Partial Date': lambda df: pd.isna(df['_C7 Safe Sleep Partial Date'])
-#         # ,'_C7 Safe Sleep Date': lambda df: pd.isna(df['_C7 Safe Sleep Date'])
-#         ###
-#         # '_Agency': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: df['_Agency'] == 'll'), 'll', 'fw'))
-#         'Safe Sleep Yes': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes'])), 'Y', '.'))
-#         ,'Safe Sleep Yes Dt': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Yes Dt'])), 'date', '.'))
-#         ,'Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Date'])), 'date', '.'))
-#         ,'Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['Safe Sleep Partial Date'])), 'date', '.'))
-#         ,'_C7 Safe Sleep Partial Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Partial Date'])), 'date', '.'))
-#         ,'_C7 Safe Sleep Date': lambda df: df.apply(func=fn_if_else, axis=1, args=((lambda df: pd.notna(df['_C7 Safe Sleep Date'])), 'date', '.'))
-#     })
-#     .drop_duplicates(ignore_index=True)
-#     .pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string()
-# )
 
 ### RESOLVED: Discuss what logic is needed. NOTE: "partial date" is BOTH yes & no, it seems.
 #### Decision: 12/21/23: 
     ### LL: yes: = Y+date, no= NULL+date, missingg = both NULL
 #### FW: yes = both, no = one.
-### TODO: fix.
-### TODO: Check if FW dates are the same & if want earliest or latest.
-
 
 #%%###################################
 
@@ -1378,23 +1332,6 @@ df_14t_edits1_tb2['_C7 Safe Sleep Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Sa
 ### TODO: Check reports & remove if not needed.
 df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2['_C7 Safe Sleep Date']
 ########
-### OLD:
-### def fn_C7_Safe_Sleep_Yes_Date(fdf):
-#     ### if ( 
-#     ###     fdf['Sleep On Back'] == "Yes" ### FW.
-#     ###     and fdf['Co Sleeping'] == "No"
-#     ###     and fdf['Soft Bedding'] == "No"
-#     ### ):
-#     ###     return fdf['Safe Sleep Date']
-#     ### else:
-#     ###     return fdf['Safe Sleep Yes Dt'] ### LLCHD.
-#     ### ### IF [Sleep On Back] = "Yes" //FW
-#     ### ### AND [Co Sleeping] = "No"
-#     ### ### AND [Soft Bedding] = "No"
-#     ### ### THEN [Safe Sleep Date]
-#     ### ### ELSE [Safe Sleep Yes Dt] //LLCHD
-#     ### ### END
-### df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'] = df_14t_edits1_tb2.apply(func=fn_C7_Safe_Sleep_Yes_Date, axis=1)
 ########
     ### Data Type in Tableau: date.
 # inspect_col(df_14t_edits1_tb2['_C7 Safe Sleep Yes Date'])
@@ -1439,32 +1376,6 @@ def fn_Discharge_Reason(fdf):
     else:
         return "Currently Receiving Services"
     ###########
-    ### /// Tableau Calculation:
-    ### IF NOT ISNULL([Discharge Dt]) THEN CASE [Discharge Reason] //LLCHD, see full reasons below
-    ###     WHEN 1 THEN "Completed Services" 
-    ###     ELSE "Stopped Services Before Completion"
-    ###     END
-    ### ELSEIF NOT ISNULL([Termination Date]) THEN CASE [Termination Status] //FW
-    ###     WHEN "Family graduated/met all program goals" THEN "Completed Services"
-    ###     ELSE "Stopped Services Before Completion"
-    ###     //need to check values for FW reasons
-    ###     END
-    ### ELSE "Currently Receiving Services"
-    ### END
-    ### //LLCHD discharge reasons
-    ### //1Family graduated/met all program goals
-    ### //2Family moved out of service area
-    ### //3Parent/guardian returned to school
-    ### //4Parent/guardian returned to work
-    ### //5Parent/guardian refused service
-    ### //6Death of participant
-    ### //7Unable to locate family
-    ### //8Target child adopted
-    ### //9Target child entered foster care
-    ### //10Target child living with another care giverx
-    ### //11Target child entered school/child care
-    ### //12Family never engaged
-    ### //13Unknown & a text box
 df_14t_edits1_tb2['_Discharge Reason'] = df_14t_edits1_tb2.apply(func=fn_Discharge_Reason, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_Discharge Reason'])
@@ -1572,24 +1483,6 @@ def fn_FW_Gestation_Age_Recode(fdf):
         #     return 100
         case _:
             return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
-    ###########
-    ### /// Tableau Calculation:
-    ### CASE [Gestational Age]
-    ###     WHEN '29 weeks' THEN 29
-    ###     WHEN '31 weeks' THEN 31
-    ###     WHEN '33 weeks' THEN 33
-    ###     WHEN '34 weeks' THEN 34
-    ###     WHEN '35 weeks' THEN 35
-    ###     WHEN '36 weeks' THEN 36
-    ###     WHEN '37 weeks' THEN 37
-    ###     WHEN '38 weeks' THEN 38
-    ###     WHEN '39 weeks' THEN 39
-    ###     WHEN '40 weeks' THEN 40
-    ###     WHEN '41 weeks' THEN 41
-    ###     WHEN '42 weeks' THEN 42
-    ###     WHEN 'Unknown' THEN NULL
-    ### ELSE NULL
-    ### END
 df_14t_edits1_tb2['_FW Gestation Age Recode'] = df_14t_edits1_tb2.apply(func=fn_FW_Gestation_Age_Recode, axis=1).astype('Int64') 
     ### Data Type in Tableau: integer.
 # inspect_col(df_14t_edits1_tb2['_FW Gestation Age Recode'])
@@ -1630,7 +1523,11 @@ def fn_Funding(fdf):
                 case "sh":
                     return "F" ### Added Y13.
                 case 'wc':
-                    return 'TODO' ### See ### TODO's
+                    return 'TODO'
+                case 'cd': ## Added Y13Q4
+                    return "F" 
+                case 'fc': ## Added Y13Q4
+                    return "F"
                 case _:
                     return "Unrecognized Value"
     elif pd.notna(fdf['_Agency']):
@@ -1719,25 +1616,6 @@ def fn_T06_TGT_Ethnicity(fdf):
     else:
         return "Unknown/Did Not Report"
     ###########
-    ### /// Tableau Calculation:
-    ### //FW
-    ### IF NOT ISNULL([Tgt Ethnicity]) THEN CASE [Tgt Ethnicity]
-    ###     WHEN "Non Hispanic/Latino" THEN "Not Hispanic or Latino"
-    ###     WHEN "Hispanic/Latino" THEN "Hispanic or Latino"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### //LLCDH
-    ### ELSEIF NOT ISNULL([Tgt Ethnicity1]) THEN CASE [Tgt Ethnicity1] 
-    ###     WHEN "HISPANIC/LATINO" THEN "Hispanic or Latino" 
-    ###     WHEN "HISPANIC" THEN "Hispanic or Latino"
-    ###     WHEN "NOT HISPANIC/LATINO" THEN "Not Hispanic or Latino"
-    ###     WHEN "NON-Hispanic" THEN "Not Hispanic or Latino"
-    ###     WHEN "UNREPORTED/REFUSED TO REPORT" THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE "Unknown/Did Not Report"
-    ### END
 df_14t_edits1_tb2['_T06 TGT Ethnicity'] = df_14t_edits1_tb2.apply(func=fn_T06_TGT_Ethnicity, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_T06 TGT Ethnicity'])
@@ -1921,10 +1799,8 @@ def fn_T20_TGT_Insurance_Status(fdf):
     ### FW.
     if (pd.notna(fdf['CHINS Primary Ins'])):
         match fdf['CHINS Primary Ins']:
-            case "Medicaid":
+            case "Medicaid" | "Medicare/Medicaid": #Y13Q4: correct categorizing of "Medicare/Mediciad"
                 return "Medicaid or CHIP"
-            case "Medicare/Medicaid":
-                return "Medicare/Medicaid" ### TODO ASKJOE: Need to ask FW how to code this. Added Y13Q1.
             case "None":
                 return "No Insurance Coverage"
             case "Medicare" | "Other" | "Private" | "Blue Cross Blue Shield" | "Aetna":
@@ -1955,31 +1831,6 @@ def fn_T20_TGT_Insurance_Status(fdf):
     else:
         return "Unknown/Did Not Report"
     ###########
-    ### /// Tableau Calculation:
-    ### IF NOT ISNULL([CHINS Primary Ins]) THEN CASE [CHINS Primary Ins] //FW
-    ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
-    ###     WHEN "Medicare" THEN "Private or Other"
-    ###     WHEN "None" THEN "No Insurance Coverage"
-    ###     WHEN "Other" THEN "Private or Other"
-    ###     WHEN "Private" THEN "Private or Other"
-    ###     WHEN "Tri-Care" THEN "Tri-Care"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     WHEN "null" THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSEIF NOT ISNULL([Hlth Insure Tgt]) THEN CASE [Hlth Insure Tgt] //LLCHD
-    ###     WHEN 0 THEN "No Insurance Coverage"
-    ###     WHEN 1 THEN "Medicaid or CHIP" //1=Medicaid
-    ###     WHEN 2 THEN "Tri-Care" //2=Tricare
-    ###     WHEN 3 THEN "Private or Other" //3=Private/Other
-    ###     WHEN 4 THEN "FamilyChildHealthPlus" //4=Unknown/Did Not Report
-    ###     WHEN 5 THEN "No Insurance Coverage" //5=None
-    ###     WHEN 6 THEN "Unknown/Did Not Report"
-    ###     WHEN 99 THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE "Unknown/Did Not Report"
-    ### END
 df_14t_edits1_tb2['_T20 TGT Insurance Status'] = df_14t_edits1_tb2.apply(func=fn_T20_TGT_Insurance_Status, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_T20 TGT Insurance Status'])
@@ -2044,32 +1895,6 @@ def fn_T21_TGT_Usual_Source_of_Medical_Care(fdf):
     else:
         return "Unknown/Did Not Report"
     ###########
-    ### /// Tableau Calculation:
-    ### IF NOT ISNULL([Child Med Care Source]) THEN CASE [Child Med Care Source] //FW
-    ###     WHEN "Doctor/Nurse Practitioner" THEN "Doctor's/Nurse Practitioner's Office"
-    ###     WHEN "Federally Qualified Health Center" THEN "Federally Qualified Health Center"
-    ###     WHEN "Hospital ER" THEN "Hospital Emergency Room"
-    ###     WHEN "Hospital Outpatient" THEN "Hospital Outpatient"
-    ###     WHEN "None" THEN "None"
-    ###     WHEN "Other" THEN "Other"
-    ###     WHEN "Retail or Minute Clinic" THEN "Retail Store or Minute Clinic"
-    ###     WHEN "Prenatal Client" THEN "Prenatal Client"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSEIF NOT ISNULL([Tgt Medical Home]) THEN CASE [Tgt Medical Home] //LLCHD, coded values are = to form 1 categories
-    ###     WHEN 0 THEN "None"
-    ###     WHEN 1 THEN "Doctor's/Nurse Practitioner's Office"
-    ###     WHEN 2 THEN "Hospital Emergency Room"
-    ###     WHEN 3 THEN "Hospital Outpatient"
-    ###     WHEN 4 THEN "Federally Qualified Health Center"
-    ###     WHEN 5 THEN "Retail Store or Minute Clinic"
-    ###     WHEN 6 THEN "Other"
-    ###     WHEN 7 THEN "None"
-    ###     WHEN 8 THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE "Unknown/Did Not Report"
-    ### END
 df_14t_edits1_tb2['_T21 TGT Usual Source of Medical Care'] = df_14t_edits1_tb2.apply(func=fn_T21_TGT_Usual_Source_of_Medical_Care, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_T21 TGT Usual Source of Medical Care'])
@@ -2109,26 +1934,6 @@ def fn_T22_TGT_Usual_Souce_of_Dental_Care(fdf):
                 return "Unrecognized Value"
     else:
         return "Unknown/Did Not Report"
-    ###########
-    ### /// Tableau Calculation:
-    ### IF NOT ISNULL([Child Dental Care Source]) THEN CASE [Child Dental Care Source] //FW
-    ###     WHEN "Do not have a usual source of dental care" THEN "Do not have a usual source of dental care"
-    ###     WHEN "Does not have a usual source of dental care" THEN "Do not have a usual source of dental care"
-    ###     WHEN "Has a usual source of dental care" THEN "Have a usual source of dental care"
-    ###     WHEN "Have a usual source of dental care" THEN "Have a usual source of dental care"
-    ###     WHEN "Prenatal Client" THEN "Prenatal Client"
-    ###     WHEN "Unknown" THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSEIF NOT ISNULL([Tgt Dental Home]) THEN CASE [Tgt Dental Home] //LLCHD, coded values are = to form 1 categories
-    ###     WHEN 1 THEN "Have a usual source of dental care" 
-    ###     WHEN 2 THEN "Do not have a usual source of dental care"
-    ###     WHEN 3 THEN "Unknown/Did Not Report"
-    ###     WHEN 6 THEN "Unknown/Did Not Report"
-    ###     ELSE "Unrecognized Value"
-    ###     END
-    ### ELSE "Unknown/Did Not Report"
-    ### END
 df_14t_edits1_tb2['_T22 TGT Usual Souce of Dental Care'] = df_14t_edits1_tb2.apply(func=fn_T22_TGT_Usual_Souce_of_Dental_Care, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_T22 TGT Usual Souce of Dental Care'])
@@ -2231,42 +2036,6 @@ df_14t_edits1_tb2['_TGT Race'] = df_14t_edits1_tb2.apply(func=fn_TGT_Race, axis=
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb2['_TGT Race'])
 
-# #%%
-# df_14t_comp_compare_tb2_race = (
-#     df_14t_comparison_csv_tb2[['Project Id', '_TGT Race']]
-#     .compare(df_14t__final_from_csv_tb2[['Project Id', '_TGT Race']], keep_equal=True, keep_shape=True)
-#     .loc[(lambda df: df[('_TGT Race', 'self')] != df[('_TGT Race', 'other')]), :]
-# )
-# print(df_14t_comp_compare_tb2_race.to_string())
-# # df_14t_comp_compare_tb2_race.index
-# # df_14t_comp_compare_tb2_race[('Project Id', 'self')].values
-
-# #%%
-# print(
-#     # df_14t__final_from_csv_tb2[[
-#     df_14t_edits1_tb2[[
-#         'Project Id',
-#         '_TGT Race', 
-#         'Tgt Race Asian', 
-#         'Tgt Race Black', 
-#         'Tgt Race Hawaiian', 
-#         'Tgt Race Indian', 
-#         'Tgt Race White', 
-#         'Tgt Race Other', 
-#         'TGT Race Asian', 
-#         'TGT Race Black', 
-#         'TGT Race Hawaiian Pacific', 
-#         'TGT Race Indian Alaskan', 
-#         'TGT Race White', 
-#         'TGT Race Other' 
-#     ]]
-#     ### .loc[df_14t_edits1_tb2['_TGT Race'] == 'More than one race', :]
-#     # .loc[df_14t_comp_compare_tb2_race.index, :]
-#     # .loc[df_14t_edits1_tb2['Project Id'].isin(df_14t_comp_compare_tb2_race[('Project Id', 'self')].values), :]
-#     .to_string()
-# )
-# ### Shows that code is returning "More than one race" for when all 6 columns are "N"/False. Should be "Unknown". ### TODO: Check in Report if fixed.
-
 #%%###################################
 
 def fn_C11_Literacy_Read_Sing(fdf):
@@ -2311,28 +2080,6 @@ def fn_C11_Literacy_Read_Sing(fdf):
     else:
         return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
     ###########
-    ### /// Tableau Calculation:
-    ### IF [_Agency] <> "ll" THEN CASE [Read Tell Story Sing]  // FW
-    ###     WHEN "0" THEN 0
-    ###     WHEN "1" THEN 1
-    ###     WHEN "2" THEN 2
-    ###     WHEN "3" THEN 3
-    ###     WHEN "4" THEN 4
-    ###     WHEN "5" THEN 5
-    ###     WHEN "6" THEN 6
-    ###     WHEN "7" THEN 7
-    ###     WHEN "YES" THEN 7
-    ###     ELSE NULL   
-    ###     END
-    ### ELSEIF [_Agency] = "ll" THEN CASE [Early Language]  // LLCHD
-    ###     WHEN "N" THEN 0
-    ###     WHEN "Y" THEN 7
-    ### // Y = "Every day of the week / 
-    ###     // Most days of the week / 
-    ###     // Several days of the week"
-    ###     ELSE NULL
-    ###     END
-    ### END
 df_14t_edits1_tb2['_C11 Literacy Read Sing'] = df_14t_edits1_tb2.apply(func=fn_C11_Literacy_Read_Sing, axis=1).astype('Int64') 
     ### Data Type in Tableau: integer.
 # inspect_col(df_14t_edits1_tb2['_C11 Literacy Read Sing'])
@@ -2416,19 +2163,8 @@ def fn_T15_6_Low_Student_Achievement(fdf):
     else:
         return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
     ###########
-    ### /// Tableau Calculation:
-    ### IF [NT Child Low Achievement] = "No" THEN 0 //FW
-    ### ELSEIF [NT Child Low Achievement] = "Yes" THEN 1
-    ### ELSEIF [Priority Low Student] = "N" THEN 0 //LLCHD
-    ### ELSEIF [Priority Low Student] = "Y" THEN 1
-    ### END
 df_14t_edits1_tb2['_T15-6 Low Student Achievement'] = df_14t_edits1_tb2.apply(func=fn_T15_6_Low_Student_Achievement, axis=1).astype('Int64') 
     ### Data Type in Tableau: integer.
-# inspect_col(df_14t_edits1_tb2['_T15-6 Low Student Achievement'])
-# #%%
-# inspect_col(df_14t_edits1_tb2['NT Child Low Achievement'])
-# #%%
-# inspect_col(df_14t_edits1_tb2['Priority Low Student'])
 
 #%%##################################################
 ### COALESCING
@@ -2566,25 +2302,6 @@ df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_fir
 
 ### RECOMMEND that [_T05 TGT Age in Months] & ['_T05 Age Categories'] be created in the Form 1/2 Tableau Workbooks because the calculations do not match exactly between Tableau & Python. 
 
-### Questions: (1) When dividing by "1 month" in Python & Tableau, what exact number is used? (2) Float > Int: truncated or rounded? 
-### Testing in Tableau on DATEDIFF shows that it rounds to an integer, so implemented here.
-### DONE: FIX: first if clause.
-### DONE: Ask Joe purpose of IF clause. WHY!?!?!?!?
-### Would love this var to be a Pandas Int (that allows NAs), but breaks later calculations based on this var.
-### DONE: Fix PROBLEM!!!: Should NOT base calculations of Age off of Today's date -- changes every time runs! Should be based off of end of reporting period/a specific date..
-# now = pd.Timestamp('now')
-# date_for_age_calcs_14t_tb2 = now
-
-### Base Age off [Report End Date]. *** Check how these are used in the F1/F2.
-
-### Age only matters for Form 1 (not Form 2). However, neither [_T05 TGT Age in Months] nor [_T05 Age Categories] are actually used in Form 2; instead, [_T05 TGT Age] & [_T05 TGT Age Categories] are used.
-    ### SO: 2024-01-16: Removing these calculations because not needed.
-### Last version of Tableau Calculation:
-    ### IF [_TGT DOB]> DATEADD('month',-DATEDIFF('month',[_TGT DOB],TODAY()),TODAY())
-    ### THEN DATEDIFF('month',[_TGT DOB],TODAY()-1)
-    ### ELSE DATEDIFF('month',[_TGT DOB],TODAY())
-    ### END
-
 # date_for_age_calcs_14t_tb2 = pd.Timestamp("2023-02-08T14:12")
 # def fn_T05_TGT_Age_in_Months(fdf):
 #     if (fdf['_TGT DOB'] is pd.NaT):
@@ -2641,55 +2358,6 @@ df_14t_edits1_tb2['_Family Number'] = df_14t_edits1_tb2['Family Id'].combine_fir
 # print(df_T05_TGT_Age_in_Months.to_string())
 
 #%%###################################
-
-### DONE: Did not, see below:: Move to Tableau & pin to start/end of Reporting period.
-
-### Age only matters for Form 1 (not Form 2). However, neither [_T05 TGT Age in Months] nor [_T05 Age Categories] are actually used in Form 2; instead, [_T05 TGT Age] & [_T05 TGT Age Categories] are used.
-    ### SO: 2024-01-16: Removing these calculations because not needed.
-### Last version of Tableau Calculation:
-    ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
-    ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
-    ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
-    ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
-    ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
-    ### ELSE "Unknown/Did Not Report"
-    ### END
-
-### TODO: Adjust to deal with "-1" months old. ### TODO: Check in other variables actually used.
-
-# def fn_T05_Age_Categories(fdf):
-#     if (fdf['_T05 TGT Age in Months'] < 12):
-#         return "< 1 year"
-#     elif (fdf['_T05 TGT Age in Months'] < 36):
-#         return "1-2 years" ### there is no group for 2-3 years old on F1 so they are lumped in here.
-#     elif (fdf['_T05 TGT Age in Months'] < 48):
-#         return "3-4 years"
-#     elif (fdf['_T05 TGT Age in Months'] <= 60):
-#         return "5-6 years"
-#     elif (fdf['_T05 TGT Age in Months'] > 60):
-#         return "6+ years"
-#     else:
-#         return "Unknown/Did Not Report"
-#     ###########
-#     ### /// Tableau Calculation:
-#     ### IF [_T05 TGT Age in Months] < 12 THEN "< 1 year"
-#     ### ELSEIF [_T05 TGT Age in Months] < 36 THEN "1-2 years" //there is no group for 2-3 years old on F1 so they are lumped in here
-#     ### ELSEIF [_T05 TGT Age in Months] < 48 THEN "3-4 years"
-#     ### ELSEIF [_T05 TGT Age in Months] <= 60 THEN "5-6 years"
-#     ### ELSEIF [_T05 TGT Age in Months] > 60 THEN "6+ years"
-#     ### ELSE "Unknown/Did Not Report"
-#     ### END
-# df_14t_edits1_tb2['_T05 Age Categories'] = df_14t_edits1_tb2.apply(func=fn_T05_Age_Categories, axis=1).astype('string') 
-#     ### Data Type in Tableau: 'string'.
-# # inspect_col(df_14t_edits1_tb2['_T05 Age Categories'])
-
-
-##################################################################################################
-##################################################################################################
-##################################################################################################
-##################################################################################################
-##################################################################################################
-##################################################################################################
 ##################################################################################################
 ##################################################################################################
 ##################################################################################################
@@ -2915,18 +2583,6 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 # ### DONE: Removed.
 
 # #%%
-# # print(df_14t_comp_compare_tb2[['_Family Number']].to_string())
-# # print(df_14t_comp_compare_tb2[['_T06 TGT Ethnicity']].to_string()) ### Fixed, so no longer in comparsion.
-
-# # #%%
-# # ### Fixed, so no longer in comparsion.
-# # df_14t_comp_compare_tb2_ethnicity = (
-# #     df_14t_comparison_csv_tb2[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
-# #     .compare(df_14t__final_from_csv_tb2[['_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']], keep_equal=True, keep_shape=True)
-# #     # .iloc[lambda df: [0], :] ### !!! Want to filter rows by only where columns 0 & 1 are different.
-# #     .loc[(lambda df: df[('_T06 TGT Ethnicity', 'self')] != df[('_T06 TGT Ethnicity', 'other')]), :]
-# # )
-# # print(df_14t_comp_compare_tb2_ethnicity.to_string())
 
 # # #%%
 # # df_14t__final_from_csv_tb2.loc[[379, 456, 463], ['Project Id', '_T06 TGT Ethnicity', 'Tgt Ethnicity', 'Tgt Ethnicity1']]
@@ -3001,17 +2657,6 @@ df_14t__final_tb2.to_csv(path_14t_output_tb2, index=False, date_format="%#m/%#d/
 
 
 #%%################################
-
-
-
-
-
-
-
-
-
-
-
 
 
 #%%##################################################

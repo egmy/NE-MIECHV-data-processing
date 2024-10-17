@@ -192,7 +192,7 @@ list_112FW_col_detail_4= [
     ['FOBRaceAsian','boolean'],
     ['FOBRaceHawaiianPacific','boolean'],
     ['FOBRaceOther','boolean'],
-    ['MOB ZIP','string'],
+    ['MOB ZIP','Int64'],
     ['Adaptation','string'], ##not sure about this one, all values seem to be 'NA'
     ]
 

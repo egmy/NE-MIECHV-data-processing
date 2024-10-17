@@ -1038,7 +1038,11 @@ def fn_Funding(fdf):
                 case "sh":
                     return "F" ### Added Y13.
                 case 'wc':
-                    return 'TODO' ### See ### TODO's
+                    return 'TODO'
+                case 'cd': ## Joe: Added Y13Q4
+                    return "F" 
+                case 'fc': ##Joe: Added Y13Q4
+                    return "F"
                 case _:
                     return "Unrecognized Value"
     elif pd.notna(fdf['_Agency']):
@@ -1338,12 +1342,14 @@ def fn_MOB_TGT_Relation(fdf):
         match fdf['Adult1TGTRelation']:
             case _ if pd.isna(fdf['Adult1TGTRelation']):
                 return pd.NA 
-            case 'Aunt' | 'Biological mother' | 'Foster mother' | 'Grandmother'| 'Guardian' | 'MOB' | 'Mother':
+            case 'Aunt' | 'Biological mother' | 'Foster mother' | 'Grandmother'| 'Guardian' | 'MOB' | 'Mother'|'Adoptive mother': #Joe: new options 'Adoptive mother' and 'Step-Father'
                 return 'MOB'
-            case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father':
+            case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father'|'Step-Father':
                 return 'FOB'
+            # case 'Other':
+            #     return 'Other'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized:{fdf['Adult1TGTRelation']}'
             ### TODO ASKJOE: Maybe add options from 'Adult2TGTRelation': 'Other'.
     ###########
     ### LLCHD.
@@ -1354,11 +1360,15 @@ def fn_MOB_TGT_Relation(fdf):
             ###
             case 'MOTHER OF CHILD':
                 return 'MOB'
+            case 'Adoptive mother':
+                return 'MOB'
             case 'PRIMARY CAREGIVER' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
                 return 'MOB'
             case 'Bio parent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
                 return 'MOB'
             case 'Grandparent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                return 'MOB'
+            case 'Grandmother' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
                 return 'MOB'
             case 'Other' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
                 return 'MOB'
@@ -1371,9 +1381,13 @@ def fn_MOB_TGT_Relation(fdf):
                 return 'FOB'
             case 'Grandparent' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
                 return 'FOB'
+            case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                return 'FOB'
+            case "Unknown":
+                return "Unknown/Did Not Report"
             ###
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized: {fdf['Primary Relation']}'
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -1413,20 +1427,24 @@ def fn_FOB_Relation(fdf):
             match fdf['Adult2TGTRelation']:
                 case _ if pd.isna(fdf['Adult2TGTRelation']):
                     return pd.NA 
-                case 'Aunt' | 'Biological mother' | 'Foster mother' | 'MOB' | 'Mother':
+                case 'Aunt' | 'Biological mother' | 'Foster mother' | 'MOB' | 'Mother'|'Adoptive mother':
                     return 'MOB'
-                case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father':
+                case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father'|'Step-Father': #Y13Q4 Joe: adding "Step-Father" and "Adoptive mother"
                     return 'FOB'
                 case 'Grandmother': 
-                    return 'Grandmother' ### TODO ASKJOE: Review whether should match MOB version where is 'MOB'.
-                case 'Guardian':
-                    return 'Guardian' ### TODO ASKJOE: Review whether should match MOB version where is 'MOB'.
-                case 'Other':
-                    return 'Other'
+                    return 'MOB' ###Joe: Review whether should match MOB version where is 'MOB'.
+                case 'Guardian' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                    return 'FOB' ### Add logic check Mob Gender.
+                case 'Guardian' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                    return 'MOB' ### Add logic check Mob Gender.
+                case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                    return 'FOB'
+                case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                    return 'MOB'
                 case _:
-                    return 'Unrecognized Value'
+                    return f'Unrecognized Value'
         else:
-            return 'Unrecognized Value' ### If (fdf['Fob Involved'] != True).
+            return pd.NA ### If (fdf['Fob Involved'] != True) return NULL because irrelevant
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -1474,19 +1492,19 @@ def fn_Enroll_Preg_Status(fdf):
             case 1:
                 return 'Not pregnant'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized:{fdf['Pregnancystatus']}'
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
         match fdf['Enroll Preg Status']:
-            case _ if pd.isna(fdf['Enroll Preg Status']):
+            case _ if pd.isna(fdf['Enroll Preg Status']): #Joe: This is a date, maybe at one point was a string but is a date now and comes in as a date
                 return pd.NA 
-            case 'Pregnant':
+            case 'Pregnant': #
                 return 'Pregnant'
             case 'Postpartum':
                 return 'Not pregnant'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized Value(coming in as date)'
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -1511,7 +1529,6 @@ df_14t_edits1_tb4['_Enroll Preg Status'] = df_14t_edits1_tb4.apply(func=fn_Enrol
 ### df_14t_edits1_tb4['Assess IPV'] = df_14t_edits1_tb4['Assess IPV'].sample(frac=0.8)
 ### df_14t_edits1_tb4['Assess Police'] = df_14t_edits1_tb4['Assess Police'].sample(frac=0.8)
 
-### TODO ASKJOE: Is 'Agency' from df_14t_piece_tb4_2 ('Caregiver Insurance') wanted? Or 'agency (Family Wise)'? Or '_Agency'?
 ### In Adult3-Form2 & Adult4-Form1. Same Tableau Calculation. Python modified.
 def fn_IPV_Score_FW(fdf):
     ###########
@@ -2391,7 +2408,7 @@ def fn_C15_Min_Educational_Status(fdf):
             case _ if int(fdf['Mcafss Edu1']) >= 9:
                 return 'Unknown/Did Not Report'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized:{fdf['Mcafss Edu1']}'
     ###########
     ### FW.
     elif (fdf['source'] == 'FW'):
@@ -2415,7 +2432,7 @@ def fn_C15_Min_Educational_Status(fdf):
             case 'Unknown' | 'null':
                 return 'Unknown/Did Not Report'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized: {fdf['AD1MinEdu']}'
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2503,7 +2520,7 @@ def fn_C15_Max_Educational_Status(fdf):
             case _ if int(fdf['Mcafss Edu2']) >= 9:
                 return 'Unknown/Did Not Report'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized:{fdf['Mcafss Edu2']}'
     ###########
     ### FW.
     elif (fdf['source'] == 'FW'):
@@ -2527,7 +2544,7 @@ def fn_C15_Max_Educational_Status(fdf):
             case 'Unknown' | 'null':
                 return 'Unknown/Did Not Report'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized:{fdf['AD1MaxEdu']}'
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2743,7 +2760,7 @@ def fn_C15_Min_Educational_Enrollment(fdf):
             pd.isna(fdf['mcafss_edu1_enroll']) or
             (fdf['mcafss_edu1_enroll'] == 'Y' and pd.isna(fdf['mcafss_edu1_prog'])) 
         ):
-            return 'Unknown/Did not Report' ### TODO ASKJOE: see if this is wanted.
+            return 'Unknown/Did not Report' 
         elif (
             fdf['mcafss_edu1_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
             and
@@ -2775,7 +2792,7 @@ def fn_C15_Min_Educational_Enrollment(fdf):
             return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
         else:
             ### For example: (pd.notna(fdf['mcafss_edu1_prog']) and fdf['mcafss_edu1_prog'] not in [1,2,3,4,5,6,7]) 
-            return 'Unrecognized Value' ### TODO ASKJOE: see if this is wanted.
+            return 'Unrecognized Value' 
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2828,7 +2845,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
     if (fdf['source'] == 'FW'):
         match fdf['Max Edu Enroll']:
             case _ if pd.isna(fdf['Max Edu Enroll']):
-                return 'Unknown/Did not Report' ### TODO ASKJOE: Maybe change to 'Unrecognized Value'?
+                return 'Unknown/Did not Report' 
             case 'College 2 Year' | 'College 4 Year' | 'ESL' | 'Graduate School' | 'Vocational College':
                 return 'Student/trainee'
             case 'GED Program' | 'High/Middle School':
@@ -2846,7 +2863,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
             pd.isna(fdf['mcafss_edu2_enroll']) or
             (fdf['mcafss_edu2_enroll'] == 'Y' and pd.isna(fdf['mcafss_edu2_prog']))
         ):
-            return 'Unknown/Did not Report' ### TODO ASKJOE: see if this is wanted.
+            return 'Unknown/Did not Report' 
         elif (
             fdf['mcafss_edu2_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
             and
@@ -2878,7 +2895,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
             return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
         else:
             ### For example: (pd.notna(fdf['mcafss_edu2_prog']) and fdf['mcafss_edu2_prog'] not in [1,2,3,4,5,6,7]) 
-            return 'Unrecognized Value' ### TODO ASKJOE: see if this is wanted.
+            return 'Unrecognized Value' 
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2973,7 +2990,6 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
         else:
             return pd.NA 
     ### TODO: Older note: Need an FOB enrollment prog from LLCHD.
-    ### TODO ASK JOE: Ask why cases 1-12 for LL commented out?
     ### TODO: Fix logic because 'Fob Edu' is text not numbers. That's probably why.
     ###########
     else:
@@ -3036,7 +3052,6 @@ def fn_T10_Caregiver_Educational_Enrollment(fdf):
 df_14t_edits1_tb4['_T10 Caregiver Educational Enrollment'] = df_14t_edits1_tb4.apply(func=fn_T10_Caregiver_Educational_Enrollment, axis=1).astype('string') 
     ### Data Type in Tableau: 'string'.
 # inspect_col(df_14t_edits1_tb4['_T10 Caregiver Educational Enrollment']) 
-### TODO ASKJOE: Standardize "Unknown/Did not Report" vs "Unknown/Did Not Report".
 
 #%%###################################
 
@@ -3049,9 +3064,9 @@ def fn_T11_MOB_Employment(fdf):
             return "Unknown/Did Not Report"
         else:
             match fdf['AD1EmpStatus'].lower():
-                case "employed full time" | "maternal leave, paid, full time" | "maternal leave, unpaid, full time":
+                case "employed full time" | "maternal leave, paid, full time" | "maternal leave, unpaid, full time"|'full time':
                     return "Employed Full Time"
-                case "employed part time" | "maternal leave, unpaid, part time" | "self-employed":
+                case "employed part time" | "maternal leave, unpaid, part time" | "self-employed"|'part time':
                     return "Employed Part Time"
                 case (
                     "permanent disability" |
@@ -3066,7 +3081,7 @@ def fn_T11_MOB_Employment(fdf):
                 case "unknown" | "null":
                     return "Unknown/Did Not Report"
                 case _:
-                    return "Unrecognized Value"
+                    return f"Unrecognized: {fdf['AD1EmpStatus']}"
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -3079,7 +3094,7 @@ def fn_T11_MOB_Employment(fdf):
                 case 3 | 4 | 5:
                     return "Employed Full Time"
                 case _:
-                    return "Unrecognized Value"
+                    return f"Unrecognized:{fdf['Mcafss Employ']}"
     ###########
     else:
         return "Unknown/Did Not Report"
@@ -3133,12 +3148,12 @@ def fn_T11_FOB_Employment(fdf):
                 return 'Unknown/Did Not Report'
             else:
                 match fdf['AD2EmployStatus'].lower():
-                    case 'employed full time' | 'maternal leave, paid, full time' | 'maternal leave, unpaid, full time':
+                    case 'employed full time' | 'maternal leave, paid, full time' | 'maternal leave, unpaid, full time'|'full time':
                         return 'Employed Full Time'
-                    case 'employed part time' | 'maternal leave, unpaid, part time' | 'self-employed':
+                    case 'employed part time' | 'maternal leave, unpaid, part time' | 'self-employed'|'part time':
                         return 'Employed Part Time'
                     case (
-                        'temporary disability' | ### TODO ASKJOE: new value -- I believe it goes here.
+                        'temporary disability' |
                         'permanent disability' |
                         'unemployed - unspecified' |
                         'unemployed not seeking work-barriers' |
@@ -3150,7 +3165,7 @@ def fn_T11_FOB_Employment(fdf):
                     case 'unknown' | 'null':
                         return 'Unknown/Did Not Report'
                     case _:
-                        return 'Unrecognized Value'
+                        return f"Unrecognized: {fdf['AD1EmpStatus']}"
         else:
             return pd.NA 
     ###########
@@ -3170,7 +3185,7 @@ def fn_T11_FOB_Employment(fdf):
                     case 4 | 5:
                         return 'Employed Full Time'
                     case _:
-                        return 'Unrecognized Value'
+                        return f'Unrecognized: {fdf['Fob Employ']}'
         else:
             return pd.NA 
     ###########
@@ -3244,11 +3259,11 @@ def fn_T12_MOB_Housing_Status(fdf):
                 return "Unknown/Did Not Report"
             else:
                 match fdf['Housing Status'].lower():
-                    case "owns or shares own home, condominium, or apartment":
+                    case "owns or shares own home, condominium, or apartment": 
                         return "Owns or shares own home, condominium, or apartment"
                     case (
                         "rents of shares own home or apartment" | 
-                        "rents or shares own home or apartment"
+                        "rents or shares own home or apartment"|"or apartment" #new option Y13Q4: "or apartment" goes under rents or shares apartment
                     ):
                         return "Rents or shares own home or apartment"
                     case "lives with parent or family member":
@@ -3264,7 +3279,7 @@ def fn_T12_MOB_Housing_Status(fdf):
                     case "other":
                         return "Some other arrangement" ### TODO ASKJOE: Check old comment: Not sure this is the right category.
                     case _:
-                        return "Unrecognized Value" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
+                        return f"Unrecognized: {fdf['Housing Status']}" 
         else:
             return pd.NA 
     ###########
@@ -3347,10 +3362,10 @@ def fn_T12_FOB_Housing_Status(fdf):
             else:
                 match fdf['Housing Status'].lower():
                     case "owns or shares own home, condominium, or apartment":
-                        return "Owns or shares own home, condominium, or apartment"
+                        return "Owns or shares own home, condominium, or apartment" #Joe: new option "or apartment" should go here or below?
                     case (
                         "rents of shares own home or apartment" | 
-                        "rents or shares own home or apartment"
+                        "rents or shares own home or apartment" | "or apartment"
                     ):
                         return "Rents or shares own home or apartment"
                     case "lives with parent or family member":
@@ -3364,9 +3379,9 @@ def fn_T12_FOB_Housing_Status(fdf):
                     case "some other arrangement":
                         return "Some other arrangement"
                     case "other":
-                        return "Some other arrangement" ### TODO ASKJOE: Check old comment: Not sure this is the right category.
+                        return "Some other arrangement" 
                     case _:
-                        return "Unrecognized Value" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
+                        return f"Unrecognized:{fdf['Housing Status']}" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
         else:
             return pd.NA 
     ###########
@@ -3397,7 +3412,7 @@ def fn_T12_FOB_Housing_Status(fdf):
                 case 88: ### One of 2 differences between FOB & MOB.
                     return "Unknown/Did Not Report"
                 case _:
-                    return "Unrecognized Value"
+                    return f"Unrecognized:{fdf['Fob Living Arrangement']}"
         else:
             return pd.NA 
     ###########
@@ -3479,7 +3494,7 @@ def fn_T12_MOB_Homeless_Status(fdf):
                                 "rents of shares own home or apartment" | 
                                 "rents or shares own home or apartment" | 
                                 "lives with parent or family member" | 
-                                "live in public housing" 
+                                "live in public housing" |"or apartment"
                             ):
                                 return "Not Homeless"
                             case "some other arrangement":
@@ -3571,7 +3586,7 @@ def fn_T12_FOB_Homeless_Status(fdf):
                                 "rents of shares own home or apartment" | 
                                 "rents or shares own home or apartment" | 
                                 "lives with parent or family member" | 
-                                "live in public housing" 
+                                "live in public housing" |"or apartment"
                             ):
                                 return "Not Homeless"
                             case "some other arrangement":
@@ -3579,7 +3594,7 @@ def fn_T12_FOB_Homeless_Status(fdf):
                             case "other":
                                 return "Unknown/Did Not Report" ### TODO ASKJOE: Check old comment: Not sure this is the right category.
                             case _:
-                                return "Unrecognized Value" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
+                                return f"Unrecognized:{fdf['Homeless Status']}" ### TODO ASKJOE: Check old comment: will have to add new FW values as they come in, they aren't all here.
         else:
             return pd.NA 
     ###########
@@ -4155,7 +4170,7 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "Unknown/Did Not Report" ### Difference from fn_T20_CG_Insurance_Status where it's pd.NA.
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP":
+        case "Medicaid" | "SCHIP"|"Medicare/Medicaid":
             return "Medicaid or CHIP"
         case "Private" | "Other" | "Medicare":
             return "Private or Other"
@@ -4183,7 +4198,7 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "FamilyChildHealthPlus"
         ###########
         case _:
-            return "Unrecognized Value"
+            return f"Unrecognized:{fdf_column} "
     ###########
     ### CASE [AD1PrimaryIns.1] //FW
     ###     WHEN "Medicaid" THEN "Medicaid or CHIP"
@@ -4258,11 +4273,11 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
             return "Unknown/Did Not Report" ### Difference from fn_T20_CG_Insurance_Status where it's pd.NA.
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP":
+        case "Medicaid" | "SCHIP"|"Medicare/Medicaid":
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield":
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
@@ -4288,7 +4303,7 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
             return "Unknown/Did Not Report"
         ###########
         case _:
-            return "Unrecognized Value"
+            return f"Unrecognized: {fdf_column}"
     ###########
     ### /// Tableau Calculation:
     ### CASE [AD1PrimaryIns.4] //FW
@@ -4406,11 +4421,11 @@ def fn_T20_CG_Insurance_Status(fdf_column):
             return pd.NA ### Difference from fn_C16_CG_Insurance_Status where it's "Unknown/Did Not Report". ### TODO ASKJOE: standardize? Or at least document why different.
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP":
+        case "Medicaid" | "SCHIP"| "Medicare/Medicaid": #
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield":
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
@@ -4436,7 +4451,7 @@ def fn_T20_CG_Insurance_Status(fdf_column):
             return "Unknown/Did Not Report"
         ###########
         case _:
-            return "Unrecognized Value"
+            return f"Unrecognized:{fdf_column}"
     ###########
     ### /// Tableau Calculation:
     ### IF NOT ISNULL([AD1PrimaryIns.1]) THEN
@@ -4676,21 +4691,21 @@ def fn_T20_FOB_Insurance_Status(fdf):
             return pd.NA 
         elif (fdf['Fob Involved'] == True):
             if pd.isna(fdf['AD2InsPrimary']):
-                return pd.NA ### "Unknown/Did Not Report" ### TODO: Why difference compared to older '_T20 FOB Insurance'?
+                return pd.NA 
             else:
                 match fdf['AD2InsPrimary'].lower():
-                    case "medicaid":
+                    case "medicaid"|"medicare/medicaid": #Adding medicare/medicaid option for Y13Q4 note: option was added by Nathan to Child activities at one point but not put into this category
                         return "Medicaid or CHIP"
                     case "tri-care":
                         return "Tri-Care"
-                    case "private" | "other" | "medicare":
+                    case "private" | "other" | "medicare"|"blue cross blue shield":#Joe: blue cross blue shield new option Y13Q4, put here? also make it consisent across forms?
                         return "Private or Other"
                     case "none":
                         return "No Insurance Coverage"
                     case "unknown":
                         return "Unknown/Did Not Report"
                     case _:
-                        return pd.NA ### "Unrecognized Value" ### TODO: Why difference compared to older '_T20 FOB Insurance'?
+                        return f"Unrecognized {fdf['AD2InsPrimary']}" 
         else:
             return pd.NA 
     ###########
@@ -4716,7 +4731,7 @@ def fn_T20_FOB_Insurance_Status(fdf):
                     case 6 | 99:
                         return "Unknown/Did Not Report"
                     case _:
-                        return "Unrecognized Value"
+                        return f"Unrecognized:{fdf['Hlth Insure Fob']}"
         else:
             return pd.NA 
     ###########
@@ -4766,20 +4781,20 @@ def fn_T20_FOB_Insurance(fdf):
                 return 'Unknown/Did Not Report'
             else:
                 match fdf['AD2InsPrimary'].lower():
-                    case 'medicaid':
+                    case 'medicaid'|"medicare/medicaid": #new medicare/medicaid option Y13Q4
                         return 'Medicaid or CHIP'
                     case 'medicare':
                         return 'Other' ### this is what our previous syntax indicated.
                     case 'none':
                         return 'No Insurance Coverage'
-                    case 'other' | 'private':
+                    case 'other' | 'private'|"blue cross blue shield":#Joe: put blue cross blue shield here? Also this logic is slightly different
                         return 'Private or Other'
                     case 'tri-care':
                         return 'Tri-Care'
                     case 'unknown':
                         return 'Unknown/Did Not Report'
                     case _:
-                        return 'Unrecognized Value'
+                        return f'Unrecognized: {fdf['AD2InsPrimary']}'
         else:
             return pd.NA 
     ###########
