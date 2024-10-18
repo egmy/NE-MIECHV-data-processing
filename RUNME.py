@@ -53,7 +53,7 @@ repo_name = 'nehv_ds_code_repository'
 str_nehv_quarter = 'Y13Q4 (Oct 2023 - Sep 2024)'
 
 # previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
-previous_str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
+previous_str_nehv_quarter = 'Y13Q3'
 
 int_nehv_year = 13 
 

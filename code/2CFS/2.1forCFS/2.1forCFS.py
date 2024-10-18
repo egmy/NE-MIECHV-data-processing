@@ -10,6 +10,10 @@ import pandas as pd
 from pathlib import Path
 import numpy as np
 import sys
+from openpyxl import load_workbook
+from pyxlsb import open_workbook
+import xlwings as xw
+import win32com.client
 import IPython
 import os
 sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository'])]#'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other']str(*[d for d in os.listdir(Path.cwd()) if os.path.isdir(d)])])
@@ -28,16 +32,32 @@ path_21_dir_input = Path(path_21_files_base, '0in', str_nehv_quarter)
 path_21_dir_output = Path(path_21_files_base, '9out', str_nehv_quarter)
 
 path_21_input_id_file_FW = Path(path_21_dir_input, 'FW ID File.xlsx')
-path_21_input_id_file_LL = Path(path_21_dir_input, 'LL_ID_File_base.csv')
+path_21_input_id_file_LL = Path(path_21_dir_input, 'ID File.xlsx')
 path_21_input_id_file_combined = Path(path_21_dir_input, 'Combined ID File.xlsx')
+
+##NOTE: you will have to make sure this file is in the input path, and input the password when Excel is started once running in order to read in
+path_21_input_CPS_file = Path(path_21_dir_input, f'Y13Q2 ID File for CPS (CPS combined with ID File).xlsx')
+
+CPS_file_password = previous_str_nehv_quarter  # Password in string format
+
+with xw.App(visible=True) as app:  # Keep Excel hidden while running
+    wb = xw.Book(path_21_input_CPS_file)
+    
+    # Access the desired sheet (adjust the index as needed)
+    sheet = wb.sheets['Sheet1']  # or use wb.sheets['SheetName'] for a specific sheet name
+
+    # Read the data into a DataFrame
+    data = sheet.range('A1').expand().value  # Read all data starting from A1
+
+# Convert to DataFrame
+if isinstance(data, list) and len(data) > 0:
+    df_21_previous_CPS = pd.DataFrame(data[1:], columns=data[0])
 
 list_path_21_input_raw_sheets=['LLCHD','FamilyWise', 'Project ID']
 
+# Create data frames
 df_21_id_file_FW = pd.read_excel(path_21_input_id_file_FW, keep_default_na=False, na_values=[''])
-df_21_id_file_LL = pd.read_csv(path_21_input_id_file_LL, keep_default_na=False, na_values=[''])
-# df_21_id_file_combined_LL_template= pd.read_excel(path_21_input_id_file_combined,sheet_name=list_path_21_input_raw_sheets[0], keep_default_na=False, na_values=[''])
-# df_21_id_file_combined_FW_template = pd.read_excel(path_21_input_id_file_combined,sheet_name=list_path_21_input_raw_sheets[1], keep_default_na=False, na_values=[''])
-# df_21_id_file_combined_pID_template = pd.read_excel(path_21_input_id_file_combined,sheet_name=list_path_21_input_raw_sheets[2], keep_default_na=False, na_values=[''])
+df_21_id_file_LL = pd.read_excel(path_21_input_id_file_LL, keep_default_na=False, na_values=[''])
 
         
 
@@ -65,7 +85,7 @@ df_21_id_file_FW = (
     df_21_id_file_FW[df_21_id_file_FW['MaxOfVISIT NUMBER'] !=0]
 )
 
-df_21_id_file_FW['MOB ZIP'] =df_21_id_file_FW['MOB ZIP'].str.replace('_', '', regex=False)
+#df_21_id_file_FW['MOB ZIP'] =df_21_id_file_FW['MOB ZIP'].str.replace('_', '', regex=False)
 
 print(df_21_id_file_FW)
 
@@ -462,6 +482,40 @@ df_21_final_combined['_26 Zip'] = df_21_final_combined['_26 Zip'].astype('Int64'
 #####################################################
 df_21_final_combined = df_21_final_combined[[col for col in df_21_final_combined.columns if col.startswith('_')]]
 
+# %% ################################################
+### PART 2: FOR CPS  ###
+#####################################################
+#%%### 1. Open previous quarter’s “ID File for CPS (make sure previous quarter's id file is placed into input folder)
+#2.	Rename all of ord1 (column A ) to “Old-record do not process”
+df_21_previous_CPS['ord1'] = "Old-record do not process"
+
+#%%### 3. Open previous quarter’s “ID File for CPS (make sure previous quarter's id file is placed into input folder)
+## 4. for new records, For new records, rename ord1 (column A) to “New-record process”
+
+# Create a mapping dictionary
+column_mapping = {
+    '_01 Project ID': 'project_id',
+    '_14 TGT First Name': 'tgt_first_name',
+    '_15 TGT Last Name': 'tgt_last_name',
+    '_16 TGT DOB': 'tgt_dob',
+    '_10 MOB First Name': 'mob_first_name',
+    '_11 MOB Last Name': 'mob_last_name',
+    '_12 MOB DOB': 'mob_dob',
+    '_24 Address': 'address',
+    '_25 City': 'city',
+    '_26 Zip': 'zip'
+}
+
+df_21_final_combined.rename(columns=column_mapping, inplace=True)
+filtered_columns = list(column_mapping.values())
+df_21_final_filtered = df_21_final_combined[filtered_columns]
+df_21_final_filtered['ord1'] = "New-record process"
+df_21_final_CPS = pd.concat([df_21_previous_CPS, df_21_final_filtered], ignore_index=True)
+
+
+
+#5.	Remove any records that don’t include a TGT First and Last Name
+# df_21_final_CPS = df_21_final_CPS.dropna(subset=['tgt_first_name', 'tgt_last_name']) #Not sure if this is still relevant because doesn't apply to your previous quarter
 
 # %% ################################################
 ### Data Types ###
@@ -474,11 +528,20 @@ df_21_final_combined = df_21_final_combined[[col for col in df_21_final_combined
 ### WRITE ###
 #####################################################
 
-df_21_final_combined.sort_values(by='_01 Project ID', ascending=True, inplace=True) ##This is the end for recreating the 'ID File'
+# df_21_final_combined.sort_values(by='_01 Project ID', ascending=True, inplace=True) ##This is the end for recreating the 'ID File'
+
+# ### Output for 1st Tableau file: ID File.
+# with pd.ExcelWriter(Path(path_21_dir_output, 'Final ID File.xlsx'), engine='openpyxl') as writer:
+#     df_21_final_combined.to_excel(writer, index=False, sheet_name='final')
+
+#6. Sort file by project_id and ord1 (Z-A)
+df_21_final_CPS = df_21_final_CPS.sort_values(by=['project_id', 'ord1'], ascending=[True, False]) ##This is the end for recreating the 'for CPS file'
 
 ### Output for 1st Tableau file: ID File.
-with pd.ExcelWriter(Path(path_21_dir_output, 'Final ID File.xlsx'), engine='openpyxl') as writer:
-    df_21_final_combined.to_excel(writer, index=False, sheet_name='final')
+with pd.ExcelWriter(Path(path_21_dir_output, f'{str_nehv_quarter} ID File for CPS.xlsx'), engine='openpyxl') as writer:
+    df_21_final_CPS.to_excel(writer, index=False, sheet_name='final')
+
+##This pretty much matches except for seemingly 4 cases. Something to look into next time
 
 ### Export as Excel:
 print("You successfully ran CFS part 2.1!")

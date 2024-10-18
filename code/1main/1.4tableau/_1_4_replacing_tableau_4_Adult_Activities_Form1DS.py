@@ -1043,8 +1043,10 @@ def fn_Funding(fdf):
                     return "F" 
                 case 'fc': ##Joe: Added Y13Q4
                     return "F"
+                case "np": #Added Y13Q4
+                    return "F"
                 case _:
-                    return "Unrecognized Value"
+                    return f"Unrecognized: {fdf['Agency']}"
     elif pd.notna(fdf['_Agency']):
         if (fdf['_Agency'] == "ll"):
             return fdf['Funding']
@@ -1346,8 +1348,8 @@ def fn_MOB_TGT_Relation(fdf):
                 return 'MOB'
             case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father'|'Step-Father':
                 return 'FOB'
-            # case 'Other':
-            #     return 'Other'
+            case 'Unknown':
+                return 'Unknown/Did Not Report'
             case _:
                 return f'Unrecognized:{fdf['Adult1TGTRelation']}'
             ### TODO ASKJOE: Maybe add options from 'Adult2TGTRelation': 'Other'.
@@ -1385,6 +1387,8 @@ def fn_MOB_TGT_Relation(fdf):
                 return 'FOB'
             case "Unknown":
                 return "Unknown/Did Not Report"
+            case _ if pd.isna(fdf['Mob Gender']):
+                return "MOB"
             ###
             case _:
                 return f'Unrecognized: {fdf['Primary Relation']}'
@@ -1440,6 +1444,8 @@ def fn_FOB_Relation(fdf):
                 case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
                     return 'FOB'
                 case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                    return 'MOB'
+                case _ if pd.isna(fdf['Mob Gender']):
                     return 'MOB'
                 case _:
                     return f'Unrecognized Value'
@@ -2752,7 +2758,7 @@ def fn_C15_Min_Educational_Enrollment(fdf):
             case 'Unknown':
                 return 'Unknown/Did not Report'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized:{fdf['Min Edu Enroll']}'
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -2792,7 +2798,7 @@ def fn_C15_Min_Educational_Enrollment(fdf):
             return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
         else:
             ### For example: (pd.notna(fdf['mcafss_edu1_prog']) and fdf['mcafss_edu1_prog'] not in [1,2,3,4,5,6,7]) 
-            return 'Unrecognized Value' 
+            return F'Unrecognized: {fdf['mcafss_edu1_prog']}' 
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2855,7 +2861,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
             case 'Unknown':
                 return 'Unknown/Did not Report'
             case _:
-                return 'Unrecognized Value'
+                return f'Unrecognized: {fdf['Max Edu Enroll']}'
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -2887,7 +2893,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
                 or
                 fdf['mcafss_edu2_prog'] == 6 ### College.
                 or
-                fdf['mcafss_edu2_prog'] == 7 ### Vocational training, technical or trade school (excluding training received during HS).
+                fdf['mcafss_edu2_prog'] == 7### Vocational training, technical or trade school (excluding training received during HS).
             )
         ):
             return 'Student/trainee' 
@@ -2895,7 +2901,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
             return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
         else:
             ### For example: (pd.notna(fdf['mcafss_edu2_prog']) and fdf['mcafss_edu2_prog'] not in [1,2,3,4,5,6,7]) 
-            return 'Unrecognized Value' 
+            return f'Unrecognized: {fdf['mcafss_edu2_prog']}' 
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2993,7 +2999,7 @@ def fn_T10_FOB_Educational_Enrollment(fdf):
     ### TODO: Fix logic because 'Fob Edu' is text not numbers. That's probably why.
     ###########
     else:
-        return 'Unrecognized Value' ### if not FW or LL.
+        return pd.NA ### if not FW or LL.
     ###########
     ### /// Tableau Calculation:
     ### //max
@@ -4170,9 +4176,9 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "Unknown/Did Not Report" ### Difference from fn_T20_CG_Insurance_Status where it's pd.NA.
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP"|"Medicare/Medicaid":
+        case "Medicaid" | "SCHIP"|"Medicare/Medicaid" | "Medica":
             return "Medicaid or CHIP"
-        case "Private" | "Other" | "Medicare":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
             return "Private or Other"
         case "Tri-Care":
             return "Tri-Care"
@@ -4273,11 +4279,11 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
             return "Unknown/Did Not Report" ### Difference from fn_T20_CG_Insurance_Status where it's pd.NA.
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP"|"Medicare/Medicaid":
+        case "Medicaid" | "SCHIP"|"Medicare/Medicaid" | "Medica":
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health":
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
@@ -4421,11 +4427,11 @@ def fn_T20_CG_Insurance_Status(fdf_column):
             return pd.NA ### Difference from fn_C16_CG_Insurance_Status where it's "Unknown/Did Not Report". ### TODO ASKJOE: standardize? Or at least document why different.
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP"| "Medicare/Medicaid": #
+        case "Medicaid" | "SCHIP"| "Medicare/Medicaid" | "Medica": #
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health":
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
@@ -4694,11 +4700,11 @@ def fn_T20_FOB_Insurance_Status(fdf):
                 return pd.NA 
             else:
                 match fdf['AD2InsPrimary'].lower():
-                    case "medicaid"|"medicare/medicaid": #Adding medicare/medicaid option for Y13Q4 note: option was added by Nathan to Child activities at one point but not put into this category
+                    case "medicaid"|"medicare/medicaid"|"medica": #Adding medicare/medicaid option for Y13Q4 note: option was added by Nathan to Child activities at one point but not put into this category
                         return "Medicaid or CHIP"
                     case "tri-care":
                         return "Tri-Care"
-                    case "private" | "other" | "medicare"|"blue cross blue shield":#Joe: blue cross blue shield new option Y13Q4, put here? also make it consisent across forms?
+                    case "private" | "other" | "medicare"|"blue cross blue shield"|"meritain health":#Joe: blue cross blue shield new option Y13Q4, put here? also make it consisent across forms?
                         return "Private or Other"
                     case "none":
                         return "No Insurance Coverage"
@@ -4781,13 +4787,13 @@ def fn_T20_FOB_Insurance(fdf):
                 return 'Unknown/Did Not Report'
             else:
                 match fdf['AD2InsPrimary'].lower():
-                    case 'medicaid'|"medicare/medicaid": #new medicare/medicaid option Y13Q4
+                    case 'medicaid'|"medicare/medicaid"|"medica": #new medicare/medicaid option Y13Q4
                         return 'Medicaid or CHIP'
                     case 'medicare':
                         return 'Other' ### this is what our previous syntax indicated.
                     case 'none':
                         return 'No Insurance Coverage'
-                    case 'other' | 'private'|"blue cross blue shield":#Joe: put blue cross blue shield here? Also this logic is slightly different
+                    case 'other' | 'private'|"blue cross blue shield"|"meritain health":#Joe: put blue cross blue shield here? Also this logic is slightly different
                         return 'Private or Other'
                     case 'tri-care':
                         return 'Tri-Care'

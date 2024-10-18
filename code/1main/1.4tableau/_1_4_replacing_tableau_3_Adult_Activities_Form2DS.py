@@ -1272,6 +1272,8 @@ def fn_Funding(fdf):
                     return "F" 
                 case 'fc': ## Added Y13Q4
                     return "F"
+                case "np":
+                    return "F" ##Added Y13Q4
                 case _:
                     return "Unrecognized Value"
     elif pd.notna(fdf['_Agency']):
@@ -2096,7 +2098,7 @@ def fn_C15_Min_Educational_Enrollment(fdf):
             return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
         else:
             ### For example: (pd.notna(fdf['mcafss_edu1_prog']) and fdf['mcafss_edu1_prog'] not in [1,2,3,4,5,6,7]) 
-            return 'Unrecognized Value' ### TODO ASKJOE: see if this is wanted.
+            return F'Unrecognized: {fdf['mcafss_edu1_prog']}' ### TODO ASKJOE: see if this is wanted.
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2201,7 +2203,7 @@ def fn_C15_Max_Educational_Enrollment(fdf):
             return 'Not a student/trainee' ### Y12Q4 Changed to match '_C15 Max Educational Enrollment'.
         else:
             ### For example: (pd.notna(fdf['mcafss_edu2_prog']) and fdf['mcafss_edu2_prog'] not in [1,2,3,4,5,6,7]) 
-            return 'Unrecognized Value' ### TODO ASKJOE: see if this is wanted.
+            return f'Unrecognized: {fdf['mcafss_edu2_prog']}' ### TODO ASKJOE: see if this is wanted.
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -2709,9 +2711,9 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "Unknown/Did Not Report"
         ###########
         ### FW.
-        case "Medicaid" | "SCHIP"|"Medicaid/Medicare":
+        case "Medicaid" | "SCHIP"|"Medicare/Medicaid"|"Medica":
             return "Medicaid or CHIP"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health":
             return "Private or Other"
         case "Tri-Care":
             return "Tri-Care"
@@ -2737,7 +2739,7 @@ def fn_C16_CG_Insurance_Status(fdf_column):
             return "Unknown/Did Not Report"
         ###########
         case _:
-            return "Unrecognized Value"
+            return f"Unrecognized: {fdf_column}"
     ###########
     ### /// Tableau Calculation:
     # CASE [AD1PrimaryIns.1] //FW
@@ -2890,11 +2892,11 @@ def fn_T20_FOB_Insurance(fdf):
                 return 'Unknown/Did Not Report'
             else:
                 match fdf['AD2InsPrimary'].lower():
-                    case 'medicaid'|"medicaid/medicare":
+                    case 'medicaid'|"medicare/medicaid"|"medica":
                         return 'Medicaid or CHIP'
                     case 'none':
                         return 'No Insurance Coverage'
-                    case 'other' | 'private'| 'medicaid'|'blue cross blue shield': ## Y13Q4: adding new medicaid/medicare and blue cross blue shield
+                    case 'other' | 'private'| 'medicaid'|'blue cross blue shield'|"meritain health": ## Y13Q4: adding new medicaid/medicare and blue cross blue shield
                         return 'Private or Other'
                     case 'tri-care':
                         return 'Tri-Care'
@@ -2985,10 +2987,10 @@ def fn_Enroll_Preg_Status(fdf):
             case 'Postpartum':
                 return 'Not pregnant'
             case _:
-                return 'Unrecognized Value'
+                return 'Unrecognized Value (coming in as date)'
     ###########
     else:
-        return 'Unrecognized Value (coming in as date)' ### if not FW or LL.
+        return 'Unrecognized Value' ### if not FW or LL.
     ###########
     ### /// Tableau Calculation:
     # IF [Pregnancystatus] = 0 THEN "Pregnant" //FW
@@ -3057,8 +3059,14 @@ def fn_MOB_TGT_Relation(fdf):
                 return 'MOB'
             case 'Adoptive father' | 'Biological father' | 'FOB' | 'Foster father'|'Step-Father':
                 return 'FOB'
+            case 'Other' if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
+                return 'MOB'
+            case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                return 'FOB'
+            case _ if pd.isna(fdf['Mob Gender']):
+                return 'MOB'
             case _:
-                return 'Unrecognized Value'
+                return F'Unrecognized Value{fdf['Adult1TGTRelation']}'
             ### TODO ASKJOE: Maybe add options from 'Adult2TGTRelation': 'Other'.
     ###########
     ### LLCHD.
@@ -3091,8 +3099,8 @@ def fn_MOB_TGT_Relation(fdf):
             case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
                 return 'FOB'
             ###
-            case _:
-                return 'Unrecognized Value'
+            case _ if pd.isna(fdf['Mob Gender']):
+                return 'MOB'
     ###########
     else:
         return 'Unrecognized Value' ### if not FW or LL.
@@ -3160,8 +3168,12 @@ def fn_FOB_Relation(fdf):
                     return 'FOB'
                 case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'F')):
                     return 'MOB'
+                case 'Other'if (False if pd.isna(fdf['Mob Gender']) else (fdf['Mob Gender'] == 'M')):
+                    return 'FOB'
+                case _ if pd.isna(fdf['Mob Gender']):
+                    return 'MOB'
                 case _:
-                    return 'Unrecognized Value'
+                    return f'Unrecognized: {fdf['Adult2TGTRelation']}'
         else:
             return pd.NA ### If (fdf['Fob Involved'] != True). then return nothing per Joe's instruction
     ###########

@@ -1528,6 +1528,8 @@ def fn_Funding(fdf):
                     return "F" 
                 case 'fc': ## Added Y13Q4
                     return "F"
+                case 'np': ##Added Y13Q4
+                    return "F"
                 case _:
                     return "Unrecognized Value"
     elif pd.notna(fdf['_Agency']):
@@ -1799,11 +1801,11 @@ def fn_T20_TGT_Insurance_Status(fdf):
     ### FW.
     if (pd.notna(fdf['CHINS Primary Ins'])):
         match fdf['CHINS Primary Ins']:
-            case "Medicaid" | "Medicare/Medicaid": #Y13Q4: correct categorizing of "Medicare/Mediciad"
+            case "Medicaid" | "Medicare/Medicaid"|"Medica": #Y13Q4: correct categorizing of "Medicare/Mediciad"
                 return "Medicaid or CHIP"
             case "None":
                 return "No Insurance Coverage"
-            case "Medicare" | "Other" | "Private" | "Blue Cross Blue Shield" | "Aetna":
+            case "Medicare" | "Other" | "Private" | "Blue Cross Blue Shield" | "Aetna"|"Meritain Health":
                 return "Private or Other"
             case "Tri-Care":
                 return "Tri-Care"
@@ -1867,8 +1869,12 @@ def fn_T21_TGT_Usual_Source_of_Medical_Care(fdf):
                 return "Retail Store or Minute Clinic"
             case "Prenatal Client":
                 return "Prenatal Client"
+            case "Hospital Clinic":
+                return "Hospital Clinic" #Added Y13Q4
+            case "Community Clinic":
+                return "Communicty Clinic" #Added Y13Q4
             case _:
-                return "Unrecognized Value"
+                return f"Unrecognized: {fdf['Child Med Care Source']}"
     ### LLCHD, coded values are = to form 1 categories.
     elif (pd.notna(fdf['Tgt Medical Home'])):
         match fdf['Tgt Medical Home']:

@@ -89,7 +89,8 @@ import os
 #if (os.path.basename(__file__) == '_1_4tab_RUNME.py'):
 import sys
 path_1_3=Path(os.path.dirname(Path.cwd()))/'1.3combine/'
-sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_3)] 
+path_1_4=Path(os.path.dirname(Path.cwd()))/'1.4tableau/'
+sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_3), str(path_1_4)] 
 from RUNME import *
 if read_from_file==False:
     from _1_3_RUNME import df_13_child_act, df_13_base_table, df_13_well_child, df_13_child_injury, df_child_project_id, df_13_adult_act, df_adult_project_id,df_13_mob_fob, df_13_cg_ins 
