@@ -1498,7 +1498,7 @@ def fn_Enroll_Preg_Status(fdf):
             case 1:
                 return 'Not pregnant'
             case _:
-                return f'Unrecognized:{fdf['Pregnancystatus']}'
+                return f'Unrecognized Value' #There is a an unrecognized 99 value, leaving at unrecognized
     ###########
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
@@ -2763,10 +2763,18 @@ def fn_C15_Min_Educational_Enrollment(fdf):
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
         if (
-            pd.isna(fdf['mcafss_edu1_enroll']) or
-            (fdf['mcafss_edu1_enroll'] == 'Y' and pd.isna(fdf['mcafss_edu1_prog'])) 
+            pd.isna(fdf['mcafss_edu1_enroll']) |
+            (
+                (fdf['mcafss_edu1_enroll'] == 'Y') | (fdf['mcafss_edu1_enroll'] == 'N') & 
+                (
+                    pd.isna(fdf['mcafss_edu1_prog']) |
+                    (fdf['mcafss_edu1_prog'] == 8) |
+                    (fdf['mcafss_edu1_prog'] == 9) |
+                    (fdf['mcafss_edu1_prog'] == 10)
+                )
+            )
         ):
-            return 'Unknown/Did not Report' 
+            return 'Unknown/Did not Report'
         elif (
             fdf['mcafss_edu1_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
             and
@@ -2866,10 +2874,18 @@ def fn_C15_Max_Educational_Enrollment(fdf):
     ### LLCHD.
     elif (fdf['source'] == 'LL'):
         if (
-            pd.isna(fdf['mcafss_edu2_enroll']) or
-            (fdf['mcafss_edu2_enroll'] == 'Y' and pd.isna(fdf['mcafss_edu2_prog']))
+            pd.isna(fdf['mcafss_edu1_enroll']) |
+            (
+                (fdf['mcafss_edu1_enroll'] == 'Y') | (fdf['mcafss_edu1_enroll'] == 'N') & 
+                (
+                    pd.isna(fdf['mcafss_edu1_prog']) |
+                    (fdf['mcafss_edu1_prog'] == 8) |
+                    (fdf['mcafss_edu1_prog'] == 9) |
+                    (fdf['mcafss_edu1_prog'] == 10)
+                )
+            )
         ):
-            return 'Unknown/Did not Report' 
+            return 'Unknown/Did not Report'
         elif (
             fdf['mcafss_edu2_enroll'] == 'Y' ### Enrolled. ### Y12Q4 changed from 'YES'.
             and
@@ -4178,7 +4194,7 @@ def fn_C16_CG_Insurance_Status(fdf_column):
         ### FW.
         case "Medicaid" | "SCHIP"|"Medicare/Medicaid" | "Medica":
             return "Medicaid or CHIP"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
             return "Private or Other"
         case "Tri-Care":
             return "Tri-Care"
@@ -4283,7 +4299,7 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
@@ -4431,7 +4447,7 @@ def fn_T20_CG_Insurance_Status(fdf_column):
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health":
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
@@ -4704,7 +4720,7 @@ def fn_T20_FOB_Insurance_Status(fdf):
                         return "Medicaid or CHIP"
                     case "tri-care":
                         return "Tri-Care"
-                    case "private" | "other" | "medicare"|"blue cross blue shield"|"meritain health":#Joe: blue cross blue shield new option Y13Q4, put here? also make it consisent across forms?
+                    case "private" | "other" | "medicare"|"blue cross blue shield"|"meritain health"|"ambetter"|"ne total care"|"united healthcare community plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
                         return "Private or Other"
                     case "none":
                         return "No Insurance Coverage"
@@ -4793,7 +4809,7 @@ def fn_T20_FOB_Insurance(fdf):
                         return 'Other' ### this is what our previous syntax indicated.
                     case 'none':
                         return 'No Insurance Coverage'
-                    case 'other' | 'private'|"blue cross blue shield"|"meritain health":#Joe: put blue cross blue shield here? Also this logic is slightly different
+                    case "private" | "other" | "medicare"|"blue cross blue shield"|"meritain health"|"ambetter"|"ne total care"|"united healthcare community plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
                         return 'Private or Other'
                     case 'tri-care':
                         return 'Tri-Care'

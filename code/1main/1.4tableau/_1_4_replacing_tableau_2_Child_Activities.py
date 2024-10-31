@@ -1445,35 +1445,16 @@ df_14t_edits1_tb2['_C2 BF Status'] = df_14t_edits1_tb2.apply(func=fn_C2_BF_Statu
 #%%###################################
 
 def fn_FW_Gestation_Age_Recode(fdf):
-    match fdf['Gestational Age']: 
-        case _ if pd.isna(fdf['Gestational Age']):
-            return pd.NA
-        case '29 weeks':
-            return 29
-        case '31 weeks':
-            return 31
-        case '33 weeks':
-            return 33
-        case '34 weeks':
-            return 34
-        case '35 weeks':
-            return 35
-        case '36 weeks':
-            return 36
-        case '37 weeks':
-            return 37
-        case '38 weeks':
-            return 38
-        case '39 weeks':
-            return 39
-        case '40 weeks':
-            return 40
-        case '41 weeks':
-            return 41
-        case '42 weeks':
-            return 42
-        case 'Unknown':
-            return pd.NA
+    gestational_age = fdf['Gestational Age']
+    
+    if pd.isna(gestational_age) or gestational_age == 'Unknown':
+        return pd.NA
+
+    match = re.match(r'(\d+) weeks', gestational_age)
+    if match:
+        return int(match.group(1))
+    
+    return pd.NA 
         # case np.nan: ### no error, but doesn't work.
         # case pd.isna(): ### no error, but doesn't work.
         # case pd.isna(): ### TypeError: called match pattern must be a type.
@@ -1481,8 +1462,7 @@ def fn_FW_Gestation_Age_Recode(fdf):
         # case pd.NA: ### TypeError: boolean value of NA is ambiguous.
         # case _ if pd.isna(_): ###ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all(). ### Note: This error only notice when running first time, not after var already created.
         #     return 100
-        case _:
-            return None ### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
+### TODO: Fix. Doing this because integer & really want "Unrecognized Value". Probably should create a string variable with UV and then change to Int.
 df_14t_edits1_tb2['_FW Gestation Age Recode'] = df_14t_edits1_tb2.apply(func=fn_FW_Gestation_Age_Recode, axis=1).astype('Int64') 
     ### Data Type in Tableau: integer.
 # inspect_col(df_14t_edits1_tb2['_FW Gestation Age Recode'])
@@ -1805,14 +1785,14 @@ def fn_T20_TGT_Insurance_Status(fdf):
                 return "Medicaid or CHIP"
             case "None":
                 return "No Insurance Coverage"
-            case "Medicare" | "Other" | "Private" | "Blue Cross Blue Shield" | "Aetna"|"Meritain Health":
+            case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan"|"RCI Insurance": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
                 return "Private or Other"
             case "Tri-Care":
                 return "Tri-Care"
             case "Unknown" | "null":
                 return "Unknown/Did Not Report"
             case _:
-                return "Unrecognized Value"
+                return f"Unrecognized: {fdf['CHINS Primary Ins']}"
     ### LLCHD.
     elif (pd.notna(fdf['Hlth Insure Tgt'])):
         match fdf['Hlth Insure Tgt']:
@@ -1873,6 +1853,8 @@ def fn_T21_TGT_Usual_Source_of_Medical_Care(fdf):
                 return "Hospital Clinic" #Added Y13Q4
             case "Community Clinic":
                 return "Communicty Clinic" #Added Y13Q4
+            case "Health Department":
+                return "Health Department" #Added Y13Q4
             case _:
                 return f"Unrecognized: {fdf['Child Med Care Source']}"
     ### LLCHD, coded values are = to form 1 categories.

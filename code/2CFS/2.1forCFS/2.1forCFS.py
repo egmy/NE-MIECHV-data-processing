@@ -542,6 +542,9 @@ with pd.ExcelWriter(Path(path_21_dir_output, f'{str_nehv_quarter} ID File for CP
     df_21_final_CPS.to_excel(writer, index=False, sheet_name='final')
 
 ##This pretty much matches except for seemingly 4 cases. Something to look into next time
+##JOE: for Y13Q3 file, matches except for np-1, np-2, np-3 (coming in as dates in Joe's file but I don't think should be). Otherwise there is one more entry for ph487-1 
+## on Joe's file with the same info (so essentially a duplicate row because it is same info but both labeled as New-do not process.) So I think this code is doing the right thing
+
 
 ### Export as Excel:
 print("You successfully ran CFS part 2.1!")
