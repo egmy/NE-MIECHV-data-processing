@@ -13,9 +13,6 @@ import sys
 from openpyxl import load_workbook
 from pyxlsb import open_workbook
 import xlwings as xw
-import win32com.client
-import IPython
-import os
 sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository'])]#'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other']str(*[d for d in os.listdir(Path.cwd()) if os.path.isdir(d)])])
 from RUNME import *
 
@@ -36,10 +33,12 @@ path_21_input_id_file_LL = Path(path_21_dir_input, 'ID File.xlsx')
 path_21_input_id_file_combined = Path(path_21_dir_input, 'Combined ID File.xlsx')
 
 ##NOTE: you will have to make sure this file is in the input path, and input the password when Excel is started once running in order to read in
-path_21_input_CPS_file = Path(path_21_dir_input, f'Y13Q2 ID File for CPS (CPS combined with ID File).xlsx')
+path_21_input_CPS_file = Path(path_21_dir_input, f'Y13Q3 ID File for CPS (CPS combined with ID File).xlsx')
 
 CPS_file_password = previous_str_nehv_quarter  # Password in string format
 
+
+### Python will start the Excel application and open the Excel file for the previous quarter ID File and prompt you for the password 
 with xw.App(visible=True) as app:  # Keep Excel hidden while running
     wb = xw.Book(path_21_input_CPS_file)
     
@@ -49,13 +48,13 @@ with xw.App(visible=True) as app:  # Keep Excel hidden while running
     # Read the data into a DataFrame
     data = sheet.range('A1').expand().value  # Read all data starting from A1
 
-# Convert to DataFrame
+### Once opened, read the file and convert to a dataframe to be used in script 
 if isinstance(data, list) and len(data) > 0:
     df_21_previous_CPS = pd.DataFrame(data[1:], columns=data[0])
 
-list_path_21_input_raw_sheets=['LLCHD','FamilyWise', 'Project ID']
+#list_path_21_input_raw_sheets=['LLCHD','FamilyWise', 'Project ID']
 
-# Create data frames
+# Create data frames for the FW and LL ID Files
 df_21_id_file_FW = pd.read_excel(path_21_input_id_file_FW, keep_default_na=False, na_values=[''])
 df_21_id_file_LL = pd.read_excel(path_21_input_id_file_LL, keep_default_na=False, na_values=[''])
 
@@ -93,28 +92,29 @@ print(df_21_id_file_FW)
 #%%### 2. ii.	Copy the FW ID file data and paste into the appropriate tab, ensuring labels line up
 #iii.	Copy the LLCHD ID file data and paste into the appropriate tab, ensuring labels line up
 #iv.	Copy all project IDs from the FW and LLCHD tabs and paste into the Project ID tab. Deduplicate ids.
+
+##Family Wise file
 df_21_id_file_combined_FW = df_21_id_file_FW
 df_21_id_file_combined_FW=df_21_id_file_combined_FW.drop_duplicates()
-
-
 df_21_id_file_combined_FW
 
+##LL File (renaming pID so I can combine later)
 df_21_id_file_combined_LL = df_21_id_file_LL
 df_21_id_file_combined_LL.rename(columns={"project_id": "project_id (LLCHD)"}, inplace=True)
 df_21_id_file_combined_LL=df_21_id_file_combined_LL.drop_duplicates()
 
+##Creating project ID tab from LL and FW
 combined_project_ids = pd.concat([df_21_id_file_combined_LL['project_id (LLCHD)'], df_21_id_file_combined_FW['Project ID']]).reset_index(drop=True)
 df_21_id_file_combined_pID=pd.DataFrame({'project_id': combined_project_ids})
 df_21_id_file_combined_pID  = df_21_id_file_combined_pID.drop_duplicates()
+#Combine ID File matches Joe's. Next step is Tableau Calculations
 
 # with pd.ExcelWriter(Path(path_21_dir_output, 'Combined ID File.xlsx'), engine='openpyxl') as writer:
 #     df_21_id_file_combined_pID.to_excel(writer, index=False, sheet_name='Project ID')
 #     df_21_id_file_combined_LL.to_excel(writer, index=False, sheet_name='LLCHD')
 #     df_21_id_file_combined_FW.to_excel(writer, index=False, sheet_name='FamilyWise')
 
-#Combine ID File matches Joe's. Next step is Tableau Calculations
-
-
+## Creating one dataframe with all sheet information for coding (combining on project_ID from project ID file)
 df_21_final_combined= (
     pd.merge( 
         df_21_id_file_combined_pID ### 'Project ID'
@@ -156,7 +156,7 @@ df_21_final_combined = df_21_final_combined.drop_duplicates(subset='_01 Project 
 df_21_final_combined.reset_index(drop=True, inplace=True)
 
 
-# Assuming the source column has been added as per your previous example
+# Adding a source tag to distinguish if the project ID for that row is in the project ID column for LL, flag that row as LL, else flag it as FW
 df_21_final_combined['source'] = np.where(
     df_21_final_combined['_01 Project ID'].isin(df_21_final_combined['project_id (LLCHD)']),
     'LL', 'FW'
@@ -517,12 +517,6 @@ df_21_final_CPS = pd.concat([df_21_previous_CPS, df_21_final_filtered], ignore_i
 #5.	Remove any records that don’t include a TGT First and Last Name
 # df_21_final_CPS = df_21_final_CPS.dropna(subset=['tgt_first_name', 'tgt_last_name']) #Not sure if this is still relevant because doesn't apply to your previous quarter
 
-# %% ################################################
-### Data Types ###
-#####################################################
-
-### REMEMBER to check/set the data type of each column like it should be in output.
-
 
 # %% ################################################
 ### WRITE ###
@@ -541,12 +535,10 @@ df_21_final_CPS = df_21_final_CPS.sort_values(by=['project_id', 'ord1'], ascendi
 with pd.ExcelWriter(Path(path_21_dir_output, f'{str_nehv_quarter} ID File for CPS.xlsx'), engine='openpyxl') as writer:
     df_21_final_CPS.to_excel(writer, index=False, sheet_name='final')
 
-##This pretty much matches except for seemingly 4 cases. Something to look into next time
 ##JOE: for Y13Q3 file, matches except for np-1, np-2, np-3 (coming in as dates in Joe's file but I don't think should be). Otherwise there is one more entry for ph487-1 
 ## on Joe's file with the same info (so essentially a duplicate row because it is same info but both labeled as New-do not process.) So I think this code is doing the right thing
 
-
-### Export as Excel:
+##JOE: did a Q4 check and the files match exactly so I think this works!
 print("You successfully ran CFS part 2.1!")
 
 
