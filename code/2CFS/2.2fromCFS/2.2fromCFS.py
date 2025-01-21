@@ -198,3 +198,9 @@ with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Master File auto.xlsx'),
 
 
 
+
+# %% ################################################
+### TABLEAU CALCULATIONS ###
+#####################################################
+
+#df_21_final_combined['_24 Address'] = df_21_final_combined['address'].fillna(df_21_final_combined['MOB ADDRESS']).astype('string')_Discharge Date
