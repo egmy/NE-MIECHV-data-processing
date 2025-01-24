@@ -118,7 +118,11 @@ list_14t_col_detail_tb3_2 = [
     ['AD1PrimaryIns.15', 'AD1PrimaryIns.15', 'same', 'string'],
     ['AD1InsChangeDate.15', 'AD1InsChangeDate.15', 'same', 'datetime64[ns]'],
     ['AD1PrimaryIns.16', 'AD1PrimaryIns.16', 'same', 'string'],
-    ['AD1InsChangeDate.16', 'AD1InsChangeDate.16', 'same', 'datetime64[ns]']
+    ['AD1InsChangeDate.16', 'AD1InsChangeDate.16', 'same', 'datetime64[ns]'],
+    ['AD1PrimaryIns.17', 'AD1PrimaryIns.16', 'same', 'string'],
+    ['AD1InsChangeDate.17', 'AD1InsChangeDate.16', 'same', 'datetime64[ns]'],
+    ['AD1PrimaryIns.18', 'AD1PrimaryIns.16', 'same', 'string'],
+    ['AD1InsChangeDate.18', 'AD1InsChangeDate.16', 'same', 'datetime64[ns]']
 ]
 #%%### df_14t_piece_tb3_2: 'Caregiver Insurance'.
 dict_14t_colnames_tb3_2 = {x[0]:x[1] for x in list_14t_col_detail_tb3_2 if x[2] != 'same' and x[0] != x[1]}

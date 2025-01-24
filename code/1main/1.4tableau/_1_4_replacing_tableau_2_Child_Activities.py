@@ -417,6 +417,8 @@ list_14t_col_detail_tb2_5 = [
     ,['WellVisitDate.24', 'WellVisitDate.24', 'same', 'datetime64[ns]']
     ,['WellVisitDate.25', 'WellVisitDate.25', 'same', 'datetime64[ns]']
     ,['WellVisitDate.26', 'WellVisitDate.26', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.27', 'WellVisitDate.26', 'same', 'datetime64[ns]']
+    ,['WellVisitDate.28', 'WellVisitDate.26', 'same', 'datetime64[ns]']
 ]
 #%%### df_14t_piece_tb2_5: 'Well Child'.
 dict_14t_colnames_tb2_5 = {x[0]:x[1] for x in list_14t_col_detail_tb2_5 if x[2] != 'same' and x[0] != x[1]}
@@ -1781,7 +1783,7 @@ def fn_T20_TGT_Insurance_Status(fdf):
     ### FW.
     if (pd.notna(fdf['CHINS Primary Ins'])):
         match fdf['CHINS Primary Ins']:
-            case "Medicaid" | "Medicare/Medicaid"|"Medica": #Y13Q4: correct categorizing of "Medicare/Mediciad"
+            case "Medicaid" |"SCHIP" | "Medicare/Medicaid"|"Medica": #Y13Q4: correct categorizing of "Medicare/Mediciad"
                 return "Medicaid or CHIP"
             case "None":
                 return "No Insurance Coverage"

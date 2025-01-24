@@ -117,7 +117,11 @@ list_14t_col_detail_tb4_2 = [
     ['AD1PrimaryIns.15', 'AD1PrimaryIns.15', 'same', 'string'],
     ['AD1InsChangeDate.15', 'AD1InsChangeDate.15', 'same', 'datetime64[ns]'],
     ['AD1PrimaryIns.16', 'AD1PrimaryIns.16', 'same', 'string'],
-    ['AD1InsChangeDate.16', 'AD1InsChangeDate.16', 'same', 'datetime64[ns]']
+    ['AD1InsChangeDate.16', 'AD1InsChangeDate.16', 'same', 'datetime64[ns]'],
+    ['AD1PrimaryIns.17', 'AD1PrimaryIns.17', 'same', 'string'],
+    ['AD1InsChangeDate.17', 'AD1InsChangeDate.17', 'same', 'datetime64[ns]'],
+    ['AD1PrimaryIns.18', 'AD1PrimaryIns.18', 'same', 'string'],
+    ['AD1InsChangeDate.18', 'AD1InsChangeDate.18', 'same', 'datetime64[ns]']
 ]
 #%%### df_14t_piece_tb4_2: 'Caregiver Insurance'.
 dict_14t_colnames_tb4_2 = {x[0]:x[1] for x in list_14t_col_detail_tb4_2 if x[2] != 'same' and x[0] != x[1]}
@@ -914,13 +918,12 @@ df_14t_edits1_tb4['_TGT ID'] = df_14t_edits1_tb4['Tgt Id'].combine_first(df_14t_
 ### Similar variable In Child2. Basicaly dentical in Adult3 & Adult4 (except data type).
 ### 'Mob Zip' has the string value "null" that needs to be recoded. ### FY13Q1, other bad value seen.
 ### TODO ASKJOE: limit ZIP codes to first five? -- have some with the extra 4.
-### TODO: see if ZIP should be string.
 df_14t_edits1_tb4['Mob Zip']= df_14t_edits1_tb4['Mob Zip'].replace('null', np.nan)
-df_14t_edits1_tb4['Mob Zip'] =df_14t_edits1_tb4['Mob Zip'].str.replace('_', '', regex=False)
+#df_14t_edits1_tb4['Mob Zip'] =df_14t_edits1_tb4['Mob Zip'].str.replace('_', '', regex=False)
 df_14t_edits1_tb4['Mob Zip'] = df_14t_edits1_tb4['Mob Zip'].astype('Int64')
 
 df_14t_edits1_tb4['Zip']= df_14t_edits1_tb4['Zip'].replace('null', np.nan)
-df_14t_edits1_tb4['Zip'] =df_14t_edits1_tb4['Zip'].str.replace('_', '', regex=False)
+#df_14t_edits1_tb4['Zip'] =df_14t_edits1_tb4['Zip'].str.replace('_', '', regex=False)
 df_14t_edits1_tb4['Zip'] = df_14t_edits1_tb4['Zip'].astype('Int64')
 
 df_14t_edits1_tb4['_Zip'] = (

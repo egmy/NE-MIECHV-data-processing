@@ -50,19 +50,21 @@ repo_name = 'nehv_ds_code_repository'
 # str_nehv_quarter = 'Y12Q4 (Oct 2022 - Sep 2023)'
 # str_nehv_quarter = 'Y13Q2 (Oct 2023 - Mar 2024)'
 # str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
-str_nehv_quarter = 'Y13Q4 (Oct 2023 - Sep 2024)'
+# str_nehv_quarter = 'Y13Q4 (Oct 2023 - Sep 2024)'
+str_nehv_quarter = 'Y14Q1 (Oct 2024 - Dec 2024)'
+
 
 # previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
-previous_str_nehv_quarter = 'Y13Q3'
+previous_str_nehv_quarter = 'Y13Q4'
 
-int_nehv_year = 13 
+int_nehv_year = 14 
 
 # int_nehv_quarter = 1 
 # int_nehv_quarter = 2 
-int_nehv_quarter = 4 
+int_nehv_quarter = 1 
 
 
-date_fy_start = pd.Timestamp("2023-10-01") ### Midnight.
+date_fy_start = pd.Timestamp("2024-10-01") ### Midnight.
 
 date_fy_end_day_after = date_fy_start + pd.DateOffset(years=1) ### Midnight.
 
@@ -87,7 +89,7 @@ elif (str_nehv_quarter in ('Y12Q2 (Oct 2022 - Mar 2023)', 'Y12Q3 (Oct 2022 - Jun
     int_fpg_increment = 5140 
 
 ### 2024: https://www.govinfo.gov/content/pkg/FR-2024-01-17/pdf/2024-00796.pdf 
-elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun 2024)','Y13Q4 (Oct 2023 - Sep 2024)' )):
+elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun 2024)','Y13Q4 (Oct 2023 - Sep 2024)', 'Y14Q1 (Oct 2024 - Dec 2024)' )):
     ### 9680 + (5380 * [household size])
     int_fpg_base = 9680 
     int_fpg_increment = 5380 
@@ -145,8 +147,8 @@ if read_from_file==True: ##run all silos separate
     ### Step 1.3 combine
     if __name__ == "__main__":
         print('\nExecuting step 1.3combine')
-        runpy.run_path(path_name = path_13_code_RUNME)
-        #exec(open(path_13_code_RUNME).read())
+        #runpy.run_path(path_name = path_13_code_RUNME)
+        exec(open(path_13_code_RUNME).read())
         print('\nSuccessfully executed step 1.3combine!"')
     ### Final Step 1.4 Tableau replacement
     if __name__ == "__main__":

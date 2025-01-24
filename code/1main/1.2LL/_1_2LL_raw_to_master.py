@@ -252,7 +252,7 @@ list_12LL_date_cols_1 = [key for key, value in dict_12LL_col_dtypes_1.items() if
 #%%### df_12LL_2: 'KU_CHILDERINJ'.
 list_12LL_col_detail_2 = [
     ['family_id', 'string']
-    ,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
+    #,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['reason', 'string']
@@ -1296,7 +1296,7 @@ df_12LL_after_BaseTable = df_12LL_after_BaseTable[['project_id', 'year', 'quarte
 #%%###################################
 ### <> df_12LL_BaseTable
 df_12LL_BaseTable = df_12LL_after_BaseTable.copy()
-
+df_12LL_BaseTablE=df_12LL_BaseTable.drop_duplicates()
 
 
 #%%
@@ -1307,6 +1307,7 @@ df_12LL_BaseTable = df_12LL_after_BaseTable.copy()
 ### NOTE for 1.3 step: intention is to have all quarters represented in DS, but NO data from previous FYs. Purpose: allow local users to check & clean their data throughout the year.
 
 
+print(df_12LL_allstring_2)
 ### !>>> 
 #%%###################################
 ### <> df_12LL_2: 'KU_CHILDERINJ'.
@@ -1339,6 +1340,8 @@ df_12LL_ChildERInj_2 = (
     ### new12. Rename columns:
     .rename(columns={'project_id': 'ProjectID', 'family_id': 'FAMILYNUMBER', 'tgt_id': 'ChildNumber', 'reason': 'ERVisitReason', 'date': 'IncidentDate'})
 )
+
+print(df_12LL_ChildERInj_2)
 
 
 

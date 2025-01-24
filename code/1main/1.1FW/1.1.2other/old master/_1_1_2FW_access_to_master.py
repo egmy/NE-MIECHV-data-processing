@@ -654,7 +654,7 @@ df_112FW_adult_frog = (
 ## 
 
 #%%### 1. Remove any rows with a discharge date (TERMINATION DATE) before the current reporting year 
-df_112FW_child_act = df_112FW_child_act[(df_112FW_child_act['TERMINATION DATE'] >= pd.Timestamp(f'2023-10-01')) | (df_112FW_child_act['TERMINATION DATE'].isna())]
+df_112FW_child_act = df_112FW_child_act[(df_112FW_child_act['TERMINATION DATE'] >= pd.Timestamp(f'2024-10-01')) | (df_112FW_child_act['TERMINATION DATE'].isna())]
 df_112FW_child_act['TERMINATION DATE'].astype('datetime64[ns]')
 df_112FW_child_act.columns
 #%%### 2. Remove rows that do not have a first home visit date
@@ -662,7 +662,7 @@ df_112FW_child_act=df_112FW_child_act.dropna(subset=['MinOfHVDate'],inplace=Fals
 #%%### 3. Remove any rows with a MaxofHVDate before the current report year 
 df_112FW_before_child_act=df_112FW_child_act.copy()
 
-df_112FW_child_act = df_112FW_child_act[df_112FW_child_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-10-01')]
+df_112FW_child_act = df_112FW_child_act[df_112FW_child_act['MaxOfHVDate'] >= pd.Timestamp(f'2024-10-01')]
 df_112FW_child_act['MaxOfHVDate'].astype('datetime64[ns]')
 
 # if (df_112FW_before_child_act.equals(df_112FW_after_child_act)):
@@ -676,7 +676,7 @@ df_112FW_child_act.columns
 ##
 
 #%%### 1. Remove any rows with a discharge date (TERMINATION DATE) before the current reporting year  
-df_112FW_adult_act = df_112FW_adult_act[(df_112FW_adult_act['TERMINATION DATE'] >= pd.Timestamp(f'2023-10-01')) | (df_112FW_adult_act['TERMINATION DATE'].isna())]
+df_112FW_adult_act = df_112FW_adult_act[(df_112FW_adult_act['TERMINATION DATE'] >= pd.Timestamp(f'2024-10-01')) | (df_112FW_adult_act['TERMINATION DATE'].isna())]
 
 df_112FW_adult_act['TERMINATION DATE'].astype('datetime64[ns]')
 #%%### 2. Remove rows that do not have a first home visit date OR Max Visit Number is 0 or blank 
@@ -691,7 +691,7 @@ df_112FW_adult_act= (
 )
 df_112FW_adult_act['MaxOfVISIT NUMBER']
 #%%### 3. Remove any rows with a MaxofHVDate before the current report year 
-df_112FW_adult_act = df_112FW_adult_act[df_112FW_adult_act['MaxOfHVDate'] >= pd.Timestamp(f'2023-10-01')]
+df_112FW_adult_act = df_112FW_adult_act[df_112FW_adult_act['MaxOfHVDate'] >= pd.Timestamp(f'2024-10-01')]
 df_112FW_adult_act['MaxOfHVDate'].astype('datetime64[ns]')
 
 

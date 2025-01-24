@@ -29,14 +29,13 @@ path_21_dir_input = Path(path_21_files_base, '0in', str_nehv_quarter)
 path_21_dir_output = Path(path_21_files_base, '9out', str_nehv_quarter)
 
 path_21_input_id_file_FW = Path(path_21_dir_input, 'FW ID File.xlsx')
-path_21_input_id_file_LL = Path(path_21_dir_input, 'ID File.xlsx')
+path_21_input_id_file_LL = Path(path_21_dir_input, 'LL_ID_File_base.xlsx')
 path_21_input_id_file_combined = Path(path_21_dir_input, 'Combined ID File.xlsx')
 
 ##NOTE: you will have to make sure this file is in the input path, and input the password when Excel is started once running in order to read in
-path_21_input_CPS_file = Path(path_21_dir_input, f'Y13Q3 ID File for CPS (CPS combined with ID File).xlsx')
+path_21_input_CPS_file = Path(path_21_dir_input, f'Y13Q4 ID File for CPS (CPS combined with ID File).xlsx')
 
 CPS_file_password = previous_str_nehv_quarter  # Password in string format
-
 
 ### Python will start the Excel application and open the Excel file for the previous quarter ID File and prompt you for the password 
 with xw.App(visible=True) as app:  # Keep Excel hidden while running
@@ -73,7 +72,7 @@ df_21_id_file_LL = pd.read_excel(path_21_input_id_file_LL, keep_default_na=False
 # rows that do not have an enrollment date, and rows that have 0 # of MAX home visits, may need to update ZIP Code to remove -_ symbols 
 df_21_id_file_FW = df_21_id_file_FW[
     (df_21_id_file_FW['DischargeDate'].isna()) |  # Include rows where DischargeDate is null
-    ((df_21_id_file_FW['DischargeDate'] >= pd.Timestamp('2023-10-01')) &  # Include rows where DischargeDate is on or after 2023-10-01
+    ((df_21_id_file_FW['DischargeDate'] >= pd.Timestamp('2024-10-01')) &  # Include rows where DischargeDate is on or after 2024-10-01
     (df_21_id_file_FW['EnrollDate'].notna()))  # Ensure EnrollDate is not null
 ]
 

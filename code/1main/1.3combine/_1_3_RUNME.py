@@ -17,8 +17,13 @@ import os
 import sys
 path_1_1FW=Path(os.path.dirname(Path.cwd()))/'1.1FW/1.1.2other'
 path_1_2LL=Path(os.path.dirname(Path.cwd()))/'1.2LL/'
-sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_1FW), str(path_1_2LL)]#'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other']str(*[d for d in os.listdir(Path.cwd()) if os.path.isdir(d)])])
-from RUNME import * 
+#sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_1FW), str(path_1_2LL)]#'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other']str(*[d for d in os.listdir(Path.cwd()) if os.path.isdir(d)])])
+import os
+if (os.path.basename(__file__) == '_1_3_RUNME.py'):
+    import sys
+    sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+    from RUNME import * 
+#from RUNME import * 
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
 
 #%%
@@ -175,10 +180,13 @@ df_13_child_injury_FW.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace
 df_13_child_injury_FW.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
 df_13_child_injury_FW=df_13_child_injury_FW.drop(columns={"ERVisitReason"})
 
+if 'IncidentDate.1' and 'ERVisitReason.1' in df_13_child_injury_LL.columns:
+    df_13_child_injury_LL.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace=True)
+    df_13_child_injury_LL.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
+    df_13_child_injury_LL=df_13_child_injury_LL.drop(columns={"ERVisitReason"})
+else: df_13_child_injury_LL['IncidentDate'] = pd.Series(dtype='int')
 
-df_13_child_injury_LL.rename(columns={"IncidentDate.1": "IncidentDate"}, inplace=True)
-df_13_child_injury_LL.rename(columns={"ERVisitReason.1": "ERVisitReason"}, inplace=True)
-df_13_child_injury_LL=df_13_child_injury_LL.drop(columns={"ERVisitReason"})
+
 df_13_child_injury=pd.concat([df_13_child_injury_FW, df_13_child_injury_LL])
 
 df_13_adult_act.rename(columns={"EDCDate": "EDC Date"}, inplace=True)
@@ -190,7 +198,7 @@ df_13_adult_act.rename(columns={"need_ex5": "need_exclusion5"}, inplace=True)
 df_13_adult_act.rename(columns={"need_ex6": "need_exclusion6"}, inplace=True)
 df_13_adult_act.rename(columns={"Home Visits Prenatal": "HomeVisitsPrenatal"}, inplace=True)
 #df_13_adult_act['IPVRefDate']=pd.to_datetime(df_13_adult_act['IPVRefDate'])
-df_13_adult_act.rename(columns={"ReferralDATE": "IPVRefDate"}, inplace=True)
+df_13_adult_act.rename(columns={"ReferralDATE": "UNCOPERefDate"}, inplace=True)
 df_13_adult_act.rename(columns={"Category": "UNCOPERefCategory"}, inplace=True)
 df_13_adult_act.rename(columns={"Home Visits Total": "HomeVisitsTotal"}, inplace=True)
 df_13_adult_act.rename(columns={"A1IPV": "AssessIPV"}, inplace=True)
