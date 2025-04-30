@@ -3325,7 +3325,8 @@ df_14t_edits1_tb3['_T12 MOB Housing Status'] = df_14t_edits1_tb3.apply(func=fn_T
 # inspect_col(df_14t_edits1_tb3['_T12 MOB Housing Status']) 
 
 #%%###################################
-
+#int_fpg_base = 9680 
+#int_fpg_increment = 5380 
 ### REMINDER: Update to new year's federal poverty guidelines in RUNME.py.
 df_14t_edits1_tb3['_T14 Federal Poverty Level update'] = (int_fpg_base + (int_fpg_increment * df_14t_edits1_tb3['Household Size'])).astype('Int64')
     ### /// Tableau Calculation Q2:

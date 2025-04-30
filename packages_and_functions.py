@@ -215,31 +215,54 @@ def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='Project I
     return fn_list 
 
 def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_to_find=['Unrecognized Value'], replacement_value=pd.NA):
+    # Normalize search values
+    fdf.rename(columns={fdf.columns[0]: 'Project ID'}, inplace=True)
     list_of_values_to_find = [str(x).lower() for x in list_of_values_to_find]
-    ####
-    string_of_values_to_find = list_of_values_to_find
-    string_of_values_to_find = '|'.join(list_of_values_to_find) ### Changes it to a string. Only adds "|" if multiple values.
-    ###print(string_of_values_to_find)
-    ##########
-    ### Print out details about values found:
+    string_of_values_to_find = '|'.join(list_of_values_to_find)
+
+    # Safely find actual column name for ID field
+    actual_id_col = None
+    for col in fdf.columns:
+        if col.strip().lower() == one_id_var.strip().lower():
+            actual_id_col = col
+            break
+
+    if not actual_id_col:
+        print(f"❌ Could not find column matching ID field: '{one_id_var}'")
+        actual_id_col = 'UNKNOWN_ID'
+
     fn_list = []
+
     for col_index, col in enumerate(fdf.columns):
-        if (fdf[col].astype('string').str.lower().isin(list_of_values_to_find).any()):
-            fn_list.append({
-                'col': col
-                ,'col_index': col_index
-                ,'row_indices': fdf.loc[fdf[col].astype('string').str.lower().isin(list_of_values_to_find)][col].index.tolist() 
-                ,'values': fdf.loc[fdf[col].astype('string').str.lower().isin(list_of_values_to_find)][col].tolist()
-                ,'replaced_with': replacement_value
-                ,'ids': fdf.loc[fdf[col].astype('string').str.lower().isin(list_of_values_to_find)][one_id_var].tolist() 
-            }) 
-    print('These values were replaced: ', fn_list)
-    ##########
-    ### Make the change:
-    ### TODO: At the moment, searching is case-insensitive. Could make option for case sensitive.
-    ### TODO: At the moment, the entire cell must match. Could make an option for matching with substrings.
+        try:
+            mask = fdf[col].astype(str).str.lower().isin(list_of_values_to_find)
+            if mask.any():
+                row_indices = fdf[mask].index.tolist()
+                values = fdf.loc[mask, col].tolist()
+                ids = fdf.loc[mask, actual_id_col].tolist() if actual_id_col in fdf.columns else ['UNKNOWN_ID'] * len(row_indices)
+
+                fn_list.append({
+                    'col': col,
+                    'col_index': col_index,
+                    'row_indices': row_indices,
+                    'values': values,
+                    'replaced_with': replacement_value,
+                    'ids': ids
+                })
+
+        except Exception as e:
+            print(f"❌ Error processing column '{col}': {e}")
+
+    print('\n🔄 These values were replaced:')
+    for entry in fn_list:
+        print(f"Column: {entry['col']} | Rows: {len(entry['row_indices'])} | Sample IDs: {entry['ids'][:3]}...")
+
     fdf = fdf.replace(fr'(?i)^({string_of_values_to_find})$', replacement_value, regex=True)
+
     return fdf
+
+
+
 
 def fn_find_and_count_value_in_df(fdf, list_of_values_to_find=['Unrecognized Value']):
     list_of_values_to_find = [str(x).lower() for x in list_of_values_to_find]

@@ -90,6 +90,11 @@ import os
 import sys
 path_1_3=Path(os.path.dirname(Path.cwd()))/'1.3combine/'
 path_1_4=Path(os.path.dirname(Path.cwd()))/'1.4tableau/'
+if (os.path.basename(__file__) == '_1_4tab_RUNME'):
+    import sys
+    sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+    from RUNME import * 
+    path_14t_code_base=home_path
 sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_1_3), str(path_1_4)] 
 from RUNME import *
 if read_from_file==False:
@@ -99,6 +104,8 @@ if read_from_file==False:
 #####################################################
 
 path_14t_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau')
+
+#path_14t_code_base = home_path
 
 path_14t_dir_input = Path(path_14t_files_base, '0in', str_nehv_quarter)
 path_14t_dir_mid = Path(path_14t_files_base, '2mid', str_nehv_quarter)
@@ -195,8 +202,8 @@ print('end setup')
 ### "_1_4_replacing_tableau_2_Child_Activities.py"
 if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
     print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
-    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
-    print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
+exec(open(Path(home_path, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
+print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
 
 #%%
 ### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"

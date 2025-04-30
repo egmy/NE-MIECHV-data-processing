@@ -37,6 +37,8 @@ if (os.path.basename(__file__) == '_1_1_2FW_RUNME.py'):
     sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
     from RUNME import * 
 
+#str_nehv_quarter = 'Y14Q2 (Oct 2024 - Mar 2025)'
+
 
 #%%##################################################
 ### PATHS ###
@@ -184,13 +186,12 @@ list_112FW_date_cols_3 = [key for key, value in dict_112FW_col_dtypes_3.items() 
 
 #The below code helps me read in the column names in the right format, so use it if the columns change, otherwise it's not needed
 
-# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q1 (Oct 2023 - Dec 2023)\\Adult Activities Query.xlsx') # can also index sheet by name or fetch all sheets
+# df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y14Q2 (Oct 2024 - Mar 2025)\\Adult Activities Query.xlsx') # can also index sheet by name or fetch all sheets
 # list_112FW_col_detail_4 = df.columns.tolist()
 # for x in list_112FW_col_detail_4:
 #     print("['{}',],".format(x))
 
 list_112FW_col_detail_4= [
-
     ['Project ID','string'],
     ['agency','string'],
     ['FamilyNumber','Int64'],
@@ -217,6 +218,10 @@ list_112FW_col_detail_4= [
     ['MaxEduEnroll','string'],
     ['TobaccoUseDate', 'datetime64[ns]'],
     ['TobaccoRefDate','datetime64[ns]'],
+    ['A1Afraid','boolean'],
+    ['A1Police','boolean'],
+    ['A1IPV','boolean'],
+    ['MOB ASSESSMENT DATE','datetime64[ns]'],
     ['AssessAfraid', 'boolean'],
     ['AssessPolice','boolean'],
     ['AssessIPV', 'boolean'],
@@ -273,7 +278,7 @@ list_112FW_col_detail_4= [
     ['FOBRaceHawaiianPacific','boolean'],
     ['FOBRaceOther','boolean'],
     ['MOB ZIP','Int64'],
-    ['Adaptation','string'], ##not sure about this one, all values seem to be 'NA'
+    ['Adaptation','string'] #Adding this for the FROG inclusion logic'
     ]
 
 
@@ -490,31 +495,31 @@ print(collections.Counter(list(dict_112FW_col_dtypes_8.values())))
 list_112FW_date_cols_8 = [key for key, value in dict_112FW_col_dtypes_8.items() if value == 'datetime64[ns]'] 
 
 
-#%%### df_112FW_9: '14 IPV FROG - use this one'.
+#%%### df_112FW_9: '14 IPV FROG - use this one'. --This step is removed, now included in Adult Activities file as of 4/24/25
 # df = pd.read_excel('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other\\0in\\Y13Q2 (Oct 2023 - Mar 2024)\\14 IPV Screen FROG - use this one.xlsx') # can also index sheet by name or fetch all sheets
 # list_112FW_col_detail_8 = df.columns.tolist()
 # for x in list_112FW_col_detail_8:
 #     print("['{}',],".format(x))
 
-list_112FW_col_detail_9 = [
-    ['Project ID','string'],
-    ['agency','string'],
-    ['FN - COUNTY CODE','Int64'],
-    ['FN - PROGRAM WITHIN COUNTY', 'Int64'],
-    ['FAMILY NUMBER','Int64'],
-    ['A1IPV','boolean'],
-    ['A1Police','boolean'],
-    ['A1Afraid','boolean'],
-    ['MOB ASSESSMENT DATE','datetime64[ns]'],
+# list_112FW_col_detail_9 = [
+#     ['Project ID','string'],
+#     ['agency','string'],
+#     ['FN - COUNTY CODE','Int64'],
+#     ['FN - PROGRAM WITHIN COUNTY', 'Int64'],
+#     ['FAMILY NUMBER','Int64'],
+#     ['A1IPV','boolean'],
+#     ['A1Police','boolean'],
+#     ['A1Afraid','boolean'],
+#     ['MOB ASSESSMENT DATE','datetime64[ns]'],
 
-]
+# ]
 
-#%%### df_112FW_9: '14 IPV FROG - use this one'.
-dict_112FW_col_dtypes_9 = {x[0]:x[1] for x in list_112FW_col_detail_9}
-print(dict_112FW_col_dtypes_9)
-print(collections.Counter(list(dict_112FW_col_dtypes_9.values())))
-### List of date columns:
-list_112FW_date_cols_9 = [key for key, value in dict_112FW_col_dtypes_9.items() if value == 'datetime64[ns]'] 
+# #%%### df_112FW_9: '14 IPV FROG - use this one'.
+# dict_112FW_col_dtypes_9 = {x[0]:x[1] for x in list_112FW_col_detail_9}
+# print(dict_112FW_col_dtypes_9)
+# print(collections.Counter(list(dict_112FW_col_dtypes_9.values())))
+# ### List of date columns:
+# list_112FW_date_cols_9 = [key for key, value in dict_112FW_col_dtypes_9.items() if value == 'datetime64[ns]'] 
 
 
 #%%##############################################!>>>
@@ -531,7 +536,7 @@ xlsx_112FW_input_child_act = pd.ExcelFile(path_112FW_input_child_act)
 xlsx_112FW_input_adult_uncope = pd.ExcelFile(path_112FW_input_adult_uncope)
 xlsx_112FW_input_home_visit = pd.ExcelFile(path_112FW_input_home_visit)
 xlsx_112FW_input_ref_excl = pd.ExcelFile(path_112FW_input_ref_excl)
-xlsx_112FW_input_frog = pd.ExcelFile(path_112FW_input_frog)
+# xlsx_112FW_input_frog = pd.ExcelFile(path_112FW_input_frog)
 
 
 #%%###################################
@@ -546,7 +551,7 @@ df_112FW_allstring_5 = pd.read_excel(xlsx_112FW_input_child_act, keep_default_na
 df_112FW_allstring_6 = pd.read_excel(xlsx_112FW_input_adult_uncope, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_112FW_col_dtypes_6)
 df_112FW_allstring_7 = pd.read_excel(xlsx_112FW_input_home_visit, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_112FW_col_dtypes_7)
 df_112FW_allstring_8 = pd.read_excel(xlsx_112FW_input_ref_excl, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_112FW_col_dtypes_8)
-df_112FW_allstring_9 = pd.read_excel(xlsx_112FW_input_frog, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_112FW_col_dtypes_9)
+# df_112FW_allstring_9 = pd.read_excel(xlsx_112FW_input_frog, keep_default_na=False, na_values=list_na_values_to_read, dtype='string')# dtype=dict_112FW_col_dtypes_9)
 #%%##############################################!>>>
 ### >>> CLEAN 
 #####################################################
@@ -574,7 +579,7 @@ df_112FW_child_injury=df_112FW_allstring_2.copy()
 ### >>> df_112FW_3: '08 Child ER Injury.xlsx'.
 df_112FW_cg_ins=df_112FW_allstring_3.copy()
 ### >>> df_112FW_9: '14 IPV FROG - use this one'.
-df_112FW_adult_frog=df_112FW_allstring_9.copy()
+# df_112FW_adult_frog=df_112FW_allstring_9.copy() #removing FROG, it's now being included in Adult Activities
 
 
 #%%### 1. Strip surrounding whitespace
@@ -602,22 +607,38 @@ df_112FW_child_injury = (
 df_112FW_cg_ins = (
     df_112FW_cg_ins.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
 )
-df_112FW_adult_frog = (
-    df_112FW_adult_frog.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
-)
+# df_112FW_adult_frog = (
+#     df_112FW_adult_frog.map(lambda cell: cell.strip(), na_action='ignore').astype('string')
+# )
 
+print(df_112FW_child_act)
+print(df_112FW_child_act.columns)
 
 #%%### 2. Find & replace "null" values  
 list_112FW_values_to_find_and_replace= ['null']
-df_112FW_child_act= (
-df_112FW_child_act.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_112FW_values_to_find_and_replace, pd.NA)
+print(df_112FW_child_act['Project ID'])
+print(repr(df_112FW_child_act.columns.tolist()))
+df_112FW_child_act.columns = (
+    df_112FW_child_act.columns
+    .str.encode('ascii', 'ignore')       # strip out weird unicode
+    .str.decode('utf-8')                 # decode back to string
+    .str.replace(r'\s+', ' ', regex=True)  # normalize all whitespace to regular space
+    .str.strip()
 )
+print(df_112FW_child_act.columns.tolist())
+df_112FW_child_act= (
+df_112FW_child_act.pipe(fn_find_and_replace_value_in_df, one_id_var='Project ID', list_of_values_to_find=list_112FW_values_to_find_and_replace, replacement_value=pd.NA)
+)
+print(df_112FW_adult_act.columns.tolist())
+df_112FW_adult_act.rename(columns={df_112FW_adult_act.columns[0]: 'Project ID'}, inplace=True)
 df_112FW_adult_act= (
 df_112FW_adult_act.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_112FW_values_to_find_and_replace, pd.NA)
 )
+df_112FW_ref_excl.rename(columns={df_112FW_ref_excl.columns[0]: 'Project ID'}, inplace=True)
 df_112FW_ref_excl= (
 df_112FW_ref_excl.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_112FW_values_to_find_and_replace, pd.NA)
 )
+df_112FW_adult_uncope.rename(columns={df_112FW_adult_uncope.columns[0]: 'Project ID'}, inplace=True)
 df_112FW_adult_uncope= (
 df_112FW_adult_uncope.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_112FW_values_to_find_and_replace, pd.NA)
 )
@@ -633,9 +654,9 @@ df_112FW_child_injury.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_1
 df_112FW_cg_ins= (
 df_112FW_cg_ins.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_112FW_values_to_find_and_replace, pd.NA)
 )
-df_112FW_adult_frog= (
-df_112FW_adult_frog.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_112FW_values_to_find_and_replace, pd.NA)
-)
+# df_112FW_adult_frog= (
+# df_112FW_adult_frog.pipe(fn_find_and_replace_value_in_df, 'Project ID', list_112FW_values_to_find_and_replace, pd.NA)
+# )
 
 
 #%%### 3. Add nanoseconds to strings of datetimes missing them   
@@ -674,10 +695,10 @@ df_112FW_cg_ins = (
     df_112FW_cg_ins
     .replace({col:regex_112FW_dates_to_fix for col in list_112FW_date_cols_3}, regex_112FW_dates_replacement, regex=True) ### Checking all date columns.
 )
-df_112FW_adult_frog = (
-    df_112FW_adult_frog
-    .replace({col:regex_112FW_dates_to_fix for col in list_112FW_date_cols_9}, regex_112FW_dates_replacement, regex=True) ### Checking all date columns.
-)
+# df_112FW_adult_frog = (
+#     df_112FW_adult_frog
+#     .replace({col:regex_112FW_dates_to_fix for col in list_112FW_date_cols_9}, regex_112FW_dates_replacement, regex=True) ### Checking all date columns.
+# )
 
 
 #%%### 4. Set data types  
@@ -720,10 +741,10 @@ df_112FW_cg_ins = (
     .pipe(fn_apply_dtypes, dict_112FW_col_dtypes_3) ### Checking all date columns.
 )
 
-df_112FW_adult_frog = (
-    df_112FW_adult_frog
-    .pipe(fn_apply_dtypes, dict_112FW_col_dtypes_9) ### Checking all date columns.
-)
+# df_112FW_adult_frog = (
+#     df_112FW_adult_frog
+#     .pipe(fn_apply_dtypes, dict_112FW_col_dtypes_9) ### Checking all date columns.
+# )
 
 #%%##############################################!>>>
 ### >>> RESTRUCTURING  
@@ -817,10 +838,10 @@ df_112FW_adult_act
 
 ######################################
 ### >>> '14 IPV Screen FROG - use this one.xlsx' Inclusion.
-#%%### 1. - Take FROG columns and insert into Adult Activities
-df_112FW_adult_frog_columns = df_112FW_adult_frog[['Project ID','A1IPV', 'A1Police', 'A1Afraid', 'MOB ASSESSMENT DATE']]
-df_112FW_adult_act = pd.merge(df_112FW_adult_act, df_112FW_adult_frog_columns, on=['Project ID'], how='left')
-df_112FW_adult_act
+#%%### 1. - Take FROG columns and insert into Adult Activities --REMOVE THIS STEP AS OF 4/24/25 per Joe's request
+# df_112FW_adult_frog_columns = df_112FW_adult_frog[['Project ID','A1IPV', 'A1Police', 'A1Afraid', 'MOB ASSESSMENT DATE']]
+# df_112FW_adult_act = pd.merge(df_112FW_adult_act, df_112FW_adult_frog_columns, on=['Project ID'], how='left')
+# df_112FW_adult_act
 
 ######################################
 ### >>> Virtual Visits' Inclusion.

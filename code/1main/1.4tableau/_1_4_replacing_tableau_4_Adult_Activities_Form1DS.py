@@ -229,7 +229,7 @@ list_14t_col_detail_tb4_3 = [
     ['FOBRaceAsian', 'FOB Race Asian', '', 'boolean'],
     ['FOBRaceHawaiianPacific', 'FOB Race Hawaiian Pacific', '', 'boolean'],
     ['FOBRaceOther', 'FOB Race Other', '', 'boolean'],
-    ['MOB ZIP', 'Mob Zip', '', 'Int64'],
+    ['MOB ZIP', 'Mob Zip', '', 'string'],
     ['Adaptation', 'Adaptation', 'same', 'string'],
     ['need_exclusion1', 'Need Exclusion1', '', 'string'],
     ['need_exclusion2', 'Need Exclusion2', '', 'string'],
@@ -919,11 +919,11 @@ df_14t_edits1_tb4['_TGT ID'] = df_14t_edits1_tb4['Tgt Id'].combine_first(df_14t_
 ### 'Mob Zip' has the string value "null" that needs to be recoded. ### FY13Q1, other bad value seen.
 ### TODO ASKJOE: limit ZIP codes to first five? -- have some with the extra 4.
 df_14t_edits1_tb4['Mob Zip']= df_14t_edits1_tb4['Mob Zip'].replace('null', np.nan)
-#df_14t_edits1_tb4['Mob Zip'] =df_14t_edits1_tb4['Mob Zip'].str.replace('_', '', regex=False)
+df_14t_edits1_tb4['Mob Zip'] =df_14t_edits1_tb4['Mob Zip'].str.replace('_', '', regex=False)
 df_14t_edits1_tb4['Mob Zip'] = df_14t_edits1_tb4['Mob Zip'].astype('Int64')
 
 df_14t_edits1_tb4['Zip']= df_14t_edits1_tb4['Zip'].replace('null', np.nan)
-#df_14t_edits1_tb4['Zip'] =df_14t_edits1_tb4['Zip'].str.replace('_', '', regex=False)
+df_14t_edits1_tb4['Zip'] =df_14t_edits1_tb4['Zip'].str.replace('_', '', regex=False)
 df_14t_edits1_tb4['Zip'] = df_14t_edits1_tb4['Zip'].astype('Int64')
 
 df_14t_edits1_tb4['_Zip'] = (

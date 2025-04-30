@@ -30,19 +30,22 @@ path_21_dir_output = Path(path_21_files_base, '9out', str_nehv_quarter)
 
 path_21_input_id_file_FW = Path(path_21_dir_input, 'FW ID File.xlsx')
 path_21_input_id_file_LL = Path(path_21_dir_input, 'LL_ID_File_base.xlsx')
-path_21_input_id_file_combined = Path(path_21_dir_input, 'Combined ID File.xlsx')
+#path_21_input_id_file_combined = Path(path_21_dir_input, 'Combined ID File.xlsx')
 
 ##NOTE: you will have to make sure this file is in the input path, and input the password when Excel is started once running in order to read in
-path_21_input_CPS_file = Path(path_21_dir_input, f'Y13Q4 ID File for CPS (CPS combined with ID File).xlsx')
+path_21_input_CPS_file = Path(path_21_dir_input, f'Y14Q1 ID File for CPS (CPS combined with ID File).xlsx')
 
 CPS_file_password = previous_str_nehv_quarter  # Password in string format
 
 ### Python will start the Excel application and open the Excel file for the previous quarter ID File and prompt you for the password 
 with xw.App(visible=True) as app:  # Keep Excel hidden while running
     wb = xw.Book(path_21_input_CPS_file)
-    
+    #pv = app.api.ProtectedViewWindows.Open(path_21_input_CPS_file)
+
+    # Exit protected view and open normally
+    #wb = pv.Edit()
     # Access the desired sheet (adjust the index as needed)
-    sheet = wb.sheets['Sheet1']  # or use wb.sheets['SheetName'] for a specific sheet name
+    sheet = wb.sheets['final']  # or use wb.sheets['SheetName'] for a specific sheet name
 
     # Read the data into a DataFrame
     data = sheet.range('A1').expand().value  # Read all data starting from A1
@@ -241,17 +244,18 @@ df_21_final_combined['_08 Home Visit Number'] = df_21_final_combined['home_visit
 
 
 def fn_Funding(row):
-    if row['_02 Agency'] == "ll":
-        # Check if the DataFrame is not empty before accessing the funding value
-        return row['funding'] if pd.notna(row['funding']) else None
-    elif row['_02 Agency'] in ["ps", "nc", "vn"]:
-        return "S"
-    elif row['_02 Agency'] in ["ph", "fs", "hs", "cd", "fc"]:
-        return "F"
-    elif row['_02 Agency'] == "se":
-        return "TANF"
-    else:
-        return "Unrecognized Value"
+    if pd.notna(row['_02 Agency']):
+        if row['_02 Agency'] == "ll":
+            # Check if the DataFrame is not empty before accessing the funding value
+            return row['funding'] if pd.notna(row['funding']) else None
+        elif row['_02 Agency'] in ["ps", "nc", "vn"]:
+            return "S"
+        elif row['_02 Agency'] in ["ph", "fs", "hs", "cd", "fc"]:
+            return "F"
+        elif row['_02 Agency'] == "se":
+            return "TANF"
+        else:
+            return "Unrecognized Value"
 
 # Apply the function to each row of the DataFrame
 df_21_final_combined['_09 Funding'] = df_21_final_combined.apply(fn_Funding, axis=1).astype('string')
@@ -272,7 +276,8 @@ def fn_mob_dob(row):
         return row['MOB DOB'] if pd.notnull(row['MOB DOB']) else mob_dob1
     return pd.NA  
 
-df_21_final_combined['_12 MOB DOB'] = df_21_final_combined.apply(fn_mob_dob, axis=1).astype('datetime64[ns]')
+#TODO: fix above function
+df_21_final_combined['_12 MOB DOB'] =df_21_final_combined['MOB DOB'].fillna(df_21_final_combined['mob_dob']).astype('string')
 
 def fn_MOB_SSN(row):
     ###########
@@ -315,11 +320,10 @@ def fn_TGT_DOB(row):
         if row['tgt_dob'] == pd.Timestamp('1900-01-01'):
             return pd.NA
     else:
-        return row['tgt_dob'] if pd.notnull(row['tgt_dob']) else row['tgt_dob']
-    return pd.NA  
-
-df_21_final_combined['_16 TGT DOB'] = df_21_final_combined.apply(fn_TGT_DOB, axis=1).astype('datetime64[ns]')
-
+        return row['tgt_dob'].fillna(row['TGT DOB-CR'])
+    
+#TODO: FIX THE ABOVE FUNCTION
+df_21_final_combined['_16 TGT DOB'] = df_21_final_combined['tgt_dob'].fillna( df_21_final_combined['TGT DOB-CR'])
 
 def fn_TGT_SSN(row):
         ###########
@@ -475,6 +479,9 @@ df_21_final_combined['_26 Zip'] = pd.to_numeric(
 )
 
 df_21_final_combined['_26 Zip'] = df_21_final_combined['_26 Zip'].astype('Int64')
+
+with pd.ExcelWriter(Path(path_21_dir_output, f'Test ID File for CPS.xlsx'), engine='openpyxl') as writer:
+    df_21_final_combined.to_excel(writer, index=False, sheet_name='final')
 
 # %% ################################################
 ### Drop all columns expect for _ ###
