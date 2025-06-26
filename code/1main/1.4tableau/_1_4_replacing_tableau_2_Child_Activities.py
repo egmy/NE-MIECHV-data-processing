@@ -665,7 +665,7 @@ else:
 #%%### df_14t_piece_tb2_1: 'Project ID'. 
 ### join columns: ['Project Id','Year','Quarter']
 ### Show rows where join columns are same BUT some other columns are not:
-df_14t_piece_tb2_1[df_14t_piece_tb2_1[['Project Id','Year','Quarter']].duplicated(keep=False)]
+#df_14t_piece_tb2_1[df_14t_piece_tb2_1[['Project Id','Year','Quarter']].duplicated(keep=False)]
 
 #######################
 ### NOTE: Q1?Q2?: NO ROWS.
@@ -872,6 +872,7 @@ df_14t_base_tb2 = (
 print(f'After join: df_14t_base_tb2 Rows: {len(df_14t_base_tb2)}')
 print('____________\n')
 
+print(df_14t_base_tb2)
 ### Note: FW & LLCHD are created first.
 ### There could be duplicates in the FW table.
 ### Then Project ID tab created from IDs in two other tabs & then is deduplicated.

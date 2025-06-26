@@ -94,6 +94,11 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun
     ### 9680 + (5380 * [household size])
     int_fpg_base = 9680 
     int_fpg_increment = 5380 
+### 2025
+elif (str_nehv_quarter in ('Y14Q2 (Oct 2024 - Mar 2025)')):
+    ### 9680 + (5380 * [household size])
+    int_fpg_base = 10150
+    int_fpg_increment = 5500
 
 
 #%%##################################################

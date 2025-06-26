@@ -202,8 +202,8 @@ print('end setup')
 ### "_1_4_replacing_tableau_2_Child_Activities.py"
 if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
     print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
-exec(open(Path(home_path, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
-print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
+    exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
 
 #%%
 ### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"

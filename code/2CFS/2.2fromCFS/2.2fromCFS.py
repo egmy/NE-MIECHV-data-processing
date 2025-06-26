@@ -38,7 +38,7 @@ path_22_dir_output = Path(path_22_files_base, '9out', str_nehv_quarter)
 ##NOTE: make sure you have the file in the input path and you put the file name as it occurs in there
 
 ##
-path_22_input_CFS_file = Path(path_22_dir_input, 'MIECHV Report - Child.xls')
+path_22_input_CFS_file = Path(path_22_dir_input, 'MIECHV Report - Child.xlsx')
 path_22_input_child_file = Path(path_22_dir_input, 'Child Activity Master File.xlsx')
 path_22_input_master_file = Path(path_22_dir_input, 'Child CPS Master File.xlsx')
 
@@ -209,6 +209,13 @@ with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Master File auto.xlsx'),
 ### TABLEAU CALCULATIONS ###
 #####################################################
 
+#drop year and quarter columns to avoid duplicate error 
+# Drop 'year' and 'quarter' from one of the DataFrames if not needed
+df_22_child_FW = df_22_child_FW.drop(columns=['year', 'quarter'], errors='ignore')
+df_22_child_LL = df_22_child_LL.drop(columns=['year', 'quarter'], errors='ignore')
+df_22_CPS_master = df_22_CPS_master.drop(columns=['year', 'quarter', 'Adaptation', 'tgt_id','funding'], errors='ignore')
+
+
 df_22_CPS_agg= (
     pd.merge( 
         df_22_child_pID ### 'Project ID'
@@ -225,10 +232,16 @@ df_22_CPS_agg= (
         ,right_on=['project_id']
         ,indicator='LJ_tb4_2LL'
         # ,validate='one_to_one'
+    ).merge(
+        df_22_CPS_master ### 'CPS'.
+        ,how='left'
+        ,left_on=['project_id']
+        ,right_on=['project_id']
+        ,indicator='LJ_tb4_3CPS' 
     )
 ) 
 
-df_22_CPS_agg['_Agency'] = df_22_child_FW['agency'].fillna(df_22_child_LL['site_id']).astype('string')
+df_22_CPS_agg['_Agency'] = df_22_CPS_agg['agency'].fillna(df_22_CPS_agg['site_id']).astype('string')
 
 
 def fn_Agency(fdf):
@@ -269,8 +282,6 @@ df_22_CPS_agg['_Agency Name']= df_22_CPS_agg.apply(func=fn_Agency, axis=1).astyp
 def fn_PrimaryID(row):
     return row['project_id'].split('-')[0]
 df_22_CPS_agg['_Primary Caregiver ID']= df_22_CPS_agg.apply(func=fn_PrimaryID, axis=1).astype('string') 
-print(df_22_CPS_agg['project_id'])
-print(df_22_CPS_agg['_Primary Caregiver ID'])
 
 
 def fn_ProblemNENCAP(row):
@@ -359,6 +370,29 @@ def fn_Funding(row):
             return "F"
 df_22_CPS_agg['_Funding (use this one)']= df_22_CPS_agg.apply(func=fn_Funding, axis=1).astype('string') 
 
+
+def fn_Fundingfilter(row):
+    if pd.notna(row['_Agency']):
+        agency = row['_Agency']
+        funding = row['_Funding (use this one)'] 
+
+        if agency in ['ps', 'se', 'nc', 'hs', 'tr', 'sh', 'fc', 'cd', 'np']:
+            return True
+        elif agency == 'vn' and funding != 'Sixpence':
+            return True
+        elif agency == 'lb' and funding not in ['O', 'CWA']:
+            return True
+        elif agency == 'ph' and row['ZIP Code'] in [69301, 69348, 69125, 
+    69331, 69334, 69336, 69341, 
+    69352, 69353, 69355, 69356, 
+    69357, 69358, 69361]:
+            return True
+        elif agency == 'll' and funding not in ['CHE', 'O']:
+            return True
+        return False
+
+df_22_CPS_agg['_Funding Source Filter'] = df_22_CPS_agg.apply(func= fn_Fundingfilter, axis=1).astype('boolean')
+
 df_22_CPS_agg['_Enroll'] = df_22_CPS_agg['enroll_dt'].fillna(df_22_CPS_agg['MinOfHVDate']).astype('datetime64[ns]')
 
 df_22_CPS_agg['_Max HV Date'] = df_22_CPS_agg['MaxofHVDate'].fillna(df_22_CPS_agg['last_home_visit']).astype('datetime64[ns]')
@@ -367,10 +401,10 @@ df_22_CPS_agg['_Discharge Date'] = df_22_CPS_agg['discharge_dt'].fillna(df_22_CP
 
 df_22_CPS_agg['_TGT DOB'] = df_22_CPS_agg['tgt_dob'].fillna(df_22_CPS_agg['TGT DOB-CR']).astype('datetime64[ns]')
 
-df_22_CPS_agg['_TGT Number'] = df_22_CPS_agg['tgt_id'].fillna(df_22_CPS_agg['ChildNumber']).astype('datetime64[ns]')
+df_22_CPS_agg['_TGT Number'] = df_22_CPS_agg['tgt_id'].fillna(df_22_CPS_agg['ChildNumber']).astype('Int64')
+
 
 #df_22_CPS_agg['_Primary Caregiver ID'] = df_22_CPS_agg['project_id'].apply(lambda x: x[:x.find('-')])
-
 
 def fn_First_Child_DOB(row):
         if pd.notna(row['_TGT Number']) and pd.notna(row['_Agency']):
@@ -380,22 +414,27 @@ def fn_First_Child_DOB(row):
                 return False
 #(lambda row: row['_TGT DOB'] if row['_TGT Number'] ==1 and row['Agency'] != 'll' else None, axis=1)
 df_22_CPS_agg['First Child Filter']= df_22_CPS_agg.apply(func=fn_First_Child_DOB, axis=1).astype('boolean')
-df_22_CPS_agg_FC= df_22_CPS_agg[df_22_CPS_agg['First Child Filter'] == True]
-df_22_CPS_agg_FC_final=df_22_CPS_agg_FC.groupby('_Primary Caregiver ID', as_index=False)['_TGT DOB'].max()
-df_22_CPS_agg['_First child DOB for Filter']=df_22_CPS_agg['_Primary Caregiver ID'].map(df_22_CPS_agg_FC_final)
 
+df_22_CPS_agg_FC = df_22_CPS_agg.copy()
+df_22_CPS_agg_FC= df_22_CPS_agg_FC[df_22_CPS_agg_FC['First Child Filter']]
+#print(df_22_CPS_agg_FC['First Child Filter'])
+df_22_CPS_agg_FC_final=df_22_CPS_agg_FC.groupby('_Primary Caregiver ID', as_index=False)['_TGT DOB'].max()
+df_22_CPS_agg_FC_final.rename(columns={'_TGT DOB': '_First child DOB for Filter'}, inplace=True)
+
+# Step 2: Merge the new column into your original df (df_22_CPS_agg)
+df_22_CPS_agg = df_22_CPS_agg.merge(
+    df_22_CPS_agg_FC_final,
+    on='_Primary Caregiver ID',
+    how='left'
+)
+# print(df_22_CPS_agg['_First child DOB for Filter'])
 def fn_children_filter(row):
-    if  row['_Agency'] != 'll':
-        if row['_TGT Number'] == 1:
-            return True
-        elif row['_TGT Number'] == 2:
-            date_diff = row['First child DOB for Filter'] - row['_TGT DOB']
-            if date_diff.days < 4:
+    if pd.notna(row['_Agency']) and pd.notna(row['_TGT Number']):
+        if  row['_Agency'] != 'll':
+            if row['_TGT Number'] == 1:
                 return True
-        elif row['_TGT Number'] == 3:
-            date_diff = row['First child DOB for Filter'] - row['_TGT DOB']
-            if date_diff.days < 4:
-                return True
+            elif row['_TGT Number'] >= 2:
+                return False
         else:
             return False
 df_22_CPS_agg['Subsequent Children Filter']=df_22_CPS_agg.apply(func=fn_children_filter, axis=1).astype('boolean')      
@@ -418,7 +457,7 @@ def fn_child_alive_discharge(row):
 df_22_CPS_agg['Child alive sometime before Discharge Date']=df_22_CPS_agg.apply(func=fn_child_alive_discharge, axis=1).astype('boolean')
 
 def fn_Family_active_date(row):
-    if row['_Enroll'] <= date_fy_end_day_after and (pd.isna(['_Discharge Date']) or date_fy_start < ['_Discharge Date']):
+    if row['_Enroll'] <= date_fy_end_day_after and (pd.isna(row['_Discharge Date']) or date_fy_start < row['_Discharge Date']):
         return True
 df_22_CPS_agg['Family active sometime during date range']=df_22_CPS_agg.apply(func=fn_Family_active_date, axis=1).astype('boolean')
 
@@ -429,14 +468,17 @@ def fn_c09_child_Denominator(row):
 df_22_CPS_agg['_C09 Child Denominator Status']=df_22_CPS_agg.apply(func=fn_c09_child_Denominator, axis=1).astype('boolean')
     
 
-def fn_c09_Denominator(df):
+def fn_c09_Denominator(row):
+    if pd.notna(row['_C09 Child Denominator Status']):
+        if row['_C09 Child Denominator Status'] ==True:
+            return True
+    else:
+        return False 
     # Apply the IIF logic for each row: if '_C09 Child Denominator Status' is 1, return 1; else return 0
-    df['_C09 Denominator Status'] = df['_C09 Child Denominator Status'].apply(lambda status: 1 if status == 1 else 0)
-    # Return the MAX of the 'IIF_Result' column
-    return df['_C09 Denominator Status'].max() #is the groupby necessary here?
 
-df_22_CPS_agg=df_22_CPS_agg.apply(func=fn_c09_Denominator, axis=1)
+df_22_CPS_agg['_C09 Denominator Status'] = df_22_CPS_agg.apply(func=fn_c09_Denominator, axis=1).astype('boolean')
 
+print(df_22_CPS_agg)
 def fn_c09_Numerator_CPS(row):
     if ((date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.5'])) and
         pd.Timestamp(row['IntakeReceivedDate.5']) <= date_fy_end_day_after) or (date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.4']) and
@@ -448,33 +490,34 @@ def fn_c09_Numerator_CPS(row):
 df_22_CPS_agg['_C09 Numerator CPS True (Update)']=df_22_CPS_agg.apply(func=fn_c09_Numerator_CPS, axis=1).astype('boolean')
 
 def fn_c09_Numerator(df):
-    # Define a new column based on the logic
-    df['_C09 Numerator Status'] = df.apply(lambda row: 1 if row['_C09 Denominator Status'] and row['_C09 Child Denominator Status'] and row['_C09 Numerator CPS True (Update)'] else None, axis=1)
+    # Use explicit checks for NaN
+    df['_C09 Numerator Status'] = df.apply(
+        lambda row: 1 if (
+            pd.notna(row['_C09 Denominator Status']) and
+            pd.notna(row['_C09 Child Denominator Status']) and
+            pd.notna(row['_C09 Numerator CPS True (Update)']) and
+            row['_C09 Denominator Status'] and
+            row['_C09 Child Denominator Status'] and
+            row['_C09 Numerator CPS True (Update)']
+        ) else 0,
+        axis=1
+    )
     
-    # Apply the logic with group-by, like FIXED in Tableau, to get the MAX value per Project Id
-    df['_C09 Numerator Status'] = df.groupby('Project Id')['_C09 Numerator Status'].transform('max')
+    df['_C09 Numerator Status'] = df.groupby('Project ID')['_C09 Numerator Status'].transform('max')
     return df
+
 df_22_CPS_agg=fn_c09_Numerator(df_22_CPS_agg)
 
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['Subsequent Children Filter'] == True]
-df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['year'] == int_nehv_year & df_22_CPS_agg['quarter'] == int_nehv_quarter]
+df_22_CPS_agg = df_22_CPS_agg[ (df_22_CPS_agg['year'] == int_nehv_year) & (df_22_CPS_agg['quarter'] == int_nehv_quarter)]
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_C09 Denominator Status'] == True]
-#df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Agency Name Filter'] == True]
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Funding Source Filter'] == True]
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Agency Name'] != 'Unidentified Agency']
-column_mapping = {
-    'year',
-    'quarter',
-    '_Agency Name',
-    '_Funding (use this one)',
-    '_C09 Numerator Status',
-    'Children'
-    'Percent of Children',
-    'Total Children'
-}
 
-filtered_columns = list(column_mapping.values())
-df_22_CPS_agg_9 = df_22_CPS_agg[filtered_columns]
+df_22_CPS_agg_9 = df_22_CPS_agg[['Project ID','year', 'quarter', '_Agency Name', '_Funding (use this one)', '_C09 Numerator Status']].copy()
+with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File test.xlsx'), engine='openpyxl') as writer:
+        df_22_CPS_agg.to_excel(writer, index=False, sheet_name='Sheet 1')
+df_22_CPS_agg_9= df_22_CPS_agg_9.groupby(['year', 'quarter', '_Agency Name', '_Funding (use this one)','_C09 Numerator Status' ])['Project ID'].nunique().reset_index(name='Children')
 
 with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File.xlsx'), engine='openpyxl') as writer:
         df_22_CPS_agg_9.to_excel(writer, index=False, sheet_name='Sheet 1')
