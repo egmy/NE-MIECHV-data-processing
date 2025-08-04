@@ -37,7 +37,7 @@ if (os.path.basename(__file__) == '_1_1_2FW_RUNME.py'):
     sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
     from RUNME import * 
 
-#str_nehv_quarter = 'Y14Q2 (Oct 2024 - Mar 2025)'
+str_nehv_quarter = 'Y14Q3 (Oct 2024 - Mar 2025)'
 
 
 #%%##################################################
@@ -63,7 +63,7 @@ path_1_3_dir_input = Path(path_1_3_files_input, '0in', str_nehv_quarter)
 path_112FW_input_well_child = Path(path_112FW_dir_input, '04 Well Child v2 no MAX - use this one.xlsx')
 path_112FW_input_child_injury = Path(path_112FW_dir_input, '08 Child ER Injury.xlsx')
 path_112FW_input_cg_ins = Path(path_112FW_dir_input, '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx')
-path_112FW_input_adult_act = Path(path_112FW_dir_input, 'Adult Activities Query.xlsx')
+path_112FW_input_adult_act = Path(path_112FW_dir_input, 'Adult Activities Query FROG.xlsx')
 path_112FW_input_adult_uncope = Path(path_112FW_dir_input, 'Adult UNCOPE Query.xlsx')
 path_112FW_input_child_act = Path(path_112FW_dir_input, 'Child Activities Query.xlsx')
 path_112FW_input_home_visit = Path(path_112FW_dir_input, 'F1 - Home Visit Type Query.xlsx')
@@ -114,7 +114,7 @@ else:
 #%%### df_112FW_1: '04 Well Child v2 no MAX - use this one.xlsx'.
 #%%### df_112FW_2: '08 Child ER Injury.xlsx'.
 #%%### df_112FW_3: '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx'.
-#%%### df_112FW_4: 'Adult Activities Query.xlsx'.
+#%%### df_112FW_4: 'Adult Activities Query FROG.xlsx'.
 #%%### df_112FW_5: 'Child Activities Query.xlsx'.
 #%%### df_112FW_6: 'Adult UNCOPE Query.xlsx'.
 #%%### df_112FW_7: 'F1 - Home Visit Type Query.xlsx'.
@@ -182,7 +182,7 @@ print(collections.Counter(list(dict_112FW_col_dtypes_3.values())))
 list_112FW_date_cols_3 = [key for key, value in dict_112FW_col_dtypes_3.items() if value == 'datetime64[ns]'] 
 
 #######################
-#%%### df_112FW_4: 'Adult Activities Query.xlsx'.
+#%%### df_112FW_4: 'Adult Activities Query FROG.xlsx'.
 
 #The below code helps me read in the column names in the right format, so use it if the columns change, otherwise it's not needed
 

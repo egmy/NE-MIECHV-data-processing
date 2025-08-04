@@ -33,7 +33,7 @@ path_21_input_id_file_LL = Path(path_21_dir_input, 'LL_ID_File_base.xlsx')
 #path_21_input_id_file_combined = Path(path_21_dir_input, 'Combined ID File.xlsx')
 
 ##NOTE: you will have to make sure this file is in the input path, and input the password when Excel is started once running in order to read in
-path_21_input_CPS_file = Path(path_21_dir_input, f'Y14Q1 ID File for CPS (CPS combined with ID File).xlsx')
+path_21_input_CPS_file = Path(path_21_dir_input, f'Y14Q2 ID File for CPS (CPS combined with ID File).xlsx')
 
 CPS_file_password = previous_str_nehv_quarter  # Password in string format
 

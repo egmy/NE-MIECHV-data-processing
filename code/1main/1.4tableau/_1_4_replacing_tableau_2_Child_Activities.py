@@ -738,24 +738,24 @@ TESTdf_14t_piece_tb2_3.loc[TESTdf_14t_piece_tb2_3.index[2:4], cols_14t_forJoin_t
 #######################
 ### NOTE: NO duplicate rows.
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
-df_14t_bf_ddup_tb2_4 = df_14t_piece_tb2_4.copy()
-#%%### df_14t_piece_tb2_4: 'LLCHD'.
-df_14t_piece_tb2_4[df_14t_piece_tb2_4.duplicated()]
-# df_14t_piece_tb2_4[df_14t_piece_tb2_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
-#%%### df_14t_piece_tb2_4: 'LLCHD'.
-if bool_14t_deduplicate_tb2:
-    df_14t_piece_tb2_4 = df_14t_piece_tb2_4.drop_duplicates(ignore_index=True)
-df_14t_piece_tb2_4
-#%%### df_14t_piece_tb2_4: 'LLCHD'.
-len(df_14t_bf_ddup_tb2_4) - len(df_14t_piece_tb2_4) == len(df_14t_bf_ddup_tb2_4[df_14t_bf_ddup_tb2_4.duplicated()])
-#%%### df_14t_piece_tb2_4: 'LLCHD'.
-print('LLCHD:')
-if (len(df_14t_bf_ddup_tb2_4) != len(df_14t_piece_tb2_4)):
-    print(f'{len(df_14t_bf_ddup_tb2_4) - len(df_14t_piece_tb2_4)} duplicate rows dropped.')
-elif (len(df_14t_bf_ddup_tb2_4) == len(df_14t_piece_tb2_4)):
-    print('No duplicate rows.')
-else:
-    print("Don't know what's going on here!")
+# df_14t_bf_ddup_tb2_4 = df_14t_piece_tb2_4.copy()
+# #%%### df_14t_piece_tb2_4: 'LLCHD'.
+# df_14t_piece_tb2_4[df_14t_piece_tb2_4.duplicated()]
+# # df_14t_piece_tb2_4[df_14t_piece_tb2_4.duplicated(keep=False, subset=['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'])]
+# #%%### df_14t_piece_tb2_4: 'LLCHD'.
+# if bool_14t_deduplicate_tb2:
+#     df_14t_piece_tb2_4 = df_14t_piece_tb2_4.drop_duplicates(ignore_index=True)
+# df_14t_piece_tb2_4
+# #%%### df_14t_piece_tb2_4: 'LLCHD'.
+# len(df_14t_bf_ddup_tb2_4) - len(df_14t_piece_tb2_4) == len(df_14t_bf_ddup_tb2_4[df_14t_bf_ddup_tb2_4.duplicated()])
+# #%%### df_14t_piece_tb2_4: 'LLCHD'.
+# print('LLCHD:')
+# if (len(df_14t_bf_ddup_tb2_4) != len(df_14t_piece_tb2_4)):
+#     print(f'{len(df_14t_bf_ddup_tb2_4) - len(df_14t_piece_tb2_4)} duplicate rows dropped.')
+# elif (len(df_14t_bf_ddup_tb2_4) == len(df_14t_piece_tb2_4)):
+#     print('No duplicate rows.')
+# else:
+#     print("Don't know what's going on here!")
 #######################
 #%%### df_14t_piece_tb2_4: 'LLCHD'.
 ### join columns: ['project id (LLCHD)','year (LLCHD)','quarter (LLCHD)'] 
@@ -1390,15 +1390,6 @@ df_14t_edits1_tb2['_Discharge Reason'] = df_14t_edits1_tb2.apply(func=fn_Dischar
 # inspect_col(df_14t_edits1_tb2['Termination Date']) 
 # #%%
 # inspect_col(df_14t_edits1_tb2['Termination Status'])
-#%%
-# print(df_14t_edits1_tb2[['_Discharge Reason', 'Discharge Dt', 'Discharge Reason', 'Termination Date', 'Termination Status']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
-# print(df_14t_edits1_tb2[['_Discharge Reason', 'Discharge Reason', 'Termination Status']].drop_duplicates(ignore_index=True).pipe(lambda df: df.sort_values(by=list(df.columns), ignore_index=True)).to_string())
-#%%
-### COMPARISON (Note: "df_14t_comp_compare_tb2" created at end):
-# print(df_14t_comp_compare_tb2[['_Discharge Reason', 'Discharge Reason']].to_string()) ### 'Termination Status' & 'Discharge Dt' & 'Termination Date' had no differences.
-# print(df_14t_comp_compare_tb2[['Discharge Reason']].to_string())
-### Where are these extra values coming from?? ### Fixed code in Tableau was wrong (wasn't expecting stings). So now won't match until Tableau CSV created again.
-
 
 #%%###################################
 

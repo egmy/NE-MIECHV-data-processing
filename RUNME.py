@@ -52,20 +52,24 @@ repo_name = 'nehv_ds_code_repository'
 # str_nehv_quarter = 'Y13Q3 (Oct 2023 - Jun 2024)'
 # str_nehv_quarter = 'Y13Q4 (Oct 2023 - Sep 2024)'
 #str_nehv_quarter = 'Y14Q1 (Oct 2024 - Dec 2024)'
-str_nehv_quarter = 'Y14Q2 (Oct 2024 - Mar 2025)'
+#str_nehv_quarter = 'Y14Q2 (Oct 2024 - Mar 2025)'
+str_nehv_quarter = 'Y14Q3 (Oct 2024 - Jun 2025)'
+
 
 
 # previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
-previous_str_nehv_quarter = 'Y14Q1 (Oct 2024 - Dec 2024)'
+previous_str_nehv_quarter = 'Y14Q2 (Oct 2024 - Mar 2025)'
 
 int_nehv_year = 14 
 
 # int_nehv_quarter = 1 
 # int_nehv_quarter = 2 
-int_nehv_quarter = 2
+int_nehv_quarter = 3
 
 
 date_fy_start = pd.Timestamp("2024-10-01") ### Midnight.
+
+date_range_end= pd.Timestamp("2025-6-30")
 
 date_fy_end_day_after = date_fy_start + pd.DateOffset(years=1) ### Midnight.
 
@@ -95,7 +99,7 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun
     int_fpg_base = 9680 
     int_fpg_increment = 5380 
 ### 2025
-elif (str_nehv_quarter in ('Y14Q2 (Oct 2024 - Mar 2025)')):
+elif (str_nehv_quarter in ('Y14Q1 (Oct 2024 - Dec 2024)', 'Y14Q2 (Oct 2024 - Mar 2025)','Y14Q3 (Oct 2024 - Jun 2025)' )):
     ### 9680 + (5380 * [household size])
     int_fpg_base = 10150
     int_fpg_increment = 5500
@@ -129,6 +133,7 @@ path_13_code_RUNME = path_13_code_base / '_1_3_RUNME.py'
 path_14t_code_base = home_path/'code/1main/1.4tableau'
 path_14t_code_RUNME = path_14t_code_base / '_1_4tab_RUNME.py'
 
+
 #sys.path.insert(0, 'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other')
 
 sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']),str(path_112FW_code_base), str(path_12LL_code_base), str(path_13_code_base), str(path_14t_code_base)]
@@ -138,25 +143,25 @@ sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_co
 
 
 if read_from_file==True: ##run all silos separate
-#%%### Step 1.1.2 FamilyWise
+#### Step 1.1.2 FamilyWise
     if __name__ == "__main__":
         print('\nExecuting step 1.1.2FW')
         ### runpy.run_path(path_name = path_112FW_code_RUNME)
         exec(open(path_112FW_code_RUNME).read())
         print('\nSuccessfully executed step 1.1.2FW!"')
-    #%%### Step 1.2 Lincoln Lancaster
+    #### Step 1.2 Lincoln Lancaster
     if __name__ == "__main__":
         print('\nExecuting step 1.2LL')
         ### runpy.run_path(path_name = path_12LL_code_RUNME)
         exec(open(path_12LL_code_RUNME).read())
         print('\nSuccessfully executed step 1.2LL!"')
-    #%%### Step 1.3 combine
+    #### Step 1.3 combine
     if __name__ == "__main__":
         print('\nExecuting step 1.3combine')
         #runpy.run_path(path_name = path_13_code_RUNME)
         exec(open(path_13_code_RUNME).read())
         print('\nSuccessfully executed step 1.3combine!"')
-    #%%### Final Step 1.4 Tableau replacement
+    #### Final Step 1.4 Tableau replacement
     if __name__ == "__main__":
         print('\nExecuting step 1.4 Tableau replacement')
         ### runpy.run_path(path_name = path_14t_code_RUNME)

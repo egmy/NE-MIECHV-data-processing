@@ -211,37 +211,42 @@ with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Master File auto.xlsx'),
 
 #drop year and quarter columns to avoid duplicate error 
 # Drop 'year' and 'quarter' from one of the DataFrames if not needed
-df_22_child_FW = df_22_child_FW.drop(columns=['year', 'quarter'], errors='ignore')
-df_22_child_LL = df_22_child_LL.drop(columns=['year', 'quarter'], errors='ignore')
-df_22_CPS_master = df_22_CPS_master.drop(columns=['year', 'quarter', 'Adaptation', 'tgt_id','funding'], errors='ignore')
+#df_22_child_FW = df_22_child_FW.drop(columns=['year', 'quarter'], errors='ignore')
+#df_22_child_LL = df_22_child_LL.drop(columns=['year', 'quarter'], errors='ignore')
+df_22_CPS_master = df_22_CPS_master.drop(columns=['Adaptation', 'tgt_id','funding'], errors='ignore')
+df_22_child_LL.rename(columns={"project_id": "project_id (LLCHD)"}, inplace=True)
+
 
 
 df_22_CPS_agg= (
     pd.merge( 
         df_22_child_pID ### 'Project ID'
-        ,df_22_child_FW ### 'Family Wise'.
+        ,df_22_child_LL ### 'LLCHD'.
         ,how='left'
-        ,left_on=['project_id']
-        ,right_on=['Project ID']
-        ,indicator='LJ_tb4_1FW'
+        ,left_on=['project_id', 'year', 'quarter']
+        ,right_on=['project_id (LLCHD)', 'year', 'quarter']
+        ,indicator='LJ_tb4_2LL'
         # ,validate='one_to_one'
     ).merge(
-        df_22_child_LL ### 'LLCHD'.
+        df_22_child_FW ### 'Family Wise'.
         ,how='left'
-        ,left_on=['project_id']
-        ,right_on=['project_id']
-        ,indicator='LJ_tb4_2LL'
+        ,left_on=['project_id', 'year', 'quarter']
+        ,right_on=['Project ID', 'year', 'quarter']
+        ,indicator='LJ_tb4_1FW' 
         # ,validate='one_to_one'
     ).merge(
         df_22_CPS_master ### 'CPS'.
         ,how='left'
-        ,left_on=['project_id']
-        ,right_on=['project_id']
+        ,left_on=['project_id', 'year', 'quarter']
+        ,right_on=['project_id', 'year', 'quarter']
         ,indicator='LJ_tb4_3CPS' 
     )
 ) 
 
 df_22_CPS_agg['_Agency'] = df_22_CPS_agg['agency'].fillna(df_22_CPS_agg['site_id']).astype('string')
+
+
+print(df_22_CPS_agg)
 
 
 def fn_Agency(fdf):
@@ -427,6 +432,7 @@ df_22_CPS_agg = df_22_CPS_agg.merge(
     on='_Primary Caregiver ID',
     how='left'
 )
+
 # print(df_22_CPS_agg['_First child DOB for Filter'])
 def fn_children_filter(row):
     if pd.notna(row['_Agency']) and pd.notna(row['_TGT Number']):
@@ -436,34 +442,38 @@ def fn_children_filter(row):
             elif row['_TGT Number'] >= 2:
                 return False
         else:
-            return False
+            return True
 df_22_CPS_agg['Subsequent Children Filter']=df_22_CPS_agg.apply(func=fn_children_filter, axis=1).astype('boolean')      
 
 
 def fn_child_alive_date(row):
-    if (not pd.isna(row['_TGT DOB'])) and row['_TGT DOB'] <=date_fy_end_day_after:
+    if ((pd.notna(row['_TGT DOB'])) and row['_TGT DOB'] <=date_range_end):
         return True
+    else: return False
 df_22_CPS_agg['Child alive sometime during date range']=df_22_CPS_agg.apply(func=fn_child_alive_date, axis=1).astype('boolean')
 
 def fn_child_alive_HV_date(row):
-    if not pd.isna(row['_TGT DOB']) and row['_TGT DOB'] <= row['_Max HV Date']:
+    if (( pd.notna(row['_TGT DOB'])) and row['_TGT DOB'] <= row['_Max HV Date']):
         return True
+    else: return False
 df_22_CPS_agg['Child alive sometime before Max HV Date']=df_22_CPS_agg.apply(func=fn_child_alive_HV_date, axis=1).astype('boolean')
 
 def fn_child_alive_discharge(row):
     if not pd.isna(row['_TGT DOB']) and (not pd.isna(row['_Discharge Date'])
     and row['_TGT DOB'] <= row['_Discharge Date']) or pd.isna(row['_Discharge Date']):
         return True
+    else:return False
 df_22_CPS_agg['Child alive sometime before Discharge Date']=df_22_CPS_agg.apply(func=fn_child_alive_discharge, axis=1).astype('boolean')
 
 def fn_Family_active_date(row):
-    if row['_Enroll'] <= date_fy_end_day_after and (pd.isna(row['_Discharge Date']) or date_fy_start < row['_Discharge Date']):
+    if row['_Enroll'] <= date_range_end and (pd.isna(row['_Discharge Date']) or date_fy_start < row['_Discharge Date']):
         return True
+    else:return False
 df_22_CPS_agg['Family active sometime during date range']=df_22_CPS_agg.apply(func=fn_Family_active_date, axis=1).astype('boolean')
 
 
 def fn_c09_child_Denominator(row):
-    if row['year'] == int_nehv_year and row['quarter'] == int_nehv_quarter and row['Family active sometime during date range'] and ['Child alive sometime during date range'] and['Child alive sometime before Max HV Date'] and ['Child alive sometime before Discharge Date']:
+    if row['year'] == int_nehv_year and pd.notna(row['Family active sometime during date range']) and row['Family active sometime during date range'] and row['Child alive sometime during date range'] and row['Child alive sometime before Max HV Date'] and row['Child alive sometime before Discharge Date']:
         return True
 df_22_CPS_agg['_C09 Child Denominator Status']=df_22_CPS_agg.apply(func=fn_c09_child_Denominator, axis=1).astype('boolean')
     
@@ -481,51 +491,47 @@ df_22_CPS_agg['_C09 Denominator Status'] = df_22_CPS_agg.apply(func=fn_c09_Denom
 print(df_22_CPS_agg)
 def fn_c09_Numerator_CPS(row):
     if ((date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.5'])) and
-        pd.Timestamp(row['IntakeReceivedDate.5']) <= date_fy_end_day_after) or (date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.4']) and
-        pd.Timestamp(row['IntakeReceivedDate.4']) <= date_fy_end_day_after) or (date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.3']) and
-        pd.Timestamp(row['IntakeReceivedDate.3']) <= date_fy_end_day_after) or(date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.2']) and
-        pd.Timestamp(row['IntakeReceivedDate.2']) <= date_fy_end_day_after) or (date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.1']) and
-        pd.Timestamp(row['IntakeReceivedDate.1']) <= date_fy_end_day_after):
+        pd.Timestamp(row['IntakeReceivedDate.5']) <= date_range_end) or (date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.4']) and
+        pd.Timestamp(row['IntakeReceivedDate.4']) <= date_range_end) or (date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.3']) and
+        pd.Timestamp(row['IntakeReceivedDate.3']) <= date_range_end) or(date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.2']) and
+        pd.Timestamp(row['IntakeReceivedDate.2']) <= date_range_end) or (date_fy_start <=  pd.Timestamp(row['IntakeReceivedDate.1']) and
+        pd.Timestamp(row['IntakeReceivedDate.1']) <= date_range_end):
         return True
 df_22_CPS_agg['_C09 Numerator CPS True (Update)']=df_22_CPS_agg.apply(func=fn_c09_Numerator_CPS, axis=1).astype('boolean')
 
-def fn_c09_Numerator(df):
+def fn_c09_Numerator(row):
     # Use explicit checks for NaN
-    df['_C09 Numerator Status'] = df.apply(
-        lambda row: 1 if (
-            pd.notna(row['_C09 Denominator Status']) and
-            pd.notna(row['_C09 Child Denominator Status']) and
-            pd.notna(row['_C09 Numerator CPS True (Update)']) and
-            row['_C09 Denominator Status'] and
-            row['_C09 Child Denominator Status'] and
-            row['_C09 Numerator CPS True (Update)']
-        ) else 0,
-        axis=1
-    )
+    if pd.notna(row['_C09 Denominator Status']) and pd.notna(row['_C09 Child Denominator Status']) and pd.notna(row['_C09 Numerator CPS True (Update)']):
+        if row['_C09 Denominator Status']:
+            if  row['_C09 Child Denominator Status'] and row['_C09 Numerator CPS True (Update)']:
+                return True
+    else: return False
     
-    df['_C09 Numerator Status'] = df.groupby('Project ID')['_C09 Numerator Status'].transform('max')
-    return df
-
-df_22_CPS_agg=fn_c09_Numerator(df_22_CPS_agg)
+    #df['_C09 Numerator Status'] = df.groupby('project_id')['_C09 Numerator Status'].transform('max')
+df_22_CPS_agg['_C09 Numerator Status']=df_22_CPS_agg.apply(func=fn_c09_Numerator, axis=1).astype('boolean')
+    #df['_C09 Numerator Status'] = df.groupby('project_id')['_C09 Numerator Status'].transform('max')
 
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['Subsequent Children Filter'] == True]
-df_22_CPS_agg = df_22_CPS_agg[ (df_22_CPS_agg['year'] == int_nehv_year) & (df_22_CPS_agg['quarter'] == int_nehv_quarter)]
+df_22_CPS_agg = df_22_CPS_agg[ (df_22_CPS_agg['year'] == int_nehv_year)]
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_C09 Denominator Status'] == True]
-df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Funding Source Filter'] == True]
-df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Agency Name'] != 'Unidentified Agency']
+df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_C09 Denominator Status'] == True]
 
-df_22_CPS_agg_9 = df_22_CPS_agg[['Project ID','year', 'quarter', '_Agency Name', '_Funding (use this one)', '_C09 Numerator Status']].copy()
+#df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Funding Source Filter'] == True]
+#df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Agency Name'] != 'Unidentified Agency']
+
+df_22_CPS_agg_9 = df_22_CPS_agg[['project_id','year', 'quarter', '_Agency Name', '_Funding (use this one)', '_C09 Numerator Status']].copy()
 with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File test.xlsx'), engine='openpyxl') as writer:
         df_22_CPS_agg.to_excel(writer, index=False, sheet_name='Sheet 1')
-df_22_CPS_agg_9= df_22_CPS_agg_9.groupby(['year', 'quarter', '_Agency Name', '_Funding (use this one)','_C09 Numerator Status' ])['Project ID'].nunique().reset_index(name='Children')
+df_22_CPS_agg_9= df_22_CPS_agg_9.groupby(['year', 'quarter', '_Agency Name', '_Funding (use this one)','_C09 Numerator Status' ])['project_id'].nunique().reset_index(name='Children')
 
 with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File.xlsx'), engine='openpyxl') as writer:
         df_22_CPS_agg_9.to_excel(writer, index=False, sheet_name='Sheet 1')
 
 #df_21_final_CPS = pd.concat([df_21_previous_CPS, df_21_final_filtered], ignore_index=True)
 
+#I have an output but it doesn't match exactly. I think the issue lies in c09 Numerator Status.
 
-
+print("Congrats! you ran 2.2, the last part of the process!")
 
 
 

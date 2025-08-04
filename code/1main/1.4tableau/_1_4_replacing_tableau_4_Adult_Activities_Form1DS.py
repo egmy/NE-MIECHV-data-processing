@@ -920,7 +920,18 @@ df_14t_edits1_tb4['_TGT ID'] = df_14t_edits1_tb4['Tgt Id'].combine_first(df_14t_
 ### TODO ASKJOE: limit ZIP codes to first five? -- have some with the extra 4.
 df_14t_edits1_tb4['Mob Zip']= df_14t_edits1_tb4['Mob Zip'].replace('null', np.nan)
 df_14t_edits1_tb4['Mob Zip'] =df_14t_edits1_tb4['Mob Zip'].str.replace('_', '', regex=False)
-df_14t_edits1_tb4['Mob Zip'] = df_14t_edits1_tb4['Mob Zip'].astype('Int64')
+def clean_zip(val):
+    try:
+        if pd.isna(val):
+            return pd.NA
+        val_str = str(val).strip()
+        if val_str.endswith('.0'):
+            val_str = val_str[:-2]
+        return int(val_str)
+    except Exception:
+        return pd.NA
+
+df_14t_edits1_tb4['Mob Zip'] = df_14t_edits1_tb4['Mob Zip'].apply(clean_zip).astype('Int64')
 
 df_14t_edits1_tb4['Zip']= df_14t_edits1_tb4['Zip'].replace('null', np.nan)
 df_14t_edits1_tb4['Zip'] =df_14t_edits1_tb4['Zip'].str.replace('_', '', regex=False)

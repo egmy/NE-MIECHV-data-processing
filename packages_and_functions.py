@@ -216,7 +216,6 @@ def fn_find_value(fdf, value_to_find='Unrecognized Value', one_id_var='Project I
 
 def fn_find_and_replace_value_in_df(fdf, one_id_var='mandatory', list_of_values_to_find=['Unrecognized Value'], replacement_value=pd.NA):
     # Normalize search values
-    fdf.rename(columns={fdf.columns[0]: 'Project ID'}, inplace=True)
     list_of_values_to_find = [str(x).lower() for x in list_of_values_to_find]
     string_of_values_to_find = '|'.join(list_of_values_to_find)
 

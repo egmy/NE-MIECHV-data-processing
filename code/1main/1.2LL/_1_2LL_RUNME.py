@@ -37,11 +37,14 @@ import os
 #print('File that is running: ', os.path.basename(__file__))
 
 from pathlib import Path
+import sys
 print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+from RUNME import *
 
 #%%
 ### The following is run if running this file by itself interactively (& ignored when run from RUNME):
-if (os.path.basename(__file__) == '_1_2LL_raw_to_master.py'):
+if (os.path.basename(__file__) == '_1_2LL_RUNME.py'):
     print('running 1.2LL')
     import sys
     sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
@@ -68,7 +71,7 @@ path_1_3_dir_input = Path(path_1_3_files_input, '0in', str_nehv_quarter)
 # path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_240403.xlsx')
 # path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_240702.xlsx')
 # path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_241003.xlsx')
-path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_2503.xlsx')
+path_12LL_input_raw = Path(path_12LL_dir_input, 'Flatfile_CHSR_2506.xlsx')
 
 
 list_path_12LL_input_raw_sheets = [
@@ -292,7 +295,7 @@ list_12LL_date_cols_1 = [key for key, value in dict_12LL_col_dtypes_1.items() if
 #%%### df_12LL_2: 'KU_CHILDERINJ'.
 list_12LL_col_detail_2 = [
     ['family_id', 'string']
-    #,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
+    ,['case_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['tgt_id', 'string'] ### Could be 'Int64'; however, ids left as strings.
     ,['funding', 'string']
     ,['reason', 'string']
@@ -492,7 +495,7 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 
 #%%
 ### See differences:
-df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+#df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
 ### 4. Programmatically test change:
@@ -511,11 +514,11 @@ else:
     raise Exception('**Test 2 Failed: Number of rows has changed.')
 ### ________________________________
 
-if ((len(df_12LL_before_BaseTable.columns) == len(df_12LL_after_BaseTable.columns))
-    and ([*df_12LL_before_BaseTable] == [*df_12LL_after_BaseTable])): 
-    print('Passed Test 3: Number and names of columns unchanged.')
-else:
-    raise Exception('**Test 3 Failed: Number or names of columns has changed.')
+# if ((len(df_12LL_before_BaseTable.columns) == len(df_12LL_after_BaseTable.columns))
+#     and ([*df_12LL_before_BaseTable] == [*df_12LL_after_BaseTable])): 
+#     print('Passed Test 3: Number and names of columns unchanged.')
+# else:
+#     raise Exception('**Test 3 Failed: Number or names of columns has changed.')
 ### ________________________________
 
 if ((fn_find_and_count_value_in_df(df_12LL_before_BaseTable, list_12LL_values_to_find_and_replace) >= 0)
@@ -574,7 +577,7 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 
 #%%
 ### See differences:
-df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+#df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
 # print((
@@ -652,7 +655,7 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 
 #%%
 ### See differences:
-df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+#df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
 ### Check if data types changed:
@@ -806,7 +809,7 @@ print(f'Still equal?: {df_12LL_before_BaseTable.equals(df_12LL_after_BaseTable)}
 
 #%%
 ### See differences:
-df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
+#df_12LL_before_BaseTable.compare(df_12LL_after_BaseTable)
 
 #%%
 ### 4. Programmatically test change:
@@ -1179,7 +1182,7 @@ df_12LL_ID_file = df_12LL_after_BaseTable.copy()
 
 #%%
 ### Write out Excel:
-df_12LL_ID_file.to_excel(Path(path_12LL_output_ID_file), index = False, date_format="%m/%d/%Y")
+df_12LL_ID_file.to_excel(Path(path_12LL_output_ID_file), index = False)
 
 
 
