@@ -1779,7 +1779,7 @@ def fn_T20_TGT_Insurance_Status(fdf):
                 return "Medicaid or CHIP"
             case "None":
                 return "No Insurance Coverage"
-            case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan"|"RCI Insurance": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
+            case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan"|"RCI Insurance"|"BCBS"|"United Healthcare": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
                 return "Private or Other"
             case "Tri-Care":
                 return "Tri-Care"

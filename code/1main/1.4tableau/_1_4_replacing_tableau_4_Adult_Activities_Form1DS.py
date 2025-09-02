@@ -4208,7 +4208,7 @@ def fn_C16_CG_Insurance_Status(fdf_column):
         ### FW.
         case "Medicaid" | "SCHIP"|"Medicare/Medicaid" | "Medica":
             return "Medicaid or CHIP"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan"|"BCBS"|"United Healthcare": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
             return "Private or Other"
         case "Tri-Care":
             return "Tri-Care"
@@ -4313,7 +4313,7 @@ def fn_C16_CG_Insurance_4_Status(fdf_column):
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan"|"BCBS"|"United Healthcare": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
@@ -4461,7 +4461,7 @@ def fn_T20_CG_Insurance_Status(fdf_column):
             return "Medicaid or CHIP"
         case "Tri-Care":
             return "Tri-Care"
-        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
+        case "Private" | "Other" | "Medicare"|"Blue Cross Blue Shield"|"Meritain Health"|"Ambetter"|"NE Total Care"|"United Healthcare Community Plan"|"BCBS"|"United Healthcare": #Y13Q4: adding Medicare/Medicaid and Blue Cross Blue Shield and "Meritain Health"
             return "Private or Other"
         case "None":
             return "No Insurance Coverage"
