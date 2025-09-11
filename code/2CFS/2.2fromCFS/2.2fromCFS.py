@@ -213,7 +213,7 @@ with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Master File auto.xlsx'),
 # Drop 'year' and 'quarter' from one of the DataFrames if not needed
 #df_22_child_FW = df_22_child_FW.drop(columns=['year', 'quarter'], errors='ignore')
 #df_22_child_LL = df_22_child_LL.drop(columns=['year', 'quarter'], errors='ignore')
-df_22_CPS_master = df_22_CPS_master.drop(columns=['Adaptation', 'tgt_id','funding'], errors='ignore')
+df_22_CPS_master = df_22_CPS_master.drop(columns=['Adaptation', 'tgt_id','funding', 'family_id', 'Has_ChildWelfareAdaptation'], errors='ignore')
 df_22_child_LL.rename(columns={"project_id": "project_id (LLCHD)"}, inplace=True)
 
 
@@ -298,83 +298,78 @@ df_22_CPS_agg['Problem NENCAP Families for Funding Filter']= df_22_CPS_agg.apply
 
 def fn_Funding(row):
     if pd.notna(row['_Agency']):
-        if row['_Agency'] == "ll" and row['funding'] =="Y":
-            return "CWA"
-        elif row['_Agency'] =="ll" and row['funding'] == "CHE" : 
-            return "CHE"
-        elif row['_Agency'] == "ll" and row['funding'] =="City":
-            return "O"
-        elif row['_Agency'] == "ll" and row['funding'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] == "ll" and row['funding'] == "F" :
-            return "F"
-        elif row['_Agency'] == "ll" and row['funding'] == "F-1":
-            return "F"
-        elif row['_Agency'] == "ll" and row['funding'] == "F-2":
-            return "F"
-        elif row['_Agency'] == "ll" and row['funding'] == "F-3":
-            return "F"
-        elif row['_Agency'] == "ll" and row['funding'] == "O":
-            return "O"
-        elif row['_Agency'] == "ll" and row['funding'] == "S":
-            return "S"
-        elif row['_Agency'] == "ll" and row['funding'] == "Null":
-            return "F" 
-        elif row['_Agency'] == "ll" and (pd.isna(row['funding'])):
-            return "F" ## LLCHD end
-        
-        elif row['_Agency'] =="hs" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-        elif row['_Agency'] =="nc" and ['Problem NENCAP Families for Funding Filter']:
-            return "O"
-        elif row['_Agency'] =="nc" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="nc" and row['Adaptation'] == "Sixpence":
-            return "Sixpence"
-        elif row['_Agency'] =="nc" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA" or row['Adaptation'] != "Sixpence"):
-            return "S"
-        elif row['_Agency'] =="ph" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="ph" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-        elif row['_Agency'] =="ps" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="ps" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "S"
-        elif row['_Agency'] =="vn" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="vn" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "S"
-        elif row['_Agency'] =="se" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="se" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-        elif row['_Agency'] =="lb" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="lb" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "O"
-        elif row['_Agency'] =="tr" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="tr" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-        elif row['_Agency'] =="sh" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="sh" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-        elif row['_Agency'] =="fc" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="fc" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-        elif row['_Agency'] =="cd" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="cd" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-        elif row['_Agency'] =="np" and row['Adaptation'] == "CWA":
-            return "CWA"
-        elif row['_Agency'] =="np" and (pd.isna(row['Adaptation']) or row['Adaptation'] != "CWA"):
-            return "F"
-df_22_CPS_agg['_Funding (use this one)']= df_22_CPS_agg.apply(func=fn_Funding, axis=1).astype('string') 
 
+        agency = row['_Agency']
+
+        # LL agency logic
+        if agency == "ll":
+            if pd.notna(row.get('Has_ChildWelfareAdaptation')) and row['Has_ChildWelfareAdaptation'] == "Y":
+                return "CWA"
+            elif pd.notna(row.get('funding')) and row['funding'] == "CHE":
+                return "CHE"
+            elif pd.notna(row.get('funding')) and row['funding'] == "City":
+                return "O"
+            # Tableau version had CWA funding check commented out
+            elif pd.notna(row.get('funding')) and row['funding'] in ["F", "F-1", "F-2", "F-3"]:
+                return "F"
+            elif pd.notna(row.get('funding')) and row['funding'] == "O":
+                return "O"
+            elif pd.notna(row.get('funding')) and row['funding'] == "S":
+                return "S"
+            elif (pd.notna(row.get('funding')) and row['funding'] == "Null") or pd.isna(row.get('funding')):
+                return "F"
+
+        # HS agency
+        elif agency == "hs":
+            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+                return "CWA"
+            else:
+                return "F"
+
+        # NC agency
+        elif agency == "nc":
+            if pd.notna(row.get('Problem NENCAP Families for Funding Filter')) and row['Problem NENCAP Families for Funding Filter']:
+                return "O"
+            elif pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+                return "CWA"
+            elif pd.notna(row.get('Adaptation')) and row['Adaptation'] == "Sixpence":
+                return "Sixpence"
+            else:
+                return "S"
+
+        # PH, SE, TR, SH, FC, CD, NP → CWA or F
+        elif agency in ["ph", "se", "tr", "sh", "fc", "cd", "np"]:
+            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+                return "CWA"
+            else:
+                return "F"
+
+        # PS → CWA or S
+        elif agency == "ps":
+            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+                return "CWA"
+            else:
+                return "S"
+
+        # VN → CWA or S
+        elif agency == "vn":
+            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+                return "CWA"
+            else:
+                return "S"
+
+        # LB → CWA or O
+        elif agency == "lb":
+            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+                return "CWA"
+            else:
+                return "O"
+
+    return None  # Default fallback if no logic matches or agency is NaN
+
+df_22_CPS_agg['_Funding (use this one)']= df_22_CPS_agg.apply(func=fn_Funding, axis=1).astype('string') 
+with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File TEST.xlsx'), engine='openpyxl') as writer:
+        df_22_CPS_agg.to_excel(writer, index=False, sheet_name='Sheet 1')
 
 def fn_Fundingfilter(row):
     if pd.notna(row['_Agency']):
@@ -529,9 +524,10 @@ with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File.xlsx'), e
 
 #df_21_final_CPS = pd.concat([df_21_previous_CPS, df_21_final_filtered], ignore_index=True)
 
-#I have an output but it doesn't match exactly. I think the issue lies in c09 Numerator Status.
+#output currently matches the C09 crosstab, just have to check I can put this in Form 2 without changing it 
 
 print("Congrats! you ran 2.2, the last part of the process!")
+
 
 
 
