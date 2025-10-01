@@ -297,7 +297,6 @@ ________________________________________________________________________________
                 - "Jupyter Notebook Renderers"
                 - "Jupyter Slide Show"
         3. "autoDocstring - Python Docstring Generator"
-        4. "Python Environment Manager"
     - Git-related:
         5. "Git Graph"
         - (optional) "GitLens — Git supercharged" 
@@ -491,7 +490,7 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________
 
-## 9.2. Conda Installation with Anaconda 
+## 9.2. Conda Installation with Miniconda 
 
 - Anaconda is an application that manages coding languages and code packages.
     - Why use Anaconda? It can manage our Python version & related paths.
@@ -503,36 +502,62 @@ ________________________________________________________________________________
         (1) Miniconda takes much less memory (about 600 MB compared to 6+ GB for Anaconda) and 
         (2) we are no longer using Anaconda features we thought we would (like environment setup through the GUI & the Spyder IDE).
     - Miniconda documentation: https://docs.anaconda.com/free/miniconda/ 
-    ** However, we will need NE IT to uninstall Anaconda for us (because they installed it), so in the meantime, we'll use it.
 
-1. Check that Anaconda is installed: use Windows Search or check list in Windows Settings >> Apps.
-    - If installed: No need to update or do anything with Anaconda.
+
+1. Installing Miniconda at this link: https://www.anaconda.com/download/success
+    1. Choose the Miniconda Installer option and select the Windows 64-but Graphic Installer
+    2. Click on the downloaded installer Miniconda3-latest-Windows-x86_64.exe
+    3. This will bring up a the install window 
+        1. Click "Next"
+        2. Select "I Agree"
+        3. Install For: "Just Me (recommended)"
+        4. Install folder "C:\Users\<Your UserName>\AppData\Local\miniconda3"
+        5. Advanced Installation Options:
+            - SELECT "Create Shortcuts"
+            - SELECT "Clear the package cache upon completion"
+            - SELECT "Register Miniconda3 as my default Python 3.13"
+            - Install
+        6. You could get an "Install complete" window. Click "Next" 
+        7. Click "Finish"
+    
+1. Miniconda should be installed on your system and you can now use Python
     - HOWEVER, if not on workspace, please let the NE Coding team know!
 
 ________________________________________________________________________________
 
 ## 9.3. Conda Setup 
 
-Set up Conda for use in Git Bash.
+Set up Conda for use.
 
-1. Create a ".bashrc" file in your HOME directory:
-    - If you don't know where your HOME is, open a Git Bash & execute:
-        echo $HOME
-    1. Go to your HOME directory in Windows File Explorer.
-    2. Create a new ".TXT" file (Right click in HOME folder >> "New" >> "Text Document").
-    3. Rename file AND extension to be: ".bashrc" (that's the full filename plus extension).
+1. You have to edit the Computers Environment variables so your system can recognize conda. You need System Admin privileges do to this, so NE helpdesk will have to do it for us. 
+2. Email NE helpdesk (service.desk@nebraska.gov) and ask that the following paths be added to your  Environment variables:
+        C:\Users\<your-username>\AppData\Local\miniconda3
 
-2. "Add the conda shell script to your .bashrc":
-        - Reference: https://discuss.codecademy.com/t/setting-up-conda-in-git-bash/534473
-    1. In File Explorer >> Navigate to folder "C:/ProgramData/Anaconda3/etc/profile.d".
-    2. Check that in the "profile.d" folder there is a file called "conda.sh".
-    3. Close any open Git Bash.
-    4. In the "profile.d" folder >> Right Click >> in popup click "Git Bash Here".
-    5. In Git Bash that opens: Run:
-        echo ". '${PWD}'/conda.sh" >> ~/.bashrc 
-    6. Close Git Bash.
-    7. Check the ".bashrc" file in your Home directory:
-        - A new line should have been created, like this: ". '/c/ProgramData/Anaconda3/etc/profile.d'/conda.sh" 
+        C:\Users\<your-username>\AppData\Local\miniconda3\Scripts
+    Note: This step may be uncessary if you're able to setup .bashrc without it. 
+
+3. "Add the conda shell script to your .bashrc":
+    1. Open a new Gitbash session from your HOME directory and type 
+    "/c/Users/YourUserName/AppData/Local/miniconda3/Scripts/conda.exe init bash"
+    2. You can open the file by running "notepad ~/.bashrc"
+     -It should contain code that looks like this 
+     # >>> conda initialize >>>
+        __conda_setup="$('/c/Users/YourUserName/AppData/Local/miniconda3/Scripts/conda.exe' 'shell.bash' 'hook' 2> /dev/null)"
+        if [ $? -eq 0 ]; then
+            eval "$__conda_setup"
+        else
+            if [ -f "/c/Users/YourUserName/AppData/Local/miniconda3/etc/profile.d/conda.sh" ]; then
+                . "/c/Users/YourUserName/AppData/Local/miniconda3/etc/profile.d/conda.sh"
+            fi
+        fi
+        unset __conda_setup
+    # <<< conda initialize <<<
+
+    4. Apply the updated bash by running "source ~/.bashrc"
+    5. Run:
+        - "conda --version"
+        - "conda activate base"
+    If you see Conda's version and the prompt changes (e.g. (base) appears), you’re done! 
 
 ________________________________________________________________________________
 
@@ -544,14 +569,16 @@ ________________________________________________________________________________
 2. Verify that Conda is running and check version: Run:
     conda info 
 3. Create a new Conda virtual environment with a specific version of Python (it also installs certain basic packages like Pip): Run:
-    conda create -n conda_env_py3121 python=3.12.1 
+    -conda create -n conda_env_py3121 python=3.12.1
+    -if asked if you accept Terms of Service, enter "a"
+
 
 ________________________________________________________________________________
 
 ## 9.5. Manage Conda Environments 
 
 - In the future, to update the version of Python, you will need to create a new virtual environment with the steps above. When creating the environment, change the "_py###" part of the name and the "python=###" part of the command. For example, when version 3.12.2 comes out, the command would be (run in Git Bash outside of any Conda environment):
-    conda create -n conda_env_py3122 python=3.12.2 
+    conda create -n conda_env_py3121 python=3.12.1 
 
 - To see all conda environments: Run in Git Bash outside of any Conda environment:
     conda env list 
@@ -563,7 +590,7 @@ ________________________________________________________________________________
 
 ## 9.6. Test the Conda Environment 
 
-1. In Git Bash, enter the Conda virtual environment: Run:
+1. Open a Gitbash Terminal in your VsCode git repository by clicking Terminal in the left hand corner, and selecting "Git Bash" from the drop down. In Git Bash terminal, enter the Conda virtual environment: Run:
     conda activate conda_env_py3121 
         - Now in Git Bash, above the first prompt line, you should see the name of the conda environment in parentheses: (conda_env_py3121) 
 2. Check that Python & Pip are installed inside the Conda environment: Run each of these:
@@ -598,13 +625,13 @@ ________________________________________________________________________________
 
 ## 10.1. Pipenv Installation 
 
-1. Navigate to your local code repository (H:/git/nehv_ds_code_repository) in Windows File Explorer.
-2. Open Git Bash by Right Clicking in the repository folder >> then in popup click "Git Bash Here".
-3. In Git Bash, enter the Conda virtual environment: Run:
+1. Navigate to your local code repository (H:/git/nehv_ds_code_repository) in Windows File Explorer. Open the folder in VSCode
+2. Open Git Bash Terminal in VS Code by Right Clicking on the Terminal section at the top of your window, and selecting "Git Bash"
+3. In Git Bash Terminal, enter the Conda virtual environment: Run:
     conda activate conda_env_py3121 
 4. Install the package "pipenv": Run:
     pip install pipenv 
-        - Note: We're using pip instead of Conda to install Pipenv at the moment because of problems with our Conda versions. We will look into resolving after we switch to Miniconda.
+    Note: conda installation of pipenv says pipenv is not supported for Python version 3.12 use an earlier version of python and install with conda, or use pip
 5. Check that pipenv installed. Check the version or check that it's in the list. Run any of these: 
     pipenv --version 
     pip list 
@@ -614,22 +641,18 @@ ________________________________________________________________________________
 
 ## 10.2. Install Python Packages 
 
-1. Open Git Bash (if not already open).
+1. Open the repository in VS Code and open a  Git Bash terminal (if not already open).
 2. Enter the Conda virtual environment (if not already in it):
     conda activate conda_env_py3121 
         - Reminder: You can tell if you are in the Conda environment if you see the name of the environment in parentheses above what is normally the first prompt line.
-3. In Git Bash >> Make sure you are in the directory (folder) for the code repository:
-    - In yellow, in the first line of the prompt, it should say "~/git/nehv_ds_code_repository".
-    - If you need to navigate to the correct folder, change the directory by running:
-        cd ~/git/nehv_ds_code_repository 
 
-4. In the main folder of the repository, check that files "Pipfile" & "Pipfile.lock" exist by running:
+3. In the main folder of the repository, check that files "Pipfile" & "Pipfile.lock" exist by running:
     ls 
         ** If you do not see both files listed in the main repository folder, please stop & contact the NE Code Team!
-5. Identify the specific Python patch version (3 numbers separated by two periods) being used by the Conda environment: Run: 
+4. Identify the specific Python patch version (3 numbers separated by two periods) being used by the Conda environment: Run: 
     python --version  
 
-6. Install packages as specified in "Pipfile": Run: 
+5. Install packages as specified in "Pipfile": Run: 
     pipenv install --python 3.12.1 
         - ** Make sure you install with exactly the same Python patch version as is used by the Conda environment. 
         - If "Pipfile" has been updated since packages were last installed, when "pipenv install" is run, it will update "Pipfile.lock". See section below about updating packages or the Pipfile.
@@ -707,7 +730,7 @@ ________________________________________________________________________________
 - Packages for data analysis:
     - "pandas"
         - https://pandas.pydata.org/ 
-        - https://pypi.org/project/pandas/ 
+        - https://pypi.org/project/pandas/
         - See release notes: https://pandas.pydata.org/docs/whatsnew/index.html 
         - We need Pandas 2.0+ -- compare() fixed in 2.0.0.
     - "numpy" 
@@ -752,9 +775,36 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________
 
-# 11. Use virtual environments in VSCode 
+# 11. Setup your new virtuabl environment as your Python Interpreter in VSCode 
 
-*** TODO: Will add more notes here.
+1. Open the repository in VSCode (if not already open) and open a new Git Bash terminal. 
+
+2. Activate your virtual environment. Run 
+ - conda activate conda_env_py3121`
+
+4. Open Command Palette with Ctrl+Shift+P
+
+    Type: Python: Select Interpreter
+
+    Choose: "Enter interpreter path..."
+
+    Then: Enter
+    C:\Users\YourUsername\AppData\Local\miniconda3\envs\conda_env_py3121\python.exe
+
+5. Install required packages from Git Bash terminal with environment running:
+    - Install pipreqs for package management by running
+        pip install pipreqs
+    - Run 
+        pipreqs . --force 
+    Note: this will go through all files and find packages used in all scripts. If this has been done recently, you can just run the step below 
+    - Run 
+        pip install -r requirements.txt
+6. You should have the required packages installed needed to run the code, and can now run the NE MEICHV process.
+
+If wanting to run in interactive window,  ,ake sure ipykernel is installed in your virutal environment.
+
+
+
 
 How to change virtual environments in VSCode:
 https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment
