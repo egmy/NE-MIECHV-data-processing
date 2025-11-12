@@ -31,16 +31,32 @@ from RUNME import *
 ### Establish paths and read in input ID Files:
 
 path_22_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.2fromCFS')
+path_22_files_out=Path(f'U:\Working\Tableau\{str_nehv_year}\Tableau Data Master Files')
+path_22_files_orig= Path(f'U:\\Working\\Tableau\\{str_nehv_year}\\{str_nehv_quarter}\\CPS File')
 path_22_dir_input = Path(path_22_files_base, '0in', str_nehv_quarter)
 path_22_dir_output = Path(path_22_files_base, '9out', str_nehv_quarter)
 
-## Joe: Which file am I using?
+for path in [path_22_dir_input, path_22_dir_output]:
+    path.mkdir(parents=True, exist_ok=True)
+
 ##NOTE: make sure you have the file in the input path and you put the file name as it occurs in there
 
 ##
-path_22_input_CFS_file = Path(path_22_dir_input, 'MIECHV Report - Child.xlsx')
 path_22_input_child_file = Path(path_22_dir_input, 'Child Activity Master File.xlsx')
 path_22_input_master_file = Path(path_22_dir_input, 'Child CPS Master File.xlsx')
+
+path_22_input_CFS_file = Path(path_22_files_orig, 'MIECHV Report - Child.xls')
+path_22_input_CFS_xlsx = path_22_input_CFS_file.with_suffix('.xlsx')  # Convert path to .xlsx
+
+# --- STEP 1: Convert XLS → XLSX using pandas ---
+print(f"Converting {path_22_input_CFS_file.name} to XLSX...")
+
+xls_data = pd.read_excel(path_22_input_CFS_file, sheet_name=None)  # Read all sheets
+
+# Save each sheet into a new .xlsx file
+with pd.ExcelWriter(path_22_input_CFS_xlsx, engine='openpyxl') as writer:
+    for sheet_name, df in xls_data.items():
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
 
 
 with xw.App(visible=True) as app:  # Keep Excel hidden while running
@@ -124,6 +140,7 @@ df_22_CFS_file['quarter']=int_nehv_quarter
 df_22_CFS_file['agency_code'] = df_22_CFS_file['Project Id'].str[:2]
 df_22_CFS_file['family_id'] = df_22_CFS_file['Project Id'].str[2:].str.split('-').str[0]
 df_22_CFS_file['tgt_id'] = df_22_CFS_file['Project Id'].str.split('-').str[1]
+
 
 print(df_22_CFS_file)
 
@@ -303,64 +320,64 @@ def fn_Funding(row):
 
         # LL agency logic
         if agency == "ll":
-            if pd.notna(row.get('Has_ChildWelfareAdaptation')) and row['Has_ChildWelfareAdaptation'] == "Y":
+            if pd.notna(row['Has_ChildWelfareAdaptation']) and row['Has_ChildWelfareAdaptation'] == "Y":
                 return "CWA"
-            elif pd.notna(row.get('funding')) and row['funding'] == "CHE":
+            elif pd.notna(row['funding']) and row['funding'] == "CHE":
                 return "CHE"
-            elif pd.notna(row.get('funding')) and row['funding'] == "City":
+            elif pd.notna(row['funding']) and row['funding'] == "City":
                 return "O"
             # Tableau version had CWA funding check commented out
-            elif pd.notna(row.get('funding')) and row['funding'] in ["F", "F-1", "F-2", "F-3"]:
+            elif pd.notna(row['funding']) and row['funding'] in ["F", "F-1", "F-2", "F-3"]:
                 return "F"
-            elif pd.notna(row.get('funding')) and row['funding'] == "O":
+            elif pd.notna(row['funding']) and row['funding'] == "O":
                 return "O"
-            elif pd.notna(row.get('funding')) and row['funding'] == "S":
+            elif pd.notna(row['funding']) and row['funding'] == "S":
                 return "S"
-            elif (pd.notna(row.get('funding')) and row['funding'] == "Null") or pd.isna(row.get('funding')):
+            elif (pd.notna(row['funding']) and row['funding'] == "Null") or pd.isna(row['funding']):
                 return "F"
 
         # HS agency
         elif agency == "hs":
-            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+            if pd.notna(row['Adaptation']) and row['Adaptation'] == "CWA":
                 return "CWA"
             else:
                 return "F"
 
         # NC agency
         elif agency == "nc":
-            if pd.notna(row.get('Problem NENCAP Families for Funding Filter')) and row['Problem NENCAP Families for Funding Filter']:
+            if pd.notna(row['Problem NENCAP Families for Funding Filter']) and row['Problem NENCAP Families for Funding Filter']:
                 return "O"
-            elif pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+            elif pd.notna(row['Adaptation']) and row['Adaptation'] == "CWA":
                 return "CWA"
-            elif pd.notna(row.get('Adaptation')) and row['Adaptation'] == "Sixpence":
+            elif pd.notna(row['Adaptation']) and row['Adaptation'] == "Sixpence":
                 return "Sixpence"
             else:
                 return "S"
 
         # PH, SE, TR, SH, FC, CD, NP → CWA or F
         elif agency in ["ph", "se", "tr", "sh", "fc", "cd", "np"]:
-            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+            if pd.notna(row['Adaptation']) and row['Adaptation'] == "CWA":
                 return "CWA"
             else:
                 return "F"
 
         # PS → CWA or S
         elif agency == "ps":
-            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+            if pd.notna(row['Adaptation']) and row['Adaptation'] == "CWA":
                 return "CWA"
             else:
                 return "S"
 
         # VN → CWA or S
         elif agency == "vn":
-            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+            if pd.notna(row['Adaptation']) and row['Adaptation'] == "CWA":
                 return "CWA"
             else:
                 return "S"
 
         # LB → CWA or O
         elif agency == "lb":
-            if pd.notna(row.get('Adaptation')) and row['Adaptation'] == "CWA":
+            if pd.notna(row['Adaptation']) and row['Adaptation'] == "CWA":
                 return "CWA"
             else:
                 return "O"
@@ -380,7 +397,7 @@ def fn_Fundingfilter(row):
             return True
         elif agency == 'vn' and funding != 'Sixpence':
             return True
-        elif agency == 'lb' and funding not in ['O', 'CWA']:
+        elif (agency == 'lb' and funding not in ['O', 'CWA']):
             return True
         elif agency == 'ph' and row['ZIP Code'] in [69301, 69348, 69125, 
     69331, 69334, 69336, 69341, 
@@ -494,6 +511,135 @@ def fn_c09_Numerator_CPS(row):
         return True
 df_22_CPS_agg['_C09 Numerator CPS True (Update)']=df_22_CPS_agg.apply(func=fn_c09_Numerator_CPS, axis=1).astype('boolean')
 
+def fn_C09a_Numerator_CPS(row):
+    
+    intake_date = pd.Timestamp(row['IntakeReceivedDate.1']) if pd.notna(row['IntakeReceivedDate.1']) else None
+
+    if intake_date is not None and row['_Enroll'] is not None:
+        enrolled_ok = (
+            row['_Enroll'] <= intake_date and
+            (
+                (row['_Discharge Date'] is not None and intake_date <= row['_Discharge Date'])
+                or
+                (row['_Discharge Date'] is None and intake_date <= date_range_end)
+            )
+        )
+
+        in_range_ok = date_fy_start <= intake_date <= date_range_end
+
+        if enrolled_ok and in_range_ok:
+            return True
+
+#Intake date 12/17/24, Enroll date 7/21/25, Discharge date is null, shows as True for Tableau but False in Python, date range end is 9/30/25
+
+
+df_22_CPS_agg['_C09a Numerator CPS True (First Time)']=df_22_CPS_agg.apply(func=fn_C09a_Numerator_CPS, axis=1).astype('boolean')
+
+
+def fn_C09b_Intake_1(row):
+    if pd.notna(row['Finding.1']):
+        match row['Finding.1']:
+            case "Agency Substantiated": 
+                return 1
+            case "Agency Substaniated": 
+                return 1   
+            case "Court Substantiated": 
+                return 1
+            case "Court Substaniated": 
+                return 1
+            case "Law Enforcement": 
+                return 1
+df_22_CPS_agg['_C09b Intake 1 Substantiated']=df_22_CPS_agg.apply(func=fn_C09b_Intake_1, axis=1).astype('boolean')
+
+def fn_C09b_Intake_2(row):
+    if pd.notna(row['Finding.2']):
+        match row['Finding.2']:
+            case "Agency Substantiated": 
+                return 1
+            case "Agency Substaniated": 
+                return 1   
+            case "Court Substantiated": 
+                return 1
+            case "Court Substaniated": 
+                return 1
+            case "Law Enforcement": 
+                return 1
+df_22_CPS_agg['_C09b Intake 2 Substantiated']=df_22_CPS_agg.apply(func=fn_C09b_Intake_2, axis=1).astype('boolean')
+
+def fn_C09b_Intake_3(row):
+    if pd.notna(row['Finding.3']):
+        match row['Finding.3']:
+            case "Agency Substantiated": 
+                return 1
+            case "Agency Substaniated": 
+                return 1   
+            case "Court Substantiated": 
+                return 1
+            case "Court Substaniated": 
+                return 1
+            case "Law Enforcement": 
+                return 1
+df_22_CPS_agg['_C09b Intake 3 Substantiated']=df_22_CPS_agg.apply(func=fn_C09b_Intake_3, axis=1).astype('boolean')
+
+def fn_C09b_Intake_4(row):
+    if pd.notna(row['Finding.4']):
+        match row['Finding.4']:
+            case "Agency Substantiated": 
+                return 1
+            case "Agency Substaniated": 
+                return 1   
+            case "Court Substantiated": 
+                return 1
+            case "Court Substaniated": 
+                return 1
+            case "Law Enforcement": 
+                return 1
+df_22_CPS_agg['_C09b Intake 4 Substantiated']=df_22_CPS_agg.apply(func=fn_C09b_Intake_4, axis=1).astype('boolean')
+
+def fn_C09b_Intake_5(row):
+    if pd.notna(row['Finding.5']):
+        match row['Finding.5']:
+            case "Agency Substantiated": 
+                return 1
+            case "Agency Substaniated": 
+                return 1   
+            case "Court Substantiated": 
+                return 1
+            case "Court Substaniated": 
+                return 1
+            case "Law Enforcement": 
+                return 1
+df_22_CPS_agg['_C09b Intake 5 Substantiated']=df_22_CPS_agg.apply(func=fn_C09b_Intake_5, axis=1).astype('boolean')
+
+
+
+def fn_C09b_Numerator_CPS(row):
+    if (
+        (pd.notna(row['IntakeReceivedDate.5']) and pd.notna(row['_C09b Intake 5 Substantiated']) and
+        date_fy_start <= pd.Timestamp(row['IntakeReceivedDate.5']) <= date_range_end and
+        row['_C09b Intake 5 Substantiated'] == 1)
+        or
+        (pd.notna(row['IntakeReceivedDate.4']) and pd.notna(row['_C09b Intake 4 Substantiated']) and
+        date_fy_start <= pd.Timestamp(row['IntakeReceivedDate.4']) <= date_range_end and
+        row['_C09b Intake 4 Substantiated'] == 1)
+        or
+        (pd.notna(row['IntakeReceivedDate.3']) and pd.notna(row['_C09b Intake 3 Substantiated']) and
+        date_fy_start <= pd.Timestamp(row['IntakeReceivedDate.3']) <= date_range_end and
+        row['_C09b Intake 3 Substantiated'] == 1)
+        or
+        (pd.notna(row['IntakeReceivedDate.2']) and pd.notna(row['_C09b Intake 2 Substantiated']) and
+        date_fy_start <= pd.Timestamp(row['IntakeReceivedDate.2']) <= date_range_end and
+        row['_C09b Intake 2 Substantiated'] == 1)
+        or
+        (pd.notna(row['IntakeReceivedDate.1']) and pd.notna(row['_C09b Intake 1 Substantiated']) and
+        date_fy_start <= pd.Timestamp(row['IntakeReceivedDate.1']) <= date_range_end and
+        row['_C09b Intake 1 Substantiated'] == 1)
+    ):
+        return True
+
+
+df_22_CPS_agg['_C09b Numerator CPS True (Substantiated)']=df_22_CPS_agg.apply(func=fn_C09b_Numerator_CPS, axis=1).astype('boolean')
+
 def fn_c09_Numerator(row):
     # Use explicit checks for NaN
     if pd.notna(row['_C09 Denominator Status']) and pd.notna(row['_C09 Child Denominator Status']) and pd.notna(row['_C09 Numerator CPS True (Update)']):
@@ -501,27 +647,66 @@ def fn_c09_Numerator(row):
             if  row['_C09 Child Denominator Status'] and row['_C09 Numerator CPS True (Update)']:
                 return True
     else: return False
+
+def fn_c09a_Numerator(row):
+    # Use explicit checks for NaN
+    if pd.notna(row['_C09 Denominator Status']) and pd.notna(row['_C09 Child Denominator Status']) and pd.notna(row['_C09a Numerator CPS True (First Time)']):
+        if row['_C09 Denominator Status']:
+            if  row['_C09 Child Denominator Status'] and row['_C09a Numerator CPS True (First Time)']:
+                return True
+    else: return False
+
+def fn_c09b_Numerator(row):
+    # Use explicit checks for NaN
+    if pd.notna(row['_C09 Denominator Status']) and pd.notna(row['_C09 Child Denominator Status']) and pd.notna(row['_C09b Numerator CPS True (Substantiated)']):
+        if row['_C09 Denominator Status']:
+            if  row['_C09 Child Denominator Status'] and row['_C09b Numerator CPS True (Substantiated)']:
+                return True
+    else: return False
+
+
+
     
     #df['_C09 Numerator Status'] = df.groupby('project_id')['_C09 Numerator Status'].transform('max')
 df_22_CPS_agg['_C09 Numerator Status']=df_22_CPS_agg.apply(func=fn_c09_Numerator, axis=1).astype('boolean')
+df_22_CPS_agg['_C09a Numerator Status']=df_22_CPS_agg.apply(func=fn_c09a_Numerator, axis=1).astype('boolean')
+df_22_CPS_agg['_C09b Numerator Status']=df_22_CPS_agg.apply(func=fn_c09b_Numerator, axis=1).astype('boolean')
+df_22_CPS_agg.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File test.csv'), index = False, date_format="%m/%d/%Y")
     #df['_C09 Numerator Status'] = df.groupby('project_id')['_C09 Numerator Status'].transform('max')
+
+df_22_CPS_agg['_Reporting Year'] = date_fy_start
 
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['Subsequent Children Filter'] == True]
 df_22_CPS_agg = df_22_CPS_agg[ (df_22_CPS_agg['year'] == int_nehv_year)]
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_C09 Denominator Status'] == True]
-df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_C09 Denominator Status'] == True]
+
+df_22_CPS_agg.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File 9a.csv'), index = False, date_format="%m/%d/%Y")
 
 #df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Funding Source Filter'] == True]
 #df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Agency Name'] != 'Unidentified Agency']
 
-df_22_CPS_agg_9 = df_22_CPS_agg[['project_id','year', 'quarter', '_Agency Name', '_Funding (use this one)', '_C09 Numerator Status']].copy()
-with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File test.xlsx'), engine='openpyxl') as writer:
-        df_22_CPS_agg.to_excel(writer, index=False, sheet_name='Sheet 1')
-df_22_CPS_agg_9= df_22_CPS_agg_9.groupby(['year', 'quarter', '_Agency Name', '_Funding (use this one)','_C09 Numerator Status' ])['project_id'].nunique().reset_index(name='Children')
+df_22_CPS_agg_9 = df_22_CPS_agg[['project_id','year', 'quarter', '_Agency Name', '_Funding (use this one)', '_C09 Numerator Status', '_C09a Numerator Status','_C09b Numerator Status', '_Reporting Year' ]].copy()
+df_22_CPS_agg_num_9= df_22_CPS_agg_9.groupby(['year', 'quarter', '_Agency Name', '_Funding (use this one)','_Reporting Year', '_C09 Numerator Status' ])['project_id'].nunique().reset_index(name='Children')
+df_22_CPS_agg_num_9a= df_22_CPS_agg_9.groupby(['year', 'quarter', '_Agency Name', '_Funding (use this one)','_Reporting Year', '_C09a Numerator Status' ])['project_id'].nunique().reset_index(name='First Time Children')
+df_22_CPS_agg_num_9b= df_22_CPS_agg_9.groupby(['year', 'quarter', '_Agency Name', '_Funding (use this one)','_Reporting Year', '_C09b Numerator Status' ])['project_id'].nunique().reset_index(name='Substantiated Children')
 
-with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File.xlsx'), engine='openpyxl') as writer:
-        df_22_CPS_agg_9.to_excel(writer, index=False, sheet_name='Sheet 1')
 
+group_cols = ['year', 'quarter', '_Agency Name', '_Funding (use this one)', '_Reporting Year']
+
+df_22_CPS_agg_num_9.rename(columns={'_C09 Numerator Status': 'Numerator Status'}, inplace=True)
+df_22_CPS_agg_num_9a.rename(columns={'_C09a Numerator Status': 'Numerator Status'}, inplace=True)
+df_22_CPS_agg_num_9b.rename(columns={'_C09b Numerator Status': 'Numerator Status'}, inplace=True)
+
+
+# Merge on shared group columns + the unified Numerator Status
+df_22_CPS_agg_9 = (
+    df_22_CPS_agg_num_9
+    .merge(df_22_CPS_agg_num_9a, on=group_cols + ['Numerator Status'], how='outer')
+    .merge(df_22_CPS_agg_num_9b, on=group_cols + ['Numerator Status'], how='outer')
+)
+
+df_22_CPS_agg_9.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File from Excel on NE Server_Migrated Data.csv'), index = False, date_format="%m/%d/%Y")
+df_22_CPS_agg_9.to_csv(Path(path_22_files_out, 'Child CPS Aggregate Master File from Excel on NE Server_Migrated Data test.csv'), index = False, date_format="%m/%d/%Y")
 #df_21_final_CPS = pd.concat([df_21_previous_CPS, df_21_final_filtered], ignore_index=True)
 
 #output currently matches the C09 crosstab, just have to check I can put this in Form 2 without changing it 

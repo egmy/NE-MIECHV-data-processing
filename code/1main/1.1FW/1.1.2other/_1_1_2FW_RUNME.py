@@ -32,12 +32,19 @@ print('Local Code Repository: ', str(*[path for path in Path.cwd().parents if pa
 
 #%%
 import os
+import sys
+import shutil
+sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
+from RUNME import * 
+
 if (os.path.basename(__file__) == '_1_1_2FW_RUNME.py'):
+    print('running 1.2FW')
     import sys
     sys.path.append(str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository']))
-    from RUNME import * 
-
-str_nehv_quarter = 'Y14Q3 (Oct 2024 - Mar 2025)'
+    from RUNME import *
+else:
+    print("Did NOT run RUNME again... because it's already running!")
+#str_nehv_quarter = 'Y14Q4 (Oct 2024 - Sep 2025)'
 
 
 #%%##################################################
@@ -46,29 +53,50 @@ str_nehv_quarter = 'Y14Q3 (Oct 2024 - Mar 2025)'
 
 path_112FW_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other')
 path_1_3_files_input = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
+path_112FW_files_orig= Path(f'U:\\Working\\Tableau\\{str_nehv_year}\\{str_nehv_quarter}\\FamilyWise')
 
 path_112FW_dir_input = Path(path_112FW_files_base, '0in', str_nehv_quarter)
 path_112FW_dir_mid = Path(path_112FW_files_base, '2mid', str_nehv_quarter)
 path_112FW_dir_output = Path(path_112FW_files_base, '9out', str_nehv_quarter)
 path_1_3_dir_input = Path(path_1_3_files_input, '0in', str_nehv_quarter)
 
+for path in [path_112FW_dir_input, path_112FW_dir_mid, path_112FW_dir_output, path_1_3_dir_input]:
+    path.mkdir(parents=True, exist_ok=True)
+
 ###########################
-
-### TODO Y13Q2: ASKJOE: Are there 2 new files for input? (so total 10?)
-
+# Define destination file paths (already declared elsewhere in your code)
+path_112FW_input_well_child = Path(path_112FW_files_orig, '04 Well Child v2 no MAX - use this one.xlsx')
+path_112FW_input_child_injury = Path(path_112FW_files_orig, '08 Child ER Injury.xlsx')
+path_112FW_input_cg_ins = Path(path_112FW_files_orig, '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx')
+path_112FW_input_adult_act = Path(path_112FW_files_orig, 'Adult Activities Query FROG.xlsx')
+path_112FW_input_adult_uncope = Path(path_112FW_files_orig, 'Adult UNCOPE Query.xlsx')
+path_112FW_input_child_act = Path(path_112FW_files_orig, 'Child Activities Query.xlsx')
+path_112FW_input_home_visit = Path(path_112FW_files_orig, 'F1 - Home Visit Type Query.xlsx')
+path_112FW_input_ref_excl = Path(path_112FW_files_orig, 'Referral Exclusions 1 thru 6.xlsx')
+path_112FW_input_frog = Path(path_112FW_files_orig, '14 IPV Screen FROG.xlsx')
 ### Input:
-### U:\Working\Tableau\Y## (<date_range>)\Y##Q# (<date_range>)\LLCHD ### oldest file.
-### U:\SFTP ### Should see same file here.
-# path_112FW_input_raw = Path(path_112FW_dir_input, 'Flatfile_CHSR_231001.xlsx')
-path_112FW_input_well_child = Path(path_112FW_dir_input, '04 Well Child v2 no MAX - use this one.xlsx')
-path_112FW_input_child_injury = Path(path_112FW_dir_input, '08 Child ER Injury.xlsx')
-path_112FW_input_cg_ins = Path(path_112FW_dir_input, '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx')
-path_112FW_input_adult_act = Path(path_112FW_dir_input, 'Adult Activities Query FROG.xlsx')
-path_112FW_input_adult_uncope = Path(path_112FW_dir_input, 'Adult UNCOPE Query.xlsx')
-path_112FW_input_child_act = Path(path_112FW_dir_input, 'Child Activities Query.xlsx')
-path_112FW_input_home_visit = Path(path_112FW_dir_input, 'F1 - Home Visit Type Query.xlsx')
-path_112FW_input_ref_excl = Path(path_112FW_dir_input, 'Referral Exclusions 1 thru 6.xlsx')
-path_112FW_input_frog = Path(path_112FW_dir_input, '14 IPV Screen FROG.xlsx')
+# List of filenames to copy
+filenames = [
+    '04 Well Child v2 no MAX - use this one.xlsx',
+    '08 Child ER Injury.xlsx',
+    '16 - Caregiver Insurance v2 - USE THIS ONE.xlsx',
+    'Adult Activities Query FROG.xlsx',
+    'Adult UNCOPE Query.xlsx',
+    'Child Activities Query.xlsx',
+    'F1 - Home Visit Type Query.xlsx',
+    'Referral Exclusions 1 thru 6.xlsx',
+    '14 IPV Screen FROG.xlsx'
+]
+
+# Copy files
+for fname in filenames:
+    src = Path(path_112FW_files_orig, fname)
+    dst = Path(path_112FW_dir_input, fname)
+    if src.exists():
+        shutil.copy2(src, dst)
+        print(f"Copied: {fname}")
+    else:
+        print(f"⚠️ File not found: {src}")
 
 
 ### Output:
@@ -142,7 +170,6 @@ print(dict_112FW_col_dtypes_1)
 print(collections.Counter(list(dict_112FW_col_dtypes_1.values())))
 ### List of date columns:
 list_112FW_date_cols_1 = [key for key, value in dict_112FW_col_dtypes_1.items() if value == 'datetime64[ns]'] 
-
 #######################
 #%%### df_112FW_2: '08 Child ER Injury.xlsx'.
 

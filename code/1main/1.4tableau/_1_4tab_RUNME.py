@@ -112,6 +112,9 @@ path_14t_dir_mid = Path(path_14t_files_base, '2mid', str_nehv_quarter)
 path_14t_dir_output = Path(path_14t_files_base, '9out', str_nehv_quarter)
 path_14t_dir_backup=Path(path_14t_files_base, 'backup')
 
+for path in [path_14t_dir_input, path_14t_dir_mid, path_14t_dir_output, path_14t_dir_backup]:
+    path.mkdir(parents=True, exist_ok=True)
+
 ###########################
 ### Data Source for 2nd Tableau file:
 ### path_14t_data_source_file_tb2 = 'U:\\Working\\Tableau\\Y12 (Oct 2022 - Sept 2023)\\Child Activity Master File.xlsx' 
@@ -199,22 +202,30 @@ print('end setup')
     ### Using exec() instead of import so that code files can "see" packages, functions, & any objects created in RUNME.
 
 #%%
+
+if os.path.basename(__file__) == '_1_4tab_RUNME.py':
+    print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
+    exec(open(Path(home_path,'_1_4_replacing_tableau_2_Child_Activities.py')).read())
+
+    print('\nExecuting file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
+    exec(open(Path(home_path, '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
+
+    print('\nExecuting file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
+    exec(open(Path(home_path, '_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py')).read())
+    print('\nExecuted file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
+
+
 ### "_1_4_replacing_tableau_2_Child_Activities.py"
-if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
+elif (os.path.basename(__file__) in ('RUNME.py')):
     print('\nExecuting file "_1_4_replacing_tableau_2_Child_Activities.py"')
     exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_2_Child_Activities.py')).read())
     print('\nExecuted file "_1_4_replacing_tableau_2_Child_Activities.py"')
 
-#%%
-### "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"
-if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
     print('\nExecuting file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
     exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py')).read())
     print('\nExecuted file "_1_4_replacing_tableau_3_Adult_Activities_Form2DS.py"')
 
-#%%
-### "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"
-if (os.path.basename(__file__) in ('_1_4tab_RUNME.py', 'RUNME.py') and __name__ == "__main__"):
     print('\nExecuting file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')
     exec(open(Path(path_14t_code_base, '_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py')).read())
     print('\nExecuted file "_1_4_replacing_tableau_4_Adult_Activities_Form1DS.py"')

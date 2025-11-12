@@ -529,14 +529,15 @@ ________________________________________________________________________________
 
 Set up Conda for use.
 
-1. You have to edit the Computers Environment variables so your system can recognize conda. You need System Admin privileges do to this, so NE helpdesk will have to do it for us. 
-2. Email NE helpdesk (service.desk@nebraska.gov) and ask that the following paths be added to your  Environment variables:
+
+1. Try to go to your Desktop settings and edit your Environment Path variables using your NE password. If you do not have Admin privileges Email NE helpdesk (service.desk@nebraska.gov) and ask that the following paths be added to your  Environment variables:
+
         C:\Users\<your-username>\AppData\Local\miniconda3
 
         C:\Users\<your-username>\AppData\Local\miniconda3\Scripts
     Note: This step may be uncessary if you're able to setup .bashrc without it. 
 
-3. "Add the conda shell script to your .bashrc":
+2. "Add the conda shell script to your .bashrc":
     1. Open a new Gitbash session from your HOME directory and type 
     "/c/Users/YourUserName/AppData/Local/miniconda3/Scripts/conda.exe init bash"
     2. You can open the file by running "notepad ~/.bashrc"
@@ -553,8 +554,8 @@ Set up Conda for use.
         unset __conda_setup
     # <<< conda initialize <<<
 
-    4. Apply the updated bash by running "source ~/.bashrc"
-    5. Run:
+    3. Apply the updated bash by running "source ~/.bashrc"
+    4. Run:
         - "conda --version"
         - "conda activate base"
     If you see Conda's version and the prompt changes (e.g. (base) appears), you’re done! 
@@ -608,7 +609,7 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________
 
-# 10. Manage Python Packages with Pipenv 
+# 10. Manage Python Packages with Pipenv -- NOTE: I'm NOT currently using Pipenv, I just use pipreq which is described at the end, so all of step 10 can be skipped. These instructions should still work if deciding to use pipenv though. 
 
 Pipenv is a Python package and the environment and package manager we will use to manage our Python packages.
     - Pipenv creates 2 files to manage packages ("Pipfile" & "Pipfile.lock") that we can save with Git.
@@ -775,7 +776,7 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________
 
-# 11. Setup your new virtuabl environment as your Python Interpreter in VSCode 
+# 11. Setup your new virtual environment as your Python Interpreter in VSCode and install required packages to run code
 
 1. Open the repository in VSCode (if not already open) and open a new Git Bash terminal. 
 
@@ -788,20 +789,24 @@ ________________________________________________________________________________
 
     Choose: "Enter interpreter path..."
 
+    (If this doesn't pop-up, try exiting out of VSCode and relaunching)
+
     Then: Enter
     C:\Users\YourUsername\AppData\Local\miniconda3\envs\conda_env_py3121\python.exe
 
 5. Install required packages from Git Bash terminal with environment running:
-    - Install pipreqs for package management by running
+  Note: pipreq will go through all files and find packages used in all scripts. If this has been done recently, you can skip to step 3 to install packages directly from requirements.txt
+    1.  Install pipreqs for package management by running
         pip install pipreqs
-    - Run 
-        pipreqs . --force 
-    Note: this will go through all files and find packages used in all scripts. If this has been done recently, you can just run the step below 
-    - Run 
+    2.  Run 
+        pipreqs . --force  
+    3. Run 
         pip install -r requirements.txt
 6. You should have the required packages installed needed to run the code, and can now run the NE MEICHV process.
 
-If wanting to run in interactive window,  ,ake sure ipykernel is installed in your virutal environment.
+If wanting to run in interactive window,  make sure ipykernel is installed in your virtual environment.
+
+NOTE: You will need at LEAST 8 GB of RAM on your virtual machine in order to run this process, preferably 16 GB. 
 
 
 
@@ -811,6 +816,7 @@ https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-e
 
 Test that Variable Viewer & Data Viewer working.
 See example of using them here: https://code.visualstudio.com/docs/datascience/data-science-tutorial#_prepare-the-data 
+
 
 ________________________________________________________________________________
 

@@ -4854,7 +4854,7 @@ def fn_T20_FOB_Insurance(fdf):
                     case 5:
                         return 'No Insurance Coverage'
                     case _:
-                        return 'Unrecognized Value'
+                        return f'Unrecognized Value: {fdf['Fob Involved1']}'
         else:
             return pd.NA 
     ###########

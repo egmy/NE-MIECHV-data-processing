@@ -1168,7 +1168,7 @@ def fn_MOB_Gender(fdf):
             ### case 'N': ### Don't have this value yet - Confirm what means if comes through.
             ###     return 'Non-Binary' 
             case _:
-                return "Unrecognized Value"
+                return f"Unrecognized Value: {fdf['Mob Gender']} "
     ###
     else:
         return "Unrecognized Value"

@@ -13,6 +13,7 @@ import sys
 from openpyxl import load_workbook
 from pyxlsb import open_workbook
 import xlwings as xw
+import re
 sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository'])]#'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other']str(*[d for d in os.listdir(Path.cwd()) if os.path.isdir(d)])])
 from RUNME import *
 
@@ -25,15 +26,23 @@ from RUNME import *
 ### Establish paths and read in input ID Files:
 
 path_21_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.1forCFS')
+path_22_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.2fromCFS')
+
+path_22_dir_input = Path(path_22_files_base, '0in', str_nehv_quarter)
+
 path_21_dir_input = Path(path_21_files_base, '0in', str_nehv_quarter)
 path_21_dir_output = Path(path_21_files_base, '9out', str_nehv_quarter)
+
+
+for path in [path_21_dir_input, path_21_dir_output]:
+    path.mkdir(parents=True, exist_ok=True)
 
 path_21_input_id_file_FW = Path(path_21_dir_input, 'FW ID File.xlsx')
 path_21_input_id_file_LL = Path(path_21_dir_input, 'LL_ID_File_base.xlsx')
 #path_21_input_id_file_combined = Path(path_21_dir_input, 'Combined ID File.xlsx')
 
 ##NOTE: you will have to make sure this file is in the input path, and input the password when Excel is started once running in order to read in
-path_21_input_CPS_file = Path(path_21_dir_input, f'Y14Q2 ID File for CPS (CPS combined with ID File).xlsx')
+path_21_input_CPS_file = Path(path_21_dir_input, f"{re.search(r'Y\d{2}Q\d', previous_str_nehv_quarter).group()} ID File for CPS.xlsx")
 
 CPS_file_password = previous_str_nehv_quarter  # Password in string format
 
@@ -538,8 +547,9 @@ df_21_final_CPS = pd.concat([df_21_previous_CPS, df_21_final_filtered], ignore_i
 df_21_final_CPS = df_21_final_CPS.sort_values(by=['project_id', 'ord1'], ascending=[True, False]) ##This is the end for recreating the 'for CPS file'
 
 ### Output for 1st Tableau file: ID File.
-with pd.ExcelWriter(Path(path_21_dir_output, f'{str_nehv_quarter} ID File for CPS.xlsx'), engine='openpyxl') as writer:
+with pd.ExcelWriter(Path(path_21_dir_output, f"{re.search(r'Y\d{2}Q\d', str_nehv_quarter).group()} ID File for CPS.xlsx"), engine='openpyxl') as writer:
     df_21_final_CPS.to_excel(writer, index=False, sheet_name='final')
+    
 
 ##JOE: for Y13Q3 file, matches except for np-1, np-2, np-3 (coming in as dates in Joe's file but I don't think should be). Otherwise there is one more entry for ph487-1 
 ## on Joe's file with the same info (so essentially a duplicate row because it is same info but both labeled as New-do not process.) So I think this code is doing the right thing
