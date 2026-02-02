@@ -7,6 +7,7 @@
 
 ### Every Quarter:
 
+## Make sure that your interactive window is loaded with the correct environment that has all necessary packages installed.
 ### 1. Update this RUNME file's key values:
     ### 2.1 Below, make a new line for objects "str_nehv_quarter" & "previous_str_nehv_quarter" -- set to the same text name of the new quarter used for creating input/output folders.
     ### 2.2 Update "int_nehv_quarter" & "int_nehv_year" & "date_fy_start" to match new quarter.
@@ -53,25 +54,28 @@ repo_name = 'nehv_ds_code_repository'
 #str_nehv_quarter = 'Y14Q1 (Oct 2024 - Dec 2024)'
 #str_nehv_quarter = 'Y14Q2 (Oct 2024 - Mar 2025)'
 #str_nehv_quarter = 'Y14Q3 (Oct 2024 - Jun 2025)'
-str_nehv_quarter = 'Y14Q4 (Oct 2024 - Sept 2025)'
+#str_nehv_quarter = 'Y14Q4 (Oct 2024 - Sept 2025)'
+str_nehv_quarter = 'Y15Q1 (Oct 2025 - Dec 2025)'
 
 
 
 # previous_str_nehv_quarter = 'Y13Q1 (Oct 2023 - Dec 2023)'
-previous_str_nehv_quarter = 'Y14Q3 (Oct 2024 - Jun 2025)'
+previous_str_nehv_quarter = 'Y14Q4 (Oct 2024 - Sept 2025)'
 
-str_nehv_year = 'Y14 (Oct 2024 - Sept 2025)'
-int_nehv_year = 14 
+str_nehv_year = 'Y15 (Oct 2025 - Sept 2026)'
+small_str_nehv_quarter = 'Y15Q1'
+small_str_nehv_previous_quarter = 'Y14Q4'
+int_nehv_year = 15 
 
-# int_nehv_quarter = 1 
+int_nehv_quarter = 1 
 # int_nehv_quarter = 2 
 #int_nehv_quarter = 3
-int_nehv_quarter = 4
+#int_nehv_quarter = 4
 
 
-date_fy_start = pd.Timestamp("2024-10-01") ### Midnight.
+date_fy_start = pd.Timestamp("2025-10-01") ### Midnight.
 
-date_range_end= pd.Timestamp("2025-9-30")
+date_range_end= pd.Timestamp("2026-9-30")
 
 
 date_fy_end_day_after = date_fy_start + pd.DateOffset(years=1) ### Midnight.
@@ -102,8 +106,8 @@ elif (str_nehv_quarter in ('Y13Q2 (Oct 2023 - Mar 2024)', 'Y13Q3 (Oct 2023 - Jun
     int_fpg_base = 9680 
     int_fpg_increment = 5380 
 ### 2025
-elif (str_nehv_quarter in ('Y14Q1 (Oct 2024 - Dec 2024)', 'Y14Q2 (Oct 2024 - Mar 2025)','Y14Q3 (Oct 2024 - Jun 2025)', 'Y14Q4 (Oct 2024 - Sept 2025)')):
-    ### 9680 + (5380 * [household size])
+elif (str_nehv_quarter in ('Y14Q1 (Oct 2024 - Dec 2024)', 'Y14Q2 (Oct 2024 - Mar 2025)','Y14Q3 (Oct 2024 - Jun 2025)', 'Y14Q4 (Oct 2024 - Sept 2025)', 'Y15Q1 (Oct 2025 - Dec 2025)')):
+    ### 10150 + (5500 * [household size])
     int_fpg_base = 10150
     int_fpg_increment = 5500
 

@@ -1113,6 +1113,21 @@ df_14t_edits1_tb2['_Zip'] = df_14t_edits1_tb2['zip'].combine_first(df_14t_edits1
     ### Data Type in Tableau: integer.
 ### TODO: see if ZIP should be string.
 
+
+
+ZIP_TO_COUNTY = {}
+
+for county, zips in COUNTY_ZIPS.items():
+    for z in zips:
+        ZIP_TO_COUNTY[z] = county
+
+df_14t_edits1_tb2['_Zip_int'] = (df_14t_edits1_tb2['_Zip']
+    .astype('Int64')   # pandas nullable int
+)
+df_14t_edits1_tb2['_County'] = (df_14t_edits1_tb2['_Zip_int']
+    .map(ZIP_TO_COUNTY)
+    .astype('string')
+)
 #%%###################################
 
 ### In Y12Q3 this variable is broken. 

@@ -478,7 +478,7 @@ def fn_child_alive_discharge(row):
 df_22_CPS_agg['Child alive sometime before Discharge Date']=df_22_CPS_agg.apply(func=fn_child_alive_discharge, axis=1).astype('boolean')
 
 def fn_Family_active_date(row):
-    if row['_Enroll'] <= date_range_end and (pd.isna(row['_Discharge Date']) or date_fy_start < row['_Discharge Date']):
+    if row['_Enroll'] <= date_range_end and (pd.isna(row['_Discharge Date']) or date_fy_start <= row['_Discharge Date']):
         return True
     else:return False
 df_22_CPS_agg['Family active sometime during date range']=df_22_CPS_agg.apply(func=fn_Family_active_date, axis=1).astype('boolean')
@@ -531,6 +531,7 @@ def fn_C09a_Numerator_CPS(row):
             return True
 
 #Intake date 12/17/24, Enroll date 7/21/25, Discharge date is null, shows as True for Tableau but False in Python, date range end is 9/30/25
+#Think I determined that Python is doing the correct logic here
 
 
 df_22_CPS_agg['_C09a Numerator CPS True (First Time)']=df_22_CPS_agg.apply(func=fn_C09a_Numerator_CPS, axis=1).astype('boolean')

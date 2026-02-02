@@ -986,8 +986,6 @@ df_14t_edits1_tb3['_UNCOPE Date'] = df_14t_edits1_tb3['Uncope Dt'].combine_first
 
 ### Similar variable In Child2. Basicaly dentical in Adult3 & Adult4 (except data type).
 ### 'Mob Zip' has the string value "null" that needs to be recoded. ### FY13Q1, other bad value seen.
-### TODO ASKJOE: limit ZIP codes to first five? -- have some with the extra 4.
-### TODO: see if ZIP should be string.
 df_14t_edits1_tb3['_Zip'] = (
     df_14t_edits1_tb3['Zip'].combine_first(df_14t_edits1_tb3['Mob Zip'])
     ### Remove all entries NOT matching the pattern:
@@ -1004,6 +1002,23 @@ df_14t_edits1_tb3['_Zip'] = (
 # inspect_col(df_14t_edits1_tb3['Zip'])
 # #%%
 # inspect_col(df_14t_edits1_tb3['Mob Zip'])
+
+ZIP_TO_COUNTY = {}
+
+for county, zips in COUNTY_ZIPS.items():
+    for z in zips:
+        ZIP_TO_COUNTY[z] = county
+
+df_14t_edits1_tb3['_Zip_int'] = (df_14t_edits1_tb3['_Zip']
+    .astype('Int64')   # pandas nullable int
+)
+
+df_14t_edits1_tb3['_County'] = (df_14t_edits1_tb3['_Zip_int']
+    .map(ZIP_TO_COUNTY)
+    .astype('string')
+)
+
+
 
 #%%###################################
 
