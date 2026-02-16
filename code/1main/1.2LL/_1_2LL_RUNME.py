@@ -53,6 +53,7 @@ else:
 
 path_12LL_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.2LL')
 path_1_3_files_input = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
+path_21_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.1forCFS')
 
 path_12LL_dir_input = Path(path_12LL_files_base, '0in', str_nehv_quarter)
 path_12LL_dir_mid = Path(path_12LL_files_base, '2mid', str_nehv_quarter)
@@ -105,7 +106,7 @@ list_path_12LL_input_raw_sheets = [
 
 ### Output:
 
-path_12LL_output_ID_file = Path(path_12LL_files_base, 'LL_ID_File_base', str_nehv_quarter, 'LL_ID_File_base.xlsx')
+path_12LL_output_ID_file = Path(path_21_files_base, '0in', str_nehv_quarter, 'LL_ID_File_base.xlsx')
 path_12LL_output_ID_file.parent.mkdir(parents=True, exist_ok=True)
 
 #%%##############################################!>>>

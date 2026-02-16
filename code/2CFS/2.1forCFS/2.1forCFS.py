@@ -10,9 +10,8 @@ import pandas as pd
 from pathlib import Path
 import numpy as np
 import sys
-from openpyxl import load_workbook
-from pyxlsb import open_workbook
 import xlwings as xw
+import shutil
 import re
 sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository'])]#'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other']str(*[d for d in os.listdir(Path.cwd()) if os.path.isdir(d)])])
 from RUNME import *
@@ -27,6 +26,7 @@ from RUNME import *
 
 path_21_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.1forCFS')
 path_22_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.2fromCFS')
+path_22_file_ID = Path(f'U:\\Working\\Tableau\\{str_nehv_year}\\{str_nehv_quarter}\\FamilyWise')
 
 path_22_dir_input = Path(path_22_files_base, '0in', str_nehv_quarter)
 
@@ -34,8 +34,14 @@ path_21_dir_input = Path(path_21_files_base, '0in', str_nehv_quarter)
 path_21_dir_output = Path(path_21_files_base, '9out', str_nehv_quarter)
 
 
+path_21_dir_output = Path(path_21_files_base, '9out', str_nehv_quarter)
+
+
 for path in [path_21_dir_input, path_21_dir_output]:
     path.mkdir(parents=True, exist_ok=True)
+
+#Copy ID file from original location to input location for this script
+shutil.copy2(Path(path_22_file_ID, 'ID File.xlsx'), Path(path_21_dir_input, 'FW ID File.xlsx'))
 
 path_21_input_id_file_FW = Path(path_21_dir_input, 'FW ID File.xlsx')
 path_21_input_id_file_LL = Path(path_21_dir_input, 'LL_ID_File_base.xlsx')
@@ -489,8 +495,8 @@ df_21_final_combined['_26 Zip'] = pd.to_numeric(
 
 df_21_final_combined['_26 Zip'] = df_21_final_combined['_26 Zip'].astype('Int64')
 
-with pd.ExcelWriter(Path(path_21_dir_output, f'Test ID File for CPS.xlsx'), engine='openpyxl') as writer:
-    df_21_final_combined.to_excel(writer, index=False, sheet_name='final')
+#with pd.ExcelWriter(Path(path_21_dir_output, f'Test ID File for CPS.xlsx'), engine='openpyxl') as writer:
+    #df_21_final_combined.to_excel(writer, index=False, sheet_name='final')
 
 # %% ################################################
 ### Drop all columns expect for _ ###
@@ -550,9 +556,6 @@ df_21_final_CPS = df_21_final_CPS.sort_values(by=['project_id', 'ord1'], ascendi
 with pd.ExcelWriter(Path(path_21_dir_output, f"{re.search(r'Y\d{2}Q\d', str_nehv_quarter).group()} ID File for CPS.xlsx"), engine='openpyxl') as writer:
     df_21_final_CPS.to_excel(writer, index=False, sheet_name='final')
     
-
-##JOE: for Y13Q3 file, matches except for np-1, np-2, np-3 (coming in as dates in Joe's file but I don't think should be). Otherwise there is one more entry for ph487-1 
-## on Joe's file with the same info (so essentially a duplicate row because it is same info but both labeled as New-do not process.) So I think this code is doing the right thing
 
 ##JOE: did a Q4 check and the files match exactly so I think this works!
 print("You successfully ran CFS part 2.1!")

@@ -804,7 +804,7 @@ ________________________________________________________________________________
         pip install -r requirements.txt
 6. You should have the required packages installed needed to run the code, and can now run the NE MEICHV process.
 
-If wanting to run in interactive window,  make sure ipykernel is installed in your virtual environment.
+If wanting to run in interactive window,  make sure ipykernel is installed in your virtual environment, and that your are running with the Correct Interpreter that you chose above in Step 4. 
 
 NOTE: You will need at LEAST 8 GB of RAM on your virtual machine in order to run this process, preferably 16 GB. 
 

@@ -8,12 +8,10 @@
 
 import pandas as pd
 from pathlib import Path
-import tableauserverclient as TSC
-import numpy as np
 import sys
 from openpyxl import load_workbook
-from pyxlsb import open_workbook
 import xlwings as xw
+import shutil
 sys.path+=[str(*[path for path in Path.cwd().parents if path.name == 'nehv_ds_code_repository'])]#'C:\\Users\\Eric.Myers\\git\\nehv_ds_code_repository\\code\\1main\\1.1FW\\1.1.2other']str(*[d for d in os.listdir(Path.cwd()) if os.path.isdir(d)])])
 from RUNME import *
 
@@ -33,19 +31,24 @@ from RUNME import *
 path_22_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.2fromCFS')
 path_22_files_out=Path(f'U:\Working\Tableau\{str_nehv_year}\Tableau Data Master Files')
 path_22_files_orig= Path(f'U:\\Working\\Tableau\\{str_nehv_year}\\{str_nehv_quarter}\\CPS File')
+path_22_file_child_master = Path(f'U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.4tableau\\0in\{str_nehv_quarter}')
+path_22_file_CPS_master = Path(f'U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.2fromCFS\\9out\\{previous_str_nehv_quarter}')
 path_22_dir_input = Path(path_22_files_base, '0in', str_nehv_quarter)
 path_22_dir_output = Path(path_22_files_base, '9out', str_nehv_quarter)
 
 for path in [path_22_dir_input, path_22_dir_output]:
     path.mkdir(parents=True, exist_ok=True)
 
-##NOTE: make sure you have the file in the input path and you put the file name as it occurs in there
+###INPUT!!!!! MAKE SURE YOU HAVE THE FILE IN THE INPUT FOLDER AND THE NAME IS CORRECT
+shutil.copy2(Path(path_22_files_orig, 'MIECHV Report - Child.xls'), Path(path_22_dir_input, 'MIECHV Report - Child.xls'))
+shutil.copy2(Path(path_22_file_child_master, 'Child Activity Master File.xlsx'), Path(path_22_dir_input, 'Child Activity Master File.xlsx'))
+shutil.copy2(Path(path_22_file_CPS_master, 'Child CPS Master File.xlsx'), Path(path_22_dir_input, 'Child CPS Master File.xlsx'))
 
-##
+
+##Read in files from inout
 path_22_input_child_file = Path(path_22_dir_input, 'Child Activity Master File.xlsx')
 path_22_input_master_file = Path(path_22_dir_input, 'Child CPS Master File.xlsx')
-
-path_22_input_CFS_file = Path(path_22_files_orig, 'MIECHV Report - Child.xls')
+path_22_input_CFS_file = Path(path_22_dir_input, 'MIECHV Report - Child.xls')
 path_22_input_CFS_xlsx = path_22_input_CFS_file.with_suffix('.xlsx')  # Convert path to .xlsx
 
 # --- STEP 1: Convert XLS → XLSX using pandas ---
@@ -210,7 +213,7 @@ else:
     df_22_CPS_master=df_22_CFS_file
 
 
-with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Master File auto.xlsx'), engine='openpyxl') as writer:
+with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Master File.xlsx'), engine='openpyxl') as writer:
         df_22_CPS_master.to_excel(writer, index=False, sheet_name='CPS Data')
         df_22_child_FW .to_excel(writer, index=False, sheet_name='Family Wise')
         df_22_child_LL.to_excel(writer, index=False, sheet_name='LLCHD')
@@ -385,8 +388,8 @@ def fn_Funding(row):
     return None  # Default fallback if no logic matches or agency is NaN
 
 df_22_CPS_agg['_Funding (use this one)']= df_22_CPS_agg.apply(func=fn_Funding, axis=1).astype('string') 
-with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File TEST.xlsx'), engine='openpyxl') as writer:
-        df_22_CPS_agg.to_excel(writer, index=False, sheet_name='Sheet 1')
+#with pd.ExcelWriter(Path(path_22_dir_output, 'Child CPS Aggregate File TEST.xlsx'), engine='openpyxl') as writer:
+        #df_22_CPS_agg.to_excel(writer, index=False, sheet_name='Sheet 1')
 
 def fn_Fundingfilter(row):
     if pd.notna(row['_Agency']):
@@ -672,7 +675,7 @@ def fn_c09b_Numerator(row):
 df_22_CPS_agg['_C09 Numerator Status']=df_22_CPS_agg.apply(func=fn_c09_Numerator, axis=1).astype('boolean')
 df_22_CPS_agg['_C09a Numerator Status']=df_22_CPS_agg.apply(func=fn_c09a_Numerator, axis=1).astype('boolean')
 df_22_CPS_agg['_C09b Numerator Status']=df_22_CPS_agg.apply(func=fn_c09b_Numerator, axis=1).astype('boolean')
-df_22_CPS_agg.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File test.csv'), index = False, date_format="%m/%d/%Y")
+#df_22_CPS_agg.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File test.csv'), index = False, date_format="%m/%d/%Y")
     #df['_C09 Numerator Status'] = df.groupby('project_id')['_C09 Numerator Status'].transform('max')
 
 df_22_CPS_agg['_Reporting Year'] = date_fy_start
@@ -681,7 +684,7 @@ df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['Subsequent Children Filter'] == Tru
 df_22_CPS_agg = df_22_CPS_agg[ (df_22_CPS_agg['year'] == int_nehv_year)]
 df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_C09 Denominator Status'] == True]
 
-df_22_CPS_agg.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File 9a.csv'), index = False, date_format="%m/%d/%Y")
+#df_22_CPS_agg.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File 9a.csv'), index = False, date_format="%m/%d/%Y")
 
 #df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Funding Source Filter'] == True]
 #df_22_CPS_agg = df_22_CPS_agg[df_22_CPS_agg['_Agency Name'] != 'Unidentified Agency']
@@ -707,18 +710,10 @@ df_22_CPS_agg_9 = (
 )
 
 df_22_CPS_agg_9.to_csv(Path(path_22_dir_output, 'Child CPS Aggregate Master File from Excel on NE Server_Migrated Data.csv'), index = False, date_format="%m/%d/%Y")
-df_22_CPS_agg_9.to_csv(Path(path_22_files_out, 'Child CPS Aggregate Master File from Excel on NE Server_Migrated Data test.csv'), index = False, date_format="%m/%d/%Y")
+#df_22_CPS_agg_9.to_csv(Path(path_22_files_out, 'Child CPS Aggregate Master File from Excel on NE Server_Migrated Data test.csv'), index = False, date_format="%m/%d/%Y")
 #df_21_final_CPS = pd.concat([df_21_previous_CPS, df_21_final_filtered], ignore_index=True)
 
-#output currently matches the C09 crosstab, just have to check I can put this in Form 2 without changing it 
-
 print("Congrats! you ran 2.2, the last part of the process!")
-
-
-
-
-
-#All the columns are done. need to test them and put them into the Aggregate file (need Joe's input on how he gets those specific rows from the workbook)
 
 
 #def fn_c09_Numerator(row):

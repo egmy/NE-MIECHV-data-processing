@@ -10,7 +10,7 @@ import shutil
 import datetime
 import pyodbc
 import sys
-import pandas as pd
+#import pandas as pd
 from pathlib import Path
 import win32com.client as win32
 import tempfile
