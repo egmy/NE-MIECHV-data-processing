@@ -49,6 +49,7 @@ path_111FW_input_NETable = Path(path_111_FW_dir_input, 'NETables20260108.accdb')
 db_path = str(Path(path_111_FW_dir_input, 'NETables20260108.accdb'))
 dq_path = str(Path(path_111_FW_dir_input, f"{small_str_nehv_quarter} Data and Query.accdb"))
 
+
 # --- Open Access ---
 access = win32.Dispatch("Access.Application")
 #access.Visible = True
@@ -70,14 +71,21 @@ access.closeCurrentDatabase()
 
 
 # Paths
-current_qtr = Path(f"U:\\Working\\Tableau\\{str_nehv_year}\\{str_nehv_quarter}\\FamilyWise\\{small_str_nehv_quarter} Data and Query.accdb")
-previous_qtr = Path(f"U:\\Working\\Tableau\\{str_nehv_year}\\{str_nehv_quarter}\\FamilyWise\\{small_str_nehv_previous_quarter} Data and Query.accdb")
+path_111_FW_fir_prev_path = Path(path_111_FW_files_base, '0in', previous_str_nehv_quarter)
 
-access.OpenCurrentDatabase(str(current_qtr))
+previous_qtr_file_orig=str(Path(path_111_FW_fir_prev_path, f"{small_str_nehv_previous_quarter} Data and Query.accdb"))
+
+previous_qtr_string = str(Path(path_111_FW_dir_input, f"{small_str_nehv_quarter} Data and Query.accdb"))
+
+shutil.copy2(previous_qtr_file_orig, previous_qtr_string)
+
+
+#access.OpenCurrentDatabase(str(current_qtr))
 temp_dir = Path(tempfile.gettempdir())
-trusted_prev_db = temp_dir / previous_qtr.name
+trusted_prev_db = temp_dir / previous_qtr_string.name
 
-shutil.copy2(previous_qtr, trusted_prev_db)
+#This step is necessary to get Access into writeable format
+shutil.copy2(previous_qtr_string, trusted_prev_db)
 
 db_prev = access.DBEngine.OpenDatabase(str(trusted_prev_db))
 query_names = [
@@ -103,7 +111,7 @@ for q in query_names:
 print("✔ All queries imported successfully")
 
 
-# Table you want to import explicitly
+# Table to import explicitly
 make_tables = [
     "15 Caregiver Education Make Table",
     "F1 - Employment Make Table",

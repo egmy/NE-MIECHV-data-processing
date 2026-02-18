@@ -33,12 +33,12 @@ U:\Working\nehv_ds_data_files\2mid\2CFS\2.2fromCFS\9out\current quarter folder. 
 
 4. navigate to  U:\Working\Tableau\current year\Tableau Data Master Files (e.g. U:\Working\Tableau\Y15 (Oct 2025 - Sept 2026)\Tableau Data Master Files). Move the current "Child CPS Aggregate Master File from Excel on NE Server_Migrated Data.csv" file into the Archive folder. Copy the new csv file from your 2.2 output and paste it into the Tableau Data Master Files folder.
 
-5. Open the most recent version of The Nebraska Form 2 and Form 4 workbook, located in "U:\Working\Tableau\current year\current quarter\Tableau Queries\Nebraska Form 2 and Form 4. Navigate to the 2. Benchmarks 2 and 3 dashboard tab (green color). Click on the Construct sheet, and then click on the icon in the top left that is "Go to Sheet". This should take you to the 9.Bar Agg sheet. There may not be updated data from the new csv file we just created for the quarter displayed on this sheet. 
+5. Open the most recent version of The Nebraska Form 2 and Form 4 workbook, located in "U:\Working\Tableau\current year\current quarter\Tableau Queries\Nebraska Form 2 and Form 4. Navigate to the 2. Benchmarks 2 and 3 dashboard tab (green color) (Alternately, navigate directly to this sheet in the workbook). Click on the Construct 9 bar, and then click on the icon in the top left that is "Go to Sheet". This should take you to the 9.Bar Agg sheet. There may not be updated data from the new csv file we just created for the quarter displayed on this sheet. 
 
 6. Click on the Data Source Tab in the Bottom Left Corner of the Workbook. This will take you to the data source of the Construct 9 sheet, which is the 
 Child CPS Aggregate Master File from Excel on NE Server_Migrated Data.csv file. Click on the refresh icon in the top left corner of the workbook. This will refresh the workbook with the new file we just created. 
 If the workbook give you an error about finding the data source, navigate to the Connections section in the top left and click Edit Connection. Make sure the data source is reading from the file path where you just pasted the new file, which is 
-U:\Working\Tableau\current year\Tableau Data Master Files\hild CPS Aggregate Master File from Excel on NE Server_Migrated Data.csv
+U:\Working\Tableau\current year\Tableau Data Master Files\Child CPS Aggregate Master File from Excel on NE Server_Migrated Data.csv
 
 7. Navigate back to the 2. Benchmarks 2 and 3 dashboard. You should now see data showing for the current quarter you are running data for in the Construct 9 sheet on the dashboard. 
 

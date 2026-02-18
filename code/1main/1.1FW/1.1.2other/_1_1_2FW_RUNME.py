@@ -53,7 +53,7 @@ else:
 
 path_112FW_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.2other')
 path_1_3_files_input = Path('U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.3combine')
-path_112FW_files_orig= Path(f'U:\\Working\\Tableau\\{str_nehv_year}\\{str_nehv_quarter}\\FamilyWise')
+path_112FW_files_orig= Path(f'U:\\Working\\nehv_ds_data_files\\2mid\\1main\\1.1FW\\1.1.1access\\9out')
 
 path_112FW_dir_input = Path(path_112FW_files_base, '0in', str_nehv_quarter)
 path_112FW_dir_mid = Path(path_112FW_files_base, '2mid', str_nehv_quarter)

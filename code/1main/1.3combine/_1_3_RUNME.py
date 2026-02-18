@@ -49,12 +49,11 @@ path_22_files_base = Path('U:\\Working\\nehv_ds_data_files\\2mid\\2CFS\\2.2fromC
 
 path_13_dir_input = Path(path_13_files_base, '0in', str_nehv_quarter)
 path_13_dir_mid = Path(path_13_files_base, '2mid', str_nehv_quarter)
-path_13_dir_output = Path(path_13_files_base, '9out', str_nehv_quarter)
 path_13_backup=Path(path_13_files_base, 'backup')
 path_14t_dir_input = Path(path_14t_files_base, '0in', str_nehv_quarter)
 path_22_dir_input = Path(path_22_files_base, '0in', str_nehv_quarter)
 
-for path in [path_13_dir_input, path_13_dir_mid, path_13_dir_output, path_14t_dir_input, path_22_dir_input]:
+for path in [path_13_dir_input, path_13_dir_mid, path_14t_dir_input, path_22_dir_input]:
     path.mkdir(parents=True, exist_ok=True)
 
 ###########################
@@ -75,7 +74,7 @@ path_13_input_base_table = Path(path_13_dir_input, 'df_12LL_BaseTable.csv')
 
 
 ### Output:
-path_13_output = Path(path_13_dir_output, 'LL and FW combined.csv')
+#path_13_output = Path(path_13_dir_output, 'LL and FW combined.csv')
 
 
 
