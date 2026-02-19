@@ -385,8 +385,6 @@ ________________________________________________________________________________
 
 # 8. Use Git in VS Code 
 
-*** TODO: Will add notes to this section.
-
 - Connect to Git repository:
     - When you open a Git repository folder in VS Code for the first time, VSC may ask if you want to connect to the repository >> Say Yes.
     - You can tell if you are connected to Git repository:
@@ -459,7 +457,7 @@ ________________________________________________________________________________
 
 # 9. Manage Python with Conda 
 
-- Conda is an environment management system installed with Anaconda that we will use to install and manage Python.
+- Conda is an environment management system installed with Miniconda that we will use to install and manage Python.
 - We will use a Conda environment to manage the version of Python we want.
 
 ________________________________________________________________________________
@@ -492,15 +490,6 @@ ________________________________________________________________________________
 
 ## 9.2. Conda Installation with Miniconda 
 
-- Anaconda is an application that manages coding languages and code packages.
-    - Why use Anaconda? It can manage our Python version & related paths.
-    - Anaconda installation includes Conda, Spyder IDE, Jupyter Notebook, etc.
-    - Documentation: https://docs.anaconda.com/free/navigator/ 
-
-- Note: At the moment, the only reason we use Anaconda is to install Conda. 
-    - Sometime soon we will switch to use Miniconda instead because... 
-        (1) Miniconda takes much less memory (about 600 MB compared to 6+ GB for Anaconda) and 
-        (2) we are no longer using Anaconda features we thought we would (like environment setup through the GUI & the Spyder IDE).
     - Miniconda documentation: https://docs.anaconda.com/free/miniconda/ 
 
 
@@ -530,12 +519,12 @@ ________________________________________________________________________________
 Set up Conda for use.
 
 
-1. Try to go to your Desktop settings and edit your Environment Path variables using your NE password. If you do not have Admin privileges Email NE helpdesk (service.desk@nebraska.gov) and ask that the following paths be added to your  Environment variables:
+1. Note: This step may be uncessary if you're able to setup .bashrc without it. Try Step 2 first.
+Try to go to your Desktop settings and edit your Environment Path variables using your NE password. If you do not have Admin privileges Email NE helpdesk (service.desk@nebraska.gov) and ask that the following paths be added to your  Environment variables:
 
         C:\Users\<your-username>\AppData\Local\miniconda3
 
-        C:\Users\<your-username>\AppData\Local\miniconda3\Scripts
-    Note: This step may be uncessary if you're able to setup .bashrc without it. 
+        C:\Users\<your-username>\AppData\Local\miniconda3\Scripts 
 
 2. "Add the conda shell script to your .bashrc":
     1. Open a new Gitbash session from your HOME directory and type 
